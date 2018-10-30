@@ -3,10 +3,10 @@ Description: Philarion language and style checking
 
 Parameters:
   VpcId:
-    Type: String
+    Type: AWS::EC2::VPC::Id
     Description: VpcId of your Virtual Private Cloud (VPC)
   Subnets:
-    Type: CommaDelimitedList
+    Type: List<AWS::EC2::Subnet::Id>
     Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
   Stack:
     Description: Should never change
