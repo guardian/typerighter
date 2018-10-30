@@ -3,7 +3,7 @@ organization := "com.gu"
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin)
 
 riffRaffArtifactResources := Seq(
   (packageBin in Debian).value -> s"${name.value}/${name.value}.deb",
