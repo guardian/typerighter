@@ -92,7 +92,8 @@ Resources:
           App=${App}
           EOF
 
-          aws --region ${AWS::Region} s3 cp s3://composer-dist/language-tool/ngrams-en-20150817.zip /tmp/ngrams.zip
+          # TODO: make quiet
+          aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/language-tool/ngrams-en-20150817.zip /tmp/ngrams.zip
           mkdir -p /opt/ngram-data
           (
             cd /opt/ngram-data
@@ -100,7 +101,7 @@ Resources:
             rm /tmp/ngrams.zip
           )
 
-          aws --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb
+          aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb
           dpkg -i /tmp/package.deb
 
   AppRole:
