@@ -14,8 +14,8 @@ deployments:
     app: philarion
     parameters:
       amiTags:
-        Recipe: editorial-tools-xenial-java8
-        AmigoStage: PROD
+        Recipe: sihil-ngram-test
+        AmigoStage: CODE
         BuiltBy: amigo
       amiEncrypted: true
       templatePath: philarion.cfn.yaml
