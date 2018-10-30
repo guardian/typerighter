@@ -75,6 +75,8 @@ Resources:
       ImageId: !Ref AMI
       InstanceType: !FindInMap [ StageVariables, !Ref Stage, InstanceType ]
       IamInstanceProfile: !Ref InstanceProfile
+      SecurityGroups:
+      - !Ref InstanceSecurityGroup
       BlockDeviceMappings:
       - DeviceName: /dev/sda1
         Ebs:
