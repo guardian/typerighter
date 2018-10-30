@@ -1,0 +1,216 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Philarion language and style checking
+
+Parameters:
+  VpcId:
+    Type: String
+    Description: VpcId of your Virtual Private Cloud (VPC)
+  Subnets:
+    Type: CommaDelimitedList
+    Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
+  Stack:
+    Description: Should never change
+    Type: String
+    Default: flexible
+  App:
+    Description: Should never change
+    Type: String
+    Default: philarion
+  Stage:
+    Description: Set by RiffRaff on each deploy
+    Type: String
+    AllowedValues:
+    - CODE
+    - PROD
+  AMI:
+    Description: AMI ID. Set by RiffRaff on each deploy
+    Type: String
+  CertificateArn:
+    Description: The ARN of the HTTPS certificate
+    Type: String
+  DigDevBubble:
+    Description: The CIDR block of the dig dev bubble
+    Type: String
+    Default: 10.249.16.0/22
+
+Mappings:
+  StageVariables:
+    CODE:
+      MaxInstances: 2
+      MinInstances: 1
+      InstanceType: t2.small
+
+    PROD:
+      MaxInstances: 6
+      MinInstances: 3
+      InstanceType: t2.small
+
+Resources:
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones: !GetAZs
+      VPCZoneIdentifier: !Ref Subnets
+      LaunchConfigurationName: !Ref LaunchConfig
+      MinSize: !FindInMap [ StageVariables, !Ref Stage, MinInstances ]
+      MaxSize: !FindInMap [ StageVariables, !Ref Stage, MaxInstances ]
+      TargetGroupARNs:
+      - !Ref TargetGroup
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+      Tags:
+      - Key: Stack
+        Value: !Ref Stack
+        PropagateAtLaunch: true
+      - Key: App
+        Value: !Ref App
+        PropagateAtLaunch: true
+      - Key: Stage
+        Value: !Ref Stage
+        PropagateAtLaunch: true
+
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !FindInMap [ StageVariables, !Ref Stage, InstanceType ]
+      IamInstanceProfile: !Ref InstanceProfile
+      AssociatePublicIpAddress: true
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -ev
+          mkdir /etc/gu
+
+          cat > /etc/gu/tags <<'EOF'
+          Stage=${Stage}
+          Stack=${Stack}
+          App=${App}
+          EOF
+
+          aws --region ${AWS::Region} s3 cp s3://composer-dist/language-tool/ngrams-en-20150817.zip /tmp/ngrams.zip
+          mkdir -p /opt/ngram-data
+          (
+            cd /opt/ngram-data
+            unzip /tmp/ngrams.zip
+            rm /tmp/ngrams.zip
+          )
+
+          aws --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb
+          dpkg -i /tmp/package.deb
+
+  AppRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+      - Fn::ImportValue: guardian-ec2-for-ssm-GuardianEC2ForSSMPolicy
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: GetDistributablesPolicy
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Action:
+            - s3:GetObject
+            Resource:
+            - arn:aws:s3:::composer-dist/*
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - !Ref AppRole
+
+  ElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${Stack}-${Stage}-${App}
+      Subnets: !Ref Subnets
+      SecurityGroups:
+      - !Ref LoadBalancerSecurityGroup
+      Tags:
+      - Key: Stack
+        Value: !Ref Stack
+      - Key: App
+        Value: !Ref App
+      - Key: Stage
+        Value: !Ref Stage
+
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: TargetGroup
+      LoadBalancerArn:
+        Ref: ElasticLoadBalancer
+      Certificates:
+      - CertificateArn: !Ref CertificateArn
+      Port: 443
+      Protocol: HTTPS
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${Stack}-${Stage}-${App}
+      Port: 9000
+      Protocol: HTTP
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /healthcheck
+      HealthCheckPort: 9000
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+      TargetGroupAttributes:
+      - Key: deregistration_delay.timeout_seconds
+        Value: '20'
+    DependsOn:
+    - ElasticLoadBalancer
+
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Permit incoming HTTPS access on port 443, egress to port 9000
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 9000
+        ToPort: 9000
+        CidrIp: 0.0.0.0/0
+
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open up SSH access and enable HTTP access on the configured port
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref DigDevBubble
+      - IpProtocol: tcp
+        FromPort: 9000
+        ToPort: 9000
+        SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0

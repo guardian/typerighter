@@ -1,0 +1,21 @@
+stacks:
+- flexible
+regions:
+- eu-west-1
+deployments:
+  philarion:
+    type: autoscaling
+    parameters:
+      bucket: composer-dist
+    dependencies:
+    - cloudformation
+  cloudformation:
+    type: cloud-formation
+    app: philarion
+    parameters:
+      amiTags:
+        Recipe: editorial-tools-xenial-java8
+        AmigoStage: PROD
+        BuiltBy: amigo
+      amiEncrypted: true
+      templatePath: philarion.cfn.yaml
