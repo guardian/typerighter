@@ -9,7 +9,8 @@ class AppComponents(context: Context)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents {
 
-  val languageTool = LanguageTool.createInstance()
+  // TODO: Provide an instance
+  val languageTool = LanguageTool.createInstance(None)
 
   val apiController = new ApiController(controllerComponents, languageTool)
 
