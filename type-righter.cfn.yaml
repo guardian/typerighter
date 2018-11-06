@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Philarion language and style checking
+Description: Type-Righter language and style checking tool
 
 Parameters:
   VpcId:
@@ -15,7 +15,7 @@ Parameters:
   App:
     Description: Should never change
     Type: String
-    Default: philarion
+    Default: type-righter
   Stage:
     Description: Set by RiffRaff on each deploy
     Type: String
@@ -96,7 +96,7 @@ Resources:
           App=${App}
           EOF
 
-          cat > /etc/gu/philarion.conf << 'EOF'
+          cat > /etc/gu/type-righter.conf << 'EOF'
           include "application"
           play.http.secret.key="${PlaySecret}"
           EOF
