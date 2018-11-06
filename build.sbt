@@ -1,4 +1,4 @@
-name := """type-righter"""
+name := """typerighter"""
 organization := "com.gu"
 
 version := "1.0-SNAPSHOT"
@@ -8,7 +8,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact
 riffRaffArtifactResources := Seq(
   (packageBin in Debian).value -> s"${name.value}/${name.value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
-  baseDirectory.value / "type-righter.cfn.yaml" -> "cloudformation/type-righter.cfn.yaml"
+  baseDirectory.value / "typerighter.cfn.yaml" -> "cloudformation/typerighter.cfn.yaml"
 )
 
 javaOptions in Universal ++= Seq(
@@ -20,7 +20,7 @@ javaOptions in Universal ++= Seq(
   "-J-XX:+PrintGCDateStamps",
   s"-J-Dlogs.home=/var/log/${packageName.value}",
   s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
-  "-Dconfig.file=/etc/gu/type-righter.conf"
+  "-Dconfig.file=/etc/gu/typerighter.conf"
 )
 
 scalaVersion := "2.12.6"

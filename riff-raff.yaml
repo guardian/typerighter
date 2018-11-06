@@ -3,7 +3,7 @@ stacks:
 regions:
 - eu-west-1
 deployments:
-  type-righter:
+  typerighter:
     type: autoscaling
     parameters:
       bucket: composer-dist
@@ -11,11 +11,11 @@ deployments:
     - cloudformation
   cloudformation:
     type: cloud-formation
-    app: type-righter
+    app: typerighter
     parameters:
       amiTags:
         Recipe: editorial-tools-xenial-java8-ngrams
         AmigoStage: PROD
         BuiltBy: amigo
       amiEncrypted: true
-      templatePath: type-righter.cfn.yaml
+      templatePath: typerighter.cfn.yaml
