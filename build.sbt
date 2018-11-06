@@ -11,6 +11,18 @@ riffRaffArtifactResources := Seq(
   baseDirectory.value / "philarion.cfn.yaml" -> "cloudformation/philarion.cfn.yaml"
 )
 
+javaOptions in Universal ++= Seq(
+  s"-Dpidfile.path=/dev/null",
+  "-J-XX:MaxRAMFraction=2",
+  "-J-XX:InitialRAMFraction=2",
+  "-J-XX:MaxMetaspaceSize=300m",
+  "-J-XX:+PrintGCDetails",
+  "-J-XX:+PrintGCDateStamps",
+  s"-J-Dlogs.home=/var/log/${packageName.value}",
+  s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
+  "-Dconfig.file=/etc/gu/philarion.conf"
+)
+
 scalaVersion := "2.12.6"
 
 val languageToolVersion = "4.3"

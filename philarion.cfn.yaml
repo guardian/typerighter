@@ -32,6 +32,10 @@ Parameters:
     Description: The CIDR block of the dig dev bubble
     Type: String
     Default: 10.249.0.0/18
+  PlaySecret:
+    Description: The secret used by the play framework for cryptographic functions
+    Type: String
+    NoEcho: true
 
 Mappings:
   StageVariables:
@@ -90,6 +94,11 @@ Resources:
           Stage=${Stage}
           Stack=${Stack}
           App=${App}
+          EOF
+
+          cat > /etc/gu/philarion.conf << 'EOF'
+          include "application"
+          play.http.secret.key="${PlaySecret}"
           EOF
 
           aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb
