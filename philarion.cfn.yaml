@@ -31,7 +31,7 @@ Parameters:
   DigDevBubble:
     Description: The CIDR block of the dig dev bubble
     Type: String
-    Default: 10.249.16.0/22
+    Default: 10.249.0.0/18
 
 Mappings:
   StageVariables:
