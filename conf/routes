@@ -6,4 +6,5 @@
 GET     /                           controllers.ApiController.index
 GET     /healthcheck                controllers.ApiController.healthcheck
 
++ NOCSRF
 POST    /check                      controllers.ApiController.check
