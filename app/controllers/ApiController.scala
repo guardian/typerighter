@@ -1,6 +1,7 @@
 package controllers
 
-import play.api.libs.json.Json
+import model.CheckQuery
+import play.api.libs.json.{Json, JsResult, JsValue}
 import play.api.mvc._
 import services.LanguageTool
 
@@ -18,18 +19,20 @@ class ApiController (cc: ControllerComponents, lt: LanguageTool) extends Abstrac
     Ok("""{ "healthy" : "true" }""")
   }
 
-  def check = Action(parse.formUrlEncoded) { request =>
-    val result: Option[Result] = for {
-      textSeq <- request.body.get("text")
-      text <- textSeq.headOption
+  def check: Action[JsValue] = Action(parse.json) { request =>
+    val result: JsResult[Result] = for {
+      checkQuery <- request.body.validate[CheckQuery]
     } yield {
-      val results = lt.check(text)
+      val results = lt.check(checkQuery.text)
       val json = Json.obj(
-        "input" -> text,
+        "input" -> checkQuery.text,
         "results" -> Json.toJson(results)
       )
       Ok(json)
     }
-    result.getOrElse(BadRequest("Invalid request, fields missing"))
+    result.fold(
+      error => BadRequest(s"Invalid request: $error"),
+      identity
+    )
   }
 }
