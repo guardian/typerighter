@@ -139,10 +139,10 @@ Resources:
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: !Sub ${Stack}-${Stage}-${App}
       Subnets: !Ref Subnets
       SecurityGroups:
       - !Ref LoadBalancerSecurityGroup
+      Scheme: internal
       Tags:
       - Key: Stack
         Value: !Ref Stack
@@ -168,7 +168,6 @@ Resources:
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub ${Stack}-${Stage}-${App}
       Port: 9000
       Protocol: HTTP
       HealthCheckIntervalSeconds: 10
