@@ -99,6 +99,8 @@ Resources:
           cat > /etc/gu/typerighter.conf << 'EOF'
           include "application"
           play.http.secret.key="${PlaySecret}"
+          typerighter.ngramPath="/opt/ngram-data"
+
           EOF
 
           aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb

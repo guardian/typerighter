@@ -1,3 +1,5 @@
+import java.io.File
+
 import controllers.ApiController
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
@@ -16,8 +18,8 @@ class AppComponents(context: Context)
 
   logger.info(s"Starting with ${httpFilters.size} filters")
 
-  // TODO: Provide an instance
-  val languageTool: LanguageTool = LanguageTool.createInstance(None)
+  val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
+  val languageTool: LanguageTool = LanguageTool.createInstance(ngramPath)
 
   val apiController = new ApiController(controllerComponents, languageTool)
 
