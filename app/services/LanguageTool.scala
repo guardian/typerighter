@@ -19,6 +19,7 @@ object LanguageTool {
     }
 
     val instance = new JLanguageTool(language, cache, userConfig)
+    maybeLanguageModelDir.foreach(instance.activateLanguageModelRules)
     new LanguageTool(instance)
   }
 }
