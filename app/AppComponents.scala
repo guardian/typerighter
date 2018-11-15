@@ -5,6 +5,7 @@ import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
+import play.filters.cors.CORSComponents
 import router.Routes
 import services.LanguageTool
 import utils.Loggable
@@ -12,9 +13,10 @@ import utils.Loggable
 class AppComponents(context: Context)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
+  with CORSComponents
   with Loggable {
 
-  override def httpFilters: Seq[EssentialFilter] = super.httpFilters.filterNot(allowedHostsFilter ==)
+  override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
   logger.info(s"Starting with ${httpFilters.size} filters")
 
