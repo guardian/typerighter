@@ -3,7 +3,9 @@ package services
 import java.io.File
 
 import model.RuleMatch
+import model.PatternRule
 import org.languagetool._
+import org.languagetool.rules.patterns.{PatternRule => LTPatternRule}
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 
 import collection.JavaConverters._
@@ -27,5 +29,16 @@ object LanguageTool {
 class LanguageTool(underlying: JLanguageTool) {
   def check(text: String): Seq[RuleMatch] = {
     underlying.check(text).asScala.map(RuleMatch.fromLT)
+  }
+
+  def reingestRules(): Unit = {
+    RuleManager.getAll.foreach(rule => underlying.addRule(PatternRule.toLT(rule)))
+  }
+
+  def getAllRules: List[PatternRule] = {
+    underlying.getAllActiveRules.asScala.toList.flatMap(_ match {
+      case patternRule: LTPatternRule => Some(PatternRule.fromLT(patternRule))
+      case _ => None
+    })
   }
 }

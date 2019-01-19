@@ -1,6 +1,6 @@
 import java.io.File
 
-import controllers.ApiController
+import controllers.{ApiController, RuleController}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.mvc.EssentialFilter
@@ -24,9 +24,11 @@ class AppComponents(context: Context)
   val languageTool: LanguageTool = LanguageTool.createInstance(ngramPath)
 
   val apiController = new ApiController(controllerComponents, languageTool)
+  val ruleController = new RuleController(controllerComponents, languageTool)
 
   lazy val router = new Routes(
     httpErrorHandler,
-    apiController
+    apiController,
+    ruleController
   )
 }

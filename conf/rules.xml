@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="rules/print.xsl" title="Pretty print" ?>
+<?xml-stylesheet type="text/css" href="rules/rules.css" title="Easy editing stylesheet" ?>
+<rules lang="en">
+    <category id="MISC" name="misc">
+        <rule id="EXAMPLE_RULE" name="My example rule">
+            <pattern>
+                <token>foo</token>
+                <token>bar</token>
+            </pattern>
+            <message>Did you mean <suggestion>bicycle</suggestion>?</message>
+            <example type="incorrect">My <marker>foo bar</marker> is broken.</example>
+            <example type="correct">My bicycle is broken.</example>
+        </rule>
+    </category>
+</rules>

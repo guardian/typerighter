@@ -10,7 +10,6 @@ import services.LanguageTool
  * application's home page.
  */
 class ApiController (cc: ControllerComponents, lt: LanguageTool) extends AbstractController(cc) {
-
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok("{}")
   }
@@ -34,5 +33,10 @@ class ApiController (cc: ControllerComponents, lt: LanguageTool) extends Abstrac
       error => BadRequest(s"Invalid request: $error"),
       identity
     )
+  }
+
+  def refresh = Action { implicit request: Request[AnyContent] =>
+    lt.reingestRules()
+    Ok
   }
 }
