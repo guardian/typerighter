@@ -6,7 +6,7 @@ import play.api.mvc._
 import services.{LanguageTool, RuleManager}
 
 /**
-  * Rules controller.
+  * Controller to handle CRUD operations for PatternRules.
   */
 class RuleController (cc: ControllerComponents, lt: LanguageTool) extends AbstractController(cc) {
   def add: Action[JsValue] = Action(parse.json) { request =>
@@ -14,7 +14,7 @@ class RuleController (cc: ControllerComponents, lt: LanguageTool) extends Abstra
       rule <- request.body.validate[PatternRule]
     } yield {
       RuleManager.add(rule)
-      Ok
+      Ok(Json.toJson(rule))
     }
     result.fold(
       error => BadRequest(s"Invalid request: $error"),
