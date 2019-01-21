@@ -5,7 +5,7 @@ import play.api.libs.json.{Json, Writes}
 
 import scala.collection.JavaConverters._
 
-case class RuleMatch(rule: Rule,
+case class RuleMatch(rule: ResponseRule,
                      fromPos: Int,
                      toPos: Int,
                      message: String,
@@ -15,7 +15,7 @@ case class RuleMatch(rule: Rule,
 object RuleMatch {
   def fromLT(lt: LTRuleMatch): RuleMatch = {
     RuleMatch(
-      rule = Rule.fromLT(lt.getRule),
+      rule = ResponseRule.fromLT(lt.getRule),
       fromPos = lt.getFromPos,
       toPos = lt.getToPos,
       message = lt.getMessage,
