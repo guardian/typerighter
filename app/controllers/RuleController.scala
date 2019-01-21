@@ -3,12 +3,14 @@ package controllers
 import model.PatternRule
 import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc._
-import services.{LanguageTool, RuleManager}
+import services.{LanguageToolFactory, RuleManager}
+
+import scala.concurrent.ExecutionContext
 
 /**
   * Controller to handle CRUD operations for PatternRules.
   */
-class RuleController (cc: ControllerComponents, lt: LanguageTool) extends AbstractController(cc) {
+class RuleController(cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
   def add: Action[JsValue] = Action(parse.json) { request =>
     val result: JsResult[Result] = for {
       rule <- request.body.validate[PatternRule]
@@ -32,6 +34,7 @@ class RuleController (cc: ControllerComponents, lt: LanguageTool) extends Abstra
   }
 
   def getAll = Action(parse.json) {
-   Ok(Json.toJson(lt.getAllRules))
+    // @todo
+    Ok
   }
 }

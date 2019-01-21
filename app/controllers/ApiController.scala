@@ -1,15 +1,17 @@
 package controllers
 
-import model.CheckQuery
-import play.api.libs.json.{Json, JsResult, JsValue}
+import model.{CheckQuery, RuleMatch}
+import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc._
-import services.LanguageTool
+import services.LanguageToolCategoryHandler
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
-class ApiController (cc: ControllerComponents, lt: LanguageTool) extends AbstractController(cc) {
+class ApiController(cc: ControllerComponents, lt: LanguageToolCategoryHandler)(implicit ec: ExecutionContext) extends AbstractController(cc) {
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok("{}")
   }
@@ -18,25 +20,28 @@ class ApiController (cc: ControllerComponents, lt: LanguageTool) extends Abstrac
     Ok("""{ "healthy" : "true" }""")
   }
 
-  def check: Action[JsValue] = Action(parse.json) { request =>
-    val result: JsResult[Result] = for {
-      checkQuery <- request.body.validate[CheckQuery]
-    } yield {
-      val results = lt.check(checkQuery.text)
-      val json = Json.obj(
-        "input" -> checkQuery.text,
-        "results" -> Json.toJson(results)
-      )
-      Ok(json)
+  def check = Action(parse.json).async { request =>
+    val maybeQuery = request.body.validate[CheckQuery] match {
+      case query: CheckQuery => Some(query)
+      case _ => None
     }
-    result.fold(
-      error => BadRequest(s"Invalid request: $error"),
-      identity
-    )
+    val futureResult = maybeQuery.map { checkQuery =>
+      lt.check(checkQuery).map { result =>
+        Ok(Json.obj(
+          "input" -> checkQuery.text,
+          "result" -> result
+        ))
+      }
+    }
+    futureResult match {
+      case Some(f) => f
+      case _ => Future.successful(BadRequest("Something went wrong"))
+    }
   }
 
+
   def refresh = Action { implicit request: Request[AnyContent] =>
-    lt.reingestRules()
+    // @todo
     Ok
   }
 }
