@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
 class LanguageToolFactory(name: String, maybeLanguageModelDir: Option[File] = None) {
   def createInstance(): LanguageTool = {
     val language: Language = Languages.getLanguageForShortCode("en-GB")
-    val cache: ResultCache = new ResultCache(0)
+    val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
 
     maybeLanguageModelDir.foreach { languageModel =>

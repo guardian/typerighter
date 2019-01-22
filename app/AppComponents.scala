@@ -22,7 +22,7 @@ class AppComponents(context: Context)
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val languageToolFactory = new LanguageToolFactory( "all-categories", ngramPath)
-  val languageToolCategoryHandler = new LanguageToolInstancePool(languageToolFactory)
+  val languageToolCategoryHandler = new LanguageToolInstancePool(languageToolFactory, 8)
 
   val apiController = new ApiController(controllerComponents, languageToolCategoryHandler)
   val ruleController = new RuleController(controllerComponents)

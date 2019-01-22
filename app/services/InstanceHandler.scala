@@ -49,7 +49,7 @@ class LanguageToolInstanceManager(factory: LanguageToolFactory, queue: BlockingQ
   override def run(): Unit = {
     while (shutdownPromise.get().isEmpty) {
       val (request, ret) = queue.take()
-
+      Logger.info(s"Processing validation request in thread: ${Thread.currentThread.getName}")
       languageTool match {
         case Success(tool) =>
           try {
