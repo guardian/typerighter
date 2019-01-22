@@ -3,7 +3,7 @@ package controllers
 import model.{CheckQuery, RuleMatch}
 import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc._
-import services.LanguageToolCategoryHandler
+import services.LanguageToolInstancePool
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
-class ApiController(cc: ControllerComponents, lt: LanguageToolCategoryHandler)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+class ApiController(cc: ControllerComponents, lt: LanguageToolInstancePool)(implicit ec: ExecutionContext) extends AbstractController(cc) {
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok("{}")
   }
@@ -21,22 +21,26 @@ class ApiController(cc: ControllerComponents, lt: LanguageToolCategoryHandler)(i
   }
 
   def check = Action(parse.json).async { request =>
-    val maybeQuery = request.body.validate[CheckQuery] match {
-      case query: CheckQuery => Some(query)
-      case _ => None
-    }
-    val futureResult = maybeQuery.map { checkQuery =>
-      lt.check(checkQuery).map { result =>
+    val result = for {
+      checkQuery <- request.body.validate[CheckQuery]
+    } yield {
+      val futureResults = lt.check(checkQuery)
+
+      futureResults.map { results =>
         Ok(Json.obj(
           "input" -> checkQuery.text,
-          "result" -> result
+          "results" -> Json.toJson(results)
         ))
+      }.recover {
+        case e: Exception => Results.InternalServerError(e.getMessage)
+        case _ => InternalServerError("There was an unknown problem validating this text")
       }
     }
-    futureResult match {
-      case Some(f) => f
-      case _ => Future.successful(BadRequest("Something went wrong"))
-    }
+
+    result.fold(
+      error => Future.successful(BadRequest(s"Invalid request: $error")),
+      identity
+    )
   }
 
 

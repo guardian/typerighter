@@ -7,7 +7,7 @@ import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-import services.{LanguageToolCategoryHandler, LanguageToolFactory}
+import services.{LanguageToolInstancePool, LanguageToolFactory}
 import utils.Loggable
 
 class AppComponents(context: Context)
@@ -22,7 +22,7 @@ class AppComponents(context: Context)
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val languageToolFactory = new LanguageToolFactory( "all-categories", ngramPath)
-  val languageToolCategoryHandler = new LanguageToolCategoryHandler(languageToolFactory)
+  val languageToolCategoryHandler = new LanguageToolInstancePool(languageToolFactory)
 
   val apiController = new ApiController(controllerComponents, languageToolCategoryHandler)
   val ruleController = new RuleController(controllerComponents)
