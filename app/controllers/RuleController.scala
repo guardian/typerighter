@@ -1,11 +1,11 @@
 package controllers
 
 import model.PatternRule
-import play.api.libs.json.{JsResult, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import services.{LanguageToolFactory, RuleManager}
+import services.{RuleManager}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext}
 
 /**
   * Controller to handle CRUD operations for PatternRules.
