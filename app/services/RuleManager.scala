@@ -8,7 +8,7 @@ import scala.concurrent.Future
   * Manages CRUD operations for the Rule model.
   */
 object RuleManager {
-  var ruleMap = Map[String, PatternRule]()
+  private var ruleMap = Map[String, PatternRule]()
 
   def add(rule: PatternRule): Future[PatternRule] = {
     RuleManager.ruleMap = RuleManager.ruleMap + (rule.id -> rule)

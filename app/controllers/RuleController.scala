@@ -5,14 +5,14 @@ import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc._
 import services.{LanguageToolFactory, RuleManager}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Controller to handle CRUD operations for PatternRules.
   */
 class RuleController(cc: ControllerComponents)(implicit ec: ExecutionContext) extends AbstractController(cc) {
   def add: Action[JsValue] = Action(parse.json) { request =>
-    val result: JsResult[Result] = for {
+    val result = for {
       rule <- request.body.validate[PatternRule]
     } yield {
       RuleManager.add(rule)
@@ -24,13 +24,15 @@ class RuleController(cc: ControllerComponents)(implicit ec: ExecutionContext) ex
     )
   }
 
-  def get(id: String): Action[AnyContent] = Action(parse.json) {
-    val maybeJson = for {
-      rule <- RuleManager.ruleMap.get(id)
+  def get(id: String): Action[AnyContent] = Action(parse.json).async {
+    for {
+      maybeRule <- RuleManager.get(id)
     } yield {
-     Ok(Json.toJson(rule))
+      maybeRule match {
+        case Some(rule) => Ok(Json.toJson(rule))
+        case None => BadRequest(s"Rule not found for id $id")
+      }
     }
-    maybeJson.getOrElse(BadRequest(s"Rule not found for id $id"))
   }
 
   def getAll = Action(parse.json) {
