@@ -1,11 +1,10 @@
 package controllers
 
-import model.CheckQuery
-import play.api.Logger
+import model.{CheckQuery}
 import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc._
 import services.{LanguageTool, RuleManager}
-import play.api.{Configuration}
+import play.api.Configuration
 
 import scala.concurrent.ExecutionContext
 
@@ -40,11 +39,16 @@ class ApiController (cc: ControllerComponents, lt: LanguageTool, ruleManager: Ru
   }
 
   def refresh = Action.async { implicit request: Request[AnyContent] =>
-    ruleManager.getAll().map { rules =>
-      Logger.info("Adding rules")
-      rules.foreach(rule => Logger.info(rule.toString))
-      lt.reingestRules(rules)
-      Ok(s"Rules successfully ingested from spreadsheet ${configuration.getOptional[String]("typerighter.sheetId").get} -- ${rules.size} rules added.")
+    ruleManager.fetchAll().map { ruleResult =>
+      val (rules, ruleErrors) = ruleResult
+      val errors = lt.reingestRules(rules) ::: ruleErrors
+      val sheetId = configuration.getOptional[String]("typerighter.sheetId").getOrElse("Unknown sheet id")
+      Ok(Json.obj(
+        "sheetId" -> sheetId,
+        "rulesIngested" -> rules.size,
+        "rulesRejected" -> errors.size,
+        "errors" -> Json.toJson(errors)
+      ))
     }
   }
 }

@@ -6,7 +6,7 @@ import play.api.Configuration
 import scala.concurrent.Future
 
 /**
-  * Manages CRUD operations for the Rule model.
+  * Manages CRUD persist operations for the Rule model.
   */
 class RuleManager(config: Configuration) {
   var ruleMap = Map[String, PatternRule]()
@@ -30,10 +30,7 @@ class RuleManager(config: Configuration) {
     Future.successful(ruleMap.get(id))
   }
 
-  def getAll(): Future[List[PatternRule]] = {
-    val maybeRules = SheetsResource.getDictionariesFromSheet(config).map {
-      case rules: List[PatternRule] => Future.successful(rules)
-    }
-    maybeRules.getOrElse(Future.successful(Nil))
+  def fetchAll(): Future[(List[PatternRule], List[String])] = {
+    Future.successful(SheetsResource.getDictionariesFromSheet(config))
   }
 }

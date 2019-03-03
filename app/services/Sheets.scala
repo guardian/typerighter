@@ -17,6 +17,8 @@ import scala.collection.JavaConversions._
 import model.{Category, PatternRule, PatternToken}
 import play.api.{Configuration, Logger}
 
+import scala.util.{Failure, Success, Try}
+
 
 
 object SheetsResource {
@@ -52,34 +54,45 @@ object SheetsResource {
     * Prints the names and majors of students in a sample spreadsheet:
     * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
     */
-  def getDictionariesFromSheet(configuration: Configuration): Option[List[PatternRule]] = { // Build a new authorized API client service.
+  def getDictionariesFromSheet(configuration: Configuration): (List[PatternRule], List[(String)]) = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
-    val result = for {
+    val maybeResult = for {
       spreadsheetId <- configuration.getOptional[String]("typerighter.sheetId")
       range <- configuration.getOptional[String]("typerighter.sheetRange")
     } yield {
-      val service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(configuration, HTTP_TRANSPORT)).setApplicationName(APPLICATION_NAME).build
+      val service = new Sheets.Builder(
+        HTTP_TRANSPORT,
+        JSON_FACTORY,
+        getCredentials(configuration, HTTP_TRANSPORT)
+      ).setApplicationName(APPLICATION_NAME).build
       val response = service.spreadsheets.values.get(spreadsheetId, range).execute
       val values = response.getValues
       if (values == null || values.isEmpty) {
-        None
+        (Nil, Nil)
       } else {
-        val patternRules = values.toList.zipWithIndex.flatMap {
-          case (row, index) => getPatternRuleFromRow(row.toList, index)
-          case _ => None
+        values.toList.zipWithIndex.foldLeft((List.empty[PatternRule], List.empty[String])) {
+          case ((rules, errors), (row, index)) => {
+            getPatternRuleFromRow(row.toList, index) match {
+              case Success(rule) => (rules :+ rule, errors)
+              case Failure(error) => (rules, errors :+ error.getMessage)
+            }
+          }
+          case ((errors, rules), (_, index)) => {
+            Logger.error(s"No rule for row at index ${index}")
+            (errors, rules)
+          }
         }
-        Some(patternRules)
       }
     }
-    result.flatten
+    maybeResult.getOrElse((Nil, Nil))
   }
 
-  private def getPatternRuleFromRow(row: List[AnyRef], index: Int): Option[PatternRule] = {
+  private def getPatternRuleFromRow(row: List[AnyRef], index: Int): Try[PatternRule] = {
     try {
       val category = row.get(3).asInstanceOf[String]
       val rule = row.get(1).asInstanceOf[String]
       val description = row.get(5).asInstanceOf[String]
-      Some(PatternRule(
+      Success(PatternRule(
         id = index.toString,
         category = Category("TYPOS", "Possible Typo"),
         languageShortcode = "en-GB",
@@ -94,9 +107,7 @@ object SheetsResource {
         url = None
       ))
     } catch {
-      case e: Exception =>
-        Logger.error(s"Error parsing sheet row: ${e}")
-        None
+      case e: Throwable => Failure(new Exception(s"Error parsing rule at index ${index} -- ${e.getMessage}"))
     }
   }
 }
