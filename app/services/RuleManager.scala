@@ -1,35 +1,39 @@
 package services
 
 import model.PatternRule
+import play.api.Configuration
 
 import scala.concurrent.Future
 
 /**
   * Manages CRUD operations for the Rule model.
   */
-object RuleManager {
+class RuleManager(config: Configuration) {
   var ruleMap = Map[String, PatternRule]()
 
   def add(rule: PatternRule): Future[PatternRule] = {
-    RuleManager.ruleMap = RuleManager.ruleMap + (rule.id -> rule)
+    ruleMap = ruleMap + (rule.id -> rule)
     Future.successful(rule)
   }
 
   def remove(id: String): Future[Unit] = {
-    RuleManager.ruleMap = RuleManager.ruleMap - id
+    ruleMap = ruleMap - id
     Future.successful()
   }
 
   def update(rule: PatternRule): Future[PatternRule] = {
-    RuleManager.ruleMap = RuleManager.ruleMap + (rule.id -> rule)
+    ruleMap = ruleMap + (rule.id -> rule)
     Future.successful(rule)
   }
 
   def get(id: String): Future[Option[PatternRule]] = {
-    Future.successful(RuleManager.ruleMap.get(id))
+    Future.successful(ruleMap.get(id))
   }
 
   def getAll(): Future[List[PatternRule]] = {
-    Future.successful(RuleManager.ruleMap.toList.map(_._2))
+    val maybeRules = SheetsResource.getDictionariesFromSheet(config).map {
+      case rules: List[PatternRule] => Future.successful(rules)
+    }
+    maybeRules.getOrElse(Future.successful(Nil))
   }
 }

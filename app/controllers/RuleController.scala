@@ -8,12 +8,12 @@ import services.{LanguageTool, RuleManager}
 /**
   * Controller to handle CRUD operations for PatternRules.
   */
-class RuleController (cc: ControllerComponents, lt: LanguageTool) extends AbstractController(cc) {
+class RuleController (cc: ControllerComponents, lt: LanguageTool, ruleManager: RuleManager) extends AbstractController(cc) {
   def add: Action[JsValue] = Action(parse.json) { request =>
     val result: JsResult[Result] = for {
       rule <- request.body.validate[PatternRule]
     } yield {
-      RuleManager.add(rule)
+      ruleManager.add(rule)
       Ok(Json.toJson(rule))
     }
     result.fold(
@@ -24,7 +24,7 @@ class RuleController (cc: ControllerComponents, lt: LanguageTool) extends Abstra
 
   def get(id: String): Action[AnyContent] = Action(parse.json) {
     val maybeJson = for {
-      rule <- RuleManager.ruleMap.get(id)
+      rule <- ruleManager.ruleMap.get(id)
     } yield {
      Ok(Json.toJson(rule))
     }

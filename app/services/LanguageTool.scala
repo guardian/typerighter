@@ -7,6 +7,7 @@ import model.PatternRule
 import org.languagetool._
 import org.languagetool.rules.patterns.{PatternRule => LTPatternRule}
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
+import play.api.Logger;
 
 import collection.JavaConverters._
 import scala.concurrent.ExecutionContext
@@ -32,8 +33,14 @@ class LanguageTool(underlying: JLanguageTool)(implicit ec: ExecutionContext) {
     underlying.check(text).asScala.map(RuleMatch.fromLT)
   }
 
-  def reingestRules(): Unit = {
-    RuleManager.getAll.map(_.foreach(rule => underlying.addRule(PatternRule.toLT(rule))))
+  def reingestRules(rules: List[PatternRule]): Unit = {
+    rules.foreach(rule => {
+      try {
+        underlying.addRule(PatternRule.toLT(rule))
+      } catch {
+        case e: Exception => Logger.error(e.getMessage)
+      }
+    })
   }
 
   def getAllRules: List[PatternRule] = {

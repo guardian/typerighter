@@ -32,5 +32,8 @@ resolvers += "Spring IO" at "https://repo.spring.io/plugins-release/"
 libraryDependencies ++= Seq(
   "org.languagetool" % "languagetool-core" % languageToolVersion,
   "org.languagetool" % "language-en" % languageToolVersion,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "com.google.api-client" % "google-api-client" % "1.23.0",
+  "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0",
+  "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0"
 )
