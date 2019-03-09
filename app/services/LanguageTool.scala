@@ -2,17 +2,23 @@ package services
 
 import java.io.File
 
-import model.RuleMatch
-import model.PatternRule
 import org.languagetool._
 import org.languagetool.rules.patterns.{PatternRule => LTPatternRule}
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 
 import collection.JavaConverters._
 import scala.concurrent.ExecutionContext
+import model.RuleMatch
+import model.PatternRule
+import org.languagetool.rules.CategoryId
+import play.api.Logger
+import utils.Validator
 
-object LanguageTool {
-  def createInstance(maybeLanguageModelDir: Option[File], useLanguageModelRules: Boolean = false)(implicit ec: ExecutionContext): LanguageTool = {
+class LanguageToolFactory(
+                           maybeLanguageModelDir: Option[File],
+                           useLanguageModelRules: Boolean = false) extends ValidatorFactory {
+
+  def createInstance(category: String, config: ValidatorConfig)(implicit ec: ExecutionContext): (Validator, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
@@ -27,21 +33,9 @@ object LanguageTool {
     // Disable all default rules by ... default
     instance.getCategories().asScala.foreach((categoryData) => instance.disableCategory(categoryData._1))
 
-    new LanguageTool(instance)
-  }
-}
-
-class LanguageTool(instance: JLanguageTool)(implicit ec: ExecutionContext) {
-  def check(text: String): Seq[RuleMatch] = {
-    instance.check(text).asScala.map(RuleMatch.fromLT)
-  }
-
-  /**
-    * Reingest the given rules, removing any existing rules. Returns a list
-    * containing error data for each rule that couldn't be added.
-    */
-  def reingestRules(rules: List[PatternRule]): List[String] = {
-    rules.foldLeft(List.empty[String])((acc, rule) => {
+    // Add the rules provided in the config
+    Logger.info(s"Adding ${config.rules.size} rules to validator instance ${category}")
+    val ruleIngestionErrors = config.rules.foldLeft(List.empty[String])((acc, rule) => {
       try {
         instance.addRule(PatternRule.toLT(rule))
         acc
@@ -51,9 +45,20 @@ class LanguageTool(instance: JLanguageTool)(implicit ec: ExecutionContext) {
         }
       }
     })
+    instance.enableRuleCategory(new CategoryId(category))
+
+    (new LanguageTool(category, instance), ruleIngestionErrors)
+  }
+}
+
+class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: ExecutionContext) extends Validator {
+  def getCategory = category
+
+  def check(request: ValidatorRequest): List[RuleMatch] = {
+    instance.check(request.text).asScala.map(RuleMatch.fromLT).toList
   }
 
-  def getAllRules: List[PatternRule] = {
+  def getRules: List[PatternRule] = {
     instance.getAllActiveRules.asScala.toList.flatMap(_ match {
       case patternRule: LTPatternRule => Some(PatternRule.fromLT(patternRule))
       case _ => None

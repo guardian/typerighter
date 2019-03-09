@@ -19,8 +19,6 @@ import play.api.{Configuration, Logger}
 
 import scala.util.{Failure, Success, Try}
 
-
-
 object SheetsResource {
   private val APPLICATION_NAME = "Google Sheets API Java Quickstart"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
@@ -54,7 +52,7 @@ object SheetsResource {
     * Prints the names and majors of students in a sample spreadsheet:
     * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
     */
-  def getDictionariesFromSheet(configuration: Configuration): (List[PatternRule], List[(String)]) = { // Build a new authorized API client service.
+  def getDictionariesFromSheet(configuration: Configuration): (List[PatternRule], List[String]) = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
     val maybeResult = for {
       spreadsheetId <- configuration.getOptional[String]("typerighter.sheetId")
