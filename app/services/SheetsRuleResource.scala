@@ -13,13 +13,13 @@ import com.google.api.services.sheets.v4.SheetsScopes
 import java.io._
 import java.util.Collections
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import model.{Category, PatternRule, PatternToken}
-import play.api.{Configuration, Logger}
+import play.api.{Configuration}
 
 import scala.util.{Failure, Success, Try}
 
-object SheetsResource {
+object SheetsRuleResource {
   private val APPLICATION_NAME = "Google Sheets API Java Quickstart"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
   private val TOKENS_DIRECTORY_PATH = "tokens"
@@ -68,16 +68,12 @@ object SheetsResource {
       if (values == null || values.isEmpty) {
         (Nil, Nil)
       } else {
-        values.toList.zipWithIndex.foldLeft((List.empty[PatternRule], List.empty[String])) {
+        values.asScala.zipWithIndex.foldLeft((List.empty[PatternRule], List.empty[String])) {
           case ((rules, errors), (row, index)) => {
-            getPatternRuleFromRow(row.toList, index) match {
+            getPatternRuleFromRow(row.asScala.toList, index) match {
               case Success(rule) => (rules :+ rule, errors)
               case Failure(error) => (rules, errors :+ error.getMessage)
             }
-          }
-          case ((errors, rules), (_, index)) => {
-            Logger.error(s"No rule for row at index ${index}")
-            (errors, rules)
           }
         }
       }
@@ -87,9 +83,9 @@ object SheetsResource {
 
   private def getPatternRuleFromRow(row: List[AnyRef], index: Int): Try[PatternRule] = {
     try {
-      val category = row.get(3).asInstanceOf[String]
-      val rule = row.get(1).asInstanceOf[String]
-      val description = row.get(5).asInstanceOf[String]
+      val category = row(3).asInstanceOf[String]
+      val rule = row(1).asInstanceOf[String]
+      val description = row(5).asInstanceOf[String]
       Success(PatternRule(
         id = index.toString,
         category = Category("TYPOS", "Possible Typo"),

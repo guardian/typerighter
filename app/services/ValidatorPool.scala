@@ -4,12 +4,10 @@ import java.util.concurrent.ConcurrentHashMap
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise, blocking}
-import model.{PatternRule, RuleMatch}
+import model.{PatternRule}
 import play.api.Logger
 import utils.Validator
 import utils.Validator._
-
-import scala.util.Success
 
 case class ValidatorConfig(rules: List[PatternRule])
 case class ValidatorRequest(category: String, text: String)

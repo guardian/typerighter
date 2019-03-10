@@ -3,7 +3,7 @@ package controllers
 import model.CheckQuery
 import play.api.libs.json.{JsResult, JsValue, Json}
 import play.api.mvc._
-import services.{LanguageTool, RuleManager, ValidatorConfig, ValidatorPool}
+import services._
 import play.api.{Configuration, Logger}
 import utils.Validator.ValidatorResponse
 
@@ -54,6 +54,12 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
         "errors" -> Json.toJson(errorsByCategory.flatten ::: ruleErrors)
       ))
     }
+  }
+
+  def applyTestRules = Action { implicit request: Request[AnyContent] =>
+    val rules = PermutationsRuleResource.getRules
+    validatorPool.updateConfig("PERMS", ValidatorConfig(rules = rules))
+    Ok(s"Applied ${rules.size} regex rules to test")
   }
 
   def getCurrentRules = Action.async { implicit request: Request[AnyContent] =>

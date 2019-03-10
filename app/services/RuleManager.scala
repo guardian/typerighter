@@ -10,7 +10,7 @@ import scala.concurrent.Future
   */
 class RuleManager(config: Configuration) {
   def fetchByCategory(): Future[(Map[String, List[PatternRule]], List[String])] = {
-    val (rules, errors) = SheetsResource.getDictionariesFromSheet(config)
+    val (rules, errors) = SheetsRuleResource.getDictionariesFromSheet(config)
     val rulesByCategory = rules.foldLeft(Map[String, List[PatternRule]]())((acc, rule) => {
       acc.get(rule.category.id) match {
         case Some(ruleList) => acc + (rule.category.id -> (ruleList :+ rule))
