@@ -47,10 +47,6 @@ object SheetsRuleResource {
     new AuthorizationCodeInstalledApp(flow, receiver).authorize("user")
   }
 
-  /**
-    * Prints the names and majors of students in a sample spreadsheet:
-    * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-    */
   def getDictionariesFromSheet(configuration: Configuration): (List[PatternRule], List[String]) = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
     val maybeResult = for {
