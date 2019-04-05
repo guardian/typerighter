@@ -9,5 +9,4 @@ GET     /healthcheck                controllers.ApiController.healthcheck
 + NOCSRF
 POST    /check                      controllers.ApiController.check
 POST    /refresh                    controllers.ApiController.refresh
-POST    /test                       controllers.ApiController.applyTestRules
 GET     /rules                      controllers.ApiController.getCurrentRules

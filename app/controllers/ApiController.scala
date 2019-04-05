@@ -56,12 +56,6 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
     }
   }
 
-  def applyTestRules = Action { implicit request: Request[AnyContent] =>
-    val rules = PermutationsRuleResource.getRules
-    validatorPool.updateConfig("PERMS", ValidatorConfig(rules = rules))
-    Ok(s"Applied ${rules.size} regex rules to test")
-  }
-
   def getCurrentRules = Action.async { implicit request: Request[AnyContent] =>
     validatorPool.getCurrentRules.map(rules => Ok(Json.toJson(rules)))
   }

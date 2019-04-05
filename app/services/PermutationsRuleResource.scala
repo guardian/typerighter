@@ -11,7 +11,7 @@ object PermutationsRuleResource {
       val id = list.mkString
       PatternRule(
         id,
-        category = Category("PERMS", "Test permutations"),
+        category = Category("PERMS", "Test permutations", "red"),
         languageShortcode = "en",
         patternTokens = Some(List(PatternToken(
           token = list.mkString,
@@ -21,7 +21,8 @@ object PermutationsRuleResource {
         ))),
         description = s"A test pattern for the string '$id'",
         message = "",
-        url = None
+        url = None,
+        suggestions = List.empty
       )
     })
   }

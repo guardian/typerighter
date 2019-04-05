@@ -21,7 +21,7 @@ class ValidatorPool(factory: ValidatorFactory)(implicit ec: ExecutionContext) {
   private val validators = new ConcurrentHashMap[String, Promise[Validator]]().asScala
 
   def checkAllCategories(text: String): Future[ValidatorResponse] = {
-    Logger.info(s"Checking categories ${validators.keys.mkString}")
+    Logger.info(s"Checking categories ${validators.keys.mkString(", ")}")
     val eventualChecks = validators.keys.foldLeft[List[Future[ValidatorResponse]]](List.empty)((acc, category) => {
       acc :+ check(ValidatorRequest(category, text))
     })
@@ -34,7 +34,9 @@ class ValidatorPool(factory: ValidatorFactory)(implicit ec: ExecutionContext) {
         Logger.info(s"Validator for category ${request.category} is processing")
         validator.future.map { validator =>
           blocking {
-            validator.check(request)
+            val result = validator.check(request)
+            Logger.info(s"Validator for category ${request.category} is done")
+            result
           }
         }
 

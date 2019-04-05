@@ -12,7 +12,6 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import java.io._
 import java.util.Collections
-
 import scala.collection.JavaConverters._
 import model.{Category, PatternRule, PatternToken}
 import play.api.{Configuration}
@@ -83,22 +82,28 @@ object SheetsRuleResource {
 
   private def getPatternRuleFromRow(row: List[AnyRef], index: Int): Try[PatternRule] = {
     try {
-      val category = row(3).asInstanceOf[String]
+      val category = row(4).asInstanceOf[String]
+      val colour = row(3).asInstanceOf[String]
       val rule = row(1).asInstanceOf[String]
-      val description = row(5).asInstanceOf[String]
+      val description = row(6).asInstanceOf[String]
+      val suggestion = row(2).asInstanceOf[String]
+      // We split on whitespace here as LT expects separate words to be different tokens.
+      val rules = rule.split(" ").toList.map(PatternToken(
+        _,
+        false,
+        true,
+        false
+      ))
+
       Success(PatternRule(
         id = index.toString,
-        category = Category("TYPOS", "Possible Typo"),
+        category = Category(category, category, colour),
         languageShortcode = "en-GB",
-        patternTokens = Some(List(PatternToken(
-          rule,
-          false,
-          true,
-          false
-        ))),
+        patternTokens = Some(rules),
         description = description,
         message = description,
-        url = None
+        url = None,
+        suggestions = if (suggestion.isEmpty) List.empty else List(suggestion)
       ))
     } catch {
       case e: Throwable => Failure(new Exception(s"Error parsing rule at index ${index} -- ${e.getMessage}"))

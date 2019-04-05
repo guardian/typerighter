@@ -18,7 +18,8 @@ case class PatternRule(id: String,
                        patternTokens: Option[List[PatternToken]],
                        description: String,
                        message:String,
-                       url: Option[String])
+                       url: Option[String],
+                       suggestions: List[String])
 
 object PatternRule {
   def fromLT(lt: LTPatternRule): PatternRule = {
@@ -34,20 +35,22 @@ object PatternRule {
       languageShortcode = lt.getLanguage.getShortCode,
       patternTokens = patternTokens,
       description = lt.getDescription,
-      message = lt.getMessage,
-      url = Option(if (lt.getUrl == null) null else lt.toString)
+      message = lt.getDescription,
+      url = Option(if (lt.getUrl == null) null else lt.toString),
+      suggestions = List.empty
     )
   }
 
   def toLT(rule: PatternRule): LTPatternRule = {
     val patternTokens: JList[LTPatternToken] = seqAsJavaList(rule.patternTokens.getOrElse(List[PatternToken]()).map(PatternToken.toLT))
     val language = Languages.getLanguageForShortCode(rule.languageShortcode)
+    val message = if (rule.suggestions.nonEmpty) rule.message.concat(". Consider " + rule.suggestions.map(s => s"<suggestion>${s}</suggestion>").mkString(", ")) else rule.message
     val ltPatternRule = new LTPatternRule(
       rule.id,
       language,
       patternTokens,
       rule.description,
-      rule.message,
+      message,
       rule.message
     )
     ltPatternRule.setCategory(Category.toLT(rule.category))
