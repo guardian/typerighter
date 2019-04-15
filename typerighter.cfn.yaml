@@ -100,8 +100,6 @@ Resources:
           include "application"
           play.http.secret.key="${PlaySecret}"
           typerighter.ngramPath="/opt/ngram-data"
-          typerighter.sheetId="1bLCD7CrGMDAuuk76e0MTF1-DUNgmXrvTc1d5n2UMZR8"
-          typerighter.sheetRange="A:F"
 
           EOF
 
