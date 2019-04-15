@@ -39,18 +39,20 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
   def refresh = Action.async { implicit request: Request[AnyContent] =>
     for {
       (rulesByCategory, ruleErrors) <- ruleManager.fetchByCategory()
-      errorsByCategory <- Future.sequence(rulesByCategory.map(categoryAndRules => {
-        validatorPool.updateConfig(categoryAndRules._1, ValidatorConfig(categoryAndRules._2))
-      }).toList)
+      errorsByCategory <- Future.sequence(
+        rulesByCategory.map { case (category, rules) => {
+          validatorPool.updateConfig(category, ValidatorConfig(rules))
+        }}.toList
+      )
     } yield {
-      val sheetId = configuration.getOptional[String]("typerighter.sheetId").getOrElse("Unknown sheet id")
+      val sheetId = configuration.getOptional[String]("typerighter.sheetId").orNull
       Ok(Json.obj(
         "sheetId" -> sheetId,
-        "categories" -> rulesByCategory.map((categoryAndRules) =>
+        "categories" -> rulesByCategory.map { case (category, rules) =>
           Json.obj(
-            "category" -> categoryAndRules._1,
-            "rulesIngested" -> categoryAndRules._2.size
-          )),
+            "category" -> category,
+            "rulesIngested" -> rules.size
+          )},
         "errors" -> Json.toJson(errorsByCategory.flatten ::: ruleErrors)
       ))
     }

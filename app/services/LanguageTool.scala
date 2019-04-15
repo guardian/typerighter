@@ -35,16 +35,16 @@ class LanguageToolFactory(
 
     // Add the rules provided in the config
     Logger.info(s"Adding ${config.rules.size} rules to validator instance ${category}")
-    val ruleIngestionErrors = config.rules.foldLeft(List.empty[String])((acc, rule) => {
+    val ruleIngestionErrors = config.rules.flatMap { rule =>
       try {
         instance.addRule(PatternRule.toLT(rule))
-        acc
+        None
       } catch {
         case e: Throwable => {
-          acc :+ s"LanguageTool could not parse rule with id ${rule.id} and description ${rule.description}. The message was: ${e.getMessage}"
+          Some(s"LanguageTool could not parse rule with id ${rule.id} and description ${rule.description}. The message was: ${e.getMessage}")
         }
       }
-    })
+    }
     instance.enableRuleCategory(new CategoryId(category))
 
     (new LanguageTool(category, instance), ruleIngestionErrors)
