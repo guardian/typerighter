@@ -36,7 +36,18 @@ Parameters:
     Description: The secret used by the play framework for cryptographic functions
     Type: String
     NoEcho: true
-
+  SheetId:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: /typerighter/CODE/sheet.id
+  GoogleApiClientSecret:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: /typerighter/CODE/google.api.client.secret
+  GoogleApiClientId:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: /typerighter/CODE/google.api.client.id
+  GoogleApiClientRedirectUri:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: /typerighter/CODE/google.api.client.redirectUri
 Mappings:
   StageVariables:
     CODE:
@@ -100,6 +111,10 @@ Resources:
           include "application"
           play.http.secret.key="${PlaySecret}"
           typerighter.ngramPath="/opt/ngram-data"
+          typerighter.sheetId="${SheetId}"
+          typerighter.google.api.client.secret="${GoogleApiClientSecret}"
+          typerighter.google.api.client.id="${GoogleApiClientId}"
+          typerighter.google.api.client.redirectUri="${GoogleApiClientRedirectUri}"
 
           EOF
 

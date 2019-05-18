@@ -27,7 +27,6 @@ object SheetsRuleResource {
     * If modifying these scopes, delete your previously saved tokens/ folder.
     */
   private val SCOPES = Collections.singletonList(SheetsScopes.SPREADSHEETS_READONLY)
-  private val CREDENTIALS_FILE_PATH = "credentials.json"
 
   /**
     * Creates an authorized Credential object.
@@ -38,13 +37,25 @@ object SheetsRuleResource {
     */
   private def getCredentials(configuration: Configuration, HTTP_TRANSPORT: NetHttpTransport) = {
     // Load client secrets.
-    val in = new FileInputStream(CREDENTIALS_FILE_PATH)
-    val clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in))
+    val clientSecrets = new GoogleClientSecrets()
+    val details = new GoogleClientSecrets.Details()
+    for {
+      clientId <- configuration.getOptional[String]("typerighter.google.api.client.id")
+      clientSecret <- configuration.getOptional[String]("typerighter.google.api.client.secret")
+      clientRedirectUri <- configuration.getOptional[String]("typerighter.google.api.client.redirectUri")
+    } yield {
+      details.setAuthUri("https://accounts.google.com/o/oauth2/auth")
+      details.setTokenUri("https://oauth2.googleapis.com/token")
+      details.setClientId(clientId)
+      details.setClientSecret(clientSecret)
+      details.setRedirectUris(List(clientRedirectUri).asJava)
+      clientSecrets.setWeb(details)
 
-    // Build flow and trigger user authorization request.
-    val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES).setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH))).setAccessType("offline").build
-    val receiver = new LocalServerReceiver.Builder().setPort(8000).build
-    new AuthorizationCodeInstalledApp(flow, receiver).authorize("user")
+      // Build flow and trigger user authorization request.
+      val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES).setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH))).setAccessType("offline").build
+      val receiver = new LocalServerReceiver.Builder().setPort(8000).build
+      new AuthorizationCodeInstalledApp(flow, receiver).authorize("user")
+    }
   }
 
   def getDictionariesFromSheet(configuration: Configuration): (List[PatternRule], List[String]) = { // Build a new authorized API client service.
@@ -52,11 +63,12 @@ object SheetsRuleResource {
     val maybeResult = for {
       spreadsheetId <- configuration.getOptional[String]("typerighter.sheetId")
       range <- configuration.getOptional[String]("typerighter.sheetRange")
+      credentials <- getCredentials(configuration, HTTP_TRANSPORT)
     } yield {
       val service = new Sheets.Builder(
         HTTP_TRANSPORT,
         JSON_FACTORY,
-        getCredentials(configuration, HTTP_TRANSPORT)
+        credentials
       ).setApplicationName(APPLICATION_NAME).build
       val response = service.spreadsheets.values.get(spreadsheetId, range).execute
       val values = response.getValues
