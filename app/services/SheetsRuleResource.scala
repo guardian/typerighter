@@ -7,7 +7,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
-import com.google.api.client.util.store.FileDataStoreFactory
+import com.google.api.client.util.store.MemoryDataStoreFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import java.io._
@@ -42,7 +42,7 @@ object SheetsRuleResource {
     for {
       clientId <- configuration.getOptional[String]("typerighter.google.api.client.id")
       clientSecret <- configuration.getOptional[String]("typerighter.google.api.client.secret")
-      clientRedirectUri <- configuration.getOptional[String]("typerighter.google.api.client.redirectUri")
+      clientRedirectUri <- configuration.getOptional[String]("typerighter.google.api.redirectUri")
     } yield {
       details.setAuthUri("https://accounts.google.com/o/oauth2/auth")
       details.setTokenUri("https://oauth2.googleapis.com/token")
@@ -52,7 +52,7 @@ object SheetsRuleResource {
       clientSecrets.setWeb(details)
 
       // Build flow and trigger user authorization request.
-      val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES).setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH))).setAccessType("offline").build
+      val flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES).setDataStoreFactory(new MemoryDataStoreFactory).setAccessType("offline").build
       val receiver = new LocalServerReceiver.Builder().setPort(8000).build
       new AuthorizationCodeInstalledApp(flow, receiver).authorize("user")
     }
