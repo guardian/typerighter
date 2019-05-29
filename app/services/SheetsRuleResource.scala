@@ -42,7 +42,7 @@ object SheetsRuleResource {
     for {
       clientId <- configuration.getOptional[String]("typerighter.google.api.client.id")
       clientSecret <- configuration.getOptional[String]("typerighter.google.api.client.secret")
-      clientRedirectUri <- configuration.getOptional[String]("typerighter.google.api.redirectUri")
+      clientRedirectUri <- configuration.getOptional[String]("typerighter.google.api.client.redirectUri")
     } yield {
       details.setAuthUri("https://accounts.google.com/o/oauth2/auth")
       details.setTokenUri("https://oauth2.googleapis.com/token")
