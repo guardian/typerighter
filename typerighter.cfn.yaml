@@ -39,15 +39,9 @@ Parameters:
   SheetId:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Default: /typerighter/CODE/sheet.id
-  GoogleApiClientSecret:
+  GoogleApiClientCredentials:
     Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: /typerighter/CODE/google.api.client.secret
-  GoogleApiClientId:
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: /typerighter/CODE/google.api.client.id
-  GoogleApiClientRedirectUri:
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: /typerighter/CODE/google.api.client.redirectUri
+    Default: /typerighter/CODE/google.api.client.credentials
 Mappings:
   StageVariables:
     CODE:
@@ -112,10 +106,10 @@ Resources:
           play.http.secret.key="${PlaySecret}"
           typerighter.ngramPath="/opt/ngram-data"
           typerighter.sheetId="${SheetId}"
-          typerighter.google.api.client.secret="${GoogleApiClientSecret}"
-          typerighter.google.api.client.id="${GoogleApiClientId}"
-          typerighter.google.api.client.redirectUri="${GoogleApiClientRedirectUri}"
+          EOF
 
+          cat > /etc/gu/typerighter.google.credentials.conf << 'EOF'
+          ${GoogleApiClientCredentials}
           EOF
 
           aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb
