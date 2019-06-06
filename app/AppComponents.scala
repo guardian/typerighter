@@ -7,7 +7,7 @@ import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-import services.LanguageTool
+import services.{LanguageToolFactory, RuleManager, ValidatorPool}
 import utils.Loggable
 
 class AppComponents(context: Context)
@@ -18,12 +18,12 @@ class AppComponents(context: Context)
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
-  logger.info(s"Starting with ${httpFilters.size} filters")
-
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
-  val languageTool: LanguageTool = LanguageTool.createInstance(ngramPath)
+  val languageToolFactory = new LanguageToolFactory(ngramPath)
+  val validatorPool = new ValidatorPool(languageToolFactory)
 
-  val apiController = new ApiController(controllerComponents, languageTool)
+  val ruleManager = new RuleManager(configuration)
+  val apiController = new ApiController(controllerComponents, validatorPool, ruleManager, configuration)
 
   lazy val router = new Routes(
     httpErrorHandler,

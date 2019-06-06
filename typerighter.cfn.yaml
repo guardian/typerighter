@@ -36,7 +36,12 @@ Parameters:
     Description: The secret used by the play framework for cryptographic functions
     Type: String
     NoEcho: true
-
+  SheetId:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: /typerighter/CODE/sheet.id
+  GoogleApiClientCredentials:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: /typerighter/CODE/google.api.client.credentials
 Mappings:
   StageVariables:
     CODE:
@@ -100,7 +105,11 @@ Resources:
           include "application"
           play.http.secret.key="${PlaySecret}"
           typerighter.ngramPath="/opt/ngram-data"
+          typerighter.sheetId="${SheetId}"
+          EOF
 
+          cat > /etc/gu/typerighter.google.credentials.conf << 'EOF'
+          ${GoogleApiClientCredentials}
           EOF
 
           aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb
