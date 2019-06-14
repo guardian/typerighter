@@ -32,28 +32,24 @@ object SheetsRuleResource {
     * @param credentialsFilePath A string containing the credentials file path.
     *                            These can be generated in Google Platform at
     *                            https://console.cloud.google.com/apis/credentials.
-    * @param HTTP_TRANSPORT The network HTTP Transport.
     * @return An authorized Credential object.
     * @throws IOException If the credentials.json file cannot be found.
     */
-  private def getCredentials(credentialsFilePath: String, HTTP_TRANSPORT: NetHttpTransport) = {
-    val in = new FileInputStream(credentialsFilePath)
-    if (in == null) throw new FileNotFoundException("Resource not found: " + credentialsFilePath)
-    val credential = GoogleCredential
+  private def getCredentials(credentials: String) = {
+    val in = new ByteArrayInputStream(credentials.getBytes)
+    GoogleCredential
       .fromStream(in)
       .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS))
-    in.close
-    credential
   }
 
   def getDictionariesFromSheet(configuration: Configuration): (List[PatternRule], List[String]) = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
     val maybeResult = for {
-      credentialsPath <- configuration.getOptional[String]("typerighter.google.credentials.filePath")
+      credentialsData <- configuration.getOptional[String]("typerighter.google.credentials")
       spreadsheetId <- configuration.getOptional[String]("typerighter.sheetId")
       range <- configuration.getOptional[String]("typerighter.sheetRange")
     } yield {
-      val credentials = getCredentials(credentialsPath, HTTP_TRANSPORT)
+      val credentials = getCredentials(credentialsData)
       val service = new Sheets.Builder(
         HTTP_TRANSPORT,
         JSON_FACTORY,
