@@ -32,16 +32,10 @@ Parameters:
     Description: The CIDR block of the dig dev bubble
     Type: String
     Default: 10.249.0.0/18
-  PlaySecret:
-    Description: The secret used by the play framework for cryptographic functions
-    Type: String
-    NoEcho: true
-  SheetId:
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: /typerighter/CODE/sheet.id
-  GoogleApiClientCredentials:
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: /typerighter/CODE/google.api.client.credentials
+  KinesisLoggingStream:
+    Description: Name of the ELK logging stream in this account
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /accountServices/elkLoggingStreamArn
 Mappings:
   StageVariables:
     CODE:
@@ -103,13 +97,7 @@ Resources:
 
           cat > /etc/gu/typerighter.conf << 'EOF'
           include "application"
-          play.http.secret.key="${PlaySecret}"
           typerighter.ngramPath="/opt/ngram-data"
-          typerighter.sheetId="${SheetId}"
-          EOF
-
-          cat > /etc/gu/typerighter.google.credentials.conf << 'EOF'
-          ${GoogleApiClientCredentials}
           EOF
 
           aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/${App}/${App}.deb /tmp/package.deb
@@ -129,16 +117,56 @@ Resources:
             - ec2.amazonaws.com
           Action:
           - sts:AssumeRole
-      Policies:
-      - PolicyName: GetDistributablesPolicy
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
+
+  GetDistributablesPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: GetDistributablesPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource:
+          - arn:aws:s3:::composer-dist/*
+      Roles:
+      - !Ref AppRole
+
+  SimpleConfigPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: SimpleConfigPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - autoscaling:DescribeAutoScalingInstances
+          - autoscaling:DescribeAutoScalingGroups
+          - ec2:DescribeTags
+          Resource: "*"
+        - Effect: Allow
+          Action:
+          - ssm:GetParametersByPath
+          Resource: !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Stage}/${Stack}/${App}
+      Roles:
+      - !Ref AppRole
+
+  LoggingPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: LoggingPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
           - Effect: Allow
             Action:
-            - s3:GetObject
-            Resource:
-            - arn:aws:s3:::composer-dist/*
+              - kinesis:DescribeStream
+              - kinesis:PutRecord
+            Resource: !Ref KinesisLoggingStream
+      Roles:
+        - !Ref AppRole
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
