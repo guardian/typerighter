@@ -8,7 +8,6 @@ import org.languagetool.rules.spelling.morfologik.suggestions_ordering.Suggestio
 
 import collection.JavaConverters._
 import scala.concurrent.ExecutionContext
-
 import play.api.Logger
 
 import model.RuleMatch

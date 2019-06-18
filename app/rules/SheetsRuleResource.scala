@@ -8,7 +8,6 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 import model.{Category, PatternRule, PatternToken}
-import models.{Category, PatternToken}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
@@ -17,17 +16,17 @@ import scala.util.{Failure, Success, Try}
 /**
   * A resource that fetches rules from the given Google Sheet.
   *
-  * @param credentials A string containing the JSON the Google credentials service expects
+  * @param credentialsJson A string containing the JSON the Google credentials service expects
   * @param spreadsheetId Available in the sheet URL
   * @param range E.g. "A:G"
   */
-class SheetsRuleResource(credentials: String, spreadsheetId: String, range: String) extends RuleResource {
+class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, range: String) extends RuleResource {
   private val APPLICATION_NAME = "Typerighter"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
 
   def fetchByCategory(): Future[(Map[Category, List[PatternRule]], List[String])] = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
-    val credentials = getCredentials(credentials)
+    val credentials = getCredentials(credentialsJson)
     val service = new Sheets.Builder(
       HTTP_TRANSPORT,
       JSON_FACTORY,
@@ -84,11 +83,11 @@ class SheetsRuleResource(credentials: String, spreadsheetId: String, range: Stri
   /**
     * Creates an authorized Credential object.
     *
-    * @param credentials A string containing the JSON the Google credentials service expects
+    * @param credentialsJson A string containing the JSON the Google credentials service expects
     * @return An authorized Credential object
     */
-  private def getCredentials(credentials: String) = {
-    val in = new ByteArrayInputStream(credentials.getBytes)
+  private def getCredentials(credentialsJson: String) = {
+    val in = new ByteArrayInputStream(credentialsJson.getBytes)
     GoogleCredential
       .fromStream(in)
       .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS))
