@@ -4,8 +4,10 @@ import java.util.concurrent.ConcurrentHashMap
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise, blocking}
-import model.{Rule}
+
 import play.api.Logger
+
+import model.Rule
 import utils.Validator
 import utils.Validator._
 

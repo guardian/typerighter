@@ -10,7 +10,8 @@ import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-import services.{ElkLogging, LanguageToolFactory, RuleManager, ValidatorPool}
+import rules.{RuleResource, SheetsRuleResource}
+import services.{ElkLogging, LanguageToolFactory, ValidatorPool}
 import utils.Loggable
 
 class AppComponents(context: Context, identity: AppIdentity)
@@ -36,8 +37,12 @@ class AppComponents(context: Context, identity: AppIdentity)
   val languageToolFactory = new LanguageToolFactory(ngramPath)
   val validatorPool = new ValidatorPool(languageToolFactory)
 
-  val ruleManager = new RuleManager(configuration)
-  val apiController = new ApiController(controllerComponents, validatorPool, ruleManager, configuration)
+  val credentials = configuration.get[String]("typerighter.google.credentials")
+  val spreadsheetId = configuration.get[String]("typerighter.sheetId")
+  val range = configuration.get[String]("typerighter.sheetRange")
+  val ruleResource = new SheetsRuleResource(credentials, spreadsheetId, range)
+
+  val apiController = new ApiController(controllerComponents, validatorPool, ruleResource, configuration)
 
   lazy val router = new Routes(
     httpErrorHandler,

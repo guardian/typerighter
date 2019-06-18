@@ -1,4 +1,4 @@
-package services
+package rules
 
 import model.{Category, Rule, PatternToken}
 
