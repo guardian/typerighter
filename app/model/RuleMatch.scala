@@ -19,7 +19,7 @@ object RuleMatch {
       fromPos = lt.getFromPos,
       toPos = lt.getToPos,
       message = lt.getMessage,
-      shortMessage = Option(lt.getShortMessage).filterNot(_.isEmpty),
+      shortMessage = Some(lt.getMessage),
       suggestedReplacements = lt.getSuggestedReplacements.asScala.toList
     )
   }

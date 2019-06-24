@@ -2,15 +2,15 @@ package services
 
 import com.google.api.client.googleapis.auth.oauth2.{GoogleCredential}
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
 import java.io._
 import java.util.Collections
+import java.util.regex.Pattern
 
 import scala.collection.JavaConverters._
-import model.{Category, PatternRule, PatternToken}
+import model.{Category, Rule}
 import play.api.Configuration
 
 import scala.util.{Failure, Success, Try}
@@ -42,7 +42,7 @@ object SheetsRuleResource {
       .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS))
   }
 
-  def getDictionariesFromSheet(configuration: Configuration): (List[PatternRule], List[String]) = { // Build a new authorized API client service.
+  def getDictionariesFromSheet(configuration: Configuration): (List[Rule], List[String]) = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
     val maybeResult = for {
       credentialsData <- configuration.getOptional[String]("typerighter.google.credentials")
@@ -60,7 +60,7 @@ object SheetsRuleResource {
       if (values == null || values.isEmpty) {
         (Nil, Nil)
       } else {
-        values.asScala.zipWithIndex.foldLeft((List.empty[PatternRule], List.empty[String])) {
+        values.asScala.zipWithIndex.foldLeft((List.empty[Rule], List.empty[String])) {
           case ((rules, errors), (row, index)) => {
             getPatternRuleFromRow(row.asScala.toList, index) match {
               case Success(rule) => (rules :+ rule, errors)
@@ -73,28 +73,23 @@ object SheetsRuleResource {
     maybeResult.getOrElse((Nil, Nil))
   }
 
-  private def getPatternRuleFromRow(row: List[AnyRef], index: Int): Try[PatternRule] = {
+  private def getPatternRuleFromRow(row: List[AnyRef], index: Int): Try[Rule] = {
     try {
       val category = row(4).asInstanceOf[String]
       val colour = row(3).asInstanceOf[String]
       val rule = row(1).asInstanceOf[String]
-      val description = row(6).asInstanceOf[String]
+      val description = row.lift(6).asInstanceOf[Option[String]]
       val suggestion = row(2).asInstanceOf[String]
       // We split on whitespace here as LT expects separate words to be different tokens.
-      val rules = rule.split(" ").toList.map(PatternToken(
-        _,
-        false,
-        true,
-        false
-      ))
+      val pattern = Pattern.compile(rule)
 
-      Success(PatternRule(
+      Success(Rule(
         id = index.toString,
         category = Category(category, category, colour),
-        languageShortcode = "en-GB",
-        patternTokens = Some(rules),
-        description = description,
-        message = description,
+        languageShortcode = Some("en-GB"),
+        pattern = Some(pattern),
+        description = description.getOrElse(""),
+        message = description.getOrElse(""),
         url = None,
         suggestions = if (suggestion.isEmpty) List.empty else List(suggestion)
       ))

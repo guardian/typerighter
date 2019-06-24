@@ -1,6 +1,6 @@
 package utils
 
-import model.{PatternRule, RuleMatch}
+import model.{Rule, RuleMatch}
 import services.ValidatorRequest
 
 object Validator {
@@ -9,6 +9,6 @@ object Validator {
 
 trait Validator {
   def check(request: ValidatorRequest): Validator.ValidatorResponse
-  def getRules(): List[PatternRule]
+  def getRules(): List[Rule]
   def getCategory(): String
 }

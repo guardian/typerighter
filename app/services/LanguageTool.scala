@@ -3,13 +3,13 @@ package services
 import java.io.File
 
 import org.languagetool._
-import org.languagetool.rules.patterns.{PatternRule => LTPatternRule}
+import org.languagetool.rules.{Rule => LTRule}
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 
 import collection.JavaConverters._
 import scala.concurrent.ExecutionContext
 import model.RuleMatch
-import model.PatternRule
+import model.Rule
 import org.languagetool.rules.CategoryId
 import play.api.Logger
 import utils.Validator
@@ -37,7 +37,7 @@ class LanguageToolFactory(
     Logger.info(s"Adding ${config.rules.size} rules to validator instance ${category}")
     val ruleIngestionErrors = config.rules.flatMap { rule =>
       try {
-        instance.addRule(PatternRule.toLT(rule))
+        instance.addRule(Rule.toLT(rule))
         None
       } catch {
         case e: Throwable => {
@@ -58,9 +58,9 @@ class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: Execu
     instance.check(request.text).asScala.map(RuleMatch.fromLT).toList
   }
 
-  def getRules: List[PatternRule] = {
+  def getRules: List[Rule] = {
     instance.getAllActiveRules.asScala.toList.flatMap(_ match {
-      case patternRule: LTPatternRule => Some(PatternRule.fromLT(patternRule))
+      case rule: LTRule => Some(Rule.fromLT(rule))
       case _ => None
     })
   }
