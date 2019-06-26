@@ -20,8 +20,8 @@ object LTRegexPatternRule {
                   language: Language,
                   regex: Pattern,
                   regexpMark: Int) = {
-    val c = Class.forName("org.languagetool.rules.patterns.RegexPatternRule")
-    val constructor = c.getDeclaredConstructor(classOf[String], classOf[String], classOf[String], classOf[String], classOf[Language], classOf[Pattern], classOf[Int])
+    val instance = Class.forName("org.languagetool.rules.patterns.RegexPatternRule")
+    val constructor = instance.getDeclaredConstructor(classOf[String], classOf[String], classOf[String], classOf[String], classOf[Language], classOf[Pattern], classOf[Int])
     constructor.setAccessible(true)
     val rule = constructor.newInstance(id,
       description,
