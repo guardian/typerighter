@@ -15,7 +15,7 @@ import scala.concurrent.{ExecutionContext, Future}
  */
 class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, ruleResource: RuleResource, configuration: Configuration)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
   def index() = Action { implicit request: Request[AnyContent] =>
-    Ok("{}")
+    Ok(views.html.index())
   }
 
   def healthcheck() = Action { implicit request: Request[AnyContent] =>
@@ -58,7 +58,10 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
     }
   }
 
-  def getCurrentRules = Action.async { implicit request: Request[AnyContent] =>
-    validatorPool.getCurrentRules.map(rules => Ok(Json.toJson(rules)))
+  def rules = Action.async { implicit request: Request[AnyContent] =>
+    val sheetId = configuration.getOptional[String]("typerighter.sheetId").getOrElse("No sheet id configured")
+    validatorPool.getCurrentRules.map { rules =>
+      Ok(views.html.rules(sheetId, rules))
+    }
   }
 }

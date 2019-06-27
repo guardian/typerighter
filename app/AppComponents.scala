@@ -10,15 +10,19 @@ import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
+
 import rules.{RuleResource, SheetsRuleResource}
 import services.{ElkLogging, LanguageToolFactory, ValidatorPool}
+
+import services._
 import utils.Loggable
 
 class AppComponents(context: Context, identity: AppIdentity)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with CORSComponents
-  with Loggable {
+  with Loggable
+  with controllers.AssetsComponents {
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
@@ -37,6 +41,7 @@ class AppComponents(context: Context, identity: AppIdentity)
   val languageToolFactory = new LanguageToolFactory(ngramPath)
   val validatorPool = new ValidatorPool(languageToolFactory)
 
+
   val credentials = configuration.get[String]("typerighter.google.credentials")
   val spreadsheetId = configuration.get[String]("typerighter.sheetId")
   val range = configuration.get[String]("typerighter.sheetRange")
@@ -44,8 +49,18 @@ class AppComponents(context: Context, identity: AppIdentity)
 
   val apiController = new ApiController(controllerComponents, validatorPool, ruleResource, configuration)
 
+  // Fetch the rules when the app starts.
+  for {
+    (rules, _) <- ruleResource.fetchRulesByCategory()
+  } yield {
+    rules.foreach { case (category, rules) => {
+      validatorPool.updateConfig(category.name, ValidatorConfig(rules))
+    }}
+  }
+
   lazy val router = new Routes(
     httpErrorHandler,
+    assets,
     apiController
   )
 }

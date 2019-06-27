@@ -3,10 +3,12 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+
 GET     /                           controllers.ApiController.index
 GET     /healthcheck                controllers.ApiController.healthcheck
 
 + NOCSRF
 POST    /check                      controllers.ApiController.check
 POST    /refresh                    controllers.ApiController.refresh
-GET     /rules                      controllers.ApiController.getCurrentRules
+GET     /rules                      controllers.ApiController.rules

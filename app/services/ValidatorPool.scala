@@ -12,6 +12,7 @@ import utils.Validator
 import utils.Validator._
 
 case class ValidatorConfig(rules: List[Rule])
+
 case class ValidatorRequest(category: String, text: String)
 
 trait ValidatorFactory {
@@ -27,7 +28,9 @@ class ValidatorPool(factory: ValidatorFactory)(implicit ec: ExecutionContext) {
     val eventualChecks = validators.keys.foldLeft[List[Future[ValidatorResponse]]](List.empty)((acc, category) => {
       acc :+ check(ValidatorRequest(category, text))
     })
-    Future.sequence(eventualChecks).map { _.flatten }
+    Future.sequence(eventualChecks).map {
+      _.flatten
+    }
   }
 
   def check(request: ValidatorRequest): Future[ValidatorResponse] = {
