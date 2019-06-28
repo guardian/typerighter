@@ -1,4 +1,4 @@
-@(title: String, pageName: String, breadcrumbsList: List[String] = List.empty)(content: Html)
+@(title: String, pageName: Option[String] = None, breadcrumbsList: List[String] = List.empty)(content: Html)
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -19,12 +19,12 @@
             </ul>
         </nav>
         @breadcrumbs(breadcrumbsList)
-        <div class="container">
-            <h1>@pageName</h1>
-            <hr />
-            <section>
+        <section class="container">
+            @if(pageName.nonEmpty) {
+                <h1>@pageName</h1>
+                <hr />
+            }
             @content
-            </section>
-        </div>
+        </section>
     </body>
 </html>

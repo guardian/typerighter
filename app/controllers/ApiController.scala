@@ -44,17 +44,12 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
           validatorPool.updateConfig(category.name, ValidatorConfig(rules))
         }}.toList
       )
+      rules <- validatorPool.getCurrentRules
     } yield {
       val sheetId = configuration.getOptional[String]("typerighter.sheetId").orNull
-      Ok(Json.obj(
-        "sheetId" -> sheetId,
-        "categories" -> rulesByCategory.map { case (category, rules) =>
-          Json.obj(
-            "category" -> category,
-            "rulesIngested" -> rules.size
-          )},
-        "errors" -> Json.toJson(errorsByCategory.flatten ::: ruleErrors)
-      ))
+      val errors = errorsByCategory.flatten ::: ruleErrors
+      val rulesIngested = rulesByCategory.map { _._2.size }.sum
+      Ok(views.html.rules(sheetId, rules, Some(rulesIngested), errors))
     }
   }
 
