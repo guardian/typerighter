@@ -1,18 +1,18 @@
 package services
 
-import model.{Category, PatternRule, PatternToken}
+import model.{Category, Rule, PatternToken}
 
 /**
   * A resource that returns a large number of rules to test throughput.
   */
 object PermutationsRuleResource {
-  def getRules(): List[PatternRule] = {
+  def getRules(): List[Rule] = {
     (1 to 8).permutations.toList.map(list => {
       val id = list.mkString
-      PatternRule(
+      Rule(
         id,
         category = Category("PERMS", "Test permutations", "red"),
-        languageShortcode = "en",
+        languageShortcode = Some("en"),
         patternTokens = Some(List(PatternToken(
           token = list.mkString,
           caseSensitive = false,
