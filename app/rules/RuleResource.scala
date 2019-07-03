@@ -1,10 +1,9 @@
 package rules
 
-import model.{Category, PatternRule}
-import model.Category
-
 import scala.concurrent.Future
+import model.{Category, Rule}
 
 trait RuleResource {
-  def fetchByCategory(): Future[(Map[Category, List[PatternRule]], List[String])]
+  type Error = String
+  def fetchRulesByCategory(): Future[(Map[Category, List[Rule]], List[Error])]
 }

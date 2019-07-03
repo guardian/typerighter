@@ -38,7 +38,7 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
 
   def refresh = Action.async { implicit request: Request[AnyContent] =>
     for {
-      (rulesByCategory, ruleErrors) <- ruleResource.fetchByCategory()
+      (rulesByCategory, ruleErrors) <- ruleResource.fetchRulesByCategory()
       errorsByCategory <- Future.sequence(
         rulesByCategory.map { case (category, rules) => {
           validatorPool.updateConfig(category.name, ValidatorConfig(rules))
