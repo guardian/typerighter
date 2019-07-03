@@ -5,10 +5,11 @@
 
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-GET     /                           controllers.ApiController.index
-GET     /healthcheck                controllers.ApiController.healthcheck
+GET     /                           controllers.HomeController.index
+GET     /healthcheck                controllers.HomeController.healthcheck
+
+POST    /rules                      controllers.RulesController.refresh
+GET     /rules                      controllers.RulesController.rules
 
 + NOCSRF
 POST    /check                      controllers.ApiController.check
-POST    /rules                      controllers.ApiController.refresh
-GET     /rules                      controllers.ApiController.rules

@@ -3,17 +3,15 @@ import java.io.File
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
-import controllers.ApiController
+import controllers.{ApiController, HomeController, RulesController}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-
-import rules.{RuleResource, SheetsRuleResource}
+import rules.SheetsRuleResource
 import services.{ElkLogging, LanguageToolFactory, ValidatorPool}
-
 import services._
 import utils.Loggable
 
@@ -47,7 +45,9 @@ class AppComponents(context: Context, identity: AppIdentity)
   val range = configuration.get[String]("typerighter.sheetRange")
   val ruleResource = new SheetsRuleResource(credentials, spreadsheetId, range)
 
-  val apiController = new ApiController(controllerComponents, validatorPool, ruleResource, configuration)
+  val apiController = new ApiController(controllerComponents, validatorPool, ruleResource)
+  val rulesController = new RulesController(controllerComponents, validatorPool, ruleResource, spreadsheetId)
+  val homeController = new HomeController(controllerComponents)
 
   // Fetch the rules when the app starts.
   for {
@@ -61,6 +61,8 @@ class AppComponents(context: Context, identity: AppIdentity)
   lazy val router = new Routes(
     httpErrorHandler,
     assets,
+    homeController,
+    rulesController,
     apiController
   )
 }
