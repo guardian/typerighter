@@ -1,11 +1,11 @@
 package controllers
 
 import model.CheckQuery
-import play.api.libs.json.{JsResult, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services._
-import play.api.{Configuration, Logger}
-import utils.Validator.ValidatorResponse
+import play.api.Configuration
+import rules.RuleResource
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -13,7 +13,7 @@ import scala.concurrent.{ExecutionContext, Future}
  * This controller creates an `Action` to handle HTTP requests to the
  * application's home page.
  */
-class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, ruleManager: RuleManager, configuration: Configuration)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
+class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, ruleResource: RuleResource, configuration: Configuration)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok("{}")
   }
@@ -38,10 +38,10 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
 
   def refresh = Action.async { implicit request: Request[AnyContent] =>
     for {
-      (rulesByCategory, ruleErrors) <- ruleManager.fetchByCategory()
+      (rulesByCategory, ruleErrors) <- ruleResource.fetchRulesByCategory()
       errorsByCategory <- Future.sequence(
         rulesByCategory.map { case (category, rules) => {
-          validatorPool.updateConfig(category, ValidatorConfig(rules))
+          validatorPool.updateConfig(category.name, ValidatorConfig(rules))
         }}.toList
       )
     } yield {
