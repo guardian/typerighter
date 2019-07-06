@@ -59,8 +59,9 @@ libraryDependencies ++= Seq(
   "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
   "com.gu" % "kinesis-logback-appender" % "1.4.4",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
-  "org.webjars" % "bootstrap" % "4.3.1"
-  "org.apache.opennlp" % "opennlp-tools" % "1.5.3"
+  "org.webjars" % "bootstrap" % "4.3.1",
+  "org.apache.opennlp" % "opennlp-tools" % "1.5.3",
+  ws
 )
 
 scalaVersion := "2.12.8"
