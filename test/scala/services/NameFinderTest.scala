@@ -23,7 +23,7 @@ class NameFinderTest extends FlatSpec with Matchers {
     val nameChecker = new NameFinder(nameFinderModel, tokenModel, sentenceModel)
     val exampleText =
       "In an attempt to make a useful tool, Jonathon was trying out NLP."
-    val expected = List(NameResult(29, 37, "Jonathon"))
+    val expected = List(NameResult(37, 45, "Jonathon"))
     val actual = nameChecker.findNames(exampleText)
     expected should be (actual)
   }

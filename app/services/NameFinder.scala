@@ -17,16 +17,29 @@ class NameFinder(
 
   def findNames(text: String): List[NameResult] = {
     val sentences = sentenceDetector.sentDetect(text)
-    val sentenceTokens = sentences.map(tokenizer.tokenize)
-    sentenceTokens.flatMap(sentence => {
-      val spans = nameFinder.find(sentence)
-      spans.map(extractPositionAndNameFromSpan(_, sentence))
-    }).toList
+    // We create spans and tokens here, to allow us to map back
+    // to the original text if entities are found.
+    val sentencesAsTokens = sentences.map(sentence =>
+      (tokenizer.tokenizePos(sentence), tokenizer.tokenize(sentence)))
+    sentencesAsTokens.zipWithIndex.flatMap({
+      case ((sentenceSpans, sentenceTokens), index) => {
+        val spans = nameFinder.find(sentenceTokens)
+        spans.map(extractPositionAndNameFromSpan(_, sentences(index), sentenceSpans))
+      }
+    }).toList.flatten
   }
 
-  private def extractPositionAndNameFromSpan(span: Span, sentence: Array[String]) = {
-    val precedingText = sentence.slice(0, span.getStart).mkString
-    val name = sentence.slice(span.getStart, span.getEnd).mkString
-    NameResult(precedingText.length, precedingText.length + name.length, name)
+  private def extractPositionAndNameFromSpan(tokenSpan: Span, sentence: String, sentenceSpans: Array[Span]): Option[NameResult] = {
+    val spans = sentenceSpans.slice(tokenSpan.getStart, tokenSpan.getEnd)
+    for {
+      startSpan <- spans.headOption
+      endSpan <- spans.lastOption
+    } yield {
+      val start = startSpan.getStart
+      val end = endSpan.getEnd
+      NameResult(
+        start, end, sentence.slice(start, end)
+      )
+    }
   }
 }
