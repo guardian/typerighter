@@ -7,6 +7,9 @@ import opennlp.tools.util.Span
 
 case class NameResult(from: Int, to: Int, text: String)
 
+/**
+  * A service to extract proper names from text using Named Entity Recognition.
+  */
 class NameFinder(
                   nameFinderModel: TokenNameFinderModel,
                   tokenizerModel: TokenizerModel,
@@ -20,15 +23,23 @@ class NameFinder(
     // We create spans and tokens here, to allow us to map back
     // to the original text if entities are found.
     val sentencesAsTokens = sentences.map(sentence =>
-      (tokenizer.tokenizePos(sentence), tokenizer.tokenize(sentence)))
-    sentencesAsTokens.zipWithIndex.flatMap({
-      case ((sentenceSpans, sentenceTokens), index) => {
+      (sentence, tokenizer.tokenizePos(sentence), tokenizer.tokenize(sentence)))
+    sentencesAsTokens.flatMap({
+      case (sentence, sentenceSpans, sentenceTokens) => {
         val spans = nameFinder.find(sentenceTokens)
-        spans.map(extractPositionAndNameFromSpan(_, sentences(index), sentenceSpans))
+        spans.map(extractPositionAndNameFromSpan(_, sentence, sentenceSpans))
       }
     }).toList.flatten
   }
 
+  /**
+    * Given a span representing a range of tokens in a sentence, returns the string
+    * corresponding to those tokens and the range that string covers in the sentence.
+    *
+    * @param tokenSpan The span of the token(s) in the sentence.
+    * @param sentence The sentence text.
+    * @param sentenceSpans The tokenized sentence.
+    */
   private def extractPositionAndNameFromSpan(tokenSpan: Span, sentence: String, sentenceSpans: Array[Span]): Option[NameResult] = {
     val spans = sentenceSpans.slice(tokenSpan.getStart, tokenSpan.getEnd)
     for {
