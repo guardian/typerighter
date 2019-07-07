@@ -19,7 +19,7 @@ trait ValidatorFactory {
   def createInstance(name: String, config: ValidatorConfig)(implicit ec: ExecutionContext): (Validator, List[String])
 }
 
-class ValidatorPool(factory: ValidatorFactory)(implicit ec: ExecutionContext) {
+class ValidatorPool(implicit ec: ExecutionContext) {
 
   private val validators = new ConcurrentHashMap[String, Promise[Validator]]().asScala
 
@@ -37,30 +37,21 @@ class ValidatorPool(factory: ValidatorFactory)(implicit ec: ExecutionContext) {
     validators.get(request.category) match {
       case Some(validator) =>
         Logger.info(s"Validator for category ${request.category} is processing")
-        validator.future.map { validator =>
+        validator.future.flatMap { validator =>
           blocking {
             val result = validator.check(request)
             Logger.info(s"Validator for category ${request.category} is done")
             result
           }
         }
-
       case None =>
         Future.failed(new IllegalStateException(s"Unknown category ${request.category}"))
     }
   }
 
-  def updateConfig(category: String, config: ValidatorConfig): Future[List[String]] = {
-    Future {
-      blocking {
-        factory.createInstance(category, config)
-      }
-    }.map {
-      case (validator, errors) =>
-        Logger.info(s"New instance of validator available with rules for category ${category}")
-        validators.put(category, Promise.successful(validator))
-        errors
-    }
+  def addValidator(category: String, validator: Validator) = {
+    Logger.info(s"New instance of validator available with rules for category ${category}")
+    validators.put(category, Promise.successful(validator))
   }
 
   def getCurrentRules = Future.sequence(validators.values.map(_.future).map(_.map(_.getRules())).toList).map(_.flatten)

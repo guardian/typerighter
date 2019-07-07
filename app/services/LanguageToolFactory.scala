@@ -7,9 +7,8 @@ import org.languagetool.rules.{Rule => LTRule}
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 
 import collection.JavaConverters._
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logger
-
 import model.RuleMatch
 import model.Rule
 import org.languagetool.rules.CategoryId
@@ -55,8 +54,8 @@ class LanguageToolFactory(
 class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: ExecutionContext) extends Validator {
   def getCategory = category
 
-  def check(request: ValidatorRequest): List[RuleMatch] = {
-    instance.check(request.text).asScala.map(RuleMatch.fromLT).toList
+  def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
+    Future.successful(instance.check(request.text).asScala.map(RuleMatch.fromLT).toList)
   }
 
   def getRules: List[Rule] = {

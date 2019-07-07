@@ -37,7 +37,7 @@ class AppComponents(context: Context, identity: AppIdentity)
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val languageToolFactory = new LanguageToolFactory(ngramPath)
-  val validatorPool = new ValidatorPool(languageToolFactory)
+  val validatorPool = new ValidatorPool
 
 
   val credentials = configuration.get[String]("typerighter.google.credentials")
@@ -46,7 +46,7 @@ class AppComponents(context: Context, identity: AppIdentity)
   val ruleResource = new SheetsRuleResource(credentials, spreadsheetId, range)
 
   val apiController = new ApiController(controllerComponents, validatorPool, ruleResource)
-  val rulesController = new RulesController(controllerComponents, validatorPool, ruleResource, spreadsheetId)
+  val rulesController = new RulesController(controllerComponents, validatorPool, languageToolFactory, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
 
   // Fetch the rules when the app starts.
@@ -54,7 +54,8 @@ class AppComponents(context: Context, identity: AppIdentity)
     (rules, _) <- ruleResource.fetchRulesByCategory()
   } yield {
     rules.foreach { case (category, rules) => {
-      validatorPool.updateConfig(category.name, ValidatorConfig(rules))
+      val (validator, _) = languageToolFactory.createInstance(category.name, ValidatorConfig(rules))
+      validatorPool.addValidator(category.name, validator)
     }}
   }
 
