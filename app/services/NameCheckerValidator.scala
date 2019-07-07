@@ -8,10 +8,9 @@ import utils.Validator
 import scala.concurrent.Future
 
 class NameCheckerValidator(nameFinder: NameFinder, wikiNameSearcher: WikiNameSearcher) extends Validator {
-  val responseRule =
   def getCategory = "Name"
   def getRules = List.empty
-  def check(request: ValidatorRequest): List[RuleMatch] = {
+  def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
     val names = nameFinder.findNames(request.text)
     val results = names.map { name => wikiNameSearcher.fetchWikiMatchesForName(name.text).map {
       result => {
