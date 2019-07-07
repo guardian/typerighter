@@ -5,9 +5,9 @@ import java.util.UUID
 import model.{Category, ResponseRule, RuleMatch}
 import utils.Validator
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class NameCheckerValidator(nameFinder: NameFinder, wikiNameSearcher: WikiNameSearcher) extends Validator {
+class NameCheckerValidator(nameFinder: NameFinder, wikiNameSearcher: WikiNameSearcher)(implicit ec: ExecutionContext) extends Validator {
   def getCategory = "Name"
   def getRules = List.empty
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {

@@ -1,0 +1,3018 @@
+{
+    "version" : "1.1.2",
+    "project" : {
+        "name" : "root-it",
+        "directory" : "/Users/jonathonherbert/Code/typerighter",
+        "sources" : [
+            "/Users/jonathonherbert/Code/typerighter/src/it/scala-2.12",
+            "/Users/jonathonherbert/Code/typerighter/src/it/scala",
+            "/Users/jonathonherbert/Code/typerighter/src/it/java",
+            "/Users/jonathonherbert/Code/typerighter/target/scala-2.12/src_managed/it"
+        ],
+        "dependencies" : [
+            "root"
+        ],
+        "classpath" : [
+            "/Users/jonathonherbert/Code/typerighter/.bloop/root/scala-2.12/classes",
+            "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.8.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/twirl-api_2.12/jars/twirl-api_2.12-1.3.15.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-server_2.12/jars/play-server_2.12-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play_2.12/jars/play_2.12-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/build-link/jars/build-link-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-exceptions/jars/play-exceptions-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-netty-utils/jars/play-netty-utils-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.7.25.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.slf4j/jul-to-slf4j/jars/jul-to-slf4j-1.7.25.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.slf4j/jcl-over-slf4j/jars/jcl-over-slf4j-1.7.25.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-streams_2.12/jars/play-streams_2.12-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.reactivestreams/reactive-streams/jars/reactive-streams-1.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-stream_2.12/jars/akka-stream_2.12-2.5.17.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe/config/bundles/config-1.3.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-protobuf_2.12/jars/akka-protobuf_2.12-2.5.17.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe/ssl-config-core_2.12/bundles/ssl-config-core_2.12-0.2.4.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.12/bundles/scala-parser-combinators_2.12-1.0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/bundles/jackson-datatype-jdk8-2.8.11.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/bundles/jackson-datatype-jsr310-2.8.11.jar",
+            "/Users/jonathonherbert/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.10.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-json_2.12/jars/play-json_2.12-2.6.10.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-functional_2.12/jars/play-functional_2.12-2.6.10.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.8.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.typelevel/macro-compat_2.12/jars/macro-compat_2.12-1.1.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/joda-time/joda-time/jars/joda-time-2.9.9.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.guava/guava/bundles/guava-22.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.code.findbugs/jsr305/jars/jsr305-1.3.9.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.errorprone/error_prone_annotations/jars/error_prone_annotations-2.0.18.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.j2objc/j2objc-annotations/jars/j2objc-annotations-1.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.codehaus.mojo/animal-sniffer-annotations/jars/animal-sniffer-annotations-1.14.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.jsonwebtoken/jjwt/jars/jjwt-0.7.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/javax.xml.bind/jaxb-api/jars/jaxb-api-2.3.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.apache.commons/commons-lang3/jars/commons-lang3-3.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/javax.transaction/jta/jars/jta-1.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/javax.inject/javax.inject/jars/javax.inject-1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/filters-helpers_2.12/jars/filters-helpers_2.12-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-logback_2.12/jars/play-logback_2.12-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/ch.qos.logback/logback-classic/jars/logback-classic-1.2.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/ch.qos.logback/logback-core/jars/logback-core-1.2.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-akka-http-server_2.12/jars/play-akka-http-server_2.12-2.6.20.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-http-core_2.12/jars/akka-http-core_2.12-10.0.14.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-parsing_2.12/jars/akka-parsing_2.12-10.0.14.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.gu/simple-configuration-ssm_2.12/jars/simple-configuration-ssm_2.12-1.5.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.gu/simple-configuration-core_2.12/jars/simple-configuration-core_2.12-1.5.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-ec2/jars/aws-java-sdk-ec2-1.11.571.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-core/jars/aws-java-sdk-core-1.11.571.jar",
+            "/Users/jonathonherbert/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.apache.httpcomponents/httpclient/jars/httpclient-4.5.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.4.9.jar",
+            "/Users/jonathonherbert/.ivy2/cache/software.amazon.ion/ion-java/bundles/ion-java-1.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/jmespath-java/jars/jmespath-java-1.11.571.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-autoscaling/jars/aws-java-sdk-autoscaling-1.11.354.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-ssm/jars/aws-java-sdk-ssm-1.11.571.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.languagetool/languagetool-core/jars/languagetool-core-4.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/net.java.dev.jna/jna/jars/jna-4.4.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-fsa/bundles/morfologik-fsa-2.1.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-fsa-builders/bundles/morfologik-fsa-builders-2.1.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.carrotsearch/hppc/bundles/hppc-0.7.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-speller/bundles/morfologik-speller-2.1.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-stemming/bundles/morfologik-stemming-2.1.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/net.loomchild/segment/jars/segment-2.0.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.optimaize.languagedetector/language-detector/jars/language-detector-0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/net.arnx/jsonic/jars/jsonic-1.2.11.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.intellij/annotations/jars/annotations-12.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.apache.lucene/lucene-core/jars/lucene-core-5.5.4.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.apache.lucene/lucene-backward-codecs/jars/lucene-backward-codecs-5.5.4.jar",
+            "/Users/jonathonherbert/.ivy2/cache/edu.berkeley.nlp/berkeleylm/jars/berkeleylm-1.1.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/bundles/jackson-annotations-2.9.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/javax.measure/unit-api/bundles/unit-api-1.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/tech.units/indriya/bundles/indriya-1.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/tech.uom.lib/uom-lib-common/bundles/uom-lib-common-1.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/jaxb-runtime/jars/jaxb-runtime-2.3.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/jaxb-core/jars/jaxb-core-2.3.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/txw2/jars/txw2-2.3.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.sun.istack/istack-commons-runtime/jars/istack-commons-runtime-3.0.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.jvnet.staxex/stax-ex/jars/stax-ex-1.7.8.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.sun.xml.fastinfoset/FastInfoset/jars/FastInfoset-1.2.13.jar",
+            "/Users/jonathonherbert/.ivy2/cache/javax.activation/javax.activation-api/jars/javax.activation-api-1.2.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/biz.k11i/xgboost-predictor/jars/xgboost-predictor-0.3.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/net.jafama/jafama/jars/jafama-2.1.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.languagetool/language-en/jars/language-en-4.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.apache.opennlp/opennlp-tools/bundles/opennlp-tools-1.7.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-tokenize-models/jars/opennlp-tokenize-models-1.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-postag-models/jars/opennlp-postag-models-1.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-chunk-models/jars/opennlp-chunk-models-1.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-kinesis/jars/aws-java-sdk-kinesis-1.11.571.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.api-client/google-api-client/jars/google-api-client-1.23.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client/jars/google-oauth-client-1.23.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.http-client/google-http-client/jars/google-http-client-1.23.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.http-client/google-http-client-jackson2/jars/google-http-client-jackson2-1.23.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.guava/guava-jdk5/bundles/guava-jdk5-17.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client-jetty/jars/google-oauth-client-jetty-1.23.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client-java6/jars/google-oauth-client-java6-1.23.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/jetty/jars/jetty-6.1.26.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/jetty-util/jars/jetty-util-6.1.26.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/servlet-api/jars/servlet-api-2.5-20081211.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.google.apis/google-api-services-sheets/jars/google-api-services-sheets-v4-rev516-1.23.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/net.logstash.logback/logstash-logback-encoder/jars/logstash-logback-encoder-6.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/bundles/jackson-databind-2.9.9.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/bundles/jackson-core-2.9.9.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.gu/kinesis-logback-appender/jars/kinesis-logback-appender-1.4.4.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-sts/jars/aws-java-sdk-sts-1.11.384.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/bundles/jackson-dataformat-cbor-2.9.5.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.webjars/bootstrap/jars/bootstrap-4.3.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.webjars/jquery/jars/jquery-3.0.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.webjars/popper.js/jars/popper.js-1.14.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling.highcharts/gatling-charts-highcharts/jars/gatling-charts-highcharts-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-charts/jars/gatling-charts-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-core/jars/gatling-core-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-commons/jars/gatling-commons-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-netty-util/jars/gatling-netty-util-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-buffer/jars/netty-buffer-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-common/jars/netty-common-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.dongxiguo/fastring_2.12/jars/fastring_2.12-1.0.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.suzaku/boopickle_2.12/jars/boopickle_2.12-1.3.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.typelevel/spire-macros_2.12/jars/spire-macros_2.12-0.16.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.softwaremill.quicklens/quicklens_2.12/jars/quicklens_2.12-1.4.11.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-java8-compat_2.12/jars/scala-java8-compat_2.12-0.9.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.eatthepath/fast-uuid/jars/fast-uuid-0.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.scala-logging/scala-logging_2.12/bundles/scala-logging_2.12-3.9.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/jars/akka-actor_2.12-2.5.19.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-slf4j_2.12/jars/akka-slf4j_2.12-2.5.19.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.simpleflatmapper/lightning-csv/bundles/lightning-csv-6.0.13.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.simpleflatmapper/sfm-util/jars/sfm-util-6.0.13.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.github.ben-manes.caffeine/caffeine/jars/caffeine-2.6.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.pebbletemplates/pebble/jars/pebble-3.0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.unbescape/unbescape/jars/unbescape-1.1.6.RELEASE.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.github.scopt/scopt_2.12/jars/scopt_2.12-3.7.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/jsonpath_2.12/jars/jsonpath_2.12-0.6.14.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-json/jars/jodd-json-5.0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-bean/jars/jodd-bean-5.0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-core/jars/jodd-core-5.0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/net.sf.saxon/Saxon-HE/jars/Saxon-HE-9.9.0-2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-lagarto/jars/jodd-lagarto-5.0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-log/jars/jodd-log-5.0.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.tdunning/t-digest/jars/t-digest-3.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-app/jars/gatling-app-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-http/jars/gatling-http-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-http-client/jars/gatling-http-client-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-http/jars/netty-codec-http-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec/jars/netty-codec-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-transport/jars/netty-transport-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-resolver/jars/netty-resolver-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-handler/jars/netty-handler-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-handler-proxy/jars/netty-handler-proxy-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-socks/jars/netty-codec-socks-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-resolver-dns/jars/netty-resolver-dns-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-dns/jars/netty-codec-dns-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-transport-native-epoll/jars/netty-transport-native-epoll-4.1.32.Final-linux-x86_64.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-transport-native-unix-common/jars/netty-transport-native-unix-common-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-http2/jars/netty-codec-http2-4.1.32.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-tcnative-boringssl-static/jars/netty-tcnative-boringssl-static-2.0.20.Final.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.sun.activation/javax.activation/jars/javax.activation-1.2.0.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.1.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-jms/jars/gatling-jms-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.apache.geronimo.specs/geronimo-jms_1.1_spec/jars/geronimo-jms_1.1_spec-1.1.1.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-jdbc/jars/gatling-jdbc-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-redis/jars/gatling-redis-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/net.debasishg/redisclient_2.12/jars/redisclient_2.12-3.7.jar",
+            "/Users/jonathonherbert/.ivy2/cache/commons-pool/commons-pool/jars/commons-pool-1.6.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-graphite/jars/gatling-graphite-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.hdrhistogram/HdrHistogram/bundles/HdrHistogram-2.1.10.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-recorder/jars/gatling-recorder-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-swing_2.12/jars/scala-swing_2.12-2.0.3.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-jackson_2.12/jars/json4s-jackson_2.12-3.6.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-core_2.12/jars/json4s-core_2.12-3.6.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-ast_2.12/jars/json4s-ast_2.12-3.6.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-scalap_2.12/jars/json4s-scalap_2.12-3.6.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/com.thoughtworks.paranamer/paranamer/bundles/paranamer-2.8.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/jars/bcpkix-jdk15on-1.60.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/jars/bcprov-jdk15on-1.60.jar",
+            "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-test-framework/jars/gatling-test-framework-3.0.2.jar",
+            "/Users/jonathonherbert/.ivy2/cache/org.scala-sbt/test-interface/jars/test-interface-1.0.jar"
+        ],
+        "out" : "/Users/jonathonherbert/Code/typerighter/.bloop/root",
+        "classesDir" : "/Users/jonathonherbert/Code/typerighter/.bloop/root/scala-2.12/it-classes",
+        "resources" : [
+            "/Users/jonathonherbert/Code/typerighter/src/it/resources",
+            "/Users/jonathonherbert/Code/typerighter/target/scala-2.12/resource_managed/it"
+        ],
+        "scala" : {
+            "organization" : "org.scala-lang",
+            "name" : "scala-compiler",
+            "version" : "2.12.8",
+            "options" : [
+                "-encoding",
+                "UTF-8",
+                "-target:jvm-1.8",
+                "-deprecation",
+                "-feature",
+                "-unchecked",
+                "-language:implicitConversions",
+                "-language:postfixOps",
+                "-P:semanticdb:synthetics:on",
+                "-P:semanticdb:failures:warning",
+                "-P:semanticdb:sourceroot:/Users/jonathonherbert/Code/typerighter",
+                "-Yrangepos",
+                "-Xplugin-require:semanticdb",
+                "-Xplugin:/Users/jonathonherbert/.ivy2/cache/org.scalameta/semanticdb-scalac_2.12.8/jars/semanticdb-scalac_2.12.8-4.2.0.jar"
+            ],
+            "jars" : [
+                "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.12.8.jar",
+                "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.8.jar",
+                "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.8.jar",
+                "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.6.jar",
+                "/Users/jonathonherbert/.ivy2/cache/jline/jline/jars/jline-2.14.6.jar"
+            ],
+            "setup" : {
+                "order" : "mixed",
+                "addLibraryToBootClasspath" : true,
+                "addCompilerToClasspath" : false,
+                "addExtraJarsToClasspath" : false,
+                "manageBootClasspath" : true,
+                "filterLibraryFromClasspath" : true
+            }
+        },
+        "java" : {
+            "options" : [
+                "-encoding",
+                "utf8",
+                "-g"
+            ]
+        },
+        "test" : {
+            "frameworks" : [
+                {
+                    "names" : [
+                        "org.scalacheck.ScalaCheckFramework"
+                    ]
+                },
+                {
+                    "names" : [
+                        "org.specs2.runner.Specs2Framework",
+                        "org.specs2.runner.SpecsFramework"
+                    ]
+                },
+                {
+                    "names" : [
+                        "org.specs.runner.SpecsFramework"
+                    ]
+                },
+                {
+                    "names" : [
+                        "org.scalatest.tools.Framework",
+                        "org.scalatest.tools.ScalaTestFramework"
+                    ]
+                },
+                {
+                    "names" : [
+                        "com.novocode.junit.JUnitFramework"
+                    ]
+                }
+            ],
+            "options" : {
+                "excludes" : [
+                ],
+                "arguments" : [
+                ]
+            }
+        },
+        "platform" : {
+            "name" : "jvm",
+            "config" : {
+                "home" : "/Library/Java/JavaVirtualMachines/jdk1.8.0_51.jdk/Contents/Home/jre",
+                "options" : [
+                ]
+            },
+            "mainClass" : [
+            ]
+        },
+        "resolution" : {
+            "modules" : [
+                {
+                    "organization" : "org.scala-lang",
+                    "name" : "scala-library",
+                    "version" : "2.12.8",
+                    "artifacts" : [
+                        {
+                            "name" : "scala-library",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.8.jar"
+                        },
+                        {
+                            "name" : "scala-library",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.12.8-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "twirl-api_2.12",
+                    "version" : "1.3.15",
+                    "artifacts" : [
+                        {
+                            "name" : "twirl-api_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/twirl-api_2.12/jars/twirl-api_2.12-1.3.15.jar"
+                        },
+                        {
+                            "name" : "twirl-api_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/twirl-api_2.12/srcs/twirl-api_2.12-1.3.15-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-server_2.12",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "play-server_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-server_2.12/jars/play-server_2.12-2.6.20.jar"
+                        },
+                        {
+                            "name" : "play-server_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-server_2.12/srcs/play-server_2.12-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play_2.12",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "play_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play_2.12/jars/play_2.12-2.6.20.jar"
+                        },
+                        {
+                            "name" : "play_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play_2.12/srcs/play_2.12-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "build-link",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "build-link",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/build-link/jars/build-link-2.6.20.jar"
+                        },
+                        {
+                            "name" : "build-link",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/build-link/srcs/build-link-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-exceptions",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "play-exceptions",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-exceptions/jars/play-exceptions-2.6.20.jar"
+                        },
+                        {
+                            "name" : "play-exceptions",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-exceptions/srcs/play-exceptions-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-netty-utils",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "play-netty-utils",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-netty-utils/jars/play-netty-utils-2.6.20.jar"
+                        },
+                        {
+                            "name" : "play-netty-utils",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-netty-utils/srcs/play-netty-utils-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.slf4j",
+                    "name" : "slf4j-api",
+                    "version" : "1.7.25",
+                    "artifacts" : [
+                        {
+                            "name" : "slf4j-api",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.7.25.jar"
+                        },
+                        {
+                            "name" : "slf4j-api",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.slf4j/slf4j-api/srcs/slf4j-api-1.7.25-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.slf4j",
+                    "name" : "jul-to-slf4j",
+                    "version" : "1.7.25",
+                    "artifacts" : [
+                        {
+                            "name" : "jul-to-slf4j",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.slf4j/jul-to-slf4j/jars/jul-to-slf4j-1.7.25.jar"
+                        },
+                        {
+                            "name" : "jul-to-slf4j",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.slf4j/jul-to-slf4j/srcs/jul-to-slf4j-1.7.25-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.slf4j",
+                    "name" : "jcl-over-slf4j",
+                    "version" : "1.7.25",
+                    "artifacts" : [
+                        {
+                            "name" : "jcl-over-slf4j",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.slf4j/jcl-over-slf4j/jars/jcl-over-slf4j-1.7.25.jar"
+                        },
+                        {
+                            "name" : "jcl-over-slf4j",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.slf4j/jcl-over-slf4j/srcs/jcl-over-slf4j-1.7.25-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-streams_2.12",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "play-streams_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-streams_2.12/jars/play-streams_2.12-2.6.20.jar"
+                        },
+                        {
+                            "name" : "play-streams_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-streams_2.12/srcs/play-streams_2.12-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.reactivestreams",
+                    "name" : "reactive-streams",
+                    "version" : "1.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "reactive-streams",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.reactivestreams/reactive-streams/jars/reactive-streams-1.0.2.jar"
+                        },
+                        {
+                            "name" : "reactive-streams",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.reactivestreams/reactive-streams/srcs/reactive-streams-1.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.akka",
+                    "name" : "akka-stream_2.12",
+                    "version" : "2.5.17",
+                    "artifacts" : [
+                        {
+                            "name" : "akka-stream_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-stream_2.12/jars/akka-stream_2.12-2.5.17.jar"
+                        },
+                        {
+                            "name" : "akka-stream_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-stream_2.12/srcs/akka-stream_2.12-2.5.17-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe",
+                    "name" : "config",
+                    "version" : "1.3.3",
+                    "artifacts" : [
+                        {
+                            "name" : "config",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe/config/bundles/config-1.3.3.jar"
+                        },
+                        {
+                            "name" : "config",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe/config/srcs/config-1.3.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.akka",
+                    "name" : "akka-protobuf_2.12",
+                    "version" : "2.5.17",
+                    "artifacts" : [
+                        {
+                            "name" : "akka-protobuf_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-protobuf_2.12/jars/akka-protobuf_2.12-2.5.17.jar"
+                        },
+                        {
+                            "name" : "akka-protobuf_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-protobuf_2.12/srcs/akka-protobuf_2.12-2.5.17-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe",
+                    "name" : "ssl-config-core_2.12",
+                    "version" : "0.2.4",
+                    "artifacts" : [
+                        {
+                            "name" : "ssl-config-core_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe/ssl-config-core_2.12/bundles/ssl-config-core_2.12-0.2.4.jar"
+                        },
+                        {
+                            "name" : "ssl-config-core_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe/ssl-config-core_2.12/srcs/ssl-config-core_2.12-0.2.4-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.fasterxml.jackson.datatype",
+                    "name" : "jackson-datatype-jdk8",
+                    "version" : "2.8.11",
+                    "artifacts" : [
+                        {
+                            "name" : "jackson-datatype-jdk8",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/bundles/jackson-datatype-jdk8-2.8.11.jar"
+                        },
+                        {
+                            "name" : "jackson-datatype-jdk8",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/srcs/jackson-datatype-jdk8-2.8.11-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.fasterxml.jackson.datatype",
+                    "name" : "jackson-datatype-jsr310",
+                    "version" : "2.8.11",
+                    "artifacts" : [
+                        {
+                            "name" : "jackson-datatype-jsr310",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/bundles/jackson-datatype-jsr310-2.8.11.jar"
+                        },
+                        {
+                            "name" : "jackson-datatype-jsr310",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/srcs/jackson-datatype-jsr310-2.8.11-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "commons-codec",
+                    "name" : "commons-codec",
+                    "version" : "1.10",
+                    "artifacts" : [
+                        {
+                            "name" : "commons-codec",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/commons-codec/commons-codec/jars/commons-codec-1.10.jar"
+                        },
+                        {
+                            "name" : "commons-codec",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/commons-codec/commons-codec/srcs/commons-codec-1.10-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-json_2.12",
+                    "version" : "2.6.10",
+                    "artifacts" : [
+                        {
+                            "name" : "play-json_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-json_2.12/jars/play-json_2.12-2.6.10.jar"
+                        },
+                        {
+                            "name" : "play-json_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-json_2.12/srcs/play-json_2.12-2.6.10-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-functional_2.12",
+                    "version" : "2.6.10",
+                    "artifacts" : [
+                        {
+                            "name" : "play-functional_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-functional_2.12/jars/play-functional_2.12-2.6.10.jar"
+                        },
+                        {
+                            "name" : "play-functional_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-functional_2.12/srcs/play-functional_2.12-2.6.10-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.scala-lang",
+                    "name" : "scala-reflect",
+                    "version" : "2.12.8",
+                    "artifacts" : [
+                        {
+                            "name" : "scala-reflect",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.8.jar"
+                        },
+                        {
+                            "name" : "scala-reflect",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang/scala-reflect/srcs/scala-reflect-2.12.8-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.typelevel",
+                    "name" : "macro-compat_2.12",
+                    "version" : "1.1.1",
+                    "artifacts" : [
+                        {
+                            "name" : "macro-compat_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.typelevel/macro-compat_2.12/jars/macro-compat_2.12-1.1.1.jar"
+                        },
+                        {
+                            "name" : "macro-compat_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.typelevel/macro-compat_2.12/srcs/macro-compat_2.12-1.1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "joda-time",
+                    "name" : "joda-time",
+                    "version" : "2.9.9",
+                    "artifacts" : [
+                        {
+                            "name" : "joda-time",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/joda-time/joda-time/jars/joda-time-2.9.9.jar"
+                        },
+                        {
+                            "name" : "joda-time",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/joda-time/joda-time/srcs/joda-time-2.9.9-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.guava",
+                    "name" : "guava",
+                    "version" : "22.0",
+                    "artifacts" : [
+                        {
+                            "name" : "guava",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.guava/guava/bundles/guava-22.0.jar"
+                        },
+                        {
+                            "name" : "guava",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.guava/guava/srcs/guava-22.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.code.findbugs",
+                    "name" : "jsr305",
+                    "version" : "1.3.9",
+                    "artifacts" : [
+                        {
+                            "name" : "jsr305",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.code.findbugs/jsr305/jars/jsr305-1.3.9.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.errorprone",
+                    "name" : "error_prone_annotations",
+                    "version" : "2.0.18",
+                    "artifacts" : [
+                        {
+                            "name" : "error_prone_annotations",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.errorprone/error_prone_annotations/jars/error_prone_annotations-2.0.18.jar"
+                        },
+                        {
+                            "name" : "error_prone_annotations",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.errorprone/error_prone_annotations/srcs/error_prone_annotations-2.0.18-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.j2objc",
+                    "name" : "j2objc-annotations",
+                    "version" : "1.1",
+                    "artifacts" : [
+                        {
+                            "name" : "j2objc-annotations",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.j2objc/j2objc-annotations/jars/j2objc-annotations-1.1.jar"
+                        },
+                        {
+                            "name" : "j2objc-annotations",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.j2objc/j2objc-annotations/srcs/j2objc-annotations-1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.codehaus.mojo",
+                    "name" : "animal-sniffer-annotations",
+                    "version" : "1.14",
+                    "artifacts" : [
+                        {
+                            "name" : "animal-sniffer-annotations",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.codehaus.mojo/animal-sniffer-annotations/jars/animal-sniffer-annotations-1.14.jar"
+                        },
+                        {
+                            "name" : "animal-sniffer-annotations",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.codehaus.mojo/animal-sniffer-annotations/srcs/animal-sniffer-annotations-1.14-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.jsonwebtoken",
+                    "name" : "jjwt",
+                    "version" : "0.7.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jjwt",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.jsonwebtoken/jjwt/jars/jjwt-0.7.0.jar"
+                        },
+                        {
+                            "name" : "jjwt",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.jsonwebtoken/jjwt/srcs/jjwt-0.7.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "javax.xml.bind",
+                    "name" : "jaxb-api",
+                    "version" : "2.3.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jaxb-api",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.xml.bind/jaxb-api/jars/jaxb-api-2.3.0.jar"
+                        },
+                        {
+                            "name" : "jaxb-api",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.xml.bind/jaxb-api/srcs/jaxb-api-2.3.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.apache.commons",
+                    "name" : "commons-lang3",
+                    "version" : "3.6",
+                    "artifacts" : [
+                        {
+                            "name" : "commons-lang3",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.commons/commons-lang3/jars/commons-lang3-3.6.jar"
+                        },
+                        {
+                            "name" : "commons-lang3",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.commons/commons-lang3/srcs/commons-lang3-3.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "javax.transaction",
+                    "name" : "jta",
+                    "version" : "1.1",
+                    "artifacts" : [
+                        {
+                            "name" : "jta",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.transaction/jta/jars/jta-1.1.jar"
+                        },
+                        {
+                            "name" : "jta",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.transaction/jta/srcs/jta-1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "javax.inject",
+                    "name" : "javax.inject",
+                    "version" : "1",
+                    "artifacts" : [
+                        {
+                            "name" : "javax.inject",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.inject/javax.inject/jars/javax.inject-1.jar"
+                        },
+                        {
+                            "name" : "javax.inject",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.inject/javax.inject/srcs/javax.inject-1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.scala-lang.modules",
+                    "name" : "scala-parser-combinators_2.12",
+                    "version" : "1.0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "scala-parser-combinators_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.12/bundles/scala-parser-combinators_2.12-1.0.6.jar"
+                        },
+                        {
+                            "name" : "scala-parser-combinators_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.12/srcs/scala-parser-combinators_2.12-1.0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "filters-helpers_2.12",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "filters-helpers_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/filters-helpers_2.12/jars/filters-helpers_2.12-2.6.20.jar"
+                        },
+                        {
+                            "name" : "filters-helpers_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/filters-helpers_2.12/srcs/filters-helpers_2.12-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-logback_2.12",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "play-logback_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-logback_2.12/jars/play-logback_2.12-2.6.20.jar"
+                        },
+                        {
+                            "name" : "play-logback_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-logback_2.12/srcs/play-logback_2.12-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "ch.qos.logback",
+                    "name" : "logback-classic",
+                    "version" : "1.2.3",
+                    "artifacts" : [
+                        {
+                            "name" : "logback-classic",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/ch.qos.logback/logback-classic/jars/logback-classic-1.2.3.jar"
+                        },
+                        {
+                            "name" : "logback-classic",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/ch.qos.logback/logback-classic/srcs/logback-classic-1.2.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "ch.qos.logback",
+                    "name" : "logback-core",
+                    "version" : "1.2.3",
+                    "artifacts" : [
+                        {
+                            "name" : "logback-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/ch.qos.logback/logback-core/jars/logback-core-1.2.3.jar"
+                        },
+                        {
+                            "name" : "logback-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/ch.qos.logback/logback-core/srcs/logback-core-1.2.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.play",
+                    "name" : "play-akka-http-server_2.12",
+                    "version" : "2.6.20",
+                    "artifacts" : [
+                        {
+                            "name" : "play-akka-http-server_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-akka-http-server_2.12/jars/play-akka-http-server_2.12-2.6.20.jar"
+                        },
+                        {
+                            "name" : "play-akka-http-server_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.play/play-akka-http-server_2.12/srcs/play-akka-http-server_2.12-2.6.20-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.akka",
+                    "name" : "akka-http-core_2.12",
+                    "version" : "10.0.14",
+                    "artifacts" : [
+                        {
+                            "name" : "akka-http-core_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-http-core_2.12/jars/akka-http-core_2.12-10.0.14.jar"
+                        },
+                        {
+                            "name" : "akka-http-core_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-http-core_2.12/srcs/akka-http-core_2.12-10.0.14-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.akka",
+                    "name" : "akka-parsing_2.12",
+                    "version" : "10.0.14",
+                    "artifacts" : [
+                        {
+                            "name" : "akka-parsing_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-parsing_2.12/jars/akka-parsing_2.12-10.0.14.jar"
+                        },
+                        {
+                            "name" : "akka-parsing_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-parsing_2.12/srcs/akka-parsing_2.12-10.0.14-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.gu",
+                    "name" : "simple-configuration-ssm_2.12",
+                    "version" : "1.5.0",
+                    "artifacts" : [
+                        {
+                            "name" : "simple-configuration-ssm_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.gu/simple-configuration-ssm_2.12/jars/simple-configuration-ssm_2.12-1.5.0.jar"
+                        },
+                        {
+                            "name" : "simple-configuration-ssm_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.gu/simple-configuration-ssm_2.12/srcs/simple-configuration-ssm_2.12-1.5.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.gu",
+                    "name" : "simple-configuration-core_2.12",
+                    "version" : "1.5.0",
+                    "artifacts" : [
+                        {
+                            "name" : "simple-configuration-core_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.gu/simple-configuration-core_2.12/jars/simple-configuration-core_2.12-1.5.0.jar"
+                        },
+                        {
+                            "name" : "simple-configuration-core_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.gu/simple-configuration-core_2.12/srcs/simple-configuration-core_2.12-1.5.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.amazonaws",
+                    "name" : "aws-java-sdk-autoscaling",
+                    "version" : "1.11.354",
+                    "artifacts" : [
+                        {
+                            "name" : "aws-java-sdk-autoscaling",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-autoscaling/jars/aws-java-sdk-autoscaling-1.11.354.jar"
+                        },
+                        {
+                            "name" : "aws-java-sdk-autoscaling",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-autoscaling/srcs/aws-java-sdk-autoscaling-1.11.354-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "commons-logging",
+                    "name" : "commons-logging",
+                    "version" : "1.1.3",
+                    "artifacts" : [
+                        {
+                            "name" : "commons-logging",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/commons-logging/commons-logging/jars/commons-logging-1.1.3.jar"
+                        },
+                        {
+                            "name" : "commons-logging",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/commons-logging/commons-logging/srcs/commons-logging-1.1.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.apache.httpcomponents",
+                    "name" : "httpclient",
+                    "version" : "4.5.5",
+                    "artifacts" : [
+                        {
+                            "name" : "httpclient",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.httpcomponents/httpclient/jars/httpclient-4.5.5.jar"
+                        },
+                        {
+                            "name" : "httpclient",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.httpcomponents/httpclient/srcs/httpclient-4.5.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.apache.httpcomponents",
+                    "name" : "httpcore",
+                    "version" : "4.4.9",
+                    "artifacts" : [
+                        {
+                            "name" : "httpcore",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.httpcomponents/httpcore/jars/httpcore-4.4.9.jar"
+                        },
+                        {
+                            "name" : "httpcore",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.httpcomponents/httpcore/srcs/httpcore-4.4.9-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "software.amazon.ion",
+                    "name" : "ion-java",
+                    "version" : "1.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "ion-java",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/software.amazon.ion/ion-java/bundles/ion-java-1.0.2.jar"
+                        },
+                        {
+                            "name" : "ion-java",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/software.amazon.ion/ion-java/srcs/ion-java-1.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.languagetool",
+                    "name" : "languagetool-core",
+                    "version" : "4.3",
+                    "artifacts" : [
+                        {
+                            "name" : "languagetool-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.languagetool/languagetool-core/jars/languagetool-core-4.3.jar"
+                        },
+                        {
+                            "name" : "languagetool-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.languagetool/languagetool-core/srcs/languagetool-core-4.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "net.java.dev.jna",
+                    "name" : "jna",
+                    "version" : "4.4.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jna",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.java.dev.jna/jna/jars/jna-4.4.0.jar"
+                        },
+                        {
+                            "name" : "jna",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.java.dev.jna/jna/srcs/jna-4.4.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.carrot2",
+                    "name" : "morfologik-fsa",
+                    "version" : "2.1.5",
+                    "artifacts" : [
+                        {
+                            "name" : "morfologik-fsa",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-fsa/bundles/morfologik-fsa-2.1.5.jar"
+                        },
+                        {
+                            "name" : "morfologik-fsa",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-fsa/srcs/morfologik-fsa-2.1.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.carrot2",
+                    "name" : "morfologik-fsa-builders",
+                    "version" : "2.1.5",
+                    "artifacts" : [
+                        {
+                            "name" : "morfologik-fsa-builders",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-fsa-builders/bundles/morfologik-fsa-builders-2.1.5.jar"
+                        },
+                        {
+                            "name" : "morfologik-fsa-builders",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-fsa-builders/srcs/morfologik-fsa-builders-2.1.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.carrotsearch",
+                    "name" : "hppc",
+                    "version" : "0.7.2",
+                    "artifacts" : [
+                        {
+                            "name" : "hppc",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.carrotsearch/hppc/bundles/hppc-0.7.2.jar"
+                        },
+                        {
+                            "name" : "hppc",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.carrotsearch/hppc/srcs/hppc-0.7.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.carrot2",
+                    "name" : "morfologik-speller",
+                    "version" : "2.1.5",
+                    "artifacts" : [
+                        {
+                            "name" : "morfologik-speller",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-speller/bundles/morfologik-speller-2.1.5.jar"
+                        },
+                        {
+                            "name" : "morfologik-speller",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-speller/srcs/morfologik-speller-2.1.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.carrot2",
+                    "name" : "morfologik-stemming",
+                    "version" : "2.1.5",
+                    "artifacts" : [
+                        {
+                            "name" : "morfologik-stemming",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-stemming/bundles/morfologik-stemming-2.1.5.jar"
+                        },
+                        {
+                            "name" : "morfologik-stemming",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.carrot2/morfologik-stemming/srcs/morfologik-stemming-2.1.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "net.loomchild",
+                    "name" : "segment",
+                    "version" : "2.0.0",
+                    "artifacts" : [
+                        {
+                            "name" : "segment",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.loomchild/segment/jars/segment-2.0.0.jar"
+                        },
+                        {
+                            "name" : "segment",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.loomchild/segment/srcs/segment-2.0.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.optimaize.languagedetector",
+                    "name" : "language-detector",
+                    "version" : "0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "language-detector",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.optimaize.languagedetector/language-detector/jars/language-detector-0.6.jar"
+                        },
+                        {
+                            "name" : "language-detector",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.optimaize.languagedetector/language-detector/srcs/language-detector-0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "net.arnx",
+                    "name" : "jsonic",
+                    "version" : "1.2.11",
+                    "artifacts" : [
+                        {
+                            "name" : "jsonic",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.arnx/jsonic/jars/jsonic-1.2.11.jar"
+                        },
+                        {
+                            "name" : "jsonic",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.arnx/jsonic/srcs/jsonic-1.2.11-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.intellij",
+                    "name" : "annotations",
+                    "version" : "12.0",
+                    "artifacts" : [
+                        {
+                            "name" : "annotations",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.intellij/annotations/jars/annotations-12.0.jar"
+                        },
+                        {
+                            "name" : "annotations",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.intellij/annotations/srcs/annotations-12.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.apache.lucene",
+                    "name" : "lucene-core",
+                    "version" : "5.5.4",
+                    "artifacts" : [
+                        {
+                            "name" : "lucene-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.lucene/lucene-core/jars/lucene-core-5.5.4.jar"
+                        },
+                        {
+                            "name" : "lucene-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.lucene/lucene-core/srcs/lucene-core-5.5.4-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.apache.lucene",
+                    "name" : "lucene-backward-codecs",
+                    "version" : "5.5.4",
+                    "artifacts" : [
+                        {
+                            "name" : "lucene-backward-codecs",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.lucene/lucene-backward-codecs/jars/lucene-backward-codecs-5.5.4.jar"
+                        },
+                        {
+                            "name" : "lucene-backward-codecs",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.lucene/lucene-backward-codecs/srcs/lucene-backward-codecs-5.5.4-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "edu.berkeley.nlp",
+                    "name" : "berkeleylm",
+                    "version" : "1.1.2",
+                    "artifacts" : [
+                        {
+                            "name" : "berkeleylm",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.berkeley.nlp/berkeleylm/jars/berkeleylm-1.1.2.jar"
+                        },
+                        {
+                            "name" : "berkeleylm",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.berkeley.nlp/berkeleylm/srcs/berkeleylm-1.1.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.fasterxml.jackson.core",
+                    "name" : "jackson-annotations",
+                    "version" : "2.9.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jackson-annotations",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/bundles/jackson-annotations-2.9.0.jar"
+                        },
+                        {
+                            "name" : "jackson-annotations",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-annotations/srcs/jackson-annotations-2.9.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "javax.measure",
+                    "name" : "unit-api",
+                    "version" : "1.0",
+                    "artifacts" : [
+                        {
+                            "name" : "unit-api",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.measure/unit-api/bundles/unit-api-1.0.jar"
+                        },
+                        {
+                            "name" : "unit-api",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.measure/unit-api/srcs/unit-api-1.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "tech.units",
+                    "name" : "indriya",
+                    "version" : "1.2",
+                    "artifacts" : [
+                        {
+                            "name" : "indriya",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/tech.units/indriya/bundles/indriya-1.2.jar"
+                        },
+                        {
+                            "name" : "indriya",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/tech.units/indriya/srcs/indriya-1.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "tech.uom.lib",
+                    "name" : "uom-lib-common",
+                    "version" : "1.1",
+                    "artifacts" : [
+                        {
+                            "name" : "uom-lib-common",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/tech.uom.lib/uom-lib-common/bundles/uom-lib-common-1.1.jar"
+                        },
+                        {
+                            "name" : "uom-lib-common",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/tech.uom.lib/uom-lib-common/srcs/uom-lib-common-1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.glassfish.jaxb",
+                    "name" : "jaxb-runtime",
+                    "version" : "2.3.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jaxb-runtime",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/jaxb-runtime/jars/jaxb-runtime-2.3.0.jar"
+                        },
+                        {
+                            "name" : "jaxb-runtime",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/jaxb-runtime/srcs/jaxb-runtime-2.3.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.glassfish.jaxb",
+                    "name" : "jaxb-core",
+                    "version" : "2.3.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jaxb-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/jaxb-core/jars/jaxb-core-2.3.0.jar"
+                        },
+                        {
+                            "name" : "jaxb-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/jaxb-core/srcs/jaxb-core-2.3.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.glassfish.jaxb",
+                    "name" : "txw2",
+                    "version" : "2.3.0",
+                    "artifacts" : [
+                        {
+                            "name" : "txw2",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/txw2/jars/txw2-2.3.0.jar"
+                        },
+                        {
+                            "name" : "txw2",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.glassfish.jaxb/txw2/srcs/txw2-2.3.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.sun.istack",
+                    "name" : "istack-commons-runtime",
+                    "version" : "3.0.5",
+                    "artifacts" : [
+                        {
+                            "name" : "istack-commons-runtime",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.sun.istack/istack-commons-runtime/jars/istack-commons-runtime-3.0.5.jar"
+                        },
+                        {
+                            "name" : "istack-commons-runtime",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.sun.istack/istack-commons-runtime/srcs/istack-commons-runtime-3.0.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.jvnet.staxex",
+                    "name" : "stax-ex",
+                    "version" : "1.7.8",
+                    "artifacts" : [
+                        {
+                            "name" : "stax-ex",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jvnet.staxex/stax-ex/jars/stax-ex-1.7.8.jar"
+                        },
+                        {
+                            "name" : "stax-ex",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jvnet.staxex/stax-ex/srcs/stax-ex-1.7.8-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.sun.xml.fastinfoset",
+                    "name" : "FastInfoset",
+                    "version" : "1.2.13",
+                    "artifacts" : [
+                        {
+                            "name" : "FastInfoset",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.sun.xml.fastinfoset/FastInfoset/jars/FastInfoset-1.2.13.jar"
+                        },
+                        {
+                            "name" : "FastInfoset",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.sun.xml.fastinfoset/FastInfoset/srcs/FastInfoset-1.2.13-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "javax.activation",
+                    "name" : "javax.activation-api",
+                    "version" : "1.2.0",
+                    "artifacts" : [
+                        {
+                            "name" : "javax.activation-api",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.activation/javax.activation-api/jars/javax.activation-api-1.2.0.jar"
+                        },
+                        {
+                            "name" : "javax.activation-api",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/javax.activation/javax.activation-api/srcs/javax.activation-api-1.2.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "biz.k11i",
+                    "name" : "xgboost-predictor",
+                    "version" : "0.3.0",
+                    "artifacts" : [
+                        {
+                            "name" : "xgboost-predictor",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/biz.k11i/xgboost-predictor/jars/xgboost-predictor-0.3.0.jar"
+                        },
+                        {
+                            "name" : "xgboost-predictor",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/biz.k11i/xgboost-predictor/srcs/xgboost-predictor-0.3.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "net.jafama",
+                    "name" : "jafama",
+                    "version" : "2.1.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jafama",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.jafama/jafama/jars/jafama-2.1.0.jar"
+                        },
+                        {
+                            "name" : "jafama",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.jafama/jafama/srcs/jafama-2.1.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.languagetool",
+                    "name" : "language-en",
+                    "version" : "4.3",
+                    "artifacts" : [
+                        {
+                            "name" : "language-en",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.languagetool/language-en/jars/language-en-4.3.jar"
+                        },
+                        {
+                            "name" : "language-en",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.languagetool/language-en/srcs/language-en-4.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.apache.opennlp",
+                    "name" : "opennlp-tools",
+                    "version" : "1.7.2",
+                    "artifacts" : [
+                        {
+                            "name" : "opennlp-tools",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.opennlp/opennlp-tools/bundles/opennlp-tools-1.7.2.jar"
+                        },
+                        {
+                            "name" : "opennlp-tools",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.opennlp/opennlp-tools/srcs/opennlp-tools-1.7.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "edu.washington.cs.knowitall",
+                    "name" : "opennlp-tokenize-models",
+                    "version" : "1.5",
+                    "artifacts" : [
+                        {
+                            "name" : "opennlp-tokenize-models",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-tokenize-models/jars/opennlp-tokenize-models-1.5.jar"
+                        },
+                        {
+                            "name" : "opennlp-tokenize-models",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-tokenize-models/srcs/opennlp-tokenize-models-1.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "edu.washington.cs.knowitall",
+                    "name" : "opennlp-postag-models",
+                    "version" : "1.5",
+                    "artifacts" : [
+                        {
+                            "name" : "opennlp-postag-models",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-postag-models/jars/opennlp-postag-models-1.5.jar"
+                        },
+                        {
+                            "name" : "opennlp-postag-models",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-postag-models/srcs/opennlp-postag-models-1.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "edu.washington.cs.knowitall",
+                    "name" : "opennlp-chunk-models",
+                    "version" : "1.5",
+                    "artifacts" : [
+                        {
+                            "name" : "opennlp-chunk-models",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-chunk-models/jars/opennlp-chunk-models-1.5.jar"
+                        },
+                        {
+                            "name" : "opennlp-chunk-models",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/edu.washington.cs.knowitall/opennlp-chunk-models/srcs/opennlp-chunk-models-1.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.amazonaws",
+                    "name" : "aws-java-sdk-ec2",
+                    "version" : "1.11.571",
+                    "artifacts" : [
+                        {
+                            "name" : "aws-java-sdk-ec2",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-ec2/jars/aws-java-sdk-ec2-1.11.571.jar"
+                        },
+                        {
+                            "name" : "aws-java-sdk-ec2",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-ec2/srcs/aws-java-sdk-ec2-1.11.571-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.amazonaws",
+                    "name" : "aws-java-sdk-core",
+                    "version" : "1.11.571",
+                    "artifacts" : [
+                        {
+                            "name" : "aws-java-sdk-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-core/jars/aws-java-sdk-core-1.11.571.jar"
+                        },
+                        {
+                            "name" : "aws-java-sdk-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-core/srcs/aws-java-sdk-core-1.11.571-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.amazonaws",
+                    "name" : "jmespath-java",
+                    "version" : "1.11.571",
+                    "artifacts" : [
+                        {
+                            "name" : "jmespath-java",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/jmespath-java/jars/jmespath-java-1.11.571.jar"
+                        },
+                        {
+                            "name" : "jmespath-java",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/jmespath-java/srcs/jmespath-java-1.11.571-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.amazonaws",
+                    "name" : "aws-java-sdk-ssm",
+                    "version" : "1.11.571",
+                    "artifacts" : [
+                        {
+                            "name" : "aws-java-sdk-ssm",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-ssm/jars/aws-java-sdk-ssm-1.11.571.jar"
+                        },
+                        {
+                            "name" : "aws-java-sdk-ssm",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-ssm/srcs/aws-java-sdk-ssm-1.11.571-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.amazonaws",
+                    "name" : "aws-java-sdk-kinesis",
+                    "version" : "1.11.571",
+                    "artifacts" : [
+                        {
+                            "name" : "aws-java-sdk-kinesis",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-kinesis/jars/aws-java-sdk-kinesis-1.11.571.jar"
+                        },
+                        {
+                            "name" : "aws-java-sdk-kinesis",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-kinesis/srcs/aws-java-sdk-kinesis-1.11.571-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.api-client",
+                    "name" : "google-api-client",
+                    "version" : "1.23.0",
+                    "artifacts" : [
+                        {
+                            "name" : "google-api-client",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.api-client/google-api-client/jars/google-api-client-1.23.0.jar"
+                        },
+                        {
+                            "name" : "google-api-client",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.api-client/google-api-client/srcs/google-api-client-1.23.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.oauth-client",
+                    "name" : "google-oauth-client",
+                    "version" : "1.23.0",
+                    "artifacts" : [
+                        {
+                            "name" : "google-oauth-client",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client/jars/google-oauth-client-1.23.0.jar"
+                        },
+                        {
+                            "name" : "google-oauth-client",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client/srcs/google-oauth-client-1.23.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.http-client",
+                    "name" : "google-http-client",
+                    "version" : "1.23.0",
+                    "artifacts" : [
+                        {
+                            "name" : "google-http-client",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.http-client/google-http-client/jars/google-http-client-1.23.0.jar"
+                        },
+                        {
+                            "name" : "google-http-client",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.http-client/google-http-client/srcs/google-http-client-1.23.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.http-client",
+                    "name" : "google-http-client-jackson2",
+                    "version" : "1.23.0",
+                    "artifacts" : [
+                        {
+                            "name" : "google-http-client-jackson2",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.http-client/google-http-client-jackson2/jars/google-http-client-jackson2-1.23.0.jar"
+                        },
+                        {
+                            "name" : "google-http-client-jackson2",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.http-client/google-http-client-jackson2/srcs/google-http-client-jackson2-1.23.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.guava",
+                    "name" : "guava-jdk5",
+                    "version" : "17.0",
+                    "artifacts" : [
+                        {
+                            "name" : "guava-jdk5",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.guava/guava-jdk5/bundles/guava-jdk5-17.0.jar"
+                        },
+                        {
+                            "name" : "guava-jdk5",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.guava/guava-jdk5/srcs/guava-jdk5-17.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.oauth-client",
+                    "name" : "google-oauth-client-jetty",
+                    "version" : "1.23.0",
+                    "artifacts" : [
+                        {
+                            "name" : "google-oauth-client-jetty",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client-jetty/jars/google-oauth-client-jetty-1.23.0.jar"
+                        },
+                        {
+                            "name" : "google-oauth-client-jetty",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client-jetty/srcs/google-oauth-client-jetty-1.23.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.oauth-client",
+                    "name" : "google-oauth-client-java6",
+                    "version" : "1.23.0",
+                    "artifacts" : [
+                        {
+                            "name" : "google-oauth-client-java6",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client-java6/jars/google-oauth-client-java6-1.23.0.jar"
+                        },
+                        {
+                            "name" : "google-oauth-client-java6",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.oauth-client/google-oauth-client-java6/srcs/google-oauth-client-java6-1.23.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.mortbay.jetty",
+                    "name" : "jetty",
+                    "version" : "6.1.26",
+                    "artifacts" : [
+                        {
+                            "name" : "jetty",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/jetty/jars/jetty-6.1.26.jar"
+                        },
+                        {
+                            "name" : "jetty",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/jetty/srcs/jetty-6.1.26-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.mortbay.jetty",
+                    "name" : "jetty-util",
+                    "version" : "6.1.26",
+                    "artifacts" : [
+                        {
+                            "name" : "jetty-util",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/jetty-util/jars/jetty-util-6.1.26.jar"
+                        },
+                        {
+                            "name" : "jetty-util",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/jetty-util/srcs/jetty-util-6.1.26-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.mortbay.jetty",
+                    "name" : "servlet-api",
+                    "version" : "2.5-20081211",
+                    "artifacts" : [
+                        {
+                            "name" : "servlet-api",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/servlet-api/jars/servlet-api-2.5-20081211.jar"
+                        },
+                        {
+                            "name" : "servlet-api",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.mortbay.jetty/servlet-api/srcs/servlet-api-2.5-20081211-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.google.apis",
+                    "name" : "google-api-services-sheets",
+                    "version" : "v4-rev516-1.23.0",
+                    "artifacts" : [
+                        {
+                            "name" : "google-api-services-sheets",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.apis/google-api-services-sheets/jars/google-api-services-sheets-v4-rev516-1.23.0.jar"
+                        },
+                        {
+                            "name" : "google-api-services-sheets",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.google.apis/google-api-services-sheets/srcs/google-api-services-sheets-v4-rev516-1.23.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "net.logstash.logback",
+                    "name" : "logstash-logback-encoder",
+                    "version" : "6.0",
+                    "artifacts" : [
+                        {
+                            "name" : "logstash-logback-encoder",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.logstash.logback/logstash-logback-encoder/jars/logstash-logback-encoder-6.0.jar"
+                        },
+                        {
+                            "name" : "logstash-logback-encoder",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.logstash.logback/logstash-logback-encoder/srcs/logstash-logback-encoder-6.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.fasterxml.jackson.core",
+                    "name" : "jackson-databind",
+                    "version" : "2.9.9",
+                    "artifacts" : [
+                        {
+                            "name" : "jackson-databind",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/bundles/jackson-databind-2.9.9.jar"
+                        },
+                        {
+                            "name" : "jackson-databind",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-databind/srcs/jackson-databind-2.9.9-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.fasterxml.jackson.core",
+                    "name" : "jackson-core",
+                    "version" : "2.9.9",
+                    "artifacts" : [
+                        {
+                            "name" : "jackson-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/bundles/jackson-core-2.9.9.jar"
+                        },
+                        {
+                            "name" : "jackson-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.core/jackson-core/srcs/jackson-core-2.9.9-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.gu",
+                    "name" : "kinesis-logback-appender",
+                    "version" : "1.4.4",
+                    "artifacts" : [
+                        {
+                            "name" : "kinesis-logback-appender",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.gu/kinesis-logback-appender/jars/kinesis-logback-appender-1.4.4.jar"
+                        },
+                        {
+                            "name" : "kinesis-logback-appender",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.gu/kinesis-logback-appender/srcs/kinesis-logback-appender-1.4.4-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.amazonaws",
+                    "name" : "aws-java-sdk-sts",
+                    "version" : "1.11.384",
+                    "artifacts" : [
+                        {
+                            "name" : "aws-java-sdk-sts",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-sts/jars/aws-java-sdk-sts-1.11.384.jar"
+                        },
+                        {
+                            "name" : "aws-java-sdk-sts",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.amazonaws/aws-java-sdk-sts/srcs/aws-java-sdk-sts-1.11.384-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.fasterxml.jackson.dataformat",
+                    "name" : "jackson-dataformat-cbor",
+                    "version" : "2.9.5",
+                    "artifacts" : [
+                        {
+                            "name" : "jackson-dataformat-cbor",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/bundles/jackson-dataformat-cbor-2.9.5.jar"
+                        },
+                        {
+                            "name" : "jackson-dataformat-cbor",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.fasterxml.jackson.dataformat/jackson-dataformat-cbor/srcs/jackson-dataformat-cbor-2.9.5-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.webjars",
+                    "name" : "bootstrap",
+                    "version" : "4.3.1",
+                    "artifacts" : [
+                        {
+                            "name" : "bootstrap",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.webjars/bootstrap/jars/bootstrap-4.3.1.jar"
+                        },
+                        {
+                            "name" : "bootstrap",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.webjars/bootstrap/srcs/bootstrap-4.3.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.webjars",
+                    "name" : "jquery",
+                    "version" : "3.0.0",
+                    "artifacts" : [
+                        {
+                            "name" : "jquery",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.webjars/jquery/jars/jquery-3.0.0.jar"
+                        },
+                        {
+                            "name" : "jquery",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.webjars/jquery/srcs/jquery-3.0.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.webjars",
+                    "name" : "popper.js",
+                    "version" : "1.14.3",
+                    "artifacts" : [
+                        {
+                            "name" : "popper.js",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.webjars/popper.js/jars/popper.js-1.14.3.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.scala-sbt",
+                    "name" : "test-interface",
+                    "version" : "1.0",
+                    "artifacts" : [
+                        {
+                            "name" : "test-interface",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-sbt/test-interface/jars/test-interface-1.0.jar"
+                        },
+                        {
+                            "name" : "test-interface",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-sbt/test-interface/srcs/test-interface-1.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling.highcharts",
+                    "name" : "gatling-charts-highcharts",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-charts-highcharts",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling.highcharts/gatling-charts-highcharts/jars/gatling-charts-highcharts-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-charts-highcharts",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling.highcharts/gatling-charts-highcharts/srcs/gatling-charts-highcharts-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-charts",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-charts",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-charts/jars/gatling-charts-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-charts",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-charts/srcs/gatling-charts-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-core",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-core/jars/gatling-core-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-core/srcs/gatling-core-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-commons",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-commons",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-commons/jars/gatling-commons-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-commons",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-commons/srcs/gatling-commons-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-netty-util",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-netty-util",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-netty-util/jars/gatling-netty-util-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-netty-util",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-netty-util/srcs/gatling-netty-util-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-buffer",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-buffer",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-buffer/jars/netty-buffer-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-buffer",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-buffer/srcs/netty-buffer-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-common",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-common",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-common/jars/netty-common-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-common",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-common/srcs/netty-common-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.dongxiguo",
+                    "name" : "fastring_2.12",
+                    "version" : "1.0.0",
+                    "artifacts" : [
+                        {
+                            "name" : "fastring_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.dongxiguo/fastring_2.12/jars/fastring_2.12-1.0.0.jar"
+                        },
+                        {
+                            "name" : "fastring_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.dongxiguo/fastring_2.12/srcs/fastring_2.12-1.0.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.suzaku",
+                    "name" : "boopickle_2.12",
+                    "version" : "1.3.0",
+                    "artifacts" : [
+                        {
+                            "name" : "boopickle_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.suzaku/boopickle_2.12/jars/boopickle_2.12-1.3.0.jar"
+                        },
+                        {
+                            "name" : "boopickle_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.suzaku/boopickle_2.12/srcs/boopickle_2.12-1.3.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.typelevel",
+                    "name" : "spire-macros_2.12",
+                    "version" : "0.16.0",
+                    "artifacts" : [
+                        {
+                            "name" : "spire-macros_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.typelevel/spire-macros_2.12/jars/spire-macros_2.12-0.16.0.jar"
+                        },
+                        {
+                            "name" : "spire-macros_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.typelevel/spire-macros_2.12/srcs/spire-macros_2.12-0.16.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.softwaremill.quicklens",
+                    "name" : "quicklens_2.12",
+                    "version" : "1.4.11",
+                    "artifacts" : [
+                        {
+                            "name" : "quicklens_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.softwaremill.quicklens/quicklens_2.12/jars/quicklens_2.12-1.4.11.jar"
+                        },
+                        {
+                            "name" : "quicklens_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.softwaremill.quicklens/quicklens_2.12/srcs/quicklens_2.12-1.4.11-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.scala-lang.modules",
+                    "name" : "scala-java8-compat_2.12",
+                    "version" : "0.9.0",
+                    "artifacts" : [
+                        {
+                            "name" : "scala-java8-compat_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-java8-compat_2.12/jars/scala-java8-compat_2.12-0.9.0.jar"
+                        },
+                        {
+                            "name" : "scala-java8-compat_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-java8-compat_2.12/srcs/scala-java8-compat_2.12-0.9.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.eatthepath",
+                    "name" : "fast-uuid",
+                    "version" : "0.1",
+                    "artifacts" : [
+                        {
+                            "name" : "fast-uuid",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.eatthepath/fast-uuid/jars/fast-uuid-0.1.jar"
+                        },
+                        {
+                            "name" : "fast-uuid",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.eatthepath/fast-uuid/srcs/fast-uuid-0.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.scala-logging",
+                    "name" : "scala-logging_2.12",
+                    "version" : "3.9.0",
+                    "artifacts" : [
+                        {
+                            "name" : "scala-logging_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.scala-logging/scala-logging_2.12/bundles/scala-logging_2.12-3.9.0.jar"
+                        },
+                        {
+                            "name" : "scala-logging_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.scala-logging/scala-logging_2.12/srcs/scala-logging_2.12-3.9.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.akka",
+                    "name" : "akka-actor_2.12",
+                    "version" : "2.5.19",
+                    "artifacts" : [
+                        {
+                            "name" : "akka-actor_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/jars/akka-actor_2.12-2.5.19.jar"
+                        },
+                        {
+                            "name" : "akka-actor_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-actor_2.12/srcs/akka-actor_2.12-2.5.19-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.typesafe.akka",
+                    "name" : "akka-slf4j_2.12",
+                    "version" : "2.5.19",
+                    "artifacts" : [
+                        {
+                            "name" : "akka-slf4j_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-slf4j_2.12/jars/akka-slf4j_2.12-2.5.19.jar"
+                        },
+                        {
+                            "name" : "akka-slf4j_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.typesafe.akka/akka-slf4j_2.12/srcs/akka-slf4j_2.12-2.5.19-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.simpleflatmapper",
+                    "name" : "lightning-csv",
+                    "version" : "6.0.13",
+                    "artifacts" : [
+                        {
+                            "name" : "lightning-csv",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.simpleflatmapper/lightning-csv/bundles/lightning-csv-6.0.13.jar"
+                        },
+                        {
+                            "name" : "lightning-csv",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.simpleflatmapper/lightning-csv/srcs/lightning-csv-6.0.13-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.github.ben-manes.caffeine",
+                    "name" : "caffeine",
+                    "version" : "2.6.2",
+                    "artifacts" : [
+                        {
+                            "name" : "caffeine",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.github.ben-manes.caffeine/caffeine/jars/caffeine-2.6.2.jar"
+                        },
+                        {
+                            "name" : "caffeine",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.github.ben-manes.caffeine/caffeine/srcs/caffeine-2.6.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.pebbletemplates",
+                    "name" : "pebble",
+                    "version" : "3.0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "pebble",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.pebbletemplates/pebble/jars/pebble-3.0.6.jar"
+                        },
+                        {
+                            "name" : "pebble",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.pebbletemplates/pebble/srcs/pebble-3.0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.unbescape",
+                    "name" : "unbescape",
+                    "version" : "1.1.6.RELEASE",
+                    "artifacts" : [
+                        {
+                            "name" : "unbescape",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.unbescape/unbescape/jars/unbescape-1.1.6.RELEASE.jar"
+                        },
+                        {
+                            "name" : "unbescape",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.unbescape/unbescape/srcs/unbescape-1.1.6.RELEASE-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.github.scopt",
+                    "name" : "scopt_2.12",
+                    "version" : "3.7.1",
+                    "artifacts" : [
+                        {
+                            "name" : "scopt_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.github.scopt/scopt_2.12/jars/scopt_2.12-3.7.1.jar"
+                        },
+                        {
+                            "name" : "scopt_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.github.scopt/scopt_2.12/srcs/scopt_2.12-3.7.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "jsonpath_2.12",
+                    "version" : "0.6.14",
+                    "artifacts" : [
+                        {
+                            "name" : "jsonpath_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/jsonpath_2.12/jars/jsonpath_2.12-0.6.14.jar"
+                        },
+                        {
+                            "name" : "jsonpath_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/jsonpath_2.12/srcs/jsonpath_2.12-0.6.14-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.jodd",
+                    "name" : "jodd-json",
+                    "version" : "5.0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "jodd-json",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-json/jars/jodd-json-5.0.6.jar"
+                        },
+                        {
+                            "name" : "jodd-json",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-json/srcs/jodd-json-5.0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.jodd",
+                    "name" : "jodd-bean",
+                    "version" : "5.0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "jodd-bean",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-bean/jars/jodd-bean-5.0.6.jar"
+                        },
+                        {
+                            "name" : "jodd-bean",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-bean/srcs/jodd-bean-5.0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.jodd",
+                    "name" : "jodd-core",
+                    "version" : "5.0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "jodd-core",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-core/jars/jodd-core-5.0.6.jar"
+                        },
+                        {
+                            "name" : "jodd-core",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-core/srcs/jodd-core-5.0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "net.sf.saxon",
+                    "name" : "Saxon-HE",
+                    "version" : "9.9.0-2",
+                    "artifacts" : [
+                        {
+                            "name" : "Saxon-HE",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.sf.saxon/Saxon-HE/jars/Saxon-HE-9.9.0-2.jar"
+                        },
+                        {
+                            "name" : "Saxon-HE",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.sf.saxon/Saxon-HE/srcs/Saxon-HE-9.9.0-2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.jodd",
+                    "name" : "jodd-lagarto",
+                    "version" : "5.0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "jodd-lagarto",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-lagarto/jars/jodd-lagarto-5.0.6.jar"
+                        },
+                        {
+                            "name" : "jodd-lagarto",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-lagarto/srcs/jodd-lagarto-5.0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.jodd",
+                    "name" : "jodd-log",
+                    "version" : "5.0.6",
+                    "artifacts" : [
+                        {
+                            "name" : "jodd-log",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-log/jars/jodd-log-5.0.6.jar"
+                        },
+                        {
+                            "name" : "jodd-log",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.jodd/jodd-log/srcs/jodd-log-5.0.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.tdunning",
+                    "name" : "t-digest",
+                    "version" : "3.1",
+                    "artifacts" : [
+                        {
+                            "name" : "t-digest",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.tdunning/t-digest/jars/t-digest-3.1.jar"
+                        },
+                        {
+                            "name" : "t-digest",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.tdunning/t-digest/srcs/t-digest-3.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-app",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-app",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-app/jars/gatling-app-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-app",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-app/srcs/gatling-app-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-http",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-http",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-http/jars/gatling-http-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-http",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-http/srcs/gatling-http-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-http-client",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-http-client",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-http-client/jars/gatling-http-client-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-http-client",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-http-client/srcs/gatling-http-client-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-codec-http",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-codec-http",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-http/jars/netty-codec-http-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-codec-http",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-http/srcs/netty-codec-http-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-codec",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-codec",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec/jars/netty-codec-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-codec",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec/srcs/netty-codec-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-transport",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-transport",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-transport/jars/netty-transport-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-transport",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-transport/srcs/netty-transport-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-resolver",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-resolver",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-resolver/jars/netty-resolver-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-resolver",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-resolver/srcs/netty-resolver-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-handler",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-handler",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-handler/jars/netty-handler-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-handler",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-handler/srcs/netty-handler-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-handler-proxy",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-handler-proxy",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-handler-proxy/jars/netty-handler-proxy-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-handler-proxy",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-handler-proxy/srcs/netty-handler-proxy-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-codec-socks",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-codec-socks",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-socks/jars/netty-codec-socks-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-codec-socks",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-socks/srcs/netty-codec-socks-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-resolver-dns",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-resolver-dns",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-resolver-dns/jars/netty-resolver-dns-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-resolver-dns",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-resolver-dns/srcs/netty-resolver-dns-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-codec-dns",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-codec-dns",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-dns/jars/netty-codec-dns-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-codec-dns",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-dns/srcs/netty-codec-dns-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-transport-native-unix-common",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-transport-native-unix-common",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-transport-native-unix-common/jars/netty-transport-native-unix-common-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-transport-native-unix-common",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-transport-native-unix-common/srcs/netty-transport-native-unix-common-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-codec-http2",
+                    "version" : "4.1.32.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-codec-http2",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-http2/jars/netty-codec-http2-4.1.32.Final.jar"
+                        },
+                        {
+                            "name" : "netty-codec-http2",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-codec-http2/srcs/netty-codec-http2-4.1.32.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.netty",
+                    "name" : "netty-tcnative-boringssl-static",
+                    "version" : "2.0.20.Final",
+                    "artifacts" : [
+                        {
+                            "name" : "netty-tcnative-boringssl-static",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-tcnative-boringssl-static/jars/netty-tcnative-boringssl-static-2.0.20.Final.jar"
+                        },
+                        {
+                            "name" : "netty-tcnative-boringssl-static",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.netty/netty-tcnative-boringssl-static/srcs/netty-tcnative-boringssl-static-2.0.20.Final-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.sun.activation",
+                    "name" : "javax.activation",
+                    "version" : "1.2.0",
+                    "artifacts" : [
+                        {
+                            "name" : "javax.activation",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.sun.activation/javax.activation/jars/javax.activation-1.2.0.jar"
+                        },
+                        {
+                            "name" : "javax.activation",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.sun.activation/javax.activation/srcs/javax.activation-1.2.0-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.scala-lang.modules",
+                    "name" : "scala-xml_2.12",
+                    "version" : "1.1.1",
+                    "artifacts" : [
+                        {
+                            "name" : "scala-xml_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.1.1.jar"
+                        },
+                        {
+                            "name" : "scala-xml_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/srcs/scala-xml_2.12-1.1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-jms",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-jms",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-jms/jars/gatling-jms-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-jms",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-jms/srcs/gatling-jms-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.apache.geronimo.specs",
+                    "name" : "geronimo-jms_1.1_spec",
+                    "version" : "1.1.1",
+                    "artifacts" : [
+                        {
+                            "name" : "geronimo-jms_1.1_spec",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.geronimo.specs/geronimo-jms_1.1_spec/jars/geronimo-jms_1.1_spec-1.1.1.jar"
+                        },
+                        {
+                            "name" : "geronimo-jms_1.1_spec",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.apache.geronimo.specs/geronimo-jms_1.1_spec/srcs/geronimo-jms_1.1_spec-1.1.1-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-jdbc",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-jdbc",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-jdbc/jars/gatling-jdbc-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-jdbc",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-jdbc/srcs/gatling-jdbc-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-redis",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-redis",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-redis/jars/gatling-redis-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-redis",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-redis/srcs/gatling-redis-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "net.debasishg",
+                    "name" : "redisclient_2.12",
+                    "version" : "3.7",
+                    "artifacts" : [
+                        {
+                            "name" : "redisclient_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.debasishg/redisclient_2.12/jars/redisclient_2.12-3.7.jar"
+                        },
+                        {
+                            "name" : "redisclient_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/net.debasishg/redisclient_2.12/srcs/redisclient_2.12-3.7-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "commons-pool",
+                    "name" : "commons-pool",
+                    "version" : "1.6",
+                    "artifacts" : [
+                        {
+                            "name" : "commons-pool",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/commons-pool/commons-pool/jars/commons-pool-1.6.jar"
+                        },
+                        {
+                            "name" : "commons-pool",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/commons-pool/commons-pool/srcs/commons-pool-1.6-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-graphite",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-graphite",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-graphite/jars/gatling-graphite-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-graphite",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-graphite/srcs/gatling-graphite-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.hdrhistogram",
+                    "name" : "HdrHistogram",
+                    "version" : "2.1.10",
+                    "artifacts" : [
+                        {
+                            "name" : "HdrHistogram",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.hdrhistogram/HdrHistogram/bundles/HdrHistogram-2.1.10.jar"
+                        },
+                        {
+                            "name" : "HdrHistogram",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.hdrhistogram/HdrHistogram/srcs/HdrHistogram-2.1.10-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-recorder",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-recorder",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-recorder/jars/gatling-recorder-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-recorder",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-recorder/srcs/gatling-recorder-3.0.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.scala-lang.modules",
+                    "name" : "scala-swing_2.12",
+                    "version" : "2.0.3",
+                    "artifacts" : [
+                        {
+                            "name" : "scala-swing_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-swing_2.12/jars/scala-swing_2.12-2.0.3.jar"
+                        },
+                        {
+                            "name" : "scala-swing_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.scala-lang.modules/scala-swing_2.12/srcs/scala-swing_2.12-2.0.3-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.json4s",
+                    "name" : "json4s-jackson_2.12",
+                    "version" : "3.6.2",
+                    "artifacts" : [
+                        {
+                            "name" : "json4s-jackson_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-jackson_2.12/jars/json4s-jackson_2.12-3.6.2.jar"
+                        },
+                        {
+                            "name" : "json4s-jackson_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-jackson_2.12/srcs/json4s-jackson_2.12-3.6.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.json4s",
+                    "name" : "json4s-core_2.12",
+                    "version" : "3.6.2",
+                    "artifacts" : [
+                        {
+                            "name" : "json4s-core_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-core_2.12/jars/json4s-core_2.12-3.6.2.jar"
+                        },
+                        {
+                            "name" : "json4s-core_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-core_2.12/srcs/json4s-core_2.12-3.6.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.json4s",
+                    "name" : "json4s-ast_2.12",
+                    "version" : "3.6.2",
+                    "artifacts" : [
+                        {
+                            "name" : "json4s-ast_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-ast_2.12/jars/json4s-ast_2.12-3.6.2.jar"
+                        },
+                        {
+                            "name" : "json4s-ast_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-ast_2.12/srcs/json4s-ast_2.12-3.6.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.json4s",
+                    "name" : "json4s-scalap_2.12",
+                    "version" : "3.6.2",
+                    "artifacts" : [
+                        {
+                            "name" : "json4s-scalap_2.12",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-scalap_2.12/jars/json4s-scalap_2.12-3.6.2.jar"
+                        },
+                        {
+                            "name" : "json4s-scalap_2.12",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.json4s/json4s-scalap_2.12/srcs/json4s-scalap_2.12-3.6.2-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "com.thoughtworks.paranamer",
+                    "name" : "paranamer",
+                    "version" : "2.8",
+                    "artifacts" : [
+                        {
+                            "name" : "paranamer",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.thoughtworks.paranamer/paranamer/bundles/paranamer-2.8.jar"
+                        },
+                        {
+                            "name" : "paranamer",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/com.thoughtworks.paranamer/paranamer/srcs/paranamer-2.8-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.bouncycastle",
+                    "name" : "bcpkix-jdk15on",
+                    "version" : "1.60",
+                    "artifacts" : [
+                        {
+                            "name" : "bcpkix-jdk15on",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/jars/bcpkix-jdk15on-1.60.jar"
+                        },
+                        {
+                            "name" : "bcpkix-jdk15on",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.bouncycastle/bcpkix-jdk15on/srcs/bcpkix-jdk15on-1.60-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "org.bouncycastle",
+                    "name" : "bcprov-jdk15on",
+                    "version" : "1.60",
+                    "artifacts" : [
+                        {
+                            "name" : "bcprov-jdk15on",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/jars/bcprov-jdk15on-1.60.jar"
+                        },
+                        {
+                            "name" : "bcprov-jdk15on",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/org.bouncycastle/bcprov-jdk15on/srcs/bcprov-jdk15on-1.60-sources.jar"
+                        }
+                    ]
+                },
+                {
+                    "organization" : "io.gatling",
+                    "name" : "gatling-test-framework",
+                    "version" : "3.0.2",
+                    "artifacts" : [
+                        {
+                            "name" : "gatling-test-framework",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-test-framework/jars/gatling-test-framework-3.0.2.jar"
+                        },
+                        {
+                            "name" : "gatling-test-framework",
+                            "classifier" : "sources",
+                            "path" : "/Users/jonathonherbert/.ivy2/cache/io.gatling/gatling-test-framework/srcs/gatling-test-framework-3.0.2-sources.jar"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

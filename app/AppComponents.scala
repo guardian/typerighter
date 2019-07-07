@@ -5,8 +5,12 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, HomeController, RulesController}
+import opennlp.tools.namefind.TokenNameFinderModel
+import opennlp.tools.sentdetect.SentenceModel
+import opennlp.tools.tokenize.TokenizerModel
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
+import play.api.libs.ws.WSClient
 import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
@@ -52,15 +56,7 @@ class AppComponents(context: Context, identity: AppIdentity)
   val rulesController = new RulesController(controllerComponents, validatorPool, languageToolFactory, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
 
-  // Fetch the rules when the app starts.
-  for {
-    (rules, _) <- ruleResource.fetchRulesByCategory()
-  } yield {
-    rules.foreach { case (category, rules) => {
-      val (validator, _) = languageToolFactory.createInstance(category.name, ValidatorConfig(rules))
-      validatorPool.addValidator(category, validator)
-    }}
-  }
+  initialiseValidators
 
   lazy val router = new Routes(
     httpErrorHandler,
@@ -69,4 +65,38 @@ class AppComponents(context: Context, identity: AppIdentity)
     rulesController,
     apiController
   )
+
+  /**
+    * Set up validators and add them to the validator pool as the app starts.
+    */
+  def initialiseValidators = {
+    for {
+      (rules, _) <- ruleResource.fetchRulesByCategory()
+    } yield {
+      rules.foreach { case (category, rules) => {
+        val (validator, _) = languageToolFactory.createInstance(category.name, ValidatorConfig(rules))
+        validatorPool.addValidator(category, validator)
+      }}
+    }
+
+    val nameFinderModelFile = getClass.getResourceAsStream("/openNLP/en-ner-person.bin")
+    val tokenModelFile = getClass.getResourceAsStream("/openNLP/en-token.bin")
+    val sentenceModelFile = getClass.getResourceAsStream("/openNLP/en-sent.bin")
+
+    val nameFinderModel = new TokenNameFinderModel(nameFinderModelFile)
+    val tokenModel = new TokenizerModel(tokenModelFile)
+    val sentenceModel = new SentenceModel(sentenceModelFile)
+
+    nameFinderModelFile.close()
+    tokenModelFile.close()
+    sentenceModelFile.close()
+
+    val nameFinder = new NameFinder(
+      nameFinderModel,
+      tokenModel,
+      sentenceModel
+    )
+
+    validatorPool.addValidator("name-checker", new NameCheckerValidator(nameFinder, new WikiNameSearcher))
+  }
 }

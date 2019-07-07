@@ -2,10 +2,11 @@ package services
 
 import java.net.URLEncoder
 
+import javax.inject.Inject
 import play.api.libs.json.{Json, Reads, Writes}
 import play.api.libs.ws._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 case class WikiNameSearchResults()
 
@@ -42,7 +43,7 @@ object WikiSearchResult {
   implicit val reads: Reads[WikiSearchResult] = Json.reads[WikiSearchResult]
 }
 
-class WikiNameSearcher(ws: WSClient) {
+class WikiNameSearcher @Inject()(ws: WSClient)(implicit ec: ExecutionContext) {
   def fetchWikiMatchesForName(name: String): Future[WikiQueryResponse] = {
     ws.url(getWikiSearchUrl(name)).get().map { response =>
       Json.fromJson[WikiSearchResponse](response.json).asOpt
