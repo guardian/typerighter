@@ -1,12 +1,11 @@
 package controllers
 
 import model.{Category, Rule}
-import play.api.Configuration
 import play.api.mvc._
 import rules.RuleResource
 import services._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext}
 
 /**
  * The controller that handles the management of validator rules.

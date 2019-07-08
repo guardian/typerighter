@@ -20,11 +20,14 @@ import services.{ElkLogging, LanguageToolFactory, ValidatorPool}
 import services._
 import utils.Loggable
 
+import play.api.libs.ws.ahc.AhcWSComponents
+
 class AppComponents(context: Context, identity: AppIdentity)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with CORSComponents
   with Loggable
+  with AhcWSComponents
   with controllers.AssetsComponents {
   implicit val system = actorSystem
   implicit val mat = materializer
@@ -97,6 +100,6 @@ class AppComponents(context: Context, identity: AppIdentity)
       sentenceModel
     )
 
-    validatorPool.addValidator("name-checker", new NameCheckerValidator(nameFinder, new WikiNameSearcher))
+    validatorPool.addValidator("name-checker", new NameCheckerValidator(nameFinder, new WikiNameSearcher(wsClient)))
   }
 }

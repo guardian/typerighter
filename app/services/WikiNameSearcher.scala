@@ -43,11 +43,11 @@ object WikiSearchResult {
   implicit val reads: Reads[WikiSearchResult] = Json.reads[WikiSearchResult]
 }
 
-class WikiNameSearcher @Inject()(ws: WSClient)(implicit ec: ExecutionContext) {
-  def fetchWikiMatchesForName(name: String): Future[WikiQueryResponse] = {
+class WikiNameSearcher(ws: WSClient)(implicit ec: ExecutionContext) {
+  def fetchWikiMatchesForName(name: String): Future[Option[WikiQueryResponse]] = {
     ws.url(getWikiSearchUrl(name)).get().map { response =>
-      Json.fromJson[WikiSearchResponse](response.json).asOpt
-    }.flatten
+      Json.fromJson[WikiQueryResponse](response.json).asOpt
+    }
   }
 
   private def getWikiSearchUrl(search: String) = s"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${URLEncoder.encode(search, "UTF-8")}&utf8=&format=json"

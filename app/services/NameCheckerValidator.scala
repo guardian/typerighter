@@ -12,19 +12,22 @@ class NameCheckerValidator(nameFinder: NameFinder, wikiNameSearcher: WikiNameSea
   def getRules = List.empty
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
     val names = nameFinder.findNames(request.text)
-    val results = names.map { name => wikiNameSearcher.fetchWikiMatchesForName(name.text).map {
-      result => {
-        val firstSearchResult = result.query.search.headOption.map { searchResult =>
-          searchResult.snippet
+    val results = names.map { name =>
+      wikiNameSearcher.fetchWikiMatchesForName(name.text).flatMap {
+        case Some(result) => {
+          val firstSearchResult = result.query.search.headOption.map { searchResult =>
+            searchResult.snippet
+          }
+          Future.successful(RuleMatch(
+            getResponseRule,
+            name.from,
+            name.to,
+            message = firstSearchResult.getOrElse("No result")
+          ))
         }
-        RuleMatch(
-          getResponseRule,
-          name.from,
-          name.to,
-          message = firstSearchResult.getOrElse("No result")
-        )
+        case None => Future.failed(new Throwable(s"Could not parse result for name ${name.text}"))
       }
-    }}
+    }
     Future.sequence(results)
   }
   private def getResponseRule = ResponseRule(
