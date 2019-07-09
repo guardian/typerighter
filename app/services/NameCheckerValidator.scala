@@ -15,14 +15,14 @@ class NameCheckerValidator(nameFinder: NameFinder, wikiNameSearcher: WikiNameSea
     val results = names.map { name =>
       wikiNameSearcher.fetchWikiMatchesForName(name.text).flatMap {
         case Some(result) => {
-          val firstSearchResult = result.query.search.headOption.map { searchResult =>
-            searchResult.snippet
+          val firstSearchResult = result.hits.hits.headOption.map { hit =>
+            hit._source.title
           }
           Future.successful(RuleMatch(
             getResponseRule,
             name.from,
             name.to,
-            message = firstSearchResult.getOrElse("No result")
+            message = firstSearchResult.getOrElse(List("No result")).mkString("")
           ))
         }
         case None => Future.failed(new Throwable(s"Could not parse result for name ${name.text}"))

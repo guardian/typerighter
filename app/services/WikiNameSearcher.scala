@@ -2,54 +2,54 @@ package services
 
 import java.net.URLEncoder
 
-import javax.inject.Inject
 import play.api.libs.json.{Json, Reads, Writes}
 import play.api.libs.ws._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class WikiNameSearchResults()
+case class SearchResults(
+                          hits: SearchHits,
+                          took: Int
+                        )
 
-case class WikiQueryResponse(
-                              query: WikiSearchResponse
-                            )
-
-object WikiQueryResponse {
-  implicit val writes: Writes[WikiQueryResponse] = Json.writes[WikiQueryResponse]
-  implicit val reads: Reads[WikiQueryResponse] = Json.reads[WikiQueryResponse]
+object SearchResults {
+  implicit val writes: Writes[SearchResults] = Json.writes[SearchResults]
+  implicit val reads: Reads[SearchResults] = Json.reads[SearchResults]
 }
 
-case class WikiSearchResponse(
-                               search: List[WikiSearchResult]
-                             )
+case class SearchHits(max_score: Double, hits: List[SearchHit])
 
-object WikiSearchResponse {
-  implicit val writes: Writes[WikiSearchResponse] = Json.writes[WikiSearchResponse]
-  implicit val reads: Reads[WikiSearchResponse] = Json.reads[WikiSearchResponse]
+object SearchHits {
+  implicit val writes: Writes[SearchHits] = Json.writes[SearchHits]
+  implicit val reads: Reads[SearchHits] = Json.reads[SearchHits]
 }
 
-case class WikiSearchResult(
-                             ns: Int,
-                             title: String,
-                             pageid: Int,
-                             size: Int,
-                             wordcount: Int,
-                             snippet: String,
-                             timestamp: String
-                           )
+case class SearchHit(_source: SearchHitSource, _score: Double)
 
-object WikiSearchResult {
-  implicit val writes: Writes[WikiSearchResult] = Json.writes[WikiSearchResult]
-  implicit val reads: Reads[WikiSearchResult] = Json.reads[WikiSearchResult]
+object SearchHit {
+  implicit val writes: Writes[SearchHit] = Json.writes[SearchHit]
+  implicit val reads: Reads[SearchHit] = Json.reads[SearchHit]
+}
+
+
+case class SearchHitSource(title: List[String], `abstract`: List[String], url: List[String])
+
+object SearchHitSource {
+  implicit val writes: Writes[SearchHitSource] = Json.writes[SearchHitSource]
+  implicit val reads: Reads[SearchHitSource] = Json.reads[SearchHitSource]
 }
 
 class WikiNameSearcher(ws: WSClient)(implicit ec: ExecutionContext) {
-  def fetchWikiMatchesForName(name: String): Future[Option[WikiQueryResponse]] = {
-    ws.url(getWikiSearchUrl(name)).get().map { response =>
-      Json.fromJson[WikiQueryResponse](response.json).asOpt
+  def fetchWikiMatchesForName(name: String): Future[Option[SearchResults]] = {
+    val request = Json.obj("query" -> Json.obj(
+      "multi_match" -> Json.obj(
+        "query" -> name,
+        "fields" -> Json.arr("title"),
+        "fuzziness" -> "AUTO"
+      )
+    ))
+    ws.url("http://localhost:9200/wiki/_doc/_search").post(request).map { response =>
+      Json.fromJson[SearchResults](response.json).asOpt
     }
   }
-
-  private def getWikiSearchUrl(search: String) = s"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${URLEncoder.encode(search, "UTF-8")}&utf8=&format=json"
-
 }
