@@ -5,12 +5,14 @@ import play.api.libs.json.{Json, Reads, Writes}
 
 import scala.collection.JavaConverters._
 
-case class RuleMatch(rule: ResponseRule,
-                     fromPos: Int,
-                     toPos: Int,
-                     message: String,
-                     shortMessage: Option[String] = None,
-                     suggestedReplacements: List[String] = List.empty)
+case class RuleMatch(
+    rule: ResponseRule,
+    fromPos: Int,
+    toPos: Int,
+    message: String,
+    shortMessage: Option[String] = None,
+    suggestedReplacements: List[Suggestion] = List.empty
+)
 
 object RuleMatch {
   def fromLT(lt: LTRuleMatch): RuleMatch = {
@@ -20,7 +22,9 @@ object RuleMatch {
       toPos = lt.getToPos,
       message = lt.getMessage,
       shortMessage = Some(lt.getMessage),
-      suggestedReplacements = lt.getSuggestedReplacements.asScala.toList
+      suggestedReplacements = lt.getSuggestedReplacements.asScala.toList.map {
+        BaseSuggestion(_)
+      }
     )
   }
 
