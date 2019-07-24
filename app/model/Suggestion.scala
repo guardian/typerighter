@@ -18,7 +18,7 @@ sealed trait Suggestion {
 object BaseSuggestion {
   implicit val writes: Writes[BaseSuggestion] = Json.writes[BaseSuggestion]
 }
-case class BaseSuggestion(replacement: String) extends Suggestion {
+case class BaseSuggestion(replacements: List[String]) extends Suggestion {
   def `type` = "BASE_SUGGESTION"
 }
 
@@ -36,7 +36,7 @@ object WikiSuggestion {
   implicit val writes: Writes[WikiSuggestion] = Json.writes[WikiSuggestion]
 }
 case class WikiSuggestion(
-    matches: List[WikiAbstract]
+    replacements: List[WikiAbstract]
 ) extends Suggestion {
   def `type` = "WIKI_SUGGESTION"
 }

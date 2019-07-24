@@ -11,7 +11,7 @@ case class RuleMatch(
     toPos: Int,
     message: String,
     shortMessage: Option[String] = None,
-    suggestedReplacements: List[Suggestion] = List.empty
+    suggestedReplacements: Option[Suggestion] = None
 )
 
 object RuleMatch {
@@ -22,9 +22,7 @@ object RuleMatch {
       toPos = lt.getToPos,
       message = lt.getMessage,
       shortMessage = Some(lt.getMessage),
-      suggestedReplacements = lt.getSuggestedReplacements.asScala.toList.map {
-        BaseSuggestion(_)
-      }
+      suggestedReplacements = Some(BaseSuggestion(lt.getSuggestedReplacements.asScala.toList))
     )
   }
 
