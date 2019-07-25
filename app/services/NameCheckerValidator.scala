@@ -19,22 +19,26 @@ class NameCheckerValidator(
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
     val names = nameFinder.findNames(request.text)
     val results = names.map { name =>
-      wikiNameSearcher.fetchWikiMatchesForName(name.text).flatMap {
+      val message = s"Name found: ${name.text}"
+      val ruleMatch = RuleMatch(
+        getResponseRule,
+        name.from,
+        name.to,
+        message = message,
+        shortMessage = Some(message),
+        suggestedReplacements = None
+      )
+      wikiNameSearcher.fetchWikiMatchesForName(name.text).map {
         case Some(result) => {
-          val firstSearchResult = result.hits.hits.headOption.map { hit =>
-            hit._source.title
+          val matches = result.hits.hits.map { hit =>
+            WikiAbstract(hit._source.title.mkString, hit._source.`abstract`.mkString, "", hit._score)
           }
-          Future.successful(RuleMatch(
-            getResponseRule,
-            name.from,
-            name.to,
-            message = firstSearchResult.getOrElse(List("No result")).mkString("")
-          ))
+          ruleMatch.copy(suggestedReplacements = Some(WikiSuggestion(matches)))
         }
-        case None => Future.successful(None)
+        case None => ruleMatch
       }
     }
-    Future.sequence(results).map(_.flatten)
+    Future.sequence(results)
   }
   private def getResponseRule =
     ResponseRule(
