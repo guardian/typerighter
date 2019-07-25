@@ -25,4 +25,8 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
       case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
+
+  def getCurrentCategories: Action[AnyContent] = Action { request: Request[AnyContent] =>
+    Ok(Json.toJson(validatorPool.getCurrentCategories))
+  }
 }

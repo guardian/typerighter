@@ -55,7 +55,7 @@ class AppComponents(context: Context, identity: AppIdentity)
   } yield {
     rules.foreach { case (category, rules) => {
       val (validator, _) = languageToolFactory.createInstance(category.name, ValidatorConfig(rules))
-      validatorPool.addValidator(category.name, validator)
+      validatorPool.addValidator(category, validator)
     }}
   }
 

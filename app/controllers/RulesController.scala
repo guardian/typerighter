@@ -33,7 +33,7 @@ class RulesController(cc: ControllerComponents, validatorPool: ValidatorPool, la
   private def addValidatorToPool(rulesByCategory: Map[Category, List[Rule]]) = {
     rulesByCategory.map { case (category, rules) => {
       val (validator, errors) = languageToolFactory.createInstance(category.name, ValidatorConfig(rules))
-      validatorPool.addValidator(category.name, validator)
+      validatorPool.addValidator(category, validator)
       (category.name, errors)
     }}.toList
   }
