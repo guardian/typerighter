@@ -10,6 +10,7 @@ import play.api.Logger
 import model.Rule
 import utils.Validator
 import utils.Validator._
+import model.Category
 
 case class ValidatorConfig(rules: List[Rule])
 
@@ -21,7 +22,7 @@ trait ValidatorFactory {
 
 class ValidatorPool(implicit ec: ExecutionContext) {
 
-  private val validators = new ConcurrentHashMap[String, Promise[Validator]]().asScala
+  private val validators = new ConcurrentHashMap[String, (Category, Promise[Validator])]().asScala
 
   def checkAllCategories(text: String): Future[ValidatorResponse] = {
     Logger.info(s"Checking categories ${validators.keys.mkString(", ")}")
@@ -35,7 +36,7 @@ class ValidatorPool(implicit ec: ExecutionContext) {
 
   def check(request: ValidatorRequest): Future[ValidatorResponse] = {
     validators.get(request.category) match {
-      case Some(validator) =>
+      case Some((category, validator)) =>
         Logger.info(s"Validator for category ${request.category} is processing")
         validator.future.flatMap { validator =>
           blocking {
@@ -49,10 +50,25 @@ class ValidatorPool(implicit ec: ExecutionContext) {
     }
   }
 
-  def addValidator(category: String, validator: Validator) = {
+  def addValidator(category: Category, validator: Validator) = {
     Logger.info(s"New instance of validator available with rules for category ${category}")
-    validators.put(category, Promise.successful(validator))
+    validators.put(category.id, (category, Promise.successful(validator)))
   }
 
-  def getCurrentRules = Future.sequence(validators.values.map(_.future).map(_.map(_.getRules())).toList).map(_.flatten)
+  def getCurrentCategories: List[Category] = {
+    validators.values.map { 
+      case (category, _) => category
+    }.toList
+  }
+
+  def getCurrentRules: Future[List[Rule]] = {
+    val eventuallyValidatorRules = validators.values.map { 
+      case (_, validatorPromise) => {
+        validatorPromise.future.map { validator =>
+          validator.getRules.toList
+        }
+      }
+    }.toList
+    Future.sequence(eventuallyValidatorRules).map(_.flatten)
+  }
 }
