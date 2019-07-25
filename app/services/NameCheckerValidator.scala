@@ -31,13 +31,10 @@ class NameCheckerValidator(
             message = firstSearchResult.getOrElse(List("No result")).mkString("")
           ))
         }
-        case None =>
-          Future.failed(
-            new Throwable(s"Could not parse result for name ${name.text}")
-          )
+        case None => Future.successful(None)
       }
     }
-    Future.sequence(results)
+    Future.sequence(results).map(_.flatten)
   }
   private def getResponseRule =
     ResponseRule(
