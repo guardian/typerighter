@@ -4,27 +4,31 @@ import play.api.libs.json.{Json, Writes}
 
 object Suggestion {
   implicit val writes: Writes[Suggestion] = {
-    case baseSuggestion: BaseSuggestion =>
-      BaseSuggestion.writes.writes(baseSuggestion)
+    case textSuggestion: TextSuggestion =>
+      TextSuggestion.writes.writes(textSuggestion)
     case wikiSuggestion: WikiSuggestion =>
       WikiSuggestion.writes.writes(wikiSuggestion)
   }
 }
 
 sealed trait Suggestion {
-  def `type`: String
+  val `type`: String
+  val text: String
 }
 
-object BaseSuggestion {
-  implicit val writes: Writes[BaseSuggestion] = Json.writes[BaseSuggestion]
-}
-case class BaseSuggestion(replacements: List[String]) extends Suggestion {
-  def `type` = "BASE_SUGGESTION"
+object TextSuggestion {
+  implicit val writes = new Writes[TextSuggestion] {
+    def writes(suggestion: TextSuggestion) = Json.obj(
+      "type" -> suggestion.`type`,
+      "text" -> suggestion.text
+    )
+  }
 }
 
-object WikiAbstract {
-  implicit val writes: Writes[WikiAbstract] = Json.writes[WikiAbstract]
+case class TextSuggestion(text: String) extends Suggestion {
+  val `type` = "TEXT_SUGGESTION"
 }
+
 case class WikiAbstract(
     title: String,
     description: String,
@@ -33,10 +37,21 @@ case class WikiAbstract(
 )
 
 object WikiSuggestion {
-  implicit val writes: Writes[WikiSuggestion] = Json.writes[WikiSuggestion]
+  implicit val writes = new Writes[WikiSuggestion] {
+    def writes(wikiArticle: WikiSuggestion) = Json.obj(
+      "type" -> wikiArticle.`type`,
+      "text" -> wikiArticle.text,
+      "title" -> wikiArticle.title,
+      "score" -> wikiArticle.score
+    )
+  }
 }
+
 case class WikiSuggestion(
-    replacements: List[WikiAbstract]
+    text: String,
+    title: String,
+    score: Double
 ) extends Suggestion {
-  def `type` = "WIKI_SUGGESTION"
+  val `type` = "WIKI_SUGGESTION"
 }
+

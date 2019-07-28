@@ -7,7 +7,6 @@ import utils.Validator
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.WikiSuggestion
-import model.WikiAbstract
 
 class NameCheckerValidator(
     nameFinder: NameFinder,
@@ -20,22 +19,18 @@ class NameCheckerValidator(
     val names = nameFinder.findNames(request.text)
     val results = names.map { name =>
       val message = s"Name found: ${name.text}"
-      val ruleMatch = RuleMatch(
-        getResponseRule,
-        name.from,
-        name.to,
-        message = message,
-        shortMessage = Some(message),
-        suggestedReplacements = None
-      )
-      wikiNameSearcher.fetchWikiMatchesForName(name.text).map {
-        case Some(result) => {
-          val matches = result.hits.hits.map { hit =>
-            WikiAbstract(hit._source.title.mkString, hit._source.`abstract`.mkString, "", hit._score)
-          }
-          ruleMatch.copy(suggestedReplacements = Some(WikiSuggestion(matches)))
+      wikiNameSearcher.fetchWikiMatchesForName(name.text).map { nameResult =>
+        val matches = nameResult.results.map { result =>
+          WikiSuggestion(result.name, result.title, result.score)
         }
-        case None => ruleMatch
+        RuleMatch(
+          getResponseRule,
+          name.from,
+          name.to,
+          message = message,
+          shortMessage = Some(message),
+          suggestions = matches
+        )
       }
     }
     Future.sequence(results)
