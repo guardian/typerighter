@@ -94,11 +94,7 @@ class AppComponents(context: Context, identity: AppIdentity)
     tokenModelFile.close()
     sentenceModelFile.close()
 
-    val nameFinder = new NameFinder(
-      nameFinderModel,
-      tokenModel,
-      sentenceModel
-    )
+    val nameFinder = new StanfordNameFinder
 
     validatorPool.addValidator("name-checker", new NameCheckerValidator(nameFinder, new WikiNameSearcher(wsClient)))
   }

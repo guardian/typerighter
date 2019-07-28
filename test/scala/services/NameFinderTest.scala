@@ -1,30 +1,15 @@
 package services
 
 import org.scalatest._
-import opennlp.tools.namefind.TokenNameFinderModel
-import opennlp.tools.sentdetect.SentenceModel
-import opennlp.tools.tokenize.TokenizerModel
 
 class NameFinderTest extends FlatSpec with Matchers {
-  val nameFinderModelFile =
-    getClass.getResourceAsStream("/openNLP/en-ner-person.bin")
-  val tokenModelFile = getClass.getResourceAsStream("/openNLP/en-token.bin")
-  val sentenceModelFile = getClass.getResourceAsStream("/openNLP/en-sent.bin")
-
-  val nameFinderModel = new TokenNameFinderModel(nameFinderModelFile)
-  val tokenModel = new TokenizerModel(tokenModelFile)
-  val sentenceModel = new SentenceModel(sentenceModelFile)
-  val nameChecker = new NameFinder(nameFinderModel, tokenModel, sentenceModel)
-
-  nameFinderModelFile.close()
-  tokenModelFile.close()
-  sentenceModelFile.close()
+  val nameFinder = new StanfordNameFinder
 
   "findNames" should "find names in the given text" in {
     val exampleText =
       "In an attempt to make a useful tool, Jonathon was trying out NLP."
     val expected = List(NameResult(37, 45, "Jonathon"))
-    val actual = nameChecker.findNames(exampleText)
+    val actual = nameFinder.findNames(exampleText)
     expected should be(actual)
   }
 
@@ -32,7 +17,15 @@ class NameFinderTest extends FlatSpec with Matchers {
     val exampleText =
       "A sentence before the original sentence. In an attempt to make a useful tool, Jonathon was trying out NLP."
     val expected = List(NameResult(78, 86, "Jonathon"))
-    val actual = nameChecker.findNames(exampleText)
+    val actual = nameFinder.findNames(exampleText)
+    expected should be(actual)
+  }
+
+  "findNames" should "combine adjacent names" in {
+    val exampleText =
+      "The philosopher, Hubert Dreyfus, was smart, but also kindof crabby."
+    val expected = List(NameResult(17, 31, "Hubert Dreyfus"))
+    val actual = nameFinder.findNames(exampleText)
     expected should be(actual)
   }
 }

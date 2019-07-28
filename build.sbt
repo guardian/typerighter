@@ -60,7 +60,9 @@ libraryDependencies ++= Seq(
   "com.gu" % "kinesis-logback-appender" % "1.4.4",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
   "org.webjars" % "bootstrap" % "4.3.1",
-  "org.apache.opennlp" % "opennlp-tools" % "1.5.3",
+  "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
+  "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
+  "edu.stanford.nlp" % "stanford-parser" % "3.4",
   ws
 )
 

@@ -9,7 +9,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import model.WikiSuggestion
 
 class NameCheckerValidator(
-    nameFinder: NameFinder,
+    nameFinder: StanfordNameFinder,
     wikiNameSearcher: WikiNameSearcher
 )(implicit ec: ExecutionContext)
     extends Validator {
