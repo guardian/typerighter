@@ -24,19 +24,19 @@ class ValidatorPool(implicit ec: ExecutionContext) {
 
   private val validators = new ConcurrentHashMap[String, (Category, Promise[Validator])]().asScala
 
-  def checkAllCategories(text: String): Future[ValidatorResponse] = {
-    Logger.info(s"Checking categories ${validators.keys.mkString(", ")}")
-    val eventualChecks = validators.keys.foldLeft[List[Future[ValidatorResponse]]](List.empty)((acc, category) => {
-      acc :+ check(ValidatorRequest(category, text))
-    })
+  def check(text: String, categoryIds: List[String]) = {
+    Logger.info(s"Checking categories ${categoryIds.mkString(", ")}")
+    val eventualChecks = categoryIds.map { categoryId =>
+      checkRequest(ValidatorRequest(categoryId, text))
+    }
     Future.sequence(eventualChecks).map {
       _.flatten
     }
   }
 
-  def check(request: ValidatorRequest): Future[ValidatorResponse] = {
+  private def checkRequest(request: ValidatorRequest): Future[ValidatorResponse] = {
     validators.get(request.category) match {
-      case Some((category, validator)) =>
+      case Some((_, validator)) =>
         Logger.info(s"Validator for category ${request.category} is processing")
         validator.future.flatMap { validator =>
           blocking {
