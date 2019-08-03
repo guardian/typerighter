@@ -15,16 +15,16 @@ case class NameResult(from: Int, to: Int, text: String)
   * A service to extract proper names from documents.
   */
 class StanfordNameFinder() {
-  def findNames(text: String): List[NameResult] = {
-    val props: Properties = new Properties()
-    props.put("annotators", "tokenize, ssplit, pos, lemma, ner")
+  val props: Properties = new Properties()
+  props.put("annotators", "tokenize, ssplit, pos, lemma, ner")
 
-    val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
+  val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
+
+  def findNames(text: String): List[NameResult] = {
     val document: Annotation = new Annotation(text)
     pipeline.annotate(document)
 
     val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
-
     val tokensAndEntities = for {
       sentence: CoreMap <- sentences
       token: CoreLabel <- sentence.get(classOf[TokensAnnotation]).asScala.toList
@@ -38,6 +38,7 @@ class StanfordNameFinder() {
       case ((nameResults, maybeLastTokenAndWord), (token, word, entity)) => {
         if (entity == "PERSON") {
           // If we have another entity immediately previous to this one, combine it.
+          // Assumption -- it seems very likely that contiguous names represent a name with many words.
           if (maybeLastTokenAndWord.isDefined) {
             val (lastToken, lastWord) = maybeLastTokenAndWord.get
             (nameResults.init :+ NameResult(lastToken.beginPosition, token.endPosition, s"$lastWord $word"), Some((token, word)))
