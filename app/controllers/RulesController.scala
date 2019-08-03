@@ -17,16 +17,20 @@ class RulesController(cc: ControllerComponents, validatorPool: ValidatorPool, la
       (rulesByCategory, ruleErrors) <- ruleResource.fetchRulesByCategory()
       errorsByCategory = addValidatorToPool(rulesByCategory)
       rules <- validatorPool.getCurrentRules
+      categories <- validatorPool.getCurrentCategories
     } yield {
       val errors = errorsByCategory.flatMap(_._2) ::: ruleErrors
       val rulesIngested = rulesByCategory.map { _._2.size }.sum
-      Ok(views.html.rules(sheetId, rules, Some(rulesIngested), errors))
+      Ok(views.html.rules(sheetId, rules, categories, Some(rulesIngested), errors))
     }
   }
 
   def rules = Action.async { implicit request: Request[AnyContent] =>
-    validatorPool.getCurrentRules.map { rules =>
-      Ok(views.html.rules(sheetId, rules))
+    for {
+      rules <- validatorPool.getCurrentRules
+      categories <- validatorPool.getCurrentCategories
+    } yield {
+      Ok(views.html.rules(sheetId, rules, categories))
     }
   }
 

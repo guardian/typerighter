@@ -52,6 +52,8 @@ class LanguageToolFactory(
 }
 
 class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: ExecutionContext) extends Validator {
+  def getId = "language-tool"
+
   def getCategory = category
 
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
