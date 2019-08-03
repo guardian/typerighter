@@ -26,7 +26,7 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
     }
   }
 
-  def getCurrentCategories: Action[AnyContent] = Action.async { request: Request[AnyContent] =>
-    validatorPool.getCurrentCategories.map { categories => Ok(Json.toJson(categories)) }
+  def getCurrentCategories: Action[AnyContent] = Action { request: Request[AnyContent] =>
+    Ok(Json.toJson(validatorPool.getCurrentCategories))
   }
 }
