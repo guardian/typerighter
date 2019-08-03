@@ -17,7 +17,6 @@ case class NameResult(from: Int, to: Int, text: String)
 class StanfordNameFinder() {
   val props: Properties = new Properties()
   props.put("annotators", "tokenize, ssplit, pos, lemma, ner")
-
   val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
 
   def findNames(text: String): List[NameResult] = {

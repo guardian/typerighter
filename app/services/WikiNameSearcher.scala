@@ -88,7 +88,7 @@ class WikiNameSearcher(ws: WSClient)(implicit ec: ExecutionContext) {
       s"""
         | SELECT count(*) as ?count
         | WHERE {
-        |   { <http://dbpedia.org/resource/${resourceName}> rdf:type <http://schema.org/Person> }
+        |   { <http://dbpedia.org/resource/${resourceName}> rdf:type <http://dbpedia.org/ontology/Person> }
         | }
       """.stripMargin
     ws.url(getSparqlUrl(query)).get().map { response =>
