@@ -15,18 +15,20 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
   def check: Action[JsValue] = Action.async(parse.json) { request =>
     request.body.validate[CheckQuery].asEither match {
       case Right(checkQuery) =>
-        validatorPool.check(checkQuery.id, checkQuery.text, checkQuery.categoryIds).map(results => {
+        validatorPool.check(checkQuery.id, checkQuery.text, checkQuery.categoryIds).map { results =>
           val json = Json.obj(
             "input" -> checkQuery.text,
             "results" -> Json.toJson(results)
           )
           Ok(json)
-        })
+        } recover {
+          case e: Exception => InternalServerError(Json.obj("error" -> e.getMessage))
+        }
       case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
 
   def getCurrentCategories: Action[AnyContent] = Action { request: Request[AnyContent] =>
-    Ok(Json.toJson(validatorPool.getCurrentCategories))
+    Ok(Json.toJson(validatorPool.getCurrentCategories.map(_._2)))
   }
 }

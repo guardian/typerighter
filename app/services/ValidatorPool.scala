@@ -9,6 +9,8 @@ import model.{Category, Rule, RuleMatch}
 import utils.Validator
 import utils.Validator._
 
+import scala.util.{Failure, Success}
+
 case class ValidatorConfig(rules: List[Rule])
 case class ValidatorRequest(category: String, text: String)
 
@@ -17,9 +19,9 @@ trait ValidatorFactory {
 }
 
 class ValidatorPool(implicit ec: ExecutionContext) {
-  type TValidateCallback = () => Future[Promise[ValidatorResponse]]
+  type TValidateCallback = () => Future[ValidatorResponse]
 
-  case class ValidationJob(id: String, promise: Promise[ValidatorResponse], validate: TValidateCallback)
+  case class ValidationJob(id: String, categoryId: String, promise: Promise[ValidatorResponse], validate: TValidateCallback)
 
   private val maxConcurrentValidations = 4
   private val maxPendingValidations = 100
@@ -37,7 +39,7 @@ class ValidatorPool(implicit ec: ExecutionContext) {
       case Some(categoryIds) => categoryIds
     }
 
-    Logger.info(s"Validation request received with id ${id}. Checking categories: ${categoryIds.mkString(", ")}")
+    Logger.info(s"Validation job with id: ${id} received. Checking categories: ${categoryIds.mkString(", ")}.")
 
     val eventualChecks = categoryIds.map { categoryId =>
       checkForCategory(id, text, categoryId)
@@ -45,6 +47,9 @@ class ValidatorPool(implicit ec: ExecutionContext) {
 
     Future.sequence(eventualChecks).map {
       _.flatten
+    }.map { matches =>
+      Logger.info(s"Validation job with id: ${id} complete.")
+      matches
     }
   }
 
@@ -78,17 +83,18 @@ class ValidatorPool(implicit ec: ExecutionContext) {
     // Wrap our request in a lambda and add it to the queue, ready for processing
     val validate = () => validators.get(categoryId) match {
       case Some((_, validator)) =>
-        Logger.info(s"Validation job with id: ${id} for category: ${categoryId} is processing")
         blocking {
           val eventualResult = validator.check(ValidatorRequest(categoryId, text))
-          Logger.info(s"Validation job with id: ${id} for category: ${categoryId} is done")
-          eventualResult.map { promise.success }
+          eventualResult.andThen {
+            case Success(result) => promise.success(result)
+            case Failure(err) => promise.failure(err)
+          }
         }
       case None =>
-        Future.failed(new IllegalStateException(s"Could not run validation job with id: ${id} -- unknown category for id: ${categoryId}"))
+        Future.failed(new IllegalStateException(s"Could not run validation job with id: $id -- unknown category for id: $categoryId"))
     }
 
-    scheduleValidationJob(ValidationJob(id, promise, validate))
+    scheduleValidationJob(ValidationJob(id, categoryId, promise, validate))
 
     future
   }
@@ -97,21 +103,23 @@ class ValidatorPool(implicit ec: ExecutionContext) {
     currentValidations.remove(job)
     if (pendingQueue.size > 0) {
       val newJob = pendingQueue.remove()
-      Logger.info(s"Scheduling new validation job with id: ${job.id}. Jobs in queue remain, which is now of size: ${pendingQueue.size}")
+      Logger.info(s"Starting new validation job from queue with id: ${job.id}. Remaining items in queue: ${pendingQueue.size}")
       scheduleValidationJob(newJob)
     }
+    Logger.info(s"Validation job with id: ${job.id} for category: ${job.categoryId} is done. Current jobs: ${currentValidations.size}")
     Unit
   }
 
   private def scheduleValidationJob(job: ValidationJob) = {
     if (currentValidations.size <= maxConcurrentValidations) {
+      Logger.info(s"Validation job with id: ${job.id} for category: ${job.categoryId} is processing")
       currentValidations.add(job)
-      job.validate().map { _ =>
-        completeValidationJob(job)
+      job.validate().andThen {
+        case _ => completeValidationJob(job)
       }
     } else if (pendingQueue.size <= maxPendingValidations) {
       pendingQueue.add(job)
-      Logger.info(s"Validation job stack full. Adding job with id: ${job.id} to queue, which is now of size: ${pendingQueue.size}")
+      Logger.info(s"Validation job stack full. Added job with id: ${job.id} to queue, which is now of size: ${pendingQueue.size}")
     } else {
       val errorMessage = s"Validation job queue full. Cannot accept new job with id: ${job.id} as queue is already of size: ${pendingQueue.size}"
       Logger.warn(errorMessage)
