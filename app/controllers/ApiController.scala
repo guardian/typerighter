@@ -15,7 +15,7 @@ class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, rule
   def check: Action[JsValue] = Action.async(parse.json) { request =>
     request.body.validate[CheckQuery].asEither match {
       case Right(checkQuery) =>
-        validatorPool.check(checkQuery.text, checkQuery.categoryIds).map(results => {
+        validatorPool.check(checkQuery.id, checkQuery.text, checkQuery.categoryIds).map(results => {
           val json = Json.obj(
             "input" -> checkQuery.text,
             "results" -> Json.toJson(results)
