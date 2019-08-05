@@ -1,0 +1,30 @@
+@(title: String, pageName: Option[String] = None, breadcrumbsList: List[String] = List.empty)(content: Html)
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link href="@routes.Assets.versioned("stylesheets/main.css")" rel="stylesheet">
+        <title>@title</title>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light">
+            <a class="typerighter-logotype navbar-brand" href="/"><span class="h1 align-middle">⌨</span>️ Typerighter</a>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home <span class="sr-only">Home</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rules">Rules <span class="sr-only">Rules</span></a>
+                </li>
+            </ul>
+        </nav>
+        @breadcrumbs(breadcrumbsList)
+        <section class="container">
+            @if(pageName.nonEmpty) {
+                <h1>@pageName</h1>
+                <hr />
+            }
+            @content
+        </section>
+    </body>
+</html>

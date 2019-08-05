@@ -1,0 +1,79 @@
+@import model.Rule
+@import helper._
+
+@(sheetId: String, rules: scala.List[Rule], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
+@main(title = "Typerighter", breadcrumbsList = List("Rules")) {
+    @form(CSRF(routes.RulesController.refresh())) {
+        @CSRF.formField
+        <h1 class="align-middle">
+            Current rules
+            <button class="btn btn-primary btn-sm ml-3">Refresh rules</button>
+        </h1>
+    }
+    @if(rulesIngested.nonEmpty) {
+        <div class="alert alert-@if(errors != Nil) {danger} else {success}" role="alert">
+            @rulesIngested rules added. @if(errors != Nil) {Errors found: @errors.size}
+            @for(error <- errors) {
+                <p>@error</p>
+            }
+        </div>
+    }
+    <hr />
+    <div class="row">
+        <div class="col-sm-4">
+            @defining(rules.groupBy(_.category).keys) { categories =>
+                <h5>Categories (@categories.size)</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Id</th>
+                            <th scope="col">Colour</th>
+                            <th scope="col">Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @for(category <- rules.groupBy(_.category).keys) {
+                        <tr>
+                            <td>@category.name</td>
+                            <td>
+                                <span class="badge" style="background-color: #@category.colour;
+                                    color: white">
+                                    #@category.colour
+                                </span>
+                            </td>
+                            <td>@category.name</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div class="col-sm-8">
+            <h5>Rules (@rules.length)</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Category</th>
+                        <th scope="col">Colour</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for(rule <- rules) {
+                    <tr>
+                        <td>@rule.category.name</td>
+                        <td>
+                            <span class="badge" style="background-color: #@rule.category.colour; color: white">
+                                #@rule.category.colour
+                            </span>
+                        </td>
+                        <td>@if(rule.description.nonEmpty) {
+                            @rule.description
+                        } else { No&nbsp;description }</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

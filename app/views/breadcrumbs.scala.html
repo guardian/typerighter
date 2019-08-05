@@ -1,0 +1,14 @@
+@(breadcrumbs: List[String])
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        @for((breadcrumb, index) <- breadcrumbs.zipWithIndex) {
+            @defining(index == breadcrumbs.length) { isActive =>
+                <li class="breadcrumb-item @if(isActive) { active }" @if(isActive) {
+                    aria-current="page" }>
+                    <a href="@{breadcrumbs.slice(0, index - 1).mkString("/")}">@breadcrumb</a>
+                </li>
+            }
+        }
+    </ol>
+</nav>
