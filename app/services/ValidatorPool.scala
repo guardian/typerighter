@@ -14,20 +14,21 @@ import scala.util.{Failure, Success}
 case class ValidatorConfig(rules: List[Rule])
 case class ValidatorRequest(category: String, text: String)
 
-trait ValidatorFactory {
-  def createInstance(name: String, config: ValidatorConfig)(implicit ec: ExecutionContext): (Validator, List[String])
-}
-
 class ValidatorPool(implicit ec: ExecutionContext) {
   type TValidateCallback = () => Future[ValidatorResponse]
 
   case class ValidationJob(id: String, categoryId: String, promise: Promise[ValidatorResponse], validate: TValidateCallback)
 
-  private val maxConcurrentValidations = 4
-  private val maxPendingValidations = 100
-  private val pendingQueue = new ConcurrentLinkedQueue[ValidationJob]()
-  private val currentValidations = new ConcurrentLinkedQueue[ValidationJob]()
+  private val maxCurrentJobs = 4
+  private val maxQueuedJobs = 100
+  private val queuedJobs = new ConcurrentLinkedQueue[ValidationJob]()
+  private val currentJobs = new ConcurrentLinkedQueue[ValidationJob]()
   private val validators = new ConcurrentHashMap[String, (Category, Validator)]().asScala
+
+  def getMaxCurrentValidations: Int = maxCurrentJobs
+  def getMaxQueuedValidations: Int = maxQueuedJobs
+  def getQueuedJobCount: Int = queuedJobs.size
+  def getCurrentJobCount: Int = currentJobs.size
 
   /**
     * Check the text with validators assigned to the given category ids.
@@ -36,7 +37,7 @@ class ValidatorPool(implicit ec: ExecutionContext) {
   def check(id: String, text: String, maybeCategoryIds: Option[List[String]] = None): Future[List[RuleMatch]] = {
     val categoryIds = maybeCategoryIds match {
       case None => getCurrentCategories.map { case (_, category) => category.id }
-      case Some(categoryIds) => categoryIds
+      case Some(ids) => ids
     }
 
     Logger.info(s"Validation job with id: ${id} received. Checking categories: ${categoryIds.mkString(", ")}.")
@@ -59,7 +60,7 @@ class ValidatorPool(implicit ec: ExecutionContext) {
     * the replaced validator.
     */
   def addValidator(category: Category, validator: Validator): Option[(Category, Validator)] = {
-    Logger.info(s"New instance of validator available of id: ${validator.getId} for category: ${category}")
+    Logger.info(s"New instance of validator available of id: ${validator.getId} for category: ${category.id}")
     validators.put(category.id, (category, validator))
   }
 
@@ -79,15 +80,15 @@ class ValidatorPool(implicit ec: ExecutionContext) {
   private def checkForCategory(id: String, text: String, categoryId: String): Future[ValidatorResponse] = {
     val promise = Promise[ValidatorResponse]()
     val future = promise.future
-
-    // Wrap our request in a lambda and add it to the queue, ready for processing
-    val validate = () => validators.get(categoryId) match {
+    // Wrap our request in a lambda and add it to the queue, ready to be called.
+    val validate: () => Future[ValidatorResponse] = () => validators.get(categoryId) match {
       case Some((_, validator)) =>
-        blocking {
-          val eventualResult = validator.check(ValidatorRequest(categoryId, text))
-          eventualResult.andThen {
-            case Success(result) => promise.success(result)
-            case Failure(err) => promise.failure(err)
+        val eventualResult = validator.check(ValidatorRequest(categoryId, text))
+        eventualResult.andThen {
+          case Success(result) => {
+            promise.success(result)}
+          case Failure(err) => {
+            promise.failure(err)
           }
         }
       case None =>
@@ -100,30 +101,36 @@ class ValidatorPool(implicit ec: ExecutionContext) {
   }
 
   private def completeValidationJob(job: ValidationJob): Unit = {
-    currentValidations.remove(job)
-    if (pendingQueue.size > 0) {
-      val newJob = pendingQueue.remove()
-      Logger.info(s"Starting new validation job from queue with id: ${job.id}. Remaining items in queue: ${pendingQueue.size}")
+    if (!currentJobs.remove(job)) {
+      Logger.warn(s"Validation job ${getJobMessage(job)} has completed, but was not present in current jobs.")
+    }
+    if (queuedJobs.size > 0) {
+      val newJob = queuedJobs.remove()
+      Logger.info(s"Starting new validation job ${getJobMessage(job)} from queue. Remaining items in queue: ${queuedJobs.size}")
       scheduleValidationJob(newJob)
     }
-    Logger.info(s"Validation job with id: ${job.id} for category: ${job.categoryId} is done. Current jobs: ${currentValidations.size}")
+    Logger.info(s"Validation job ${getJobMessage(job)} is done. Current jobs: ${currentJobs.toArray.map{ _.toString }.mkString }")
     Unit
   }
 
   private def scheduleValidationJob(job: ValidationJob) = {
-    if (currentValidations.size <= maxConcurrentValidations) {
-      Logger.info(s"Validation job with id: ${job.id} for category: ${job.categoryId} is processing")
-      currentValidations.add(job)
+    if (currentJobs.size < maxCurrentJobs) {
+      currentJobs.add(job)
       job.validate().andThen {
-        case _ => completeValidationJob(job)
+        case _ => {
+          completeValidationJob(job)
+        }
       }
-    } else if (pendingQueue.size <= maxPendingValidations) {
-      pendingQueue.add(job)
-      Logger.info(s"Validation job stack full. Added job with id: ${job.id} to queue, which is now of size: ${pendingQueue.size}")
+      Logger.info(s"Validation job ${getJobMessage(job)} has been called")
+    } else if (queuedJobs.size < maxQueuedJobs) {
+      queuedJobs.add(job)
+      Logger.info(s"Validation job stack full. Added job ${getJobMessage(job)} to queue, which is now of size: ${queuedJobs.size}")
     } else {
-      val errorMessage = s"Validation job queue full. Cannot accept new job with id: ${job.id} as queue is already of size: ${pendingQueue.size}"
+      val errorMessage = s"Validation job queue full. Cannot accept new job ${getJobMessage(job)} as queue is already of size: ${queuedJobs.size}"
       Logger.warn(errorMessage)
       job.promise.failure(new Exception(errorMessage))
     }
   }
+
+  private def getJobMessage(job: ValidationJob) = s"with id: ${job.id} for category: ${job.categoryId}"
 }

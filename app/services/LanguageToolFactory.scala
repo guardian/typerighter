@@ -16,7 +16,7 @@ import utils.Validator
 
 class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
-                           useLanguageModelRules: Boolean = false) extends ValidatorFactory {
+                           useLanguageModelRules: Boolean = false) {
 
   def createInstance(category: String, config: ValidatorConfig)(implicit ec: ExecutionContext): (Validator, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
