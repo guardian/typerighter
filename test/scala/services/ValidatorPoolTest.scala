@@ -1,8 +1,10 @@
 package services
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import model.{Category, ResponseRule, RuleMatch}
 import org.scalatest._
-import org.scalatest.concurrent.PatienceConfiguration.{Timeout}
+import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.SpanSugar._
 import utils.Validator
@@ -40,7 +42,9 @@ class MockValidator(id: Int) extends Validator {
       response <- currentResponses
       promise <- currentWork
     } yield {
+      if (!promise.isCompleted) {
       promise.success(response)
+      }
     }
   }
 
@@ -56,6 +60,8 @@ class MockValidator(id: Int) extends Validator {
 class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   def timeLimit = 1 second
   private implicit val ec = ExecutionContext.global
+  private implicit val system = ActorSystem()
+  private implicit val materializer = ActorMaterializer()
   private val responseRule = ResponseRule(
     id = "test-rule",
     description = "test-description",
@@ -72,8 +78,8 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
 
   private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category", "Puce")
 
-  private def getPool(validators: List[Validator]): ValidatorPool = {
-    val pool = new ValidatorPool()
+  private def getPool(validators: List[Validator], maxCurrentJobs: Int = 4, maxQueuedJobs: Int = 100): ValidatorPool = {
+    val pool = new ValidatorPool(maxCurrentJobs, maxQueuedJobs)
     validators.zipWithIndex.foreach {
       case (validator, index) => pool.addValidator(getCategory(index), validator)
     }
@@ -108,38 +114,23 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-  "check" should "queue work that exceeds its concurrent validation limit" in {
-    val validators = getValidators(6)
-    val pool = getPool(validators)
-    pool.check("test-1", "Example text")
-    pool.getCurrentJobCount shouldBe pool.getMaxCurrentValidations
-    pool.getQueuedJobCount shouldBe validators.size - pool.getMaxCurrentValidations
+  "check" should "reject work that exceeds its buffer size" in {
+    val validators = getValidators(100)
+    val pool = getPool(validators, 1, 0)
+    val eventuallyFails = pool.check("test-1", "Example text")
+    validators.foreach(_.markAsComplete(responses))
+    ScalaFutures.whenReady(eventuallyFails.failed) { e =>
+      e.getMessage should include ("full")
+    }
   }
 
-  "check" should "draw queued jobs in as jobs complete" in {
-    val validators = getValidators(6)
-    val pool = getPool(validators)
-    pool.check("test-1", "Example text")
-
-    validators(0).markAsComplete(responses)
-    Thread.sleep(5)
-    pool.getCurrentJobCount shouldBe pool.getMaxCurrentValidations
-    pool.getQueuedJobCount shouldBe validators.size - pool.getMaxCurrentValidations - 1
-
-    validators(1).markAsComplete(responses)
-    Thread.sleep(5)
-    pool.getCurrentJobCount shouldBe pool.getMaxCurrentValidations
-    pool.getQueuedJobCount shouldBe validators.size - pool.getMaxCurrentValidations - 2
-  }
-
-  "check" should "complete queued works" in {
+  "check" should "complete queued jobs" in {
     val validators = getValidators(24)
     val pool = getPool(validators)
     val checkFuture = pool.check("test-1", "Example text")
     validators.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(checkFuture, Timeout(1 second)) { result =>
-      pool.getCurrentJobCount shouldBe 0
-      pool.getQueuedJobCount shouldBe 0
+    ScalaFutures.whenReady(checkFuture) { result =>
+      result.length shouldBe 24
     }
   }
 

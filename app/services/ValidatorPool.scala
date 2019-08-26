@@ -1,34 +1,35 @@
 package services
 
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue}
+import java.util.concurrent.{ConcurrentHashMap}
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future, Promise, blocking}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import play.api.Logger
 import model.{Category, Rule, RuleMatch}
 import utils.Validator
 import utils.Validator._
 
 import scala.util.{Failure, Success}
+import akka.stream.QueueOfferResult.{Dropped, Failure => QueueFailure, QueueClosed}
+import akka.stream._
+import akka.stream.scaladsl.{Sink, Source}
 
 case class ValidatorConfig(rules: List[Rule])
 case class ValidatorRequest(category: String, text: String)
 
-class ValidatorPool(implicit ec: ExecutionContext) {
+class ValidatorPool(val maxCurrentJobs: Int = 4, val maxQueuedJobs: Int = 100)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
   type TValidateCallback = () => Future[ValidatorResponse]
 
-  case class ValidationJob(id: String, categoryId: String, promise: Promise[ValidatorResponse], validate: TValidateCallback)
+  case class ValidationJob(id: String, categoryId: String, text: String, promise: Promise[ValidatorResponse])
 
-  private val maxCurrentJobs = 4
-  private val maxQueuedJobs = 100
-  private val queuedJobs = new ConcurrentLinkedQueue[ValidationJob]()
-  private val currentJobs = new ConcurrentLinkedQueue[ValidationJob]()
   private val validators = new ConcurrentHashMap[String, (Category, Validator)]().asScala
+  private val flow = Source.queue[ValidationJob](maxQueuedJobs, OverflowStrategy.dropNew)
+    .mapAsyncUnordered(maxCurrentJobs)(runValidationJob)
+    .to(Sink.ignore)
+    .run()
 
   def getMaxCurrentValidations: Int = maxCurrentJobs
   def getMaxQueuedValidations: Int = maxQueuedJobs
-  def getQueuedJobCount: Int = queuedJobs.size
-  def getCurrentJobCount: Int = currentJobs.size
 
   /**
     * Check the text with validators assigned to the given category ids.
@@ -40,7 +41,7 @@ class ValidatorPool(implicit ec: ExecutionContext) {
       case Some(ids) => ids
     }
 
-    Logger.info(s"Validation job with id: ${id} received. Checking categories: ${categoryIds.mkString(", ")}.")
+    Logger.info(s"Validation job with id: ${id} received. Checking categories: ${categoryIds.mkString(", ")}")
 
     val eventualChecks = categoryIds.map { categoryId =>
       checkForCategory(id, text, categoryId)
@@ -49,7 +50,7 @@ class ValidatorPool(implicit ec: ExecutionContext) {
     Future.sequence(eventualChecks).map {
       _.flatten
     }.map { matches =>
-      Logger.info(s"Validation job with id: ${id} complete.")
+      Logger.info(s"Validation job with id: $id complete")
       matches
     }
   }
@@ -79,56 +80,40 @@ class ValidatorPool(implicit ec: ExecutionContext) {
 
   private def checkForCategory(id: String, text: String, categoryId: String): Future[ValidatorResponse] = {
     val promise = Promise[ValidatorResponse]()
-    val future = promise.future
-    // Wrap our request in a lambda and add it to the queue, ready to be called.
-    val validate: () => Future[ValidatorResponse] = () => validators.get(categoryId) match {
+    val job = ValidationJob(id, categoryId, text, promise)
+
+    Logger.info(s"Job ${getJobMessage(job)} has been offered to the queue")
+
+    flow.offer(job).collect {
+      case Dropped =>
+        promise.failure(new Throwable(s"Job ${getJobMessage(job)} was dropped from the queue, as the queue is full"))
+      case QueueClosed =>
+        promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed because the queue is closed"))
+      case QueueFailure(err) =>
+        promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed, reason: ${err.getMessage}"))
+    }
+
+    promise.future
+  }
+
+  private def runValidationJob(job: ValidationJob): Future[ValidatorResponse] = {
+    Logger.info(s"Job ${getJobMessage(job)} has begun")
+
+    validators.get(job.categoryId) match {
       case Some((_, validator)) =>
-        val eventualResult = validator.check(ValidatorRequest(categoryId, text))
+        val eventualResult = validator.check(ValidatorRequest(job.categoryId, job.text))
         eventualResult.andThen {
           case Success(result) => {
-            promise.success(result)}
+            Logger.info(s"Job ${getJobMessage(job)} is complete")
+            job.promise.success(result)
+          }
           case Failure(err) => {
-            promise.failure(err)
+            Logger.info(s"Job ${getJobMessage(job)} has failed with reason: $err")
+            job.promise.failure(err)
           }
         }
       case None =>
-        Future.failed(new IllegalStateException(s"Could not run validation job with id: $id -- unknown category for id: $categoryId"))
-    }
-
-    scheduleValidationJob(ValidationJob(id, categoryId, promise, validate))
-
-    future
-  }
-
-  private def completeValidationJob(job: ValidationJob): Unit = {
-    if (!currentJobs.remove(job)) {
-      Logger.warn(s"Validation job ${getJobMessage(job)} has completed, but was not present in current jobs.")
-    }
-    if (queuedJobs.size > 0) {
-      val newJob = queuedJobs.remove()
-      Logger.info(s"Starting new validation job ${getJobMessage(job)} from queue. Remaining items in queue: ${queuedJobs.size}")
-      scheduleValidationJob(newJob)
-    }
-    Logger.info(s"Validation job ${getJobMessage(job)} is done. Current jobs: ${currentJobs.toArray.map{ _.toString }.mkString }")
-    Unit
-  }
-
-  private def scheduleValidationJob(job: ValidationJob) = {
-    if (currentJobs.size < maxCurrentJobs) {
-      currentJobs.add(job)
-      job.validate().andThen {
-        case _ => {
-          completeValidationJob(job)
-        }
-      }
-      Logger.info(s"Validation job ${getJobMessage(job)} has been called")
-    } else if (queuedJobs.size < maxQueuedJobs) {
-      queuedJobs.add(job)
-      Logger.info(s"Validation job stack full. Added job ${getJobMessage(job)} to queue, which is now of size: ${queuedJobs.size}")
-    } else {
-      val errorMessage = s"Validation job queue full. Cannot accept new job ${getJobMessage(job)} as queue is already of size: ${queuedJobs.size}"
-      Logger.warn(errorMessage)
-      job.promise.failure(new Exception(errorMessage))
+        Future.failed(new IllegalStateException(s"Could not run validation job with id: ${job.id} -- unknown category for id: ${job.categoryId}"))
     }
   }
 
