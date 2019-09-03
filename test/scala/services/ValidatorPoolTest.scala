@@ -145,4 +145,13 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
       e.getMessage shouldBe errorMessage
     }
   }
+
+  "check" should "handle requests for categories that do not exist" in {
+    val validators = getValidators(2)
+    val pool = getPool(validators)
+    val eventuallyFails = pool.check("test-1", "Example text", Some(List("category-does-not-exist")))
+    ScalaFutures.whenReady(eventuallyFails.failed) { e =>
+      e.getMessage should include("unknown category")
+    }
+  }
 }

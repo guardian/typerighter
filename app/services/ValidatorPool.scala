@@ -1,6 +1,6 @@
 package services
 
-import java.util.concurrent.{ConcurrentHashMap}
+import java.util.concurrent.ConcurrentHashMap
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
@@ -9,7 +9,6 @@ import model.{Category, Rule, RuleMatch}
 import utils.Validator
 import utils.Validator._
 
-import scala.util.{Failure, Success}
 import akka.stream.QueueOfferResult.{Dropped, Failure => QueueFailure, QueueClosed}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
@@ -17,13 +16,14 @@ import akka.stream.scaladsl.{Sink, Source}
 case class ValidatorConfig(rules: List[Rule])
 case class ValidatorRequest(category: String, text: String)
 
-class ValidatorPool(val maxCurrentJobs: Int = 4, val maxQueuedJobs: Int = 100)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
+class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
   type TValidateCallback = () => Future[ValidatorResponse]
 
   case class ValidationJob(id: String, categoryId: String, text: String, promise: Promise[ValidatorResponse])
 
   private val validators = new ConcurrentHashMap[String, (Category, Validator)]().asScala
-  private val flow = Source.queue[ValidationJob](maxQueuedJobs, OverflowStrategy.dropNew)
+
+  private val queue = Source.queue[ValidationJob](maxQueuedJobs, OverflowStrategy.dropNew)
     .mapAsyncUnordered(maxCurrentJobs)(runValidationJob)
     .to(Sink.ignore)
     .run()
@@ -32,7 +32,7 @@ class ValidatorPool(val maxCurrentJobs: Int = 4, val maxQueuedJobs: Int = 100)(i
   def getMaxQueuedValidations: Int = maxQueuedJobs
 
   /**
-    * Check the text with validators assigned to the given category ids.
+    * Check the text with the validators assigned to the given category ids.
     * If no ids are assigned, use all the currently available validators.
     */
   def check(id: String, text: String, maybeCategoryIds: Option[List[String]] = None): Future[List[RuleMatch]] = {
@@ -42,7 +42,6 @@ class ValidatorPool(val maxCurrentJobs: Int = 4, val maxQueuedJobs: Int = 100)(i
     }
 
     Logger.info(s"Validation job with id: ${id} received. Checking categories: ${categoryIds.mkString(", ")}")
-
     val eventualChecks = categoryIds.map { categoryId =>
       checkForCategory(id, text, categoryId)
     }
@@ -84,7 +83,7 @@ class ValidatorPool(val maxCurrentJobs: Int = 4, val maxQueuedJobs: Int = 100)(i
 
     Logger.info(s"Job ${getJobMessage(job)} has been offered to the queue")
 
-    flow.offer(job).collect {
+    queue.offer(job).collect {
       case Dropped =>
         promise.failure(new Throwable(s"Job ${getJobMessage(job)} was dropped from the queue, as the queue is full"))
       case QueueClosed =>
@@ -93,27 +92,24 @@ class ValidatorPool(val maxCurrentJobs: Int = 4, val maxQueuedJobs: Int = 100)(i
         promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed, reason: ${err.getMessage}"))
     }
 
-    promise.future
+    promise.future.andThen {
+      case result => {
+        Logger.info(s"Job ${getJobMessage(job)} is complete")
+        result
+      }
+    }
   }
 
   private def runValidationJob(job: ValidationJob): Future[ValidatorResponse] = {
-    Logger.info(s"Job ${getJobMessage(job)} has begun")
-
     validators.get(job.categoryId) match {
       case Some((_, validator)) =>
         val eventualResult = validator.check(ValidatorRequest(job.categoryId, job.text))
-        eventualResult.andThen {
-          case Success(result) => {
-            Logger.info(s"Job ${getJobMessage(job)} is complete")
-            job.promise.success(result)
-          }
-          case Failure(err) => {
-            Logger.info(s"Job ${getJobMessage(job)} has failed with reason: $err")
-            job.promise.failure(err)
-          }
-        }
+        job.promise.completeWith(eventualResult)
+        eventualResult
       case None =>
-        Future.failed(new IllegalStateException(s"Could not run validation job with id: ${job.id} -- unknown category for id: ${job.categoryId}"))
+        val error = new IllegalStateException(s"Could not run validation job with id: ${job.id} -- unknown category for id: ${job.categoryId}")
+        job.promise.failure(error)
+        Future.failed(error)
     }
   }
 

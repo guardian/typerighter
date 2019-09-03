@@ -57,7 +57,9 @@ class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: Execu
   def getCategory = category
 
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
-    Future.successful(instance.check(request.text).asScala.map(RuleMatch.fromLT).toList)
+    Future {
+      instance.check(request.text).asScala.map(RuleMatch.fromLT).toList
+    }
   }
 
   def getRules: List[Rule] = {

@@ -1,5 +1,6 @@
 import java.io.File
 
+import akka.stream.ActorAttributes
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
@@ -37,8 +38,8 @@ class AppComponents(context: Context, identity: AppIdentity)
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val languageToolFactory = new LanguageToolFactory(ngramPath)
-  val validatorPool = new ValidatorPool
-
+  val validatorPoolDispatcher = actorSystem.dispatchers.lookup("validation-pool-dispatcher")
+  val validatorPool = new ValidatorPool()(validatorPoolDispatcher, materializer)
 
   val credentials = configuration.get[String]("typerighter.google.credentials")
   val spreadsheetId = configuration.get[String]("typerighter.sheetId")
