@@ -18,7 +18,7 @@ class RulesController(cc: ControllerComponents, validatorPool: ValidatorPool, la
       errorsByCategory = addValidatorToPool(rulesByCategory)
       rules <- validatorPool.getCurrentRules
     } yield {
-      val errors = errorsByCategory.map(_._2).flatten ::: ruleErrors
+      val errors = errorsByCategory.flatMap(_._2) ::: ruleErrors
       val rulesIngested = rulesByCategory.map { _._2.size }.sum
       Ok(views.html.rules(sheetId, rules, Some(rulesIngested), errors))
     }
