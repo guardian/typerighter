@@ -38,7 +38,7 @@ class AppComponents(context: Context, identity: AppIdentity)
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val languageToolFactory = new LanguageToolFactory(ngramPath)
-  val validatorPoolDispatcher = actorSystem.dispatchers.lookup("validation-pool-dispatcher")
+  val validatorPoolDispatcher = actorSystem.dispatchers.lookup("validator-pool-dispatcher")
   val validatorPool = new ValidatorPool()(validatorPoolDispatcher, materializer)
 
   val credentials = configuration.get[String]("typerighter.google.credentials")
