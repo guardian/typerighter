@@ -16,7 +16,7 @@ import utils.Validator
 
 class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
-                           useLanguageModelRules: Boolean = false) extends ValidatorFactory {
+                           useLanguageModelRules: Boolean = false) {
 
   def createInstance(category: String, config: ValidatorConfig)(implicit ec: ExecutionContext): (Validator, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
@@ -52,10 +52,14 @@ class LanguageToolFactory(
 }
 
 class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: ExecutionContext) extends Validator {
+  def getId = "language-tool"
+
   def getCategory = category
 
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
-    Future.successful(instance.check(request.text).asScala.map(RuleMatch.fromLT).toList)
+    Future {
+      instance.check(request.text).asScala.map(RuleMatch.fromLT).toList
+    }
   }
 
   def getRules: List[Rule] = {

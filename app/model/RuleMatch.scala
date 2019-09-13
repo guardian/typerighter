@@ -9,8 +9,8 @@ case class RuleMatch(rule: ResponseRule,
                      fromPos: Int,
                      toPos: Int,
                      message: String,
-                     shortMessage: Option[String],
-                     suggestedReplacements: List[String])
+                     shortMessage: Option[String] = None,
+                     suggestedReplacements: List[String] = List.empty)
 
 object RuleMatch {
   def fromLT(lt: LTRuleMatch): RuleMatch = {

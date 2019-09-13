@@ -1,7 +1,8 @@
 @import model.Rule
+@import model.Category
 @import helper._
 
-@(sheetId: String, rules: scala.List[Rule], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
+@(sheetId: String, rules: scala.List[Rule], categories: scala.List[(String, Category)], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
         @CSRF.formField
@@ -20,35 +21,35 @@
     }
     <hr />
     <div class="row">
-        <div class="col-sm-4">
-            @defining(rules.groupBy(_.category).keys) { categories =>
-                <h5>Categories (@categories.size)</h5>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Id</th>
-                            <th scope="col">Colour</th>
-                            <th scope="col">Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @for(category <- rules.groupBy(_.category).keys) {
-                        <tr>
-                            <td>@category.name</td>
-                            <td>
-                                <span class="badge" style="background-color: #@category.colour;
-                                    color: white">
-                                    #@category.colour
-                                </span>
-                            </td>
-                            <td>@category.name</td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            }
+        <div class="col-sm-5">
+            <h5>Categories (@categories.size)</h5>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Id</th>
+                        <th scope="col">Colour</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Handler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for((handler, category) <- categories) {
+                    <tr>
+                        <td>@category.name</td>
+                        <td>
+                            <span class="badge" style="background-color: #@category.colour;
+                                color: white">
+                                #@category.colour
+                            </span>
+                        </td>
+                        <td>@category.name</td>
+                        <td>@handler</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
         </div>
-        <div class="col-sm-8">
+        <div class="col-sm-7">
             <h5>Rules (@rules.length)</h5>
             <table class="table">
                 <thead>

@@ -11,10 +11,14 @@ class CheckPermutationsSimulation extends Simulation {
 
   val scn = scenario("CheckPermutationsSimulation")
     .exec(http("checkRequest")
-    .post("/check").body(StringBody(_ => s"""{\"text\": \"$getRandomArticle\"}""")))
+    .post("/check").body(StringBody(_ =>
+      s"""{
+         |\"text\": \"$getRandomArticle\",
+         |\"id\": \"${java.util.UUID.randomUUID.toString}\"
+         |}""".stripMargin)))
 
   setUp(
-    scn.inject(constantUsersPerSec(10) during (10 seconds))
+    scn.inject(atOnceUsers(100))
   ).protocols(httpConf)
 
   val articleFragments = List("Michel Barnier has warned that the move led by Labour MP Yvette Cooper to block the prime minister from delivering a no-deal Brexit is doomed to fail unless a majority for an alternative agreement is found",

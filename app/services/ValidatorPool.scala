@@ -3,56 +3,115 @@ package services
 import java.util.concurrent.ConcurrentHashMap
 
 import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future, Promise, blocking}
-
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import play.api.Logger
-
-import model.Rule
+import model.{Category, Rule, RuleMatch}
 import utils.Validator
 import utils.Validator._
 
-case class ValidatorConfig(rules: List[Rule])
+import akka.stream.QueueOfferResult.{Dropped, Failure => QueueFailure, QueueClosed}
+import akka.stream._
+import akka.stream.scaladsl.{Sink, Source}
 
+case class ValidatorConfig(rules: List[Rule])
 case class ValidatorRequest(category: String, text: String)
 
-trait ValidatorFactory {
-  def createInstance(name: String, config: ValidatorConfig)(implicit ec: ExecutionContext): (Validator, List[String])
-}
+class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
+  type TValidateCallback = () => Future[ValidatorResponse]
 
-class ValidatorPool(implicit ec: ExecutionContext) {
+  case class ValidationJob(id: String, categoryId: String, text: String, promise: Promise[ValidatorResponse])
 
-  private val validators = new ConcurrentHashMap[String, Promise[Validator]]().asScala
+  private val validators = new ConcurrentHashMap[String, (Category, Validator)]().asScala
 
-  def checkAllCategories(text: String): Future[ValidatorResponse] = {
-    Logger.info(s"Checking categories ${validators.keys.mkString(", ")}")
-    val eventualChecks = validators.keys.foldLeft[List[Future[ValidatorResponse]]](List.empty)((acc, category) => {
-      acc :+ check(ValidatorRequest(category, text))
-    })
+  private val queue = Source.queue[ValidationJob](maxQueuedJobs, OverflowStrategy.dropNew)
+    .mapAsyncUnordered(maxCurrentJobs)(runValidationJob)
+    .to(Sink.ignore)
+    .run()
+
+  def getMaxCurrentValidations: Int = maxCurrentJobs
+  def getMaxQueuedValidations: Int = maxQueuedJobs
+
+  /**
+    * Check the text with the validators assigned to the given category ids.
+    * If no ids are assigned, use all the currently available validators.
+    */
+  def check(id: String, text: String, maybeCategoryIds: Option[List[String]] = None): Future[List[RuleMatch]] = {
+    val categoryIds = maybeCategoryIds match {
+      case None => getCurrentCategories.map { case (_, category) => category.id }
+      case Some(ids) => ids
+    }
+
+    Logger.info(s"Validation job with id: ${id} received. Checking categories: ${categoryIds.mkString(", ")}")
+    val eventualChecks = categoryIds.map { categoryId =>
+      checkForCategory(id, text, categoryId)
+    }
+
     Future.sequence(eventualChecks).map {
       _.flatten
+    }.map { matches =>
+      Logger.info(s"Validation job with id: $id complete")
+      matches
     }
   }
 
-  def check(request: ValidatorRequest): Future[ValidatorResponse] = {
-    validators.get(request.category) match {
-      case Some(validator) =>
-        Logger.info(s"Validator for category ${request.category} is processing")
-        validator.future.flatMap { validator =>
-          blocking {
-            val result = validator.check(request)
-            Logger.info(s"Validator for category ${request.category} is done")
-            result
-          }
-        }
+  /**
+    * Add a validator to the pool of validators for the given category.
+    * Replaces a validator that's already present for that category, returning
+    * the replaced validator.
+    */
+  def addValidator(category: Category, validator: Validator): Option[(Category, Validator)] = {
+    Logger.info(s"New instance of validator available of id: ${validator.getId} for category: ${category.id}")
+    validators.put(category.id, (category, validator))
+  }
+
+  def getCurrentCategories: List[(String, Category)] = {
+    val validatorsAndCategories = validators.values.map {
+      case (category, validator) => (validator.getId, category)
+    }.toList
+    validatorsAndCategories
+  }
+
+  def getCurrentRules: List[Rule] = {
+    validators.values.flatMap {
+      case (_, validator) =>  validator.getRules
+    }.toList
+  }
+
+  private def checkForCategory(id: String, text: String, categoryId: String): Future[ValidatorResponse] = {
+    val promise = Promise[ValidatorResponse]()
+    val job = ValidationJob(id, categoryId, text, promise)
+
+    Logger.info(s"Job ${getJobMessage(job)} has been offered to the queue")
+
+    queue.offer(job).collect {
+      case Dropped =>
+        promise.failure(new Throwable(s"Job ${getJobMessage(job)} was dropped from the queue, as the queue is full"))
+      case QueueClosed =>
+        promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed because the queue is closed"))
+      case QueueFailure(err) =>
+        promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed, reason: ${err.getMessage}"))
+    }
+
+    promise.future.andThen {
+      case result => {
+        Logger.info(s"Job ${getJobMessage(job)} is complete")
+        result
+      }
+    }
+  }
+
+  private def runValidationJob(job: ValidationJob): Future[ValidatorResponse] = {
+    validators.get(job.categoryId) match {
+      case Some((_, validator)) =>
+        val eventualResult = validator.check(ValidatorRequest(job.categoryId, job.text))
+        job.promise.completeWith(eventualResult)
+        eventualResult
       case None =>
-        Future.failed(new IllegalStateException(s"Unknown category ${request.category}"))
+        val error = new IllegalStateException(s"Could not run validation job with id: ${job.id} -- unknown category for id: ${job.categoryId}")
+        job.promise.failure(error)
+        Future.failed(error)
     }
   }
 
-  def addValidator(category: String, validator: Validator) = {
-    Logger.info(s"New instance of validator available with rules for category ${category}")
-    validators.put(category, Promise.successful(validator))
-  }
-
-  def getCurrentRules = Future.sequence(validators.values.map(_.future).map(_.map(_.getRules())).toList).map(_.flatten)
+  private def getJobMessage(job: ValidationJob) = s"with id: ${job.id} for category: ${job.categoryId}"
 }

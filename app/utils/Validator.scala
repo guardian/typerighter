@@ -11,6 +11,7 @@ object Validator {
 
 trait Validator {
   def check(request: ValidatorRequest): Future[Validator.ValidatorResponse]
+  def getId(): String
   def getRules(): List[Rule]
   def getCategory(): String
 }
