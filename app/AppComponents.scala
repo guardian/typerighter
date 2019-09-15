@@ -22,6 +22,8 @@ class AppComponents(context: Context, identity: AppIdentity)
   with CORSComponents
   with Loggable
   with controllers.AssetsComponents {
+  implicit val system = actorSystem
+  implicit val mat = materializer
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
