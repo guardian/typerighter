@@ -26,11 +26,7 @@ class ApiController(
     request.body.validate[CheckQuery].asEither match {
       case Right(checkQuery) =>
         validatorPool
-          .check(
-            checkQuery.validationId,
-            checkQuery.text,
-            checkQuery.categoryIds
-          )
+          .check(checkQuery)
           .map { results =>
             val json = Json.obj(
               "input" -> checkQuery.text,

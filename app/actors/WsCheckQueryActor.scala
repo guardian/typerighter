@@ -24,7 +24,7 @@ class WsCheckQueryActor(out: ActorRef, pool: ValidatorPool)(implicit ec: Executi
           var queriesComplete = 0
           val check = jsCheck.validate[Check].get
           check.inputs.foreach { query =>
-            pool.check(query.validationId, query.text, query.categoryIds).map { results =>
+            pool.check(query).map { results =>
               val response = ValidatorResponse(
                 query.validationId,
                 query.text,

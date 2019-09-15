@@ -12,14 +12,13 @@ import utils.Validator._
 import akka.stream.QueueOfferResult.{Dropped, Failure => QueueFailure, QueueClosed}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
+import model.CheckQuery
 
 case class ValidatorConfig(rules: List[Rule])
-case class ValidatorRequest(category: String, text: String)
+case class ValidatorRequest(category: String, text: String, from: Integer, to: Integer)
 
 class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
-  type TValidateCallback = () => Future[ValidatorResponse]
-
-  case class ValidationJob(id: String, categoryId: String, text: String, promise: Promise[ValidatorResponse])
+  case class ValidationJob(id: String, categoryId: String, text: String, from: Integer, to: Integer, promise: Promise[ValidatorResponse])
 
   private val validators = new ConcurrentHashMap[String, (Category, Validator)]().asScala
 
@@ -35,21 +34,21 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(
     * Check the text with the validators assigned to the given category ids.
     * If no ids are assigned, use all the currently available validators.
     */
-  def check(id: String, text: String, maybeCategoryIds: Option[List[String]] = None): Future[List[RuleMatch]] = {
-    val categoryIds = maybeCategoryIds match {
+  def check(query: CheckQuery): Future[List[RuleMatch]] = {
+    val categoryIds = query.categoryIds match {
       case None => getCurrentCategories.map { case (_, category) => category.id }
       case Some(ids) => ids
     }
 
-    Logger.info(s"Validation job with id: ${id} received. Checking categories: ${categoryIds.mkString(", ")}")
+    Logger.info(s"Validation job with id: ${query.validationId} received. Checking categories: ${categoryIds.mkString(", ")}")
     val eventualChecks = categoryIds.map { categoryId =>
-      checkForCategory(id, text, categoryId)
+      checkForCategory(query, categoryId)
     }
 
     Future.sequence(eventualChecks).map {
       _.flatten
     }.map { matches =>
-      Logger.info(s"Validation job with id: $id complete")
+      Logger.info(s"Validation job with id: ${query.validationId} complete")
       matches
     }
   }
@@ -77,9 +76,9 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(
     }.toList
   }
 
-  private def checkForCategory(id: String, text: String, categoryId: String): Future[ValidatorResponse] = {
+  private def checkForCategory(query: CheckQuery, categoryId: String): Future[ValidatorResponse] = {
     val promise = Promise[ValidatorResponse]()
-    val job = ValidationJob(id, categoryId, text, promise)
+    val job = ValidationJob(query.validationId, categoryId, query.text, query.from, query.to, promise)
 
     Logger.info(s"Job ${getJobMessage(job)} has been offered to the queue")
 
@@ -103,7 +102,10 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(
   private def runValidationJob(job: ValidationJob): Future[ValidatorResponse] = {
     validators.get(job.categoryId) match {
       case Some((_, validator)) =>
-        val eventualResult = validator.check(ValidatorRequest(job.categoryId, job.text))
+        val eventualResult = validator.check(ValidatorRequest(job.categoryId, job.text, job.from, job.to)).map { results =>     
+          // Map the position
+          results.map { result => result.copy( fromPos = result.fromPos + job.from, toPos = result.toPos + job.from )}
+        }
         job.promise.completeWith(eventualResult)
         eventualResult
       case None =>
