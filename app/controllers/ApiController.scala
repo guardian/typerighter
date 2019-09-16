@@ -1,6 +1,6 @@
 package controllers
 
-import model.CheckQuery
+import model.Check
 import actors.WsCheckQueryActor
 import akka.actor.ActorSystem
 import play.api.libs.json.{JsValue, Json}
@@ -17,19 +17,18 @@ import akka.stream.Materializer
   * The controller that handles API requests.
   */
 class ApiController(
-    cc: ControllerComponents,
+    cc: ControllerComponents, 
     validatorPool: ValidatorPool,
     ruleResource: RuleResource
 )(implicit ec: ExecutionContext, system: ActorSystem, mat: Materializer)
     extends AbstractController(cc) {
   def check: Action[JsValue] = Action.async(parse.json) { request =>
-    request.body.validate[CheckQuery].asEither match {
-      case Right(checkQuery) =>
+    request.body.validate[Check].asEither match {
+      case Right(check) =>
         validatorPool
-          .check(checkQuery)
+          .check(check)
           .map { results =>
             val json = Json.obj(
-              "input" -> checkQuery.text,
               "results" -> Json.toJson(results)
             )
             Ok(json)
@@ -49,7 +48,6 @@ class ApiController(
   }
 
   def getCurrentCategories: Action[AnyContent] = Action {
-    request: Request[AnyContent] =>
       Ok(Json.toJson(validatorPool.getCurrentCategories.map(_._2)))
   }
 }

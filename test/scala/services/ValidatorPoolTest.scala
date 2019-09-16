@@ -2,15 +2,16 @@ package services
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import model.{Block, Category, Check, ResponseRule, RuleMatch}
+import model.{Block, Category, Check, ResponseRule, RuleMatch, ValidatorResponse}
 import org.scalatest._
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.SpanSugar._
 import utils.Validator
-import utils.Validator.ValidatorResponse
 
+import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Promise}
+import scala.util.Failure
 
 /**
   * A mock validator to test the pool implementation. Doesn't
@@ -18,21 +19,21 @@ import scala.concurrent.{ExecutionContext, Promise}
   * queue behaviour.
   */
 class MockValidator(id: Int) extends Validator {
-  private var currentWork: Option[Promise[ValidatorResponse]] = None
-  private var currentResponses:  Option[ValidatorResponse] = None
+  private var currentWork: Option[Promise[List[RuleMatch]]] = None
+  private var currentResponses:  Option[List[RuleMatch]] = None
   def getId = s"mock-validator-$id"
-  def getCategory = "mock-validator-cat"
+  def getCategory = s"mock-category-$id"
   def getRules = List.empty
 
   def check(request: ValidatorRequest) = {
-    val promise = Promise[ValidatorResponse]()
+    val promise = Promise[List[RuleMatch]]
     val future = promise.future
     currentWork = Some(promise)
     maybeComplete()
     future
   }
 
-  def markAsComplete(responses: ValidatorResponse): Unit = {
+  def markAsComplete(responses: List[RuleMatch]): Unit = {
     currentResponses = Some(responses)
     maybeComplete()
   }
@@ -43,7 +44,7 @@ class MockValidator(id: Int) extends Validator {
       promise <- currentWork
     } yield {
       if (!promise.isCompleted) {
-      promise.success(response)
+        promise.success(response)
       }
     }
   }
@@ -52,7 +53,7 @@ class MockValidator(id: Int) extends Validator {
     for {
       promise <- currentWork
     } yield {
-      promise.failure(new Exception(message))
+      promise.failure(new Throwable(message))
     }
   }
 }
@@ -62,16 +63,18 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   private implicit val ec = ExecutionContext.global
   private implicit val system = ActorSystem()
   private implicit val materializer = ActorMaterializer()
+
   private val responseRule = ResponseRule(
     id = "test-rule",
     description = "test-description",
     category = getCategory(0),
     url = "test-url"
   )
+
   private val responses = getResponses(List((0, 5, "test-response")))
 
   private def getValidators(count: Int): List[MockValidator] = {
-    (1 to count).map { id =>
+    (0 until count).map { id =>
       new MockValidator(id)
     }.toList
   }
@@ -98,55 +101,63 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
+  private val setId = "set-id"
+  private val blockId = "block-id"
+
   private def getCheck(text: String, categoryIds: Option[List[String]] = None) = Check(
-    "set-id",
+    setId,
     categoryIds,
-    List(Block("block-id", text, 0, text.length)))
+    List(Block(blockId, text, 0, text.length)))
 
   "getCurrentCategories" should "report current categories" in {
     val validators = getValidators(1)
     val pool = getPool(validators)
-    pool.getCurrentCategories should be(List(("mock-validator-1", getCategory(0))))
+    pool.getCurrentCategories should be(List(("mock-validator-0", getCategory(0))))
   }
 
   "check" should "return a list of ValidatorResponses" in {
     val validators = getValidators(1)
     val pool = getPool(validators)
-    val result = pool.check(getCheck(text = "Example text"))
+    val futureResult = pool.check(getCheck(text = "Example text"))
     validators.head.markAsComplete(responses)
-    result.future.map { result =>
+    futureResult.map { result =>
       result shouldBe responses
-    }
-  }
-
-  "check" should "reject work that exceeds its buffer size" in {
-    val validators = getValidators(100)
-    val pool = getPool(validators, 1, 0)
-    val result = pool.check(getCheck(text = "Example text"))
-    validators.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(result.future.failed) { e =>
-      e.getMessage should include ("full")
     }
   }
 
   "check" should "complete queued jobs" in {
     val validators = getValidators(24)
     val pool = getPool(validators)
-    val result = pool.check(getCheck(text = "Example text"))
+    val futureResult = pool.check(getCheck(text = "Example text"))
     validators.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(result.future) { result =>
+    ScalaFutures.whenReady(futureResult) { result =>
       result.length shouldBe 24
+    }
+  }
+
+  "check" should "reject work that exceeds its buffer size" in {
+    val validators = getValidators(1)
+    // This check should produce a job for each block, filling the queue.
+    val checkWithManyBlocks = Check(
+      setId,
+      None,
+      (0 to 100).toList.map { id => Block(id.toString, "Example text", 0, 12) });
+    val pool = getPool(validators, 1, 1)
+    val futureResult = pool.check(checkWithManyBlocks)
+    validators.foreach(_.markAsComplete(responses))
+    ScalaFutures.whenReady(futureResult.failed) { e =>
+      e.getMessage should include ("full")
     }
   }
 
   "check" should "handle validation failures" in {
     val validators = getValidators(2)
     val pool = getPool(validators)
-    val result = pool.check(getCheck(text = "Example text"))
+    val futureResult = pool.check(getCheck(text = "Example text"))
     val errorMessage = "Something went wrong"
     validators(0).markAsComplete(responses)
     validators(1).fail(errorMessage)
-    ScalaFutures.whenReady(result.future.failed) { e =>
+    ScalaFutures.whenReady(futureResult.failed) { e =>
       e.getMessage shouldBe errorMessage
     }
   }
@@ -154,9 +165,31 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   "check" should "handle requests for categories that do not exist" in {
     val validators = getValidators(2)
     val pool = getPool(validators)
-    val result = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
-    ScalaFutures.whenReady(result.future.failed) { e =>
+    val futureResult = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
+    ScalaFutures.whenReady(futureResult.failed) { e =>
       e.getMessage should include("unknown category")
+    }
+  }
+
+  "check" should "emit events when validations are complete" in {
+    val validators = getValidators(2)
+    val pool = getPool(validators)
+    var events = ListBuffer.empty[ValidatorPoolEvent]
+    val subscriber = ValidatorPoolSubscriber("set-id", (e: ValidatorPoolEvent) => {
+      events += e
+      ()
+    })
+    pool.subscribe(subscriber)
+    val check = getCheck("Example text")
+    val futureResult = pool.check(check)
+    validators.foreach(_.markAsComplete(responses))
+    ScalaFutures.whenReady(futureResult) { _ =>
+    val categories = validators.map {_.getCategory}
+      events.toList shouldBe List(
+        ValidatorPoolResultEvent(setId, ValidatorResponse(check.blocks, categories(0), responses)),
+        ValidatorPoolResultEvent(setId, ValidatorResponse(check.blocks, categories(1), responses)),
+        ValidatorPoolJobsCompleteEvent(setId)
+      )
     }
   }
 }

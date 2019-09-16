@@ -2,7 +2,7 @@ package model
 
 import play.api.libs.json._
 
-case class ValidatorError(id: String, error: String) {
+case class ValidatorError(error: String, id: Option[String] = None) {
   val `type` = "VALIDATOR_ERROR"
 }
 
