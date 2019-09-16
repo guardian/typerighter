@@ -2,7 +2,7 @@ package services
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import model.{Category, ResponseRule, RuleMatch}
+import model.{Block, Category, Check, ResponseRule, RuleMatch}
 import org.scalatest._
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.concurrent.ScalaFutures
@@ -98,6 +98,11 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
+  private def getCheck(text: String, categoryIds: Option[List[String]] = None) = Check(
+    "set-id",
+    categoryIds,
+    List(Block("block-id", text, 0, text.length)))
+
   "getCurrentCategories" should "report current categories" in {
     val validators = getValidators(1)
     val pool = getPool(validators)
@@ -107,9 +112,9 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   "check" should "return a list of ValidatorResponses" in {
     val validators = getValidators(1)
     val pool = getPool(validators)
-    val eventuallyResult = pool.check("test-1", "Example text")
+    val result = pool.check(getCheck(text = "Example text"))
     validators.head.markAsComplete(responses)
-    eventuallyResult.map { result =>
+    result.future.map { result =>
       result shouldBe responses
     }
   }
@@ -117,9 +122,9 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   "check" should "reject work that exceeds its buffer size" in {
     val validators = getValidators(100)
     val pool = getPool(validators, 1, 0)
-    val eventuallyFails = pool.check("test-1", "Example text")
+    val result = pool.check(getCheck(text = "Example text"))
     validators.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(eventuallyFails.failed) { e =>
+    ScalaFutures.whenReady(result.future.failed) { e =>
       e.getMessage should include ("full")
     }
   }
@@ -127,9 +132,9 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   "check" should "complete queued jobs" in {
     val validators = getValidators(24)
     val pool = getPool(validators)
-    val checkFuture = pool.check("test-1", "Example text")
+    val result = pool.check(getCheck(text = "Example text"))
     validators.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(checkFuture) { result =>
+    ScalaFutures.whenReady(result.future) { result =>
       result.length shouldBe 24
     }
   }
@@ -137,11 +142,11 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   "check" should "handle validation failures" in {
     val validators = getValidators(2)
     val pool = getPool(validators)
-    val eventuallyFails = pool.check("test-1", "Example text")
+    val result = pool.check(getCheck(text = "Example text"))
     val errorMessage = "Something went wrong"
     validators(0).markAsComplete(responses)
     validators(1).fail(errorMessage)
-    ScalaFutures.whenReady(eventuallyFails.failed) { e =>
+    ScalaFutures.whenReady(result.future.failed) { e =>
       e.getMessage shouldBe errorMessage
     }
   }
@@ -149,8 +154,8 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   "check" should "handle requests for categories that do not exist" in {
     val validators = getValidators(2)
     val pool = getPool(validators)
-    val eventuallyFails = pool.check("test-1", "Example text", Some(List("category-does-not-exist")))
-    ScalaFutures.whenReady(eventuallyFails.failed) { e =>
+    val result = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
+    ScalaFutures.whenReady(result.future.failed) { e =>
       e.getMessage should include("unknown category")
     }
   }

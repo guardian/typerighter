@@ -12,13 +12,39 @@ import utils.Validator._
 import akka.stream.QueueOfferResult.{Dropped, Failure => QueueFailure, QueueClosed}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import model.CheckQuery
+import model.Check
+import model.Block
 
 case class ValidatorConfig(rules: List[Rule])
-case class ValidatorRequest(category: String, text: String, from: Integer, to: Integer)
+case class ValidatorRequest(blocks: List[Block], categoryId: String)
+case class ValidationJob(blocks: List[Block], categoryId: String, promise: Promise[ValidatorResponse])
+case class CheckResponse(noOfScheduledJobs: Integer, future: Future[ValidatorResponse])
 
-class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
-  case class ValidationJob(id: String, categoryId: String, text: String, from: Integer, to: Integer, promise: Promise[ValidatorResponse])
+object ValidatorPool {
+  type CategoryIds = List[String]
+  type CheckStrategy = (List[Block], CategoryIds) => List[ValidationJob]
+
+  def blockLevelCheckStrategy: CheckStrategy = (queries, categoryIds) => {
+    for {
+      categoryId <- categoryIds
+      query <- queries
+    } yield {
+      val promise = Promise[ValidatorResponse]()
+      ValidationJob(List(query), categoryId, promise)
+    }
+  }
+
+  def documentLevelCheckStrategy: CheckStrategy = (queries, categoryIds) => {
+    for {
+      categoryId <- categoryIds
+    } yield {
+      val promise = Promise[ValidatorResponse]()
+      ValidationJob(queries, categoryId, promise)
+    }
+  }
+}
+
+class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: ValidatorPool.CheckStrategy = ValidatorPool.blockLevelCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
 
   private val validators = new ConcurrentHashMap[String, (Category, Validator)]().asScala
 
@@ -34,23 +60,24 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(
     * Check the text with the validators assigned to the given category ids.
     * If no ids are assigned, use all the currently available validators.
     */
-  def check(query: CheckQuery): Future[List[RuleMatch]] = {
+  def check(query: Check): CheckResponse = {
     val categoryIds = query.categoryIds match {
       case None => getCurrentCategories.map { case (_, category) => category.id }
       case Some(ids) => ids
     }
 
-    Logger.info(s"Validation job with id: ${query.validationId} received. Checking categories: ${categoryIds.mkString(", ")}")
-    val eventualChecks = categoryIds.map { categoryId =>
-      checkForCategory(query, categoryId)
-    }
+    Logger.info(s"Validation job with id: ${query.validationSetId} received. Checking categories: ${categoryIds.mkString(", ")}")
+    
+    val eventuallyResponses = checkStrategy(query.blocks, categoryIds).map(offerJobToQueue)
 
-    Future.sequence(eventualChecks).map {
+    val futureOfAllWork = Future.sequence(eventuallyResponses).map {
       _.flatten
     }.map { matches =>
-      Logger.info(s"Validation job with id: ${query.validationId} complete")
+      Logger.info(s"Validation job with id: ${query.validationSetId} complete")
       matches
     }
+
+    CheckResponse(eventuallyResponses.length, futureOfAllWork)
   }
 
   /**
@@ -76,22 +103,19 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(
     }.toList
   }
 
-  private def checkForCategory(query: CheckQuery, categoryId: String): Future[ValidatorResponse] = {
-    val promise = Promise[ValidatorResponse]()
-    val job = ValidationJob(query.validationId, categoryId, query.text, query.from, query.to, promise)
-
+  private def offerJobToQueue(job: ValidationJob): Future[ValidatorResponse] = {
     Logger.info(s"Job ${getJobMessage(job)} has been offered to the queue")
 
     queue.offer(job).collect {
       case Dropped =>
-        promise.failure(new Throwable(s"Job ${getJobMessage(job)} was dropped from the queue, as the queue is full"))
+        job.promise.failure(new Throwable(s"Job ${getJobMessage(job)} was dropped from the queue, as the queue is full"))
       case QueueClosed =>
-        promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed because the queue is closed"))
+        job.promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed because the queue is closed"))
       case QueueFailure(err) =>
-        promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed, reason: ${err.getMessage}"))
+        job.promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed, reason: ${err.getMessage}"))
     }
 
-    promise.future.andThen {
+    job.promise.future.andThen {
       case result => {
         Logger.info(s"Job ${getJobMessage(job)} is complete")
         result
@@ -102,18 +126,18 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000)(
   private def runValidationJob(job: ValidationJob): Future[ValidatorResponse] = {
     validators.get(job.categoryId) match {
       case Some((_, validator)) =>
-        val eventualResult = validator.check(ValidatorRequest(job.categoryId, job.text, job.from, job.to)).map { results =>     
-          // Map the position
-          results.map { result => result.copy( fromPos = result.fromPos + job.from, toPos = result.toPos + job.from )}
-        }
+        val eventualResult = validator.check(ValidatorRequest(job.blocks, job.categoryId))
         job.promise.completeWith(eventualResult)
         eventualResult
       case None =>
-        val error = new IllegalStateException(s"Could not run validation job with id: ${job.id} -- unknown category for id: ${job.categoryId}")
+        val error = new IllegalStateException(s"Could not run validation job with blocks: ${getJobBlockIdsAsString(job)} -- unknown category for id: ${job.categoryId}")
         job.promise.failure(error)
         Future.failed(error)
     }
   }
 
-  private def getJobMessage(job: ValidationJob) = s"with id: ${job.id} for category: ${job.categoryId}"
+  private def getJobMessage(job: ValidationJob) = s"with blocks: ${getJobBlockIdsAsString(job)} for category: ${job.categoryId}"
+
+  private def getJobBlockIdsAsString(job: ValidationJob) = job.blocks.map(_.id).mkString(", ")
 }
+
