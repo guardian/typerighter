@@ -2,16 +2,14 @@ package services
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import model.{Block, Category, Check, ResponseRule, RuleMatch, ValidatorResponse}
+import model.{TextBlock, Category, Check, ResponseRule, RuleMatch, ValidatorResponse}
 import org.scalatest._
-import org.scalatest.concurrent.PatienceConfiguration.Timeout
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.SpanSugar._
 import utils.Validator
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Promise}
-import scala.util.Failure
 
 /**
   * A mock validator to test the pool implementation. Doesn't
@@ -107,7 +105,7 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
   private def getCheck(text: String, categoryIds: Option[List[String]] = None) = Check(
     setId,
     categoryIds,
-    List(Block(blockId, text, 0, text.length)))
+    List(TextBlock(blockId, text, 0, text.length)))
 
   "getCurrentCategories" should "report current categories" in {
     val validators = getValidators(1)
@@ -141,7 +139,7 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
     val checkWithManyBlocks = Check(
       setId,
       None,
-      (0 to 100).toList.map { id => Block(id.toString, "Example text", 0, 12) });
+      (0 to 100).toList.map { id => TextBlock(id.toString, "Example text", 0, 12) });
     val pool = getPool(validators, 1, 1)
     val futureResult = pool.check(checkWithManyBlocks)
     validators.foreach(_.markAsComplete(responses))
@@ -186,8 +184,8 @@ class ValidatorPoolTest extends AsyncFlatSpec with Matchers {
     ScalaFutures.whenReady(futureResult) { _ =>
     val categories = validators.map {_.getCategory}
       events.toList shouldBe List(
-        ValidatorPoolResultEvent(setId, ValidatorResponse(check.blocks, categories(0), responses)),
-        ValidatorPoolResultEvent(setId, ValidatorResponse(check.blocks, categories(1), responses)),
+        ValidatorPoolResultEvent(setId, ValidatorResponse(check.blocks, List(categories(0)), responses)),
+        ValidatorPoolResultEvent(setId, ValidatorResponse(check.blocks, List(categories(1)), responses)),
         ValidatorPoolJobsCompleteEvent(setId)
       )
     }
