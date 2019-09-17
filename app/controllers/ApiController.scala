@@ -22,6 +22,7 @@ class ApiController(
     ruleResource: RuleResource
 )(implicit ec: ExecutionContext, system: ActorSystem, mat: Materializer)
     extends AbstractController(cc) {
+
   def check: Action[JsValue] = Action.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>

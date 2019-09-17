@@ -24,6 +24,5 @@ object RuleMatch {
     )
   }
 
-  implicit val reads: Reads[RuleMatch] = Json.reads[RuleMatch]
   implicit val writes: Writes[RuleMatch] = Json.writes[RuleMatch]
 }
