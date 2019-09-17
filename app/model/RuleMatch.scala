@@ -1,7 +1,7 @@
 package model
 
 import org.languagetool.rules.{RuleMatch => LTRuleMatch}
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Json, Reads, Writes}
 
 import scala.collection.JavaConverters._
 
@@ -24,5 +24,6 @@ object RuleMatch {
     )
   }
 
+  implicit val reads: Reads[RuleMatch] = Json.reads[RuleMatch]
   implicit val writes: Writes[RuleMatch] = Json.writes[RuleMatch]
 }

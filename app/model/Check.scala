@@ -3,9 +3,9 @@ package model
 import play.api.libs.json.{Json, Reads}
 
 case class Check(
-                  validationSetId: String,
+                  requestId: String,
                   categoryIds: Option[List[String]],
-                  blocks: List[Block]
+                  blocks: List[TextBlock]
                 )
 
 object Check {

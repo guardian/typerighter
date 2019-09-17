@@ -2,7 +2,7 @@ package model
 
 import play.api.libs.json._
 
-case class ValidatorResponse(blocks: List[Block], categoryId: String, results: List[RuleMatch]) {
+case class ValidatorResponse(blocks: List[TextBlock], categoryIds: List[String], matches: List[RuleMatch]) {
   val `type` = "VALIDATOR_RESPONSE"
 }
 
@@ -10,9 +10,9 @@ object ValidatorResponse {
   implicit val writes = new Writes[ValidatorResponse] {
     def writes(response: ValidatorResponse) = Json.obj(
       "type" -> response.`type`,
-      "categoryId" -> response.categoryId,
+      "categoryIds" -> response.categoryIds,
       "blocks" -> response.blocks,
-      "results" -> response.results
+      "matches" -> response.matches
     )
   }
 }

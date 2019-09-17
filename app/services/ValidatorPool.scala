@@ -5,31 +5,30 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import play.api.Logger
-import model.{Block, Category, Check, Rule, RuleMatch, ValidatorResponse}
+import model.{TextBlock, Category, Check, Rule, RuleMatch, ValidatorResponse}
 import utils.Validator
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
 
 case class ValidatorConfig(rules: List[Rule])
-case class ValidatorRequest(blocks: List[Block], categoryId: String)
+case class ValidatorRequest(blocks: List[TextBlock], categoryId: String)
 
 /**
   * A PartialValidationJob represents the information our CheckStrategy needs to divide validation work into jobs.
   */
-case class PartialValidationJob(blocks: List[Block], categoryId: String)
+case class PartialValidationJob(blocks: List[TextBlock], categoryId: String)
 
 /**
   * A ValidationJob represents everything we need to:
   *  - perform validation work
   *  - notify the job creator when that work is done.
   */
-case class ValidationJob(blocks: List[Block], categoryId: String, validationSetId: String, promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer)
+case class ValidationJob(blocks: List[TextBlock], categoryId: String, requestId: String, promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer)
 
 object ValidatorPool {
   type CategoryIds = List[String]
-  type ValidationSetId = String
-  type CheckStrategy = (List[Block], CategoryIds) => List[PartialValidationJob]
+  type CheckStrategy = (List[TextBlock], CategoryIds) => List[PartialValidationJob]
 
   def blockLevelCheckStrategy: CheckStrategy = (blocks, categoryIds) => {
     for {
@@ -68,14 +67,14 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, 
       case Some(ids) => ids
     }
 
-    Logger.info(s"Validation job with id: ${query.validationSetId} received. Checking categories: ${categoryIds.mkString(", ")}")
+    Logger.info(s"Validation job with id: ${query.requestId} received. Checking categories: ${categoryIds.mkString(", ")}")
     
     val eventuallyResponses =
-      createJobsFromPartialJobs(checkStrategy(query.blocks, categoryIds), query.validationSetId)
+      createJobsFromPartialJobs(checkStrategy(query.blocks, categoryIds), query.requestId)
       .map(offerJobToQueue)
 
     Future.sequence(eventuallyResponses).map { matches =>
-      Logger.info(s"Validation job with id: ${query.validationSetId} complete")
+      Logger.info(s"Validation job with id: ${query.requestId} complete")
       matches.flatten
     }
   }
@@ -83,12 +82,12 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, 
   /**
     * @see ValidatorPoolEventBus
     */
-  def subscribe(subscriber: ValidatorPoolSubscriber): Boolean = eventBus.subscribe(subscriber, subscriber.validationSetId)
+  def subscribe(subscriber: ValidatorPoolSubscriber): Boolean = eventBus.subscribe(subscriber, subscriber.requestId)
 
   /**
     * @see ValidatorPoolEventBus
     */
-  def unsubscribe(subscriber: ValidatorPoolSubscriber): Boolean = eventBus.unsubscribe(subscriber, subscriber.validationSetId)
+  def unsubscribe(subscriber: ValidatorPoolSubscriber): Boolean = eventBus.unsubscribe(subscriber, subscriber.requestId)
 
   /**
     * Add a validator to the pool of validators for the given category.
@@ -113,9 +112,9 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, 
     }.toList
   }
 
-  private def createJobsFromPartialJobs(partialJobs: List[PartialValidationJob], validationSetId: String) = partialJobs.map { partialJob =>
+  private def createJobsFromPartialJobs(partialJobs: List[PartialValidationJob], requestId: String) = partialJobs.map { partialJob =>
     val promise = Promise[List[RuleMatch]]
-    ValidationJob(partialJob.blocks, partialJob.categoryId, validationSetId, promise, partialJobs.length)
+    ValidationJob(partialJob.blocks, partialJob.categoryId, requestId, promise, partialJobs.length)
   }
 
   private def offerJobToQueue(job: ValidationJob): Future[List[RuleMatch]] = {
@@ -154,7 +153,7 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, 
   private def markJobAsComplete(progressMap: Map[String, Int], result: (ValidationJob, List[RuleMatch])): JobProgressMap = {
     result match {
       case (job, matches) =>
-        val newCount = progressMap.get(job.validationSetId) match {
+        val newCount = progressMap.get(job.requestId) match {
           case Some(jobCount) => jobCount - 1
           case None => job.jobsInValidationSet - 1
         }
@@ -162,26 +161,26 @@ class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, 
         publishResults(job, matches)
 
         if (newCount == 0) {
-          publishJobsComplete(job.validationSetId)
+          publishJobsComplete(job.requestId)
         }
 
-        progressMap + (job.validationSetId -> newCount)
+        progressMap + (job.requestId -> newCount)
     }
   }
 
-  private def publishResults(job: ValidationJob, results: List[RuleMatch]) = {
+  private def publishResults(job: ValidationJob, results: List[RuleMatch]): Unit = {
     eventBus.publish(ValidatorPoolResultEvent(
-      job.validationSetId,
+      job.requestId,
       ValidatorResponse(
         job.blocks,
-        job.categoryId,
+        List(job.categoryId),
         results
       )
     ))
   }
 
-  private def publishJobsComplete(validationSetId: String) = {
-    eventBus.publish(ValidatorPoolJobsCompleteEvent(validationSetId))
+  private def publishJobsComplete(requestId: String): Unit = {
+    eventBus.publish(ValidatorPoolJobsCompleteEvent(requestId))
   }
 
   private def getJobMessage(job: ValidationJob) = s"with blocks: ${getJobBlockIdsAsString(job)} for category: ${job.categoryId}"
