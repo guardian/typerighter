@@ -5,6 +5,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, HomeController, RulesController}
+import model.Category
 import opennlp.tools.namefind.TokenNameFinderModel
 import opennlp.tools.sentdetect.SentenceModel
 import opennlp.tools.tokenize.TokenizerModel
@@ -19,7 +20,6 @@ import rules.SheetsRuleResource
 import services.{ElkLogging, LanguageToolFactory, ValidatorPool}
 import services._
 import utils.Loggable
-
 import play.api.libs.ws.ahc.AhcWSComponents
 
 class AppComponents(context: Context, identity: AppIdentity)
@@ -82,20 +82,16 @@ class AppComponents(context: Context, identity: AppIdentity)
       }}
     }
 
-    val nameFinderModelFile = getClass.getResourceAsStream("/openNLP/en-ner-person.bin")
-    val tokenModelFile = getClass.getResourceAsStream("/openNLP/en-token.bin")
-    val sentenceModelFile = getClass.getResourceAsStream("/openNLP/en-sent.bin")
+    val nameFinderCategory = Category(
+      "name-checker",
+      "Name checker",
+      "3de693"
+    )
+    val nameFinderValidator = new NameCheckerValidator(
+      new StanfordNameFinder,
+      new WikiNameSearcher(wsClient)
+    )
 
-    val nameFinderModel = new TokenNameFinderModel(nameFinderModelFile)
-    val tokenModel = new TokenizerModel(tokenModelFile)
-    val sentenceModel = new SentenceModel(sentenceModelFile)
-
-    nameFinderModelFile.close()
-    tokenModelFile.close()
-    sentenceModelFile.close()
-
-    val nameFinder = new StanfordNameFinder
-
-    validatorPool.addValidator("name-checker", new NameCheckerValidator(nameFinder, new WikiNameSearcher(wsClient)))
+    validatorPool.addValidator(nameFinderCategory, nameFinderValidator)
   }
 }

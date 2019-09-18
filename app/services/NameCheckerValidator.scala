@@ -14,24 +14,28 @@ class NameCheckerValidator(
 )(implicit ec: ExecutionContext)
     extends Validator {
   def getCategory = "Name"
+  def getId = "name-checker"
   def getRules = List.empty
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
-    val names = nameFinder.findNames(request.text)
-    val results = names.map { name =>
-      val message = s"Name found: ${name.text}"
-      wikiNameSearcher.fetchWikiMatchesForName(name.text).map { nameResult =>
-        val matches = nameResult.results.map { result =>
-          WikiSuggestion(result.name, result.title, result.score)
+    val results = request.blocks.flatMap { block =>
+      val names = nameFinder.findNames(block.text)
+      val results = names.map { name =>
+        val message = s"Name found: ${name.text}"
+        wikiNameSearcher.fetchWikiMatchesForName(name.text).map { nameResult =>
+          val matches = nameResult.results.map { result =>
+            WikiSuggestion(result.name, result.title, result.score)
+          }
+          RuleMatch(
+            getResponseRule,
+            name.from,
+            name.to,
+            message = message,
+            shortMessage = Some(message),
+            suggestions = matches
+          )
         }
-        RuleMatch(
-          getResponseRule,
-          name.from,
-          name.to,
-          message = message,
-          shortMessage = Some(message),
-          suggestions = matches
-        )
       }
+      results
     }
     Future.sequence(results)
   }
