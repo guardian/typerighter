@@ -50,7 +50,7 @@ class WikiNameSearcher(ws: WSClient)(implicit ec: ExecutionContext) {
     val request = Json.obj("query" -> Json.obj(
       "multi_match" -> Json.obj(
         "query" -> normalisedName,
-        "fields" -> Json.arr("page_title"),
+        "fields" -> Json.arr("message"),
         "fuzziness" -> "AUTO",
         "prefix_length" -> 2
       )
