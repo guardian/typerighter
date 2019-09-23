@@ -43,7 +43,7 @@ object ValidatorPool {
   }
 }
 
-class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: ValidatorPool.CheckStrategy = ValidatorPool.blockLevelCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
+class ValidatorPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: ValidatorPool.CheckStrategy = ValidatorPool.documentPerCategoryCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
   type JobProgressMap = Map[String, Int]
 
   private val validators = new ConcurrentHashMap[String, (Category, Validator)]().asScala

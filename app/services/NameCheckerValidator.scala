@@ -3,7 +3,7 @@ package services
 import java.util.UUID
 
 import model.{Category, ResponseRule, RuleMatch}
-import utils.Validator
+import utils.{NameCheckerUtils, Validator}
 
 import scala.concurrent.{ExecutionContext, Future}
 import model.WikiSuggestion
@@ -13,37 +13,53 @@ class NameCheckerValidator(
     wikiNameSearcher: WikiNameSearcher
 )(implicit ec: ExecutionContext)
     extends Validator {
-  def getCategory = "Name"
+  private val category = Category("name-check", "Name check", "teal")
+  def getCategory = category.id
   def getId = "name-checker"
   def getRules = List.empty
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
-    val results = request.blocks.flatMap { block =>
-      val names = nameFinder.findNames(block.text)
-      val results = names.map { name =>
-        val message = s"Name found: ${name.text}"
-        wikiNameSearcher.fetchWikiMatchesForName(name.text).map { nameResult =>
-          val matches = nameResult.results.map { result =>
-            WikiSuggestion(result.name, result.title, result.score)
-          }
-          RuleMatch(
-            getResponseRule,
-            name.from,
-            name.to,
-            message = message,
-            shortMessage = Some(message),
-            suggestions = matches
-          )
+    println(s"Checking names for blocks ${request.blocks.map(_.id).mkString(", ")}")
+    val namesAndBlocks = request.blocks.map { block => (block, nameFinder.findNames(block.text)) }
+    val allNames = namesAndBlocks.flatMap { case (_, names) => names }
+    val results = for {
+      (block, names) <- namesAndBlocks
+      name <- names
+    } yield {
+      val message = s"Name found: ${name.text}"
+      val normalisedName = getNormalisedName(name.text, allNames)
+      println(s"Got name -- ${name.text}, $normalisedName")
+      wikiNameSearcher.fetchWikiMatchesForName(normalisedName).map { nameResult =>
+        val matches = nameResult.results.map { result =>
+          WikiSuggestion(result.name, result.title, result.score)
         }
+        RuleMatch(
+          getResponseRule,
+          name.from + block.from,
+          name.to + block.from,
+          message = message,
+          shortMessage = Some(message),
+          suggestions = matches
+        )
       }
-      results
     }
+
     Future.sequence(results)
   }
+
+  private def getNormalisedName(nameStr: String, otherNames: List[NameResult]) = {
+    NameCheckerUtils.findSimilarLastNames(nameStr, otherNames.map { _.text } ) match {
+      case Nil => nameStr
+      case similarNames: List[String] =>
+        println(s"These names are similar to $nameStr: ${similarNames.mkString(", ")}")
+        similarNames.head
+    }
+  }
+
   private def getResponseRule =
     ResponseRule(
       UUID.randomUUID().toString,
       "Name check description",
-      Category("name-check", "Name check", "teal"),
+      category,
       ""
     )
 }

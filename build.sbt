@@ -63,6 +63,7 @@ libraryDependencies ++= Seq(
   "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
   "edu.stanford.nlp" % "stanford-parser" % "3.4",
+  "info.debatty" % "java-string-similarity" % "0.10",
   ws
 )
 
