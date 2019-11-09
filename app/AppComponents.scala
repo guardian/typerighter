@@ -1,17 +1,12 @@
 import java.io.File
 
-import akka.stream.ActorAttributes
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, HomeController, RulesController}
 import model.Category
-import opennlp.tools.namefind.TokenNameFinderModel
-import opennlp.tools.sentdetect.SentenceModel
-import opennlp.tools.tokenize.TokenizerModel
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
-import play.api.libs.ws.WSClient
 import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
@@ -81,17 +76,5 @@ class AppComponents(context: Context, identity: AppIdentity)
         validatorPool.addValidator(category, validator)
       }}
     }
-
-    val nameFinderCategory = Category(
-      "name-checker",
-      "Name checker",
-      "3de693"
-    )
-    val nameFinderValidator = new NameCheckerValidator(
-      new StanfordNameFinder,
-      new WikiNameSearcher(wsClient)
-    )
-
-    validatorPool.addValidator(nameFinderCategory, nameFinderValidator)
   }
 }
