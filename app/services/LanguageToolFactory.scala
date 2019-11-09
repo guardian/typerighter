@@ -12,13 +12,13 @@ import play.api.Logger
 import model.RuleMatch
 import model.Rule
 import org.languagetool.rules.CategoryId
-import utils.Validator
+import utils.Matcher
 
 class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) {
 
-  def createInstance(category: String, config: ValidatorConfig)(implicit ec: ExecutionContext): (Validator, List[String]) = {
+  def createInstance(category: String, config: MatcherConfig)(implicit ec: ExecutionContext): (Matcher, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
@@ -34,7 +34,7 @@ class LanguageToolFactory(
     instance.getCategories().asScala.foreach((categoryData) => instance.disableCategory(categoryData._1))
 
     // Add the rules provided in the config
-    Logger.info(s"Adding ${config.rules.size} rules to validator instance ${category}")
+    Logger.info(s"Adding ${config.rules.size} rules to matcher instance ${category}")
     val ruleIngestionErrors = config.rules.flatMap { rule =>
       try {
         instance.addRule(Rule.toLT(rule))
@@ -51,12 +51,12 @@ class LanguageToolFactory(
   }
 }
 
-class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: ExecutionContext) extends Validator {
+class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: ExecutionContext) extends Matcher {
   def getId = "language-tool"
 
   def getCategory = category
 
-  def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
+  def check(request: MatcherRequest): Future[List[RuleMatch]] = {
     Future {
       request.blocks.flatMap { block =>
         instance.check(block.text).asScala.map(RuleMatch.fromLT).toList.map { ruleMatch =>

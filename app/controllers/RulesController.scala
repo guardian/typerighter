@@ -8,20 +8,20 @@ import services._
 import scala.concurrent.{ExecutionContext}
 
 /**
- * The controller that handles the management of validator rules.
+ * The controller that handles the management of matcher rules.
  */
-class RulesController(cc: ControllerComponents, validatorPool: ValidatorPool, languageToolFactory: LanguageToolFactory, ruleResource: RuleResource, sheetId: String)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
+class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, languageToolFactory: LanguageToolFactory, ruleResource: RuleResource, sheetId: String)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
   def refresh = Action.async { implicit request: Request[AnyContent] =>
     for {
       (rulesByCategory, ruleErrors) <- ruleResource.fetchRulesByCategory()
-      errorsByCategory = addValidatorToPool(rulesByCategory)
+      errorsByCategory = addMatcherToPool(rulesByCategory)
     } yield {
       val errors = errorsByCategory.flatMap(_._2) ::: ruleErrors
       val rulesIngested = rulesByCategory.map { _._2.size }.sum
       Ok(views.html.rules(
         sheetId,
-        validatorPool.getCurrentRules,
-        validatorPool.getCurrentCategories,
+        matcherPool.getCurrentRules,
+        matcherPool.getCurrentCategories,
         Some(rulesIngested),
         errors
       ))
@@ -31,15 +31,15 @@ class RulesController(cc: ControllerComponents, validatorPool: ValidatorPool, la
   def rules = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.rules(
       sheetId,
-      validatorPool.getCurrentRules,
-      validatorPool.getCurrentCategories
+      matcherPool.getCurrentRules,
+      matcherPool.getCurrentCategories
     ))
   }
 
-  private def addValidatorToPool(rulesByCategory: Map[Category, List[Rule]]) = {
+  private def addMatcherToPool(rulesByCategory: Map[Category, List[Rule]]) = {
     rulesByCategory.map { case (category, rules) => {
-      val (validator, errors) = languageToolFactory.createInstance(category.name, ValidatorConfig(rules))
-      validatorPool.addValidator(category, validator)
+      val (matcher, errors) = languageToolFactory.createInstance(category.name, MatcherConfig(rules))
+      matcherPool.addMatcher(category, matcher)
       (category.name, errors)
     }}.toList
   }

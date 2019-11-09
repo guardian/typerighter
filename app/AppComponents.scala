@@ -11,7 +11,7 @@ import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
 import rules.SheetsRuleResource
-import services.{ElkLogging, LanguageToolFactory, ValidatorPool}
+import services.{ElkLogging, LanguageToolFactory, MatcherPool}
 import services._
 import utils.Loggable
 
@@ -37,19 +37,19 @@ class AppComponents(context: Context, identity: AppIdentity)
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val languageToolFactory = new LanguageToolFactory(ngramPath)
-  val validatorPoolDispatcher = actorSystem.dispatchers.lookup("validator-pool-dispatcher")
-  val validatorPool = new ValidatorPool()(validatorPoolDispatcher, materializer)
+  val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
+  val matcherPool = new MatcherPool()(matcherPoolDispatcher, materializer)
 
   val credentials = configuration.get[String]("typerighter.google.credentials")
   val spreadsheetId = configuration.get[String]("typerighter.sheetId")
   val range = configuration.get[String]("typerighter.sheetRange")
   val ruleResource = new SheetsRuleResource(credentials, spreadsheetId, range)
 
-  val apiController = new ApiController(controllerComponents, validatorPool, ruleResource)
-  val rulesController = new RulesController(controllerComponents, validatorPool, languageToolFactory, ruleResource, spreadsheetId)
+  val apiController = new ApiController(controllerComponents, matcherPool, ruleResource)
+  val rulesController = new RulesController(controllerComponents, matcherPool, languageToolFactory, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
 
-  initialiseValidators
+  initialiseMatchers
 
   lazy val router = new Routes(
     httpErrorHandler,
@@ -60,15 +60,15 @@ class AppComponents(context: Context, identity: AppIdentity)
   )
 
   /**
-    * Set up validators and add them to the validator pool as the app starts.
+    * Set up matchers and add them to the matcher pool as the app starts.
     */
-  def initialiseValidators = {
+  def initialiseMatchers = {
     for {
       (rules, _) <- ruleResource.fetchRulesByCategory()
     } yield {
       rules.foreach { case (category, rules) => {
-        val (validator, _) = languageToolFactory.createInstance(category.name, ValidatorConfig(rules))
-        validatorPool.addValidator(category, validator)
+        val (matcher, _) = languageToolFactory.createInstance(category.name, MatcherConfig(rules))
+        matcherPool.addMatcher(category, matcher)
       }}
     }
   }
