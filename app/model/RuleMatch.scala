@@ -10,7 +10,7 @@ case class RuleMatch(rule: ResponseRule,
                      toPos: Int,
                      message: String,
                      shortMessage: Option[String] = None,
-                     suggestedReplacements: List[String] = List.empty)
+                     suggestions: List[Suggestion] = List.empty)
 
 object RuleMatch {
   def fromLT(lt: LTRuleMatch): RuleMatch = {
@@ -20,7 +20,7 @@ object RuleMatch {
       toPos = lt.getToPos,
       message = lt.getMessage,
       shortMessage = Some(lt.getMessage),
-      suggestedReplacements = lt.getSuggestedReplacements.asScala.toList
+      suggestions = lt.getSuggestedReplacements.asScala.toList.map { TextSuggestion(_) }
     )
   }
 
