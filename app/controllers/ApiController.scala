@@ -1,7 +1,6 @@
 package controllers
 
 import model.{Check, ValidatorResponse}
-import actors.WsCheckQueryActor
 import akka.actor.ActorSystem
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -9,18 +8,15 @@ import services._
 import rules.RuleResource
 
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.libs.streams.ActorFlow
-import akka.stream.Materializer
 
 /**
   * The controller that handles API requests.
   */
 class ApiController(
-                     cc: ControllerComponents,
-                     validatorPool: ValidatorPool,
-                     ruleResource: RuleResource
-)(implicit ec: ExecutionContext, system: ActorSystem, mat: Materializer)
-    extends AbstractController(cc) {
+  cc: ControllerComponents,
+  validatorPool: ValidatorPool,
+  ruleResource: RuleResource
+)(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   def check: Action[JsValue] = Action.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
@@ -40,12 +36,6 @@ class ApiController(
         }
       case Left(error) =>
         Future.successful(BadRequest(s"Invalid request: $error"))
-    }
-  }
-
-  def checkWs = WebSocket.accept[JsValue, JsValue] { request =>
-    ActorFlow.actorRef { out =>
-      WsCheckQueryActor.props(out, validatorPool)
     }
   }
 

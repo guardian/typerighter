@@ -4,7 +4,6 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, HomeController, RulesController}
-import model.Category
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.mvc.EssentialFilter
@@ -15,17 +14,13 @@ import rules.SheetsRuleResource
 import services.{ElkLogging, LanguageToolFactory, ValidatorPool}
 import services._
 import utils.Loggable
-import play.api.libs.ws.ahc.AhcWSComponents
 
 class AppComponents(context: Context, identity: AppIdentity)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with CORSComponents
   with Loggable
-  with AhcWSComponents
   with controllers.AssetsComponents {
-  implicit val system = actorSystem
-  implicit val mat = materializer
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 

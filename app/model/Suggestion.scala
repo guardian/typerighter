@@ -28,4 +28,3 @@ case class TextSuggestion(text: String) extends Suggestion {
   val `type` = "TEXT_SUGGESTION"
 }
 
-
