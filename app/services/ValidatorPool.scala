@@ -30,6 +30,11 @@ object ValidatorPool {
   type CategoryIds = List[String]
   type CheckStrategy = (List[TextBlock], CategoryIds) => List[PartialValidationJob]
 
+
+  /**
+    * This strategy divides the document into single blocks, and evaluates each block
+    * against all of the passed categories.
+    */
   def blockLevelCheckStrategy: CheckStrategy = (blocks, categoryIds) => {
     for {
       block <- blocks
@@ -38,6 +43,10 @@ object ValidatorPool {
     }
   }
 
+  /**
+    * This strategy evaluates whole documents at once, and evaluates the document
+    * separately against each of the passed categories.
+    */
   def documentPerCategoryCheckStrategy: CheckStrategy = (blocks, categoryIds) => {
     categoryIds.map(categoryId => PartialValidationJob(blocks, List(categoryId)))
   }
