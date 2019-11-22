@@ -36,11 +36,7 @@ object ValidatorPool {
     * against all of the passed categories.
     */
   def blockLevelCheckStrategy: CheckStrategy = (blocks, categoryIds) => {
-    for {
-      block <- blocks
-    } yield {
-      PartialValidationJob(List(block), categoryIds)
-    }
+    blocks.map(block => PartialValidationJob(List(block), categoryIds))
   }
 
   /**
