@@ -18,9 +18,8 @@ object TextSuggestion {
   implicit val reads: Reads[TextSuggestion] = Json.reads[TextSuggestion]
   implicit val writes = new Writes[TextSuggestion] {
     def writes(suggestion: TextSuggestion) = Json.obj(
-      "type" -> suggestion.`type`,
-      "text" -> suggestion.text
-    )
+      "type" -> suggestion.`type`
+    ) ++ Json.writes[TextSuggestion].writes(suggestion)
   }
 }
 
