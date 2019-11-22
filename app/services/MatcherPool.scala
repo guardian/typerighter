@@ -5,13 +5,13 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import play.api.Logger
-import model.{TextBlock, Category, Check, Rule, RuleMatch, MatcherResponse}
+
+import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
 import utils.Matcher
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
 
-case class MatcherConfig(rules: List[Rule])
 case class MatcherRequest(blocks: List[TextBlock], categoryId: String)
 
 /**
@@ -111,7 +111,7 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
     matchersAndCategories
   }
 
-  def getCurrentRules: List[Rule] = {
+  def getCurrentRules: List[BaseRule] = {
     matchers.values.flatMap {
       case (_, matcher) =>  matcher.getRules
     }.toList

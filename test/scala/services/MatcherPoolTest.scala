@@ -2,7 +2,7 @@ package services
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import model.{TextBlock, Category, Check, ResponseRule, RuleMatch, MatcherResponse}
+import model._
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.SpanSugar._
@@ -62,11 +62,11 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private implicit val system = ActorSystem()
   private implicit val materializer = ActorMaterializer()
 
-  private val responseRule = ResponseRule(
+  private val responseRule = RegexRule(
     id = "test-rule",
     description = "test-description",
     category = getCategory(0),
-    url = "test-url"
+    regex = "test"r
   )
 
   private val responses = getResponses(List((0, 5, "test-response")))
@@ -79,8 +79,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
   private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category", "Puce")
 
-  private def getPool(matchers: List[Matcher], maxCurrentJobs: Int = 4, maxQueuedJobs: Int = 100): MatcherPool = {
-    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs)
+  private def getPool(matchers: List[Matcher], maxCurrentJobs: Int = 4, maxQueuedJobs: Int = 100, strategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy): MatcherPool = {
+    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy)
     matchers.zipWithIndex.foreach {
       case (matcher, index) => pool.addMatcher(getCategory(index), matcher)
     }
@@ -140,7 +140,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       setId,
       None,
       (0 to 100).toList.map { id => TextBlock(id.toString, "Example text", 0, 12) });
-    val pool = getPool(matchers, 1, 1)
+    val pool = getPool(matchers, 1, 1, MatcherPool.blockLevelCheckStrategy)
     val futureResult = pool.check(checkWithManyBlocks)
     matchers.foreach(_.markAsComplete(responses))
     ScalaFutures.whenReady(futureResult.failed) { e =>
