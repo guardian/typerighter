@@ -1,6 +1,7 @@
 package controllers
 
-import model.CheckQuery
+import model.{Check, ValidatorResponse}
+import akka.actor.ActorSystem
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services._
@@ -9,26 +10,36 @@ import rules.RuleResource
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
- * The controller that handles API requests.
- */
-class ApiController(cc: ControllerComponents, validatorPool: ValidatorPool, ruleResource: RuleResource)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
+  * The controller that handles API requests.
+  */
+class ApiController(
+  cc: ControllerComponents,
+  validatorPool: ValidatorPool,
+  ruleResource: RuleResource
+)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+
   def check: Action[JsValue] = Action.async(parse.json) { request =>
-    request.body.validate[CheckQuery].asEither match {
-      case Right(checkQuery) =>
-        validatorPool.check(checkQuery.id, checkQuery.text, checkQuery.categoryIds).map { results =>
-          val json = Json.obj(
-            "input" -> checkQuery.text,
-            "results" -> Json.toJson(results)
-          )
-          Ok(json)
-        } recover {
-          case e: Exception => InternalServerError(Json.obj("error" -> e.getMessage))
+    request.body.validate[Check].asEither match {
+      case Right(check) =>
+        validatorPool
+          .check(check)
+          .map { matches =>
+            val response = ValidatorResponse(
+              matches = matches,
+              blocks = check.blocks,
+              categoryIds = check.categoryIds.getOrElse(validatorPool.getCurrentCategories.map { _._1 })
+            )
+            Ok(Json.toJson(response))
+          } recover {
+          case e: Exception =>
+            InternalServerError(Json.obj("error" -> e.getMessage))
         }
-      case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
+      case Left(error) =>
+        Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
 
-  def getCurrentCategories: Action[AnyContent] = Action { request: Request[AnyContent] =>
-    Ok(Json.toJson(validatorPool.getCurrentCategories.map(_._2)))
+  def getCurrentCategories: Action[AnyContent] = Action {
+      Ok(Json.toJson(validatorPool.getCurrentCategories.map(_._2)))
   }
 }

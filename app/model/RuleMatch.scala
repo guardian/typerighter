@@ -1,7 +1,7 @@
 package model
 
 import org.languagetool.rules.{RuleMatch => LTRuleMatch}
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Json, Reads, Writes}
 
 import scala.collection.JavaConverters._
 

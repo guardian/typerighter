@@ -58,7 +58,14 @@ class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: Execu
 
   def check(request: ValidatorRequest): Future[List[RuleMatch]] = {
     Future {
-      instance.check(request.text).asScala.map(RuleMatch.fromLT).toList
+      request.blocks.flatMap { block =>
+        instance.check(block.text).asScala.map(RuleMatch.fromLT).toList.map { ruleMatch =>
+          ruleMatch.copy(
+            fromPos = ruleMatch.fromPos + block.from,
+            toPos = ruleMatch.toPos + block.from
+          )
+        }
+      }
     }
   }
 
