@@ -24,7 +24,7 @@ case class LTRule(id: String,
                   message: String,
                   url: Option[String],
                   suggestions: List[TextSuggestion]) extends BaseRule {
-  val autoApplyFirstSuggestion: Boolean = false
+  val replacement: Option[TextSuggestion] = None
 }
 
 object LTRule {

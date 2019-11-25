@@ -14,6 +14,6 @@ case class RegexRule(
     category: Category,
     description: String,
     suggestions: List[TextSuggestion] = List.empty,
-    autoApplyFirstSuggestion: Boolean = false,
+    replacement: Option[TextSuggestion] = None,
     regex: Regex
 ) extends BaseRule

@@ -61,8 +61,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, range: 
         id = index.toString,
         category = Category(category, category, colour),
         description = description.getOrElse(""),
-        suggestions = if (suggestion.isEmpty) List.empty else List(TextSuggestion(suggestion)),
-        autoApplyFirstSuggestion = if (suggestion.isEmpty) false else true,
+        replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
         regex = rule.r,
       ))
     } catch {

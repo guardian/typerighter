@@ -29,7 +29,8 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
           toPos = currentMatch.end + block.from,
           message = rule.description,
           shortMessage = Some(rule.description),
-          suggestions = rule.suggestions
+          suggestions = rule.suggestions,
+          markAsCorrect = rule.replacement.map(_.text).getOrElse("") == block.text.substring(currentMatch.start, currentMatch.end)
         )
         matches.append(ruleMatch)
       }

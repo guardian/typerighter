@@ -10,7 +10,7 @@ trait BaseRule {
   val category: Category
   val description: String
   val suggestions: List[Suggestion]
-  val autoApplyFirstSuggestion: Boolean
+  val replacement: Option[TextSuggestion]
 }
 
 object BaseRule {
@@ -19,6 +19,6 @@ object BaseRule {
     "category" -> rule.category,
     "description" -> rule.description,
     "suggestions" -> rule.suggestions,
-    "autoApplyFirstSuggestion" -> rule.autoApplyFirstSuggestion
+    "replacement" -> rule.replacement
   )
 }

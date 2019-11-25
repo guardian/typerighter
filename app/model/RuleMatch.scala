@@ -24,6 +24,7 @@ object RuleMatch {
       "message" -> ruleMatch.message,
       "shortMessage" -> ruleMatch.shortMessage,
       "suggestions" -> ruleMatch.suggestions,
+      "markAsCorrect" -> ruleMatch.markAsCorrect
     )
   )
 }
@@ -33,5 +34,6 @@ case class RuleMatch(rule: BaseRule,
                      toPos: Int,
                      message: String,
                      shortMessage: Option[String] = None,
-                     suggestions: List[Suggestion] = List.empty)
+                     suggestions: List[Suggestion] = List.empty,
+                     markAsCorrect: Boolean = false)
 
