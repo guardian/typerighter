@@ -3,7 +3,6 @@ package services
 import model.{RegexRule, RuleMatch}
 import utils.Matcher
 
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 
 class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
@@ -19,11 +18,7 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
 
   private def checkRule(request: MatcherRequest, rule: RegexRule): List[RuleMatch] = {
     request.blocks.flatMap { block =>
-      val iterator = rule.regex.findAllMatchIn(block.text)
-      val matches = new ListBuffer[RuleMatch]
-      while (iterator.hasNext) {
-        val currentMatch = iterator.next
-        val ruleMatch = RuleMatch(
+        rule.regex.findAllMatchIn(block.text).map { currentMatch => RuleMatch(
           rule = rule,
           fromPos = currentMatch.start + block.from,
           toPos = currentMatch.end + block.from,
@@ -32,9 +27,7 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
           suggestions = rule.suggestions,
           markAsCorrect = rule.replacement.map(_.text).getOrElse("") == block.text.substring(currentMatch.start, currentMatch.end)
         )
-        matches.append(ruleMatch)
       }
-      matches.toList
     }
   }
 }
