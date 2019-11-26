@@ -35,7 +35,7 @@ Parameters:
   KinesisLoggingStream:
     Description: Name of the ELK logging stream in this account
     Type: AWS::SSM::Parameter::Value<String>
-    Default: /accountServices/elkLoggingStreamArn
+    Default: /account/services/logging.stream.arn
 Mappings:
   StageVariables:
     CODE:
