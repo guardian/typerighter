@@ -1,17 +1,17 @@
 package rules
 
-import model.{Category, Rule, PatternToken}
+import model.{Category, LTRule, PatternToken}
 
 import scala.concurrent.Future
 
 /**
   * A resource that returns a large number of rules to test throughput.
   */
-object PermutationsRuleResource extends RuleResource {
-  def fetchRulesByCategory(): Future[(Map[Category, List[Rule]], List[String])]= {
+object PermutationsRuleResource {
+  def fetchRulesByCategory(): Future[(Map[Category, List[LTRule]], List[String])] = {
     val rules = (1 to 8).permutations.toList.map(list => {
       val id = list.mkString
-      Rule(
+      LTRule(
         id,
         category = Category("PERMS", "Test permutations", "red"),
         languageShortcode = Some("en"),

@@ -1,5 +1,6 @@
 import java.io.File
 
+import scala.concurrent.Future
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
@@ -45,7 +46,8 @@ class AppComponents(context: Context, identity: AppIdentity)
   val range = configuration.get[String]("typerighter.sheetRange")
   val ruleResource = new SheetsRuleResource(credentials, spreadsheetId, range)
 
-  val apiController = new ApiController(controllerComponents, matcherPool, ruleResource)
+
+  val apiController = new ApiController(controllerComponents, matcherPool)
   val rulesController = new RulesController(controllerComponents, matcherPool, languageToolFactory, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
 
@@ -62,12 +64,12 @@ class AppComponents(context: Context, identity: AppIdentity)
   /**
     * Set up matchers and add them to the matcher pool as the app starts.
     */
-  def initialiseMatchers = {
+  def initialiseMatchers: Future[Unit] = {
     for {
-      (rules, _) <- ruleResource.fetchRulesByCategory()
+      (rulesByCategory, _) <- ruleResource.fetchRulesByCategory()
     } yield {
-      rules.foreach { case (category, rules) => {
-        val (matcher, _) = languageToolFactory.createInstance(category.name, MatcherConfig(rules))
+      rulesByCategory.foreach { case (category, rules) => {
+        val matcher = new RegexMatcher(category.name, rules)
         matcherPool.addMatcher(category, matcher)
       }}
     }

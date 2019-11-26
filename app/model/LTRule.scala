@@ -5,7 +5,7 @@ import java.util.regex.Pattern
 
 import org.languagetool.Languages
 import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternToken => LTPatternToken}
-import org.languagetool.rules.{Rule => LTRule}
+import org.languagetool.rules.{Rule => LanguageToolRule}
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 import services.LTRegexPatternRule
@@ -15,18 +15,20 @@ import scala.collection.JavaConverters._
 /**
   * The application's representation of a LanguageTool PatternRule.
   */
-case class Rule(id: String,
-                category: Category,
-                languageShortcode: Option[String],
-                patternTokens: Option[List[PatternToken]] = None,
-                pattern: Option[Pattern] = None,
-                description: String,
-                message:String,
-                url: Option[String],
-                suggestions: List[String])
+case class LTRule(id: String,
+                  category: Category,
+                  languageShortcode: Option[String],
+                  patternTokens: Option[List[PatternToken]] = None,
+                  pattern: Option[Pattern] = None,
+                  description: String,
+                  message: String,
+                  url: Option[String],
+                  suggestions: List[TextSuggestion]) extends BaseRule {
+  val replacement: Option[TextSuggestion] = None
+}
 
-object Rule {
-  def fromLT(lt: LTRule): Rule = {
+object LTRule {
+  def fromLT(lt: LanguageToolRule): LTRule = {
     val maybePatternTokens = lt match {
       case rule: LTPatternRule => Some(rule.getPatternTokens.asScala
         .toList
@@ -39,7 +41,7 @@ object Rule {
       case _ => None
     }
 
-    Rule(
+    LTRule(
       id = lt.getId,
       category = Category.fromLT(lt.getCategory),
       languageShortcode = maybeLanguageShortcode,
@@ -52,14 +54,14 @@ object Rule {
     )
   }
 
-  def toLT(rule: Rule): LTRule = {
+  def toLT(rule: LTRule): LanguageToolRule = {
     val patternTokens: JList[LTPatternToken] = seqAsJavaList(rule.patternTokens.getOrElse(List[PatternToken]()).map(PatternToken.toLT))
     val language = Languages.getLanguageForShortCode(rule.languageShortcode.getOrElse("en-GB"))
     val message = rule.suggestions match {
       case Nil => rule.message
       case suggestions => {
         val ruleMessage = if (rule.message == "") "" else rule.message + ". "
-        ruleMessage.concat(suggestions.map(s => s"<suggestion>${s}</suggestion>").mkString(", "))
+        ruleMessage.concat(suggestions.map(s => s"<suggestion>${s.text}</suggestion>").mkString(", "))
       }
     }
     val ltRule = rule.pattern match {
@@ -96,6 +98,6 @@ object Rule {
     regex => Pattern.compile(regex)
   }
 
-  implicit val writes: Writes[Rule] = Json.writes[Rule]
-  implicit val reads: Reads[Rule] = Json.reads[Rule]
+  implicit val writes: Writes[LTRule] = Json.writes[LTRule]
+  implicit val reads: Reads[LTRule] = Json.reads[LTRule]
 }

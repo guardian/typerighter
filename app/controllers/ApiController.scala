@@ -4,7 +4,6 @@ import model.{Check, MatcherResponse}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services._
-import rules.RuleResource
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -12,11 +11,9 @@ import scala.concurrent.{ExecutionContext, Future}
   * The controller that handles API requests.
   */
 class ApiController(
-                     cc: ControllerComponents,
-                     matcherPool: MatcherPool,
-                     ruleResource: RuleResource
+  cc: ControllerComponents,
+  matcherPool: MatcherPool
 )(implicit ec: ExecutionContext) extends AbstractController(cc) {
-
   def check: Action[JsValue] = Action.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>

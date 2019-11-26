@@ -1,8 +1,8 @@
-@import model.Rule
+@import model.BaseRule
 @import model.Category
 @import helper._
 
-@(sheetId: String, rules: scala.List[Rule], categories: scala.List[(String, Category)], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
+@(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category)], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
         @CSRF.formField
