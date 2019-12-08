@@ -5,7 +5,10 @@ Parameters:
   VpcId:
     Type: AWS::EC2::VPC::Id
     Description: VpcId of your Virtual Private Cloud (VPC)
-  Subnets:
+  PublicSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
+  PrivateSubnets:
     Type: List<AWS::EC2::Subnet::Id>
     Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
   Stack:
@@ -53,7 +56,7 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       AvailabilityZones: !GetAZs
-      VPCZoneIdentifier: !Ref Subnets
+      VPCZoneIdentifier: !Ref PrivateSubnets
       LaunchConfigurationName: !Ref LaunchConfig
       MinSize: !FindInMap [ StageVariables, !Ref Stage, MinInstances ]
       MaxSize: !FindInMap [ StageVariables, !Ref Stage, MaxInstances ]
@@ -178,10 +181,10 @@ Resources:
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets: !Ref Subnets
+      Subnets: !Ref PublicSubnets
       SecurityGroups:
       - !Ref LoadBalancerSecurityGroup
-      Scheme: internal
+      Scheme: internet
       Tags:
       - Key: Stack
         Value: !Ref Stack

@@ -55,6 +55,7 @@ libraryDependencies ++= Seq(
   "org.languagetool" % "languagetool-core" % languageToolVersion,
   "org.languagetool" % "language-en" % languageToolVersion,
   "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
+  "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
   "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
   "com.amazonaws" % "aws-java-sdk-kinesis" % awsSdkVersion,
   "com.google.api-client" % "google-api-client" % "1.23.0",
@@ -67,7 +68,8 @@ libraryDependencies ++= Seq(
   "com.gu" %% "content-api-models-scala" % capiModelsVersion,
   "com.gu" %% "content-api-models-json" % capiModelsVersion,
   "com.gu" %% "content-api-client-aws" % "0.5",
-  "com.gu" %% "content-api-client-default" % capiClientVersion
+  "com.gu" %% "content-api-client-default" % capiClientVersion,
+  "com.gu" %% "pan-domain-auth-verification" % "0.9.1"
 )
 
 libraryDependencies ++= Seq(

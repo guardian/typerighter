@@ -2,8 +2,10 @@ import java.io.File
 
 import scala.concurrent.Future
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.contentapi.client.GuardianContentClient
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.gu.pandomainauth.PublicSettings
 import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, CapiProxyController, HomeController, RulesController, AuditController}
 import matchers.{RegexMatcher}
@@ -19,7 +21,7 @@ import rules.SheetsRuleResource
 import services._
 import utils.Loggable
 
-class AppComponents(context: Context, identity: AppIdentity)
+class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with CORSComponents
@@ -52,6 +54,10 @@ class AppComponents(context: Context, identity: AppIdentity)
   val capiApiKey = configuration.get[String]("capi.apiKey")
   val guardianContentClient = GuardianContentClient(capiApiKey)
   val contentClient = new ContentClient(guardianContentClient)
+
+  private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(AppIdentity.region).build()
+  val publicSettings = new PublicSettings("", "pan-domain-auth-settings", s3Client)
+  publicSettings.start()
 
   val apiController = new ApiController(controllerComponents, matcherPool)
   val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId)
