@@ -94,6 +94,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
           rule = responseRule,
           fromPos = from,
           toPos = to,
+          matchedText = "placeholder text",
           message = message
         )
     }
