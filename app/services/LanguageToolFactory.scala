@@ -59,7 +59,7 @@ class LanguageTool(category: String, instance: JLanguageTool)(implicit ec: Execu
   def check(request: MatcherRequest): Future[List[RuleMatch]] = {
     Future {
       request.blocks.flatMap { block =>
-        instance.check(block.text).asScala.map(RuleMatch.fromLT).toList.map { ruleMatch =>
+        instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block)).toList.map { ruleMatch =>
           ruleMatch.copy(
             fromPos = ruleMatch.fromPos + block.from,
             toPos = ruleMatch.toPos + block.from
