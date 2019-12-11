@@ -2,10 +2,10 @@ package services
 
 import java.util.concurrent.ConcurrentHashMap
 
+import net.logstash.logback.marker.Markers
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import play.api.Logger
-
 import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
 import utils.Matcher
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
@@ -25,7 +25,14 @@ case class PartialMatcherJob(blocks: List[TextBlock], categoryIds: List[String])
   *  - notify its caller once work is complete
   *
   */
-case class MatcherJob(blocks: List[TextBlock], categoryIds: List[String], requestId: String, promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer)
+case class MatcherJob(requestId: String, documentId: String, blocks: List[TextBlock], categoryIds: List[String], promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer) {
+  def toMarker = Markers.appendEntries(Map(
+    "requestId" -> this.requestId,
+    "documentId" -> this.documentId,
+    "blocks" -> this.blocks.map(_.id).mkString(", "),
+    "categoryIds" -> this.categoryIds.mkString(", ")
+  ).asJava)
+}
 
 object MatcherPool {
   type CategoryIds = List[String]
@@ -72,14 +79,13 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
       case Some(ids) => ids
     }
 
-    Logger.info(s"Validation job with id: ${query.requestId} received. Checking categories: ${categoryIds.mkString(", ")}")
+    Logger.info(s"Matcher pool query received")(query.toMarker)
 
-    val eventuallyResponses =
-      createJobsFromPartialJobs(checkStrategy(query.blocks, categoryIds), query.requestId)
-      .map(offerJobToQueue)
+    val jobs = createJobsFromPartialJobs(query.requestId, query.documentId.getOrElse("no-document-id"),  checkStrategy(query.blocks, categoryIds))
+    val eventuallyResponses = jobs.map(offerJobToQueue)
 
     Future.sequence(eventuallyResponses).map { matches =>
-      Logger.info(s"Validation job with id: ${query.requestId} complete")
+      Logger.info(s"Matcher pool query complete")(query.toMarker)
       matches.flatten
     }
   }
@@ -117,29 +123,34 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
     }.toList
   }
 
-  private def createJobsFromPartialJobs(partialJobs: List[PartialMatcherJob], requestId: String) = partialJobs.map { partialJob =>
+  private def createJobsFromPartialJobs(requestId: String, documentId: String, partialJobs: List[PartialMatcherJob]) = partialJobs.map { partialJob =>
     val promise = Promise[List[RuleMatch]]
-    MatcherJob(partialJob.blocks, partialJob.categoryIds, requestId, promise, partialJobs.length)
+    MatcherJob(requestId, documentId, partialJob.blocks, partialJob.categoryIds, promise, partialJobs.length)
   }
 
   private def offerJobToQueue(job: MatcherJob): Future[List[RuleMatch]] = {
-    Logger.info(s"Job ${getJobMessage(job)} has been offered to the queue")
+    Logger.info(s"Job has been offered to the queue")(job.toMarker)
 
     queue.offer(job).collect {
       case Dropped =>
-        job.promise.failure(new Throwable(s"Job ${getJobMessage(job)} was dropped from the queue, as the queue is full"))
+        failJobWith(job, "Job was dropped from the queue, as the queue is full")
       case QueueClosed =>
-        job.promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed because the queue is closed"))
+        failJobWith(job, s"Job failed because the queue is closed")
       case QueueFailure(err) =>
-        job.promise.failure(new Throwable(s"Job ${getJobMessage(job)} failed, reason: ${err.getMessage}"))
+        failJobWith(job, s"Job failed, reason: ${err.getMessage}")
     }
 
     job.promise.future.andThen {
       case result => {
-        Logger.info(s"Job ${getJobMessage(job)} is complete")
+        Logger.info(s"Job is complete")(job.toMarker)
         result
       }
     }
+  }
+
+  private def failJobWith(job: MatcherJob, message: String) = {
+    Logger.error(message)(job.toMarker)
+    job.promise.failure(new Throwable(message))
   }
 
   private def runValidationJob(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
@@ -150,7 +161,9 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
           job.promise.completeWith(eventuallyMatches)
           eventuallyMatches
         case None =>
-          val error = new IllegalStateException(s"Could not run validation job with blocks: ${getJobBlockIdsAsString(job)} -- unknown category for id: $categoryId")
+          val message = s"Could not run job with -- unknown category for id: $categoryId"
+          Logger.error(message)(job.toMarker)
+          val error = new IllegalStateException(message)
           job.promise.failure(error)
           Future.failed(error)
       }
@@ -193,9 +206,5 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
   private def publishJobsComplete(requestId: String): Unit = {
     eventBus.publish(MatcherPoolJobsCompleteEvent(requestId))
   }
-
-  private def getJobMessage(job: MatcherJob) = s"with blocks: ${getJobBlockIdsAsString(job)} for categories: ${job.categoryIds.mkString(", ")}"
-
-  private def getJobBlockIdsAsString(job: MatcherJob) = job.blocks.map(_.id).mkString(", ")
 }
 

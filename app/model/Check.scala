@@ -1,12 +1,23 @@
 package model
 
+import scala.collection.JavaConverters._
+import net.logstash.logback.marker.Markers
 import play.api.libs.json.{Json, Reads}
 
 case class Check(
-                  requestId: String,
-                  categoryIds: Option[List[String]],
-                  blocks: List[TextBlock]
-                )
+  documentId: Option[String],
+  requestId: String,
+  categoryIds: Option[List[String]],
+  blocks: List[TextBlock]
+) {
+  def toMarker = Markers.appendEntries(Map(
+    "requestId" -> this.requestId,
+    "documentId" -> this.documentId,
+    "blocks" -> this.blocks.map(_.id).mkString(", "),
+    "categoryIds" -> this.categoryIds.mkString(", ")
+  ).asJava)
+}
+
 
 object Check {
   implicit val reads: Reads[Check] = Json.reads[Check]

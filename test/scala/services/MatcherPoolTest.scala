@@ -103,6 +103,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private val blockId = "block-id"
 
   private def getCheck(text: String, categoryIds: Option[List[String]] = None) = Check(
+    Some("example-document"),
     setId,
     categoryIds,
     List(TextBlock(blockId, text, 0, text.length)))
@@ -137,6 +138,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(1)
     // This check should produce a job for each block, filling the queue.
     val checkWithManyBlocks = Check(
+      Some("example-document"),
       setId,
       None,
       (0 to 100).toList.map { id => TextBlock(id.toString, "Example text", 0, 12) });
