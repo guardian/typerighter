@@ -22,6 +22,7 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
           rule = rule,
           fromPos = currentMatch.start + block.from,
           toPos = currentMatch.end + block.from,
+          matchedText = block.text.substring(currentMatch.start, currentMatch.end),
           message = rule.description,
           shortMessage = Some(rule.description),
           suggestions = rule.suggestions,

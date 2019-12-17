@@ -19,6 +19,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     rule = exampleRule,
     fromPos = fromPos,
     toPos = toPos,
+    matchedText = text,
     message = "An example rule",
     shortMessage = Some("An example rule"),
     suggestions = List(TextSuggestion("other text"))
