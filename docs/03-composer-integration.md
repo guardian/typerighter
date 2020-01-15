@@ -34,6 +34,5 @@ Correct this, and click "Check whole document" again.  Both names should now be 
 ## Developing new typerighter rules.
 
 If you wish to test new rules, you should visit the google doc (see [here](./01-google-sheet.md)) and edit appropriately
-Once you have added a rule to the doc, you must either 
- * restart the local typerighter service
- * POST to /refresh on the local typerighter service 
+Once you have added a rule to the doc, you must visit the [local typerighter rules page](http://localhost:9000/rules) 
+and click the "refresh rules" button. 
