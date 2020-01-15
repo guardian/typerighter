@@ -6,7 +6,7 @@ Follow the instructions in flexible-content/readme/03-running.md to get your loc
 
 It should be accessible at `https://composer.local.dev-gutools.co.uk/`.
 
-Run a local typerighter service (see ./running-locally.md)
+Run a local typerighter service (see instructions for [running locally](./running-locally.md)).
 
 Edit /etc/gu/flexible-composerbackend.properties and set 
 `typerighter.url=http://localhost:9000`
@@ -19,7 +19,7 @@ Edit /etc/gu/flexible-composerbackend.properties and set
  * Press shift-F12 to bring up the feature switch menu.
  * Turn on 'typerighter'
  * Reload article page.
- * You will now see the box-out for typeerighter features in the top right of the article.
+ * You will now see the box-out for typerighter features in the top right of the article.
  * Click "advanced", then "refresh".
 
 Add the following text:
@@ -35,4 +35,4 @@ Correct this, and click "Check whole document" again.  Both names should now be 
 
 If you wish to test new rules, you should visit the google doc (see [here](./01-google-sheet.md)) and edit appropriately
 Once you have added a rule to the doc, you must visit the [local typerighter rules page](http://localhost:9000/rules) 
-and click the "refresh rules" button. 
+and click the "refresh rules" button.
