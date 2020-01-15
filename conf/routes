@@ -8,9 +8,10 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 GET     /                           controllers.HomeController.index
 GET     /healthcheck                controllers.HomeController.healthcheck
 
-POST    /rules                      controllers.RulesController.refresh
++ nocsrf
+POST    /refresh                    controllers.RulesController.refresh
 GET     /rules                      controllers.RulesController.rules
 
-+ NOCSRF
++ nocsrf
 POST    /check                      controllers.ApiController.check
 GET     /categories                 controllers.ApiController.getCurrentCategories

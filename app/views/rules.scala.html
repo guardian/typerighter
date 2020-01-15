@@ -4,8 +4,7 @@
 
 @(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category)], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
-    @form(CSRF(routes.RulesController.refresh())) {
-        @CSRF.formField
+    @form(routes.RulesController.refresh()) {
         <h1 class="align-middle">
             Current rules
             <button class="btn btn-primary btn-sm ml-3">Refresh rules</button>
