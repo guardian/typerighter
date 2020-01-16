@@ -3,9 +3,10 @@ package services
 import java.util.concurrent.ConcurrentHashMap
 
 import net.logstash.logback.marker.Markers
+
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import play.api.Logger
+import play.api.Logging
 import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
 import utils.Matcher
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
@@ -34,7 +35,7 @@ case class MatcherJob(requestId: String, documentId: String, blocks: List[TextBl
   ).asJava)
 }
 
-object MatcherPool {
+object MatcherPool extends Logging {
   type CategoryIds = List[String]
   type CheckStrategy = (List[TextBlock], CategoryIds) => List[PartialMatcherJob]
 
@@ -56,7 +57,7 @@ object MatcherPool {
   }
 }
 
-class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) {
+class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
 
   private val matchers = new ConcurrentHashMap[String, (Category, Matcher)]().asScala
@@ -79,13 +80,14 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
       case Some(ids) => ids
     }
 
-    Logger.info(s"Matcher pool query received")(query.toMarker)
+
+    logger.info(s"Matcher pool query received")(query.toMarker)
 
     val jobs = createJobsFromPartialJobs(query.requestId, query.documentId.getOrElse("no-document-id"),  checkStrategy(query.blocks, categoryIds))
     val eventuallyResponses = jobs.map(offerJobToQueue)
 
     Future.sequence(eventuallyResponses).map { matches =>
-      Logger.info(s"Matcher pool query complete")(query.toMarker)
+      logger.info(s"Matcher pool query complete")(query.toMarker)
       matches.flatten
     }
   }
@@ -106,7 +108,7 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
     * the replaced matcher.
     */
   def addMatcher(category: Category, matcher: Matcher): Option[(Category, Matcher)] = {
-    Logger.info(s"New instance of matcher available of id: ${matcher.getId} for category: ${category.id}")
+    logger.info(s"New instance of matcher available of id: ${matcher.getId} for category: ${category.id}")
     matchers.put(category.id, (category, matcher))
   }
 
@@ -129,7 +131,7 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
   }
 
   private def offerJobToQueue(job: MatcherJob): Future[List[RuleMatch]] = {
-    Logger.info(s"Job has been offered to the queue")(job.toMarker)
+    logger.info(s"Job has been offered to the queue")(job.toMarker)
 
     queue.offer(job).collect {
       case Dropped =>
@@ -142,14 +144,14 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
 
     job.promise.future.andThen {
       case result => {
-        Logger.info(s"Job is complete")(job.toMarker)
+        logger.info(s"Job is complete")(job.toMarker)
         result
       }
     }
   }
 
   private def failJobWith(job: MatcherJob, message: String) = {
-    Logger.error(message)(job.toMarker)
+    logger.error(message)(job.toMarker)
     job.promise.failure(new Throwable(message))
   }
 
@@ -162,7 +164,7 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
           eventuallyMatches
         case None =>
           val message = s"Could not run job with -- unknown category for id: $categoryId"
-          Logger.error(message)(job.toMarker)
+          logger.error(message)(job.toMarker)
           val error = new IllegalStateException(message)
           job.promise.failure(error)
           Future.failed(error)

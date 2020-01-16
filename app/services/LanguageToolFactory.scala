@@ -8,14 +8,14 @@ import org.languagetool.rules.spelling.morfologik.suggestions_ordering.Suggestio
 
 import collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.Logger
+import play.api.Logging
 import model.{LTRule, RuleMatch}
 import org.languagetool.rules.CategoryId
 import utils.Matcher
 
 class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
-                           useLanguageModelRules: Boolean = false) {
+                           useLanguageModelRules: Boolean = false) extends Logging {
 
   def createInstance(category: String, rules: List[LTRule])(implicit ec: ExecutionContext): (Matcher, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
@@ -34,7 +34,7 @@ class LanguageToolFactory(
 
     // Add the rules provided in the config
 
-    Logger.info(s"Adding ${rules.size} rules to matcher instance ${category}")
+    logger.info(s"Adding ${rules.size} rules to matcher instance ${category}")
     val ruleIngestionErrors = rules.flatMap { rule =>
       try {
         instance.addRule(LTRule.toLT(rule))
