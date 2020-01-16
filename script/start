@@ -1,0 +1,16 @@
+#!/bin/bash -e
+
+IS_DEBUG=false
+for arg in "$@"
+do
+  if [[ "$arg" == "--debug" ]]; then
+    IS_DEBUG=true
+    shift
+  fi
+done
+
+if [[ "$IS_DEBUG" = true ]] ; then
+  sbt -jvm-debug 5005 run
+else
+  sbt run
+fi

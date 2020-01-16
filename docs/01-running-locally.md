@@ -1,6 +1,8 @@
 # Basic developer run
 
-`sbt run` and visit `localhost:9000` to confirm the service came up correctly.
+`./script/start` and visit `localhost:9000` to confirm the service came up correctly.
+
+To attach an interactive debugger, run `./script/start --debug` to expose port 5005 for debugging.
 
 ## Demonstration of null request
 
