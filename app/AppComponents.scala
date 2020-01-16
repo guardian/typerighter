@@ -7,6 +7,7 @@ import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, HomeController, RulesController}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
+import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
 import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
@@ -50,6 +51,12 @@ class AppComponents(context: Context, identity: AppIdentity)
   val apiController = new ApiController(controllerComponents, matcherPool)
   val rulesController = new RulesController(controllerComponents, matcherPool, languageToolFactory, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
+
+
+  override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(
+    "application/json" -> new JsonHttpErrorHandler(environment, None),
+    "text/html" -> new DefaultHttpErrorHandler(),
+  )
 
   initialiseMatchers
 
