@@ -186,11 +186,11 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers.foreach(_.markAsComplete(responses))
     ScalaFutures.whenReady(futureResult) { _ =>
     val categories = matchers.map {_.getCategory}
-      events.toList shouldBe List(
+      events.toList.sorted shouldBe List(
         MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(0)), responses)),
         MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(1)), responses)),
         MatcherPoolJobsCompleteEvent(setId)
-      )
+      ).sorted
     }
   }
 }
