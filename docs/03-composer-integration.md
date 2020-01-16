@@ -6,7 +6,7 @@ Follow the instructions in flexible-content/readme/03-running.md to get your loc
 
 It should be accessible at `https://composer.local.dev-gutools.co.uk/`.
 
-Run a local typerighter service (see instructions for [running locally](./running-locally.md)).
+Run a local typerighter service (see instructions for [running locally](./01-running-locally.md)).
 
 Edit /etc/gu/flexible-composerbackend.properties and set 
 `typerighter.url=http://localhost:9000`
@@ -33,6 +33,6 @@ Correct this, and click "Check whole document" again.  Both names should now be 
 
 ## Developing new typerighter rules.
 
-If you wish to test new rules, you should visit the google doc (see [here](./01-google-sheet.md)) and edit appropriately
+If you wish to test new rules, you should visit the google doc (see [here](./02-google-sheet.md)) and edit appropriately
 Once you have added a rule to the doc, you must visit the [local typerighter rules page](http://localhost:9000/rules) 
 and click the "refresh rules" button.
