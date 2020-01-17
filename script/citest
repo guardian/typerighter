@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+sbt clean compile test riffRaffNotifyTeamcity
