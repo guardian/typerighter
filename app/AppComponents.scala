@@ -5,6 +5,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, HomeController, RulesController}
+import matchers.{LanguageToolFactory, RegexMatcher}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
@@ -13,7 +14,7 @@ import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
 import rules.SheetsRuleResource
-import services.{ElkLogging, LanguageToolFactory, MatcherPool}
+import services.{ElkLogging, MatcherPool}
 import services._
 import utils.Loggable
 

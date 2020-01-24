@@ -1,7 +1,8 @@
-package services
+package matchers
 
-import model.{Category, RegexRule, RuleMatch, TextBlock, TextSuggestion}
+import model._
 import org.scalatest._
+import services.MatcherRequest
 
 class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   val exampleRule = RegexRule(
