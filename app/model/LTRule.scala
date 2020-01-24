@@ -8,7 +8,6 @@ import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternTok
 import org.languagetool.rules.{Rule => LanguageToolRule}
 import play.api.libs.json._
 import play.api.libs.json.Reads._
-import services.LTRegexPatternRule
 
 import scala.collection.JavaConverters._
 
@@ -32,7 +31,8 @@ object LTRule {
     val maybePatternTokens = lt match {
       case rule: LTPatternRule => Some(rule.getPatternTokens.asScala
         .toList
-        .map(PatternToken.fromLT(_)))
+        .map(PatternToken.fromLT)
+      )
       case _ => None
     }
 
@@ -64,29 +64,16 @@ object LTRule {
         ruleMessage.concat(suggestions.map(s => s"<suggestion>${s.text}</suggestion>").mkString(", "))
       }
     }
-    val ltRule = rule.pattern match {
-      case Some(pattern) => {
-        LTRegexPatternRule.getInstance(
-          rule.id,
-          rule.description,
-          message,
-          "",
-          language,
-          pattern,
-          0
-        )
-      }
-      case _ => {
-        new LTPatternRule(
-          rule.id,
-          language,
-          patternTokens,
-          rule.description,
-          message,
-          rule.message
-        )
-      }
-    }
+
+    val ltRule = new LTPatternRule(
+      rule.id,
+      language,
+      patternTokens,
+      rule.description,
+      message,
+      rule.message
+    )
+
     ltRule.setCategory(Category.toLT(rule.category))
     ltRule
   }
