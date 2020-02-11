@@ -1,6 +1,6 @@
 package matchers
 
-import model.{BaseRule, Category, RuleMatch, TextSuggestion}
+import model.{BaseRule, Rule, Category, RuleMatch, TextSuggestion}
 import services.{MatcherRequest, Tokenizer}
 import utils.Matcher
 import dk.dren.hunspell.Hunspell
@@ -8,21 +8,24 @@ import dk.dren.hunspell.Hunspell
 import scala.concurrent.Future
 import scala.collection.JavaConverters._
 
-/**
-  * A Matcher that wraps a Hunspell instance.
-  */
-class HunspellMatcher(category: String, dictionaryName: String) extends Matcher {
-  val tokenizer = new Tokenizer()
-  val hunspell = Hunspell.getInstance()
-  val dictionary = hunspell.getDictionary(dictionaryName)
+object HunspellMatcher {
   val hunspellMessage = "This word may be misspelled"
-  val hunspellRule = BaseRule(
+  val hunspellRule: Rule = Rule(
     "hunspell-rule",
     Category("spelling", "Spelling", "orange"),
     hunspellMessage,
     Nil,
     None
   )
+}
+
+/**
+  * A Matcher that wraps a Hunspell instance.
+  */
+class HunspellMatcher(category: String, pathToDictionary: String) extends Matcher {
+  val tokenizer = new Tokenizer()
+  val hunspell: Hunspell = Hunspell.getInstance()
+  val dictionary: Hunspell#Dictionary = hunspell.getDictionary(pathToDictionary)
 
   def getId() = "hunspell-matcher"
 
@@ -49,12 +52,12 @@ class HunspellMatcher(category: String, dictionaryName: String) extends Matcher 
 
   def getRuleMatch(word: String, from: Int, to: Int, suggestions: List[TextSuggestion]): RuleMatch = {
     RuleMatch(
-      hunspellRule,
+      HunspellMatcher.hunspellRule,
       from,
       to,
       word,
-      hunspellMessage,
-      Some(hunspellMessage),
+      HunspellMatcher.hunspellMessage,
+      Some(HunspellMatcher.hunspellMessage),
       suggestions
     )
   }
