@@ -1,0 +1,13 @@
+SET UTF-8
+
+TRY esiaénrtolcdugmfphbyvkw-'.zqjxSNRTLCGDMFPHBEAUYOIVKWóöâôZQJXÅçèîêàïüäñ
+
+ICONV 1
+ICONV ’ '
+
+NOSUGGEST !
+
+WORDCHARS 0123456789’
+
+SFX M Y 1
+SFX M 0 's .
