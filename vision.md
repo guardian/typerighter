@@ -1,28 +1,37 @@
+# Challenges
+
+1. Mistakes in spelling, grammar and style exist in our published content.
+2. Knowledge of what is 'correct' for all three of these categories is uneven, and both changes and degrades over time.
+3. The Guardian optimises for speed of publication, which increases the likelihood that we'll make mistakes in published content. The cost of correcting published errors is generally greater than catching them pre-publication.
+4. Subediting in production includes mundane tasks that, we think, can be automated.
+
+Typerighter is built to address these challenges.
+
 # Vision
 
-The goal of Typerighter is to provide a [universally available](#universal) document checking service, via  an [easy-to-use](#easy-to-use) and [minimal interface](#minimal), that is [accurate](#accurate), [transparent](#transparent), and [responsive to change](#responsive-to-change).
+The goal of the Typerighter project is to provide a [universally available](#universal) document proofing service, via  an [easy-to-use](#easy-to-use) and [minimal interface](#minimal), that is [accurate](#accurate), [transparent](#transparent), and [responsive to change](#responsive-to-change).
 
 ## Universal
 
-Good proofing tools should provide value to users wherever they write.
+Proofing tools should be available to authors wherever they write.
 
-Typerighter should be available for use across our internal toolset and beyond it. It should be easy for other applications to integrate with it, regardless of platform or publishing cadence. It should just care about text.
+Typerighter should be available for use across our internal toolset and beyond it. It should be as easy as possible to integrate into other applications, regardless of platform or publishing cadence. Its API should only care about text.
 
-### KPIs
+#### KPIs
 
-- Adoption
+- Adoption across organisation
 - Number of tools using the service
 
 ## Easy to use
 
-A frictionless experience keeps users engaged.
+A frictionless experience keeps users happy and drives adoption.
 
-Typerighter should be easy to use, for writers and maintainers alike. The less friction our users experience, the better they are able to do their jobs.
+Typerighter should be easy to use, for writers and maintainers alike. The less friction our users experience, the more likely they are to use the service, and to recommend it to others.
 
 ### KPIs
 
 - User feedback
-- Adoption
+- Adoption across organisation
 
 ## Minimal
 
@@ -40,7 +49,7 @@ Accurate tools gain their users' trust.
 
 Typerighter should provide a service that values accuracy over volume. Broadly defined rules add noise to the signal users receive. Poorly defined rules are more likely to result in false positives or negatives. Both outcomes are likely to reduce users' trust in the service.
 
-Typerighter should provide tooling that helps us audit our rules against our content, to ensure that rule makers are best placed to understand the impact of their rules during proofing.
+Typerighter should provide tooling that helps us audit our rules against our content at scale, to ensure that rule makers are best placed to understand the impact of their rules during proofing.
 
 ### KPIs
 
@@ -60,9 +69,9 @@ Typerighter should provide a service that is as transparent as possible, whether
 
 ## Responsive to change
 
-Change is a permanent fact of language.
+Change is a permanent fact of language, and a proofing tool must be able to change with it.
 
-Typerighter's rules should be as  easy as possible to add and alter in a 24/7 news cycle. And when it's clear that a rule is not performing as it should, it should be trivial  for a user to let its maintainers know, with as much context as possible included by default in the feedback. 
+Typerighter's rules should be as easy as possible to create and alter in a 24/7 news cycle. And when it's clear that a rule is not performing as it should, it should be trivial for a user to let its maintainers know, with as much context as possible included by default in the feedback.
 
 ### KPIs
 
