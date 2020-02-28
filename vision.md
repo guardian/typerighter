@@ -38,9 +38,9 @@ For the user, Typerighter provides a simple service. We should ensure that the u
 
 Accurate tools gain their users' trust.
 
-Typerighter should provide a service that values accuracy over volume. Broadly defined rules add noise to the signal users receive. Poorly defined rules are more likely to result in false positives or negatives. Both outcomes reduce users' trust in the service.
+Typerighter should provide a service that values accuracy over volume. Broadly defined rules add noise to the signal users receive. Poorly defined rules are more likely to result in false positives or negatives. Both outcomes are likely to reduce users' trust in the service.
 
-Typerighter should provide tooling that helps us audit our rules against our content, to ensure that we're best placed to understand their impact in daily use.
+Typerighter should provide tooling that helps us audit our rules against our content, to ensure that rule makers are best placed to understand the impact of their rules during proofing.
 
 ### KPIs
 
@@ -49,7 +49,7 @@ Typerighter should provide tooling that helps us audit our rules against our con
 
 ## Transparent
 
-Opaque tooling is difficult to reason about.
+Transparent tooling is easier to reason about.
 
 Typerighter should provide a service that is as transparent as possible, whether the user is checking text or writing rules. When Typerighter matches text, it should be clear why that match has occurred. When Typerighter has suggestions for changes to text, the user should be in charge of every single edit. And when rules are added or changed, it should be clear to users why that modification has taken place.
 
