@@ -1,7 +1,7 @@
 # Challenges
 
 1. Mistakes in spelling, grammar and style exist in our published content.
-2. Knowledge of what is 'correct' for all three of these categories is uneven, and both changes and degrades over time.
+2. Knowledge of what is 'correct' for all three of these categories is uneven. This knowledge changes and degrades over time.
 3. The Guardian optimises for speed of publication, which increases the likelihood that we'll make mistakes in published content. The cost of correcting published errors is generally greater than catching them pre-publication.
 4. Subediting in production includes mundane tasks that, we think, can be automated.
 
@@ -15,7 +15,7 @@ The goal of the Typerighter project is to provide a [universally available](#uni
 
 Proofing tools should be available to authors wherever they write.
 
-Typerighter should be available for use across our internal toolset and beyond it. It should be as easy as possible to integrate into other applications, regardless of platform or publishing cadence. Its API should only care about text.
+Typerighter will be available for use across our internal toolset and beyond it, to check any text that is ultimately published and readable by the public. It will be as easy as possible to integrate into other applications, regardless of platform or publishing cadence. Its API will only care about text.
 
 #### KPIs
 
@@ -26,7 +26,7 @@ Typerighter should be available for use across our internal toolset and beyond i
 
 A frictionless experience keeps users happy and drives adoption.
 
-Typerighter should be easy to use, for writers and maintainers alike. The less friction our users experience, the more likely they are to use the service, and to recommend it to others.
+Typerighter will be easy to use, for writers and maintainers alike. The less friction our users experience, the more likely they are to use the service, and to recommend it to others.
 
 ### KPIs
 
@@ -37,7 +37,7 @@ Typerighter should be easy to use, for writers and maintainers alike. The less f
 
 Bloated tooling gets in the way.
 
-For the user, Typerighter provides a simple service. We should ensure that the user interface reflects that simplicity.
+For the user, Typerighter provides a simple service. We will ensure that the user interface reflects that simplicity.
 
 ### KPIs
 
@@ -47,9 +47,9 @@ For the user, Typerighter provides a simple service. We should ensure that the u
 
 Accurate tools gain their users' trust.
 
-Typerighter should provide a service that values accuracy over volume. Broadly defined rules add noise to the signal users receive. Poorly defined rules are more likely to result in false positives or negatives. Both outcomes are likely to reduce users' trust in the service.
+Typerighter will provide a service that values accuracy over volume. Broadly defined rules add noise to the signal users receive. Poorly defined rules are more likely to result in false positives or negatives. Both outcomes are likely to reduce users' trust in the service.
 
-Typerighter should provide tooling that helps us audit our rules against our content at scale, to ensure that rule makers are best placed to understand the impact of their rules during proofing.
+Typerighter will provide tooling that helps us audit our rules against our content at scale, to ensure that rule makers are best placed to understand the impact of their rules during proofing.
 
 ### KPIs
 
@@ -60,7 +60,7 @@ Typerighter should provide tooling that helps us audit our rules against our con
 
 Transparent tooling is easier to reason about.
 
-Typerighter should provide a service that is as transparent as possible, whether the user is checking text or writing rules. When Typerighter matches text, it should be clear why that match has occurred. When Typerighter has suggestions for changes to text, the user should be in charge of every single edit. And when rules are added or changed, it should be clear to users why that modification has taken place.
+Typerighter will provide a service that is as transparent as possible, whether the user is checking text or writing rules. When Typerighter matches text, it will be clear why that match has occurred. When Typerighter has suggestions for changes to text, the user will be in charge of every single edit. And when rules are added or changed, it will be clear to users why that modification has taken place.
 
 ### KPIs
 
@@ -71,7 +71,7 @@ Typerighter should provide a service that is as transparent as possible, whether
 
 Change is a permanent fact of language, and a proofing tool must be able to change with it.
 
-Typerighter's rules should be as easy as possible to create and alter in a 24/7 news cycle. And when it's clear that a rule is not performing as it should, it should be trivial for a user to let its maintainers know, with as much context as possible included by default in the feedback.
+Typerighter's rules will be as easy as possible to create and alter in a 24/7 news cycle. And when it's clear that a rule is not performing as it should, Typerighter will make it trivial for a user to let its maintainers know, with as much context as possible included by default in the feedback.
 
 ### KPIs
 
