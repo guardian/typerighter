@@ -5,17 +5,17 @@
 3. The Guardian optimises for speed of publication, which increases the likelihood that we'll make mistakes in published content. The cost of correcting published errors is generally greater than catching them pre-publication.
 4. Subediting in production includes mundane tasks that, we think, can be automated.
 
-Typerighter is built to address these challenges.
-
 # Vision
 
-The goal of the Typerighter project is to provide a [universally available](#universal) document proofing service, via  an [easy-to-use](#easy-to-use) and [minimal interface](#minimal), that is [accurate](#accurate), [transparent](#transparent), and [responsive to change](#responsive-to-change).
+The goal of the Typerighter project is to address the above challenges with a [universally available](#universal) document proofing service, via  an [easy-to-use](#easy-to-use) and [minimal interface](#minimal), that is [accurate](#accurate), [transparent](#transparent), and [responsive to change](#responsive-to-change).
 
 ## Universal
 
 Proofing tools should be available to authors wherever they write.
 
 Typerighter will be available for use across our internal toolset and beyond it, to check any text that is ultimately published and readable by the public. It will be as easy as possible to integrate into other applications, regardless of platform or publishing cadence. Its API will only care about text.
+
+The initial candidate for adoption is Composer, starting with the Article edit view, with liveblogs and furniture fields (standfirst, image caption etc.) to follow. Beyond Composer, in a non-exhaustive and unordered list, Atom Workshop, Media Atom Maker, the Fronts tool, and the Grid are likely to be useful next steps.
 
 #### KPIs
 
