@@ -62,7 +62,8 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "4.3.1"
 )
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.10"
+
 scalacOptions := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
