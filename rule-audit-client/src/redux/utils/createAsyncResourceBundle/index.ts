@@ -29,8 +29,27 @@ interface IPagination {
   totalPages: number;
   currentPage: number;
 }
-export interface State<Resource> {
-  data: Resource | { [id: string]: Resource } | any;
+
+export type ResourceWithId<IdProp extends string> = {
+  [id in IdProp]: string;
+};
+
+export type IndexedResource<
+  Resource extends ResourceWithId<IdProp>,
+  IdProp extends string
+> = { [id: string]: Resource };
+
+export type StateData<
+  Resource extends {},
+  IdProp extends string
+> = Resource extends ResourceWithId<IdProp>
+  ? IndexedResource<Resource, IdProp>
+  : Resource;
+
+export interface State<Resource, IdProp extends string> {
+  // If we have a resource keyed by id, our data is a mapping from id to resource.
+  // If not, our data is the entire resource.
+  data: StateData<Resource, IdProp>;
   pagination: IPagination | null;
   lastError: string | null;
   error: string | null;
@@ -42,9 +61,9 @@ export interface State<Resource> {
   lastFetchOrder?: string[];
 }
 
-// @todo -- figure out a way to provide root state definition
-// without circular dependencies
-type RootState = any;
+type RootState<Resource, IdProp extends string, MountPoint extends string> = {
+  [mount in MountPoint]: State<Resource, IdProp>;
+};
 
 /**
  * Creates a bundle of actions, selectors, and a reducer to handle
@@ -56,31 +75,45 @@ type RootState = any;
  * Consumers can add add their own actions and selectors, and extend
  * the given reducer, to provide additional functionality.
  */
-function createAsyncResourceBundle<Resource, Action>(
+const createAsyncResourceBundle = <
+  Resource,
+  Action,
+  // Sadly, this must be specified – Typescript cannot selectively infer type
+  // parameters when multiple params are present, it can either infer all or none.
+  // See https://github.com/microsoft/TypeScript/issues/26242. When this issue is solved,
+  // we can derive a default for the mount point from `entityName`.
+  MountPoint extends string,
+  IdProp extends string = "id"
+>(
   // The name of the entity for which this reducer is responsible
   entityName: string,
   options: {
     // The key the reducer provided by this bundle is mounted at.
     // Defaults to entityName if none is given.
-    selectLocalState?: (state: RootState) => State<Resource>;
+    selectLocalState?: (
+      state: RootState<Resource, IdProp, MountPoint>
+    ) => State<Resource, IdProp>;
     // Do we index the incoming data by id, or just add it to the state as-is?
     indexById?: boolean;
     // Provides a namespace for the created actions, separated by a slash,
     // e.g.the resource 'books' namespaced with 'shared' becomes SHARED/BOOKS
     namespace?: string;
     // The initial state of the reducer data. Defaults to an empty object.
-    initialData?: Resource;
+    initialData?: StateData<Resource, IdProp>;
   } = {
     indexById: false
   }
-) {
+) => {
+  type LocalState = State<Resource, IdProp>;
+
   const { indexById } = options;
   const selectLocalState = options.selectLocalState
     ? options.selectLocalState
-    : (state: RootState): State<Resource> => state[entityName];
+    : (state: { [mount in MountPoint]: LocalState }): LocalState =>
+        state[entityName as MountPoint];
 
-  const initialState: State<Resource> = {
-    data: options.initialData || {},
+  const initialState: LocalState = {
+    data: options.initialData || ({} as StateData<Resource, IdProp>),
     pagination: null,
     lastError: null,
     error: null,
@@ -98,9 +131,9 @@ function createAsyncResourceBundle<Resource, Action>(
   return {
     initialState,
     reducer: (
-      state: State<Resource> = initialState,
+      state: LocalState = initialState,
       action: Actions<Resource> | Action
-    ): State<Resource> => {
+    ): LocalState => {
       if (!isAction(action)) {
         return state;
       }
@@ -241,9 +274,13 @@ function createAsyncResourceBundle<Resource, Action>(
       updateError: UPDATE_ERROR
     },
     actions: createActions(entityName),
-    selectors: createSelectors<Resource, RootState>(selectLocalState)
+    selectors: createSelectors<
+      Resource,
+      IdProp,
+      RootState<Resource, IdProp, MountPoint>
+    >(selectLocalState)
   };
-}
+};
 
 export { IPagination, globalLoadingIndicator };
 export default createAsyncResourceBundle;

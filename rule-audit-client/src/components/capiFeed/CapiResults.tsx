@@ -8,7 +8,7 @@ type IProps = ReturnType<typeof mapStateToProps>;
 
 const CapiResults = ({ content }: IProps) => (
   <div className="mt-2">
-    {Object.values(content).map((article: CapiContent) => (
+    {Object.values(content).map(article => (
       <div className="card mt-2">
         <div className="card-body">
           <div className="card-text">{article.webTitle}</div>
@@ -21,7 +21,7 @@ const CapiResults = ({ content }: IProps) => (
 );
 
 const mapStateToProps = (state: AppTypes.RootState) => ({
-  content: selectors.selectAll(state) as {[id: string]: CapiContent}
+  content: selectors.selectAll(state)
 });
 
 export default connect(mapStateToProps)(CapiResults);

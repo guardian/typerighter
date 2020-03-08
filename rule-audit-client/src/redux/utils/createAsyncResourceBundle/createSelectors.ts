@@ -1,11 +1,15 @@
-import { State } from "./";
+import { State, ResourceWithId, IndexedResource } from "./";
 import { defaultArray } from "./utils";
 
 /**
  * Create selectors for an AsyncResourceBundle.
  */
-const createSelectors = <Resource extends {}, RootState extends {}>(
-  selectLocalState: (state: RootState) => State<Resource>
+const createSelectors = <
+  Resource extends {},
+  IdProp extends string,
+  RootState extends {}
+>(
+  selectLocalState: (state: RootState) => State<Resource, IdProp>
 ) => {
   const selectPagination = (state: RootState) =>
     selectLocalState(state).pagination;
@@ -25,8 +29,10 @@ const createSelectors = <Resource extends {}, RootState extends {}>(
   const selectIsLoadingById = (state: RootState, id: string) =>
     selectLocalState(state).loadingIds.indexOf(id) !== -1;
 
+  // It should be possible to remove the `any` here with conditional types.
+  // This is a no-op for non-indexed resources.
   const selectById = (state: RootState, id: string): Resource | undefined =>
-    selectLocalState(state).data[id];
+    (selectLocalState(state).data as any)[id];
 
   const selectIsLoadingInitialDataById = (state: RootState, id: string) =>
     !selectById(state, id) &&

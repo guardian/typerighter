@@ -2,7 +2,7 @@ import { Dispatch } from "redux";
 import createAsyncResourceBundle from "redux/utils/createAsyncResourceBundle";
 import { CapiContent, fetchCapiSearch } from "services/Capi";
 
-const bundle = createAsyncResourceBundle<CapiContent, {}>("capi");
+const bundle = createAsyncResourceBundle<CapiContent, {}, "capi">("capi");
 
 const fetchSearch = (
   query: string,
