@@ -7,6 +7,8 @@
         "target": "es6",
         "jsx": "react",
         "baseUrl": "./src",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "strict": true,
+        "alwaysStrict": true
     }
 }
