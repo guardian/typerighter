@@ -9,8 +9,7 @@ type Actions = unknown;
 
 const { actions, reducer, selectors, initialState } = createAsyncResourceBundle<
   Book,
-  Actions,
-  "books"
+  Actions
 >("books");
 
 const createState = <Resource extends {}>(
@@ -40,7 +39,7 @@ describe("createAsyncResourceBundle", () => {
   });
   describe("actionNames", () => {
     it("should provide action names for a given resource name, in upper snake case", () => {
-      const { actionNames } = createAsyncResourceBundle<Book, Actions, "books">(
+      const { actionNames } = createAsyncResourceBundle<Book, Actions>(
         "books"
       );
       expect(actionNames).toEqual({
@@ -99,7 +98,7 @@ describe("createAsyncResourceBundle", () => {
       ).toBe(true);
     });
     it("should provide a selector to get the loading state for specific IDs", () => {
-      const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+      const bundle = createAsyncResourceBundle<Book, Actions>(
         "books",
         {
           indexById: true
@@ -155,7 +154,7 @@ describe("createAsyncResourceBundle", () => {
       );
     });
     it("should provide a selector to select data by id, if indexById is true", () => {
-      const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+      const bundle = createAsyncResourceBundle<Book, Actions>(
         "books",
         {
           indexById: true
@@ -172,7 +171,7 @@ describe("createAsyncResourceBundle", () => {
       });
     });
     it("should provide a selector to select whether a resource is loading for the first time", () => {
-      const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+      const bundle = createAsyncResourceBundle<Book, Actions>(
         "books",
         {
           indexById: true
@@ -190,7 +189,7 @@ describe("createAsyncResourceBundle", () => {
       );
     });
     it("should provide a selector to select the current resource order", () => {
-      const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+      const bundle = createAsyncResourceBundle<Book, Actions>(
         "books",
         {
           indexById: true
@@ -216,7 +215,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.loadingIds).toEqual(["@@ALL"]);
         });
         it("should add loading keys by uuid as strings", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -229,7 +228,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.loadingIds).toEqual(["uuid"]);
         });
         it("should add loading keys by uuid as arrays", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -254,7 +253,7 @@ describe("createAsyncResourceBundle", () => {
           });
         });
         it("should merge data by id if indexById is true", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -270,7 +269,7 @@ describe("createAsyncResourceBundle", () => {
           });
         });
         it("should merge arrays, too", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -292,8 +291,7 @@ describe("createAsyncResourceBundle", () => {
         it("should remove global loading indicators when merging arrays", () => {
           const { reducer: indexedReducer } = createAsyncResourceBundle<
             Book,
-            Actions,
-            "books"
+            Actions
           >("books", {
             indexById: true
           });
@@ -307,7 +305,7 @@ describe("createAsyncResourceBundle", () => {
           });
         });
         it("should keep order information when merging arrays", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -323,7 +321,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.lastFetchOrder).toEqual(["uuid", "uuid2"]);
         });
         it("should use a custom order if provided", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -342,7 +340,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.lastFetchOrder).toEqual(["uuid2", "uuid"]);
         });
         it("should not update the order reference if the order is the same by value comparison", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -443,7 +441,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.updatingIds).toEqual(["@@ALL"]);
         });
         it("should add updating keys by uuid as strings", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -458,7 +456,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.updatingIds).toEqual(["uuid"]);
         });
         it("should add the incoming updated model to the state", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -473,7 +471,7 @@ describe("createAsyncResourceBundle", () => {
       });
       describe("Update success", () => {
         it("should remove the updating id from the state", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -491,7 +489,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.updatingIds).toEqual([]);
         });
         it("should replace the model data if data is supplied", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -515,7 +513,7 @@ describe("createAsyncResourceBundle", () => {
           expect(newState.updatingIds).toEqual([]);
         });
         it("should remove the error message if it exists", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true
@@ -538,7 +536,7 @@ describe("createAsyncResourceBundle", () => {
       });
       describe("Update error", () => {
         it("should remove the updating id from the state, and add an error message", () => {
-          const bundle = createAsyncResourceBundle<Book, Actions, "books">(
+          const bundle = createAsyncResourceBundle<Book, Actions>(
             "books",
             {
               indexById: true

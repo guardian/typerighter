@@ -1,4 +1,4 @@
-import { State, ResourceWithId, IndexedResource } from "./";
+import { State, ResourceWithId, IndexedResource, RootState } from "./";
 import { defaultArray } from "./utils";
 
 /**
@@ -7,41 +7,41 @@ import { defaultArray } from "./utils";
 const createSelectors = <
   Resource extends {},
   IdProp extends string,
-  RootState extends {}
+  LocalRootState extends RootState<Resource, IdProp>
 >(
-  selectLocalState: (state: RootState) => State<Resource, IdProp>
+  selectLocalState: (state: LocalRootState) => State<Resource, IdProp>
 ) => {
-  const selectPagination = (state: RootState) =>
+  const selectPagination = (state: LocalRootState) =>
     selectLocalState(state).pagination;
 
-  const selectCurrentError = (state: RootState) =>
+  const selectCurrentError = (state: LocalRootState) =>
     selectLocalState(state).error;
 
-  const selectLastError = (state: RootState) =>
+  const selectLastError = (state: LocalRootState) =>
     selectLocalState(state).lastError;
 
-  const selectLastFetch = (state: RootState) =>
+  const selectLastFetch = (state: LocalRootState) =>
     selectLocalState(state).lastFetch;
 
-  const selectIsLoading = (state: RootState) =>
+  const selectIsLoading = (state: LocalRootState) =>
     !!selectLocalState(state).loadingIds.length;
 
-  const selectIsLoadingById = (state: RootState, id: string) =>
+  const selectIsLoadingById = (state: LocalRootState, id: string) =>
     selectLocalState(state).loadingIds.indexOf(id) !== -1;
 
   // It should be possible to remove the `any` here with conditional types.
   // This is a no-op for non-indexed resources.
-  const selectById = (state: RootState, id: string): Resource | undefined =>
+  const selectById = (state: LocalRootState, id: string): Resource | undefined =>
     (selectLocalState(state).data as any)[id];
 
-  const selectIsLoadingInitialDataById = (state: RootState, id: string) =>
+  const selectIsLoadingInitialDataById = (state: LocalRootState, id: string) =>
     !selectById(state, id) &&
     selectLocalState(state).loadingIds.indexOf(id) !== -1;
 
-  const selectLastFetchOrder = (state: RootState): string[] =>
+  const selectLastFetchOrder = (state: LocalRootState): string[] =>
     selectLocalState(state).lastFetchOrder || defaultArray;
 
-  const selectAll = (state: RootState) => selectLocalState(state).data;
+  const selectAll = (state: LocalRootState) => selectLocalState(state).data;
 
   return {
     selectPagination,
