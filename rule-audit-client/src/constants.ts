@@ -1,5 +1,4 @@
-const urls = {
-    capiQueryUrl: 'capi'
+export const urls = {
+    capiQuery: 'capi',
+    matches: 'check'
 }
-
-export { urls }

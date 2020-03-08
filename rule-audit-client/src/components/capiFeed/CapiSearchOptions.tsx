@@ -5,19 +5,20 @@ import { useEffect, useState } from "react";
 import Select from "react-select";
 
 import AppTypes from "AppTypes";
-import { actions, selectors } from "redux/modules/capiContent";
+import { actions, selectors, thunks } from "redux/modules/capiContent";
 import {
   CapiTag,
   CapiSection,
   fetchCapiTags,
   fetchCapiSections
-} from "services/Capi";
+} from "services/capi";
 
-type IProps = ReturnType<typeof mapDispatchToProps> & ReturnType<typeof mapStateToProps>;
+type IProps = ReturnType<typeof mapDispatchToProps> &
+  ReturnType<typeof mapStateToProps>;
 
 type Selection = { value: string; label: string };
 
-const CapiSearchOptions = ({ fetchSearch, content }: IProps) => {
+const CapiSearchOptions = ({ fetchSearch, fetchMatches }: IProps) => {
   const [query, setQuery] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<Selection[]>([]);
   const [selectedSections, setSelectedSections] = useState<Selection[]>([]);
@@ -75,6 +76,9 @@ const CapiSearchOptions = ({ fetchSearch, content }: IProps) => {
           />
         </div>
       </div>
+      <button className="btn btn-primary mt-2 w-100" onClick={() => fetchMatches()}>
+        Find matches for this search
+      </button>
     </div>
   );
 };
@@ -86,7 +90,8 @@ const mapStateToProps = (state: AppTypes.RootState) => ({
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      fetchSearch: actions.fetchSearch
+      fetchSearch: thunks.fetchSearch,
+      fetchMatches: thunks.fetchMatches
     },
     dispatch
   );
