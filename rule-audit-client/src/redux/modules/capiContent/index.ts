@@ -1,9 +1,17 @@
-import { Dispatch } from "redux";
+import { createAction, createReducer, ActionType } from "typesafe-actions";
+import { Dispatch, compose } from "redux";
+import set from "lodash/fp/set";
+import AppTypes from "AppTypes";
 import { createAsyncResourceBundle } from "redux-bundle-creator";
+import { IBlock } from "@guardian/prosemirror-typerighter/dist/interfaces/IMatch";
 
-import { CapiContent, fetchCapiSearch } from "services/Capi";
+import { CapiContent, fetchCapiSearch, CapiContentModel } from "services/capi";
+import { getBlocksFromHtmlString } from "utils/prosemirror";
+import { fetchTyperighterMatches } from "services/typerighter";
 
-const bundle = createAsyncResourceBundle<CapiContent, {}, "capi">("capi");
+const bundle = createAsyncResourceBundle<CapiContent, {}, "capi">("capi", {
+  indexById: true
+});
 
 const fetchSearch = (
   query: string,
@@ -13,8 +21,15 @@ const fetchSearch = (
   dispatch(bundle.actions.fetchStart());
   try {
     const content = await fetchCapiSearch(query, tags, sections);
+    const models = content.results?.map(article => ({
+      ...article,
+      meta: {
+        blocks: getBlocksFromHtmlString(article.fields.body),
+        matches: undefined
+      }
+    }));
     dispatch(
-      bundle.actions.fetchSuccess(content.results, {
+      bundle.actions.fetchSuccess(models, {
         pagination: {
           pageSize: content.pageSize,
           totalPages: content.pages,
@@ -27,6 +42,35 @@ const fetchSearch = (
   }
 };
 
-export const actions = { ...bundle.actions, fetchSearch };
+const fetchMatches = () => async (
+  dispatch: Dispatch,
+  getState: () => AppTypes.RootState
+) => {
+  const articles = bundle.selectors.selectAll(getState());
+  Object.values(articles).map(async article => {
+    const { matches } = await fetchTyperighterMatches(
+      article.id,
+      article.meta.blocks
+    );
+    const articleWithMatches = set(["meta", "matches"], matches, article);
+    dispatch(bundle.actions.updateSuccess(article.id, articleWithMatches));
+  });
+};
+
+const actionAddBlocksToCapiContent = createAction("ADD_BLOCKS_TO_CONTENT")<{
+  id: string;
+  blocks: IBlock[];
+}>();
+
+export const actions = {
+  ...bundle.actions,
+  actionAddBlocksToCapiContent
+};
+
+export const thunks = {
+  fetchSearch,
+  fetchMatches
+};
+
 export const reducer = bundle.reducer;
 export const selectors = bundle.selectors;
