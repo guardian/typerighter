@@ -10,7 +10,7 @@ class ContentClient(client: GuardianContentClient) {
     * Search the Content API for articles with the given query parameters.
     */
   def searchContent(queryStr: String, tags: List[String] = List.empty, sections: List[String] = List.empty)(implicit ec: ExecutionContext): Future[SearchResponse] = {
-    val query = ContentApiClient.search.q(queryStr)
+    val query = ContentApiClient.search.q(queryStr).showFields("body")
     val queryWithTags = tags.foldLeft(query) { case (q, tag) => q.tag(tag)}
     val queryWithSections = sections.foldLeft(queryWithTags) { case (q, section) => q.section(section)}
     client.getResponse(queryWithSections)
