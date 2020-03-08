@@ -5,7 +5,7 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.contentapi.client.GuardianContentClient
 import com.gu.{AppIdentity, AwsIdentity}
-import controllers.{ApiController, CapiProxyController, HomeController, RulesController}
+import controllers.{ApiController, CapiProxyController, HomeController, RulesController, AuditController}
 import matchers.{LanguageToolFactory, RegexMatcher}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
@@ -57,7 +57,7 @@ class AppComponents(context: Context, identity: AppIdentity)
   val apiController = new ApiController(controllerComponents, matcherPool)
   val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
-
+  val auditController = new AuditController(controllerComponents)
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient)
 
   override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(
@@ -72,6 +72,7 @@ class AppComponents(context: Context, identity: AppIdentity)
     assets,
     homeController,
     rulesController,
+    auditController,
     apiController,
     capiProxyController
   )
