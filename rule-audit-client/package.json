@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --config ./conf/webpack.dev.config.js --open",
-    "build": "webpack --config ./conf/webpack.prod.config.js"
+    "build": "webpack --config ./conf/webpack.prod.config.js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "jest": "^25.1.0",
     "react-hot-loader": "^4.12.19",
     "source-map-loader": "^0.2.4",
+    "ts-jest": "^25.2.1",
     "ts-loader": "^6.2.1",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
     "typescript": "^3.8.3",
