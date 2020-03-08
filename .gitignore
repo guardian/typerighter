@@ -5,5 +5,8 @@ target
 /.classpath
 /.project
 /.settings
+/.bloop
+/.metals
+/project/metals.sbt
 /RUNNING_PID
 .DS_Store
