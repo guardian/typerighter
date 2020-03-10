@@ -1,8 +1,13 @@
 import { IBlock } from "@guardian/prosemirror-typerighter/dist/interfaces/IMatch";
+import { convertTyperighterResponse } from "@guardian/prosemirror-typerighter";
+import { IMatcherResponse } from "@guardian/prosemirror-typerighter/dist/interfaces/IMatch";
 import { urls } from "../constants";
 
-export const fetchTyperighterMatches = (articleId: string, blocks: IBlock[]) =>
-  fetch(urls.matches, {
+export const fetchTyperighterMatches = async (
+  articleId: string,
+  blocks: IBlock[]
+): Promise<IMatcherResponse> => {
+  const response = await fetch(urls.matches, {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json"
@@ -11,4 +16,7 @@ export const fetchTyperighterMatches = (articleId: string, blocks: IBlock[]) =>
       requestId: `audit-${articleId}`,
       blocks
     })
-  }).then(_ => _.json());
+  });
+  const json = await response.json();
+  return convertTyperighterResponse(articleId, json);
+};

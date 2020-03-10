@@ -35,7 +35,6 @@ const CapiSearchOptions = ({ fetchSearch, fetchMatches }: IProps) => {
 
   return (
     <div>
-      <h5>Search CAPI Content</h5>
       <div className="row">
         <div className="col">
           <input
