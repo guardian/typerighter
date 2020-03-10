@@ -6,6 +6,7 @@ import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentia
 import com.gu.contentapi.client.GuardianContentClient
 import com.gu.{AppIdentity, AwsIdentity}
 import controllers.{ApiController, CapiProxyController, HomeController, RulesController}
+import matchers.{RegexMatcher}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
@@ -55,7 +56,6 @@ class AppComponents(context: Context, identity: AppIdentity)
   val apiController = new ApiController(controllerComponents, matcherPool)
   val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
-
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient)
 
   override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(

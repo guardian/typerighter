@@ -1,10 +1,15 @@
-package services
+package matchers
 
 import model.{RegexRule, RuleMatch}
+import services.MatcherRequest
 import utils.Matcher
 
 import scala.concurrent.Future
 
+
+/**
+  * A Matcher for rules based on regular expressions.
+  */
 class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
   def getId() = "regex-validator"
 
