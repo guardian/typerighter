@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
 /**
  * The controller that handles the management of matcher rules.
  */
-class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, languageToolFactory: LanguageToolFactory, ruleResource: SheetsRuleResource, sheetId: String)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
+class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleResource: SheetsRuleResource, sheetId: String)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
   def refresh = Action.async { implicit request: Request[AnyContent] =>
     for {
       (rulesByCategory, ruleErrors) <- ruleResource.fetchRulesByCategory()

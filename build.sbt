@@ -45,8 +45,12 @@ resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/pla
 
 val languageToolVersion = "4.3"
 val awsSdkVersion = "1.11.571"
+val capiModelsVersion = "15.8"
+val capiClientVersion = "16.0"
+val circeVersion = "0.12.3"
 
 libraryDependencies ++= Seq(
+  ws,
   "com.gu" %% "simple-configuration-ssm" % "1.5.0",
   "org.languagetool" % "languagetool-core" % languageToolVersion,
   "org.languagetool" % "language-en" % languageToolVersion,
@@ -59,8 +63,18 @@ libraryDependencies ++= Seq(
   "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
   "com.gu" % "kinesis-logback-appender" % "1.4.4",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
-  "org.webjars" % "bootstrap" % "4.3.1"
+  "org.webjars" % "bootstrap" % "4.3.1",
+  "com.gu" %% "content-api-models-scala" % capiModelsVersion,
+  "com.gu" %% "content-api-models-json" % capiModelsVersion,
+  "com.gu" %% "content-api-client-aws" % "0.5",
+  "com.gu" %% "content-api-client-default" % capiClientVersion
 )
+
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
 
 scalaVersion := "2.12.10"
 
