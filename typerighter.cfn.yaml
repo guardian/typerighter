@@ -41,12 +41,12 @@ Mappings:
     CODE:
       MaxInstances: 2
       MinInstances: 1
-      InstanceType: t2.small
+      InstanceType: t3.small
 
     PROD:
       MaxInstances: 6
       MinInstances: 3
-      InstanceType: t2.small
+      InstanceType: t3.small
 
 Resources:
   AutoScalingGroup:
