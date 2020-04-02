@@ -1,7 +1,13 @@
 const common = require("./webpack.common.config.js");
+const webpack = require("webpack");
 
-module.exports =  {
+const definePlugin = new webpack.DefinePlugin({
+  ENV: JSON.stringify("prod")
+});
+
+module.exports = {
   ...common,
   mode: "production",
-  devtool: "source-map"
+  devtool: "source-map",
+  plugins: [...common.plugins, definePlugin]
 };
