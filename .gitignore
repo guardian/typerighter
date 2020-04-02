@@ -9,5 +9,6 @@ node_modules
 /.bloop
 /.metals
 /project/metals.sbt
+/public/javascript
 /RUNNING_PID
 .DS_Store
