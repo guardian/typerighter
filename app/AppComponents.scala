@@ -56,10 +56,7 @@ class AppComponents(context: Context, identity: AppIdentity)
   val apiController = new ApiController(controllerComponents, matcherPool)
   val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId)
   val homeController = new HomeController(controllerComponents)
-<<<<<<< HEAD
-=======
   val auditController = new AuditController(controllerComponents)
->>>>>>> Add audit client app
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient)
 
   override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(
