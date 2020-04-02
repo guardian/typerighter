@@ -1,3 +1,5 @@
 #!/bin/sh -e
 
+(cd rule-audit-client && npm i && npm run build)
+
 sbt clean compile test riffRaffNotifyTeamcity
