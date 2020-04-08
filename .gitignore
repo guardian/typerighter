@@ -1,5 +1,6 @@
 logs
 target
+node_modules
 /.idea
 /.idea_modules
 /.classpath
@@ -8,5 +9,6 @@ target
 /.bloop
 /.metals
 /project/metals.sbt
+/public/javascript
 /RUNNING_PID
 .DS_Store
