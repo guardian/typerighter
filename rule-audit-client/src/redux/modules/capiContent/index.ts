@@ -1,7 +1,6 @@
 import { Dispatch } from "redux";
 import { createAsyncResourceBundle } from "redux-bundle-creator";
 
-import AppTypes from "AppTypes";
 import { CapiContent, fetchCapiSearch } from "services/Capi";
 
 const bundle = createAsyncResourceBundle<CapiContent, {}, "capi">("capi");
