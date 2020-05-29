@@ -1,5 +1,5 @@
-import { actions as capiActions } from "../modules/capiContent";
+import { actions as capi } from "../modules/capiContent";
 
 export default {
-    capi: capiActions
-}
+  capi,
+};
