@@ -47,7 +47,7 @@ const fetchMatches = () => async (
 ) => {
   const articles = selectLastFetchedArticles(getState());
   Object.values(articles).map(async (article) => {
-    dispatch(bundle.actions.fetchStart(article.id));
+    dispatch(bundle.actions.updateStart(article));
     const { matches } = await fetchTyperighterMatches(
       article.id,
       article.meta.blocks
