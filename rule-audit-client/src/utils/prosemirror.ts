@@ -16,5 +16,5 @@ export const getBlocksFromHtmlString = (htmlStr: string) => {
   const element = document.createElement("div");
   element.innerHTML = htmlStr;
   const doc = parser.parse(element);
-  return getBlocksFromDocument(doc, "id");
+  return getBlocksFromDocument(doc);
 };

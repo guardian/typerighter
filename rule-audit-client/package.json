@@ -51,7 +51,7 @@
     "react-redux": "^7.2.0",
     "react-select": "^3.0.8",
     "redux": "^4.0.5",
-    "redux-bundle-creator": "^1.0.0",
+    "redux-bundle-creator": "^1.0.1",
     "redux-thunk": "^2.3.0",
     "typesafe-actions": "^5.1.0"
   }

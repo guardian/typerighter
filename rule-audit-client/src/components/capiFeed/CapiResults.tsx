@@ -2,17 +2,13 @@ import React, { useState } from "react";
 import AppTypes from "AppTypes";
 import { Dispatch, bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import classnames from "classnames";
 
 import { selectors as capiSelectors } from "redux/modules/capiContent";
-import {
-  selectors as uiSelectors,
-  actions as uiActions
-} from "redux/modules/ui";
 import { CapiContentModel } from "services/capi";
+import { notEmpty } from "utils/predicates";
+import CapiFeedItem from "./CapiFeedItem";
 
-type IProps = ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
+type IProps = ReturnType<typeof mapStateToProps>;
 
 const filterArticles = (
   articles: (CapiContentModel | undefined)[],
@@ -20,25 +16,23 @@ const filterArticles = (
 ) =>
   showArticlesWithMatchesOnly
     ? (articles.filter(
-        _ => (_ !== undefined && !_.meta.matches) || _?.meta.matches.length
+        (_) => (_ !== undefined && !_.meta.matches) || _?.meta.matches.length
       ) as CapiContentModel[])
-    : (articles.filter(_ => _ !== undefined) as CapiContentModel[]);
+    : (articles.filter((_) => _ !== undefined) as CapiContentModel[]);
 
 const CapiResults = ({
-  content,
-  selectArticle,
-  selectedArticle,
+  articles,
   isLoading,
-  pagination
+  pagination,
 }: IProps) => {
   const [
     showArticlesWithMatchesOnly,
-    setShowArticlesWithMatchesOnly
+    setShowArticlesWithMatchesOnly,
   ] = useState(false);
   const checkboxId = "checkbox-show-article-matches";
-  const articles = Object.values(content);
+  const articleArray = Object.values(articles).filter(notEmpty);
   const filteredArticles = filterArticles(
-    articles,
+    articleArray,
     showArticlesWithMatchesOnly
   );
   return (
@@ -56,42 +50,15 @@ const CapiResults = ({
           type="checkbox"
           id={checkboxId}
           value={showArticlesWithMatchesOnly.toString()}
-          onChange={_ => setShowArticlesWithMatchesOnly(_.target.checked)}
+          onChange={(_) => setShowArticlesWithMatchesOnly(_.target.checked)}
         />
         <label className="form-check-label" htmlFor={checkboxId}>
           <small>Hide articles that don't have matches</small>
         </label>
       </div>
       <div className="list-group mt-2">
-        {filteredArticles.map(article => (
-          <a
-            href="#"
-            className={classnames(
-              "list-group-item list-group-item-action d-flex justify-content-between align-items-center",
-              {
-                active: article.id === selectedArticle,
-                "list-group-item-success":
-                  article.meta.matches && !article.meta.matches.length,
-                "list-group-item-danger":
-                  article.meta.matches && article.meta.matches.length
-              }
-            )}
-            key={article.id}
-            onClick={() => selectArticle(article.id)}
-          >
-            <div className="card-text">{article.webTitle}</div>
-            {article.meta.matches ? (
-              article.meta.matches.length ? (
-                <div className="badge badge-danger ml-1">
-                  {article.meta.matches.length}
-                </div>
-              ) : (
-                <div className="badge badge-success ml-1">✓</div>
-              )
-            ) : (
-              <div className="badge ml-1">?</div>
-            )}
-          </a>
+        {filteredArticles.map((article) => (
+          <CapiFeedItem id={article.id} />
         ))}
       </div>
     </>
@@ -99,21 +66,9 @@ const CapiResults = ({
 };
 
 const mapStateToProps = (state: AppTypes.RootState) => ({
-  content: capiSelectors
-    .selectLastFetchOrder(state)
-    .map(id => capiSelectors.selectById(state, id))
-    .filter(_ => _),
+  articles: capiSelectors.selectLastFetchedArticles(state),
   isLoading: capiSelectors.selectIsLoading(state),
   pagination: capiSelectors.selectPagination(state),
-  selectedArticle: uiSelectors.selectSelectedArticle(state)
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) =>
-  bindActionCreators(
-    {
-      selectArticle: uiActions.selectArticle
-    },
-    dispatch
-  );
-
-export default connect(mapStateToProps, mapDispatchToProps)(CapiResults);
+export default connect(mapStateToProps)(CapiResults);
