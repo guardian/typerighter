@@ -6,9 +6,10 @@ import { createAsyncResourceBundle } from "redux-bundle-creator";
 import { CapiContentModel, fetchCapiSearch } from "services/capi";
 import { getBlocksFromHtmlString } from "utils/prosemirror";
 import { fetchTyperighterMatches } from "services/typerighter";
+import { notEmpty } from "utils/predicates";
 
 const bundle = createAsyncResourceBundle<CapiContentModel, {}, "capi">("capi", {
-  indexById: true
+  indexById: true,
 });
 
 const fetchSearch = (
@@ -19,20 +20,20 @@ const fetchSearch = (
   dispatch(bundle.actions.fetchStart());
   try {
     const content = await fetchCapiSearch(query, tags, sections);
-    const models = content.results?.map(article => ({
+    const models = content.results?.map((article) => ({
       ...article,
       meta: {
         blocks: getBlocksFromHtmlString(article.fields.body),
-        matches: undefined
-      }
+        matches: undefined,
+      },
     }));
     dispatch(
       bundle.actions.fetchSuccess(models, {
         pagination: {
           pageSize: content.pageSize,
           totalPages: content.pages,
-          currentPage: content.currentPage
-        }
+          currentPage: content.currentPage,
+        },
       })
     );
   } catch (e) {
@@ -44,8 +45,9 @@ const fetchMatches = () => async (
   dispatch: Dispatch,
   getState: () => AppTypes.RootState
 ) => {
-  const articles = bundle.selectors.selectAll(getState());
-  Object.values(articles).map(async article => {
+  const articles = selectLastFetchedArticles(getState());
+  Object.values(articles).map(async (article) => {
+    dispatch(bundle.actions.fetchStart(article.id));
     const { matches } = await fetchTyperighterMatches(
       article.id,
       article.meta.blocks
@@ -55,14 +57,23 @@ const fetchMatches = () => async (
   });
 };
 
+const selectLastFetchedArticles = (
+  state: AppTypes.RootState
+): CapiContentModel[] =>
+  selectors
+    .selectLastFetchOrder(state)
+    .map((id) => selectors.selectById(state, id))
+    .filter(notEmpty);
+
 export const actions = {
-  ...bundle.actions
+  ...bundle.actions,
 };
 
 export const thunks = {
   fetchSearch,
-  fetchMatches
+  fetchMatches,
 };
 
+export const selectors = { ...bundle.selectors, selectLastFetchedArticles };
+
 export const reducer = bundle.reducer;
-export const selectors = bundle.selectors;
