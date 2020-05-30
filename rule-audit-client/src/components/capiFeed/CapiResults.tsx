@@ -26,7 +26,7 @@ const filterArticles = (
 
 const CapiResults = ({
   content,
-  selectArticle,
+  doSelectArticle,
   selectedArticle,
   isLoading,
   pagination
@@ -77,7 +77,7 @@ const CapiResults = ({
               }
             )}
             key={article.id}
-            onClick={() => selectArticle(article.id)}
+            onClick={() => doSelectArticle(article.id)}
           >
             <div className="card-text">{article.webTitle}</div>
             {article.meta.matches ? (
@@ -111,7 +111,7 @@ const mapStateToProps = (state: AppTypes.RootState) => ({
 const mapDispatchToProps = (dispatch: Dispatch) =>
   bindActionCreators(
     {
-      selectArticle: uiActions.selectArticle
+      doSelectArticle: uiActions.doSelectArticle
     },
     dispatch
   );

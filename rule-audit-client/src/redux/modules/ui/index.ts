@@ -10,12 +10,12 @@ const initialState: UIState = {
   selectedArticle: undefined
 };
 
-const selectArticle = createAction("SELECT_ARTICLE")<string>();
+const doSelectArticle = createAction("SELECT_ARTICLE")<string>();
 
 const selectSelectedArticle = (state: AppTypes.RootState) => state.ui.selectedArticle;
 
 export const reducer = createReducer(initialState).handleAction(
-  selectArticle,
+  doSelectArticle,
   (state, action) => ({
     ...state,
     selectedArticle: action.payload
@@ -23,4 +23,4 @@ export const reducer = createReducer(initialState).handleAction(
 );
 
 export const selectors = { selectSelectedArticle };
-export const actions = { selectArticle };
+export const actions = { doSelectArticle };

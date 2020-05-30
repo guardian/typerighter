@@ -3,11 +3,11 @@ import set from "lodash/fp/set";
 import AppTypes from "AppTypes";
 import { createAsyncResourceBundle } from "redux-bundle-creator";
 
-import { CapiContent, fetchCapiSearch } from "services/capi";
+import { CapiContentModel, fetchCapiSearch } from "services/capi";
 import { getBlocksFromHtmlString } from "utils/prosemirror";
 import { fetchTyperighterMatches } from "services/typerighter";
 
-const bundle = createAsyncResourceBundle<CapiContent, {}, "capi">("capi", {
+const bundle = createAsyncResourceBundle<CapiContentModel, {}, "capi">("capi", {
   indexById: true
 });
 

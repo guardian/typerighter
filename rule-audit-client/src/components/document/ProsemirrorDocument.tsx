@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect, useRef } from "react";
 
 import { createTyperighterEditorView } from "utils/prosemirror";
-import { IMatch } from "@guardian/prosemirror-typerighter/dist/interfaces/IMatch";
+import { IMatch } from "@guardian/prosemirror-typerighter/dist/src/ts/interfaces/IMatch";
 
 interface IProps {
   htmlStr: string;

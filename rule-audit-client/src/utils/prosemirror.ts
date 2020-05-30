@@ -5,17 +5,15 @@ import { marks, schema } from "prosemirror-schema-basic";
 import { addListNodes } from "prosemirror-schema-list";
 import {
   getBlocksFromDocument,
-  createView
+  createView,
+  createTyperighterPlugin,
+  createBoundCommands
 } from "@guardian/prosemirror-typerighter";
 import { undo, redo } from "prosemirror-history";
 import { undoInputRule } from "prosemirror-inputrules";
 import { keymap } from "prosemirror-keymap";
 import { history } from "prosemirror-history";
-import {
-  createTyperighterPlugin,
-  createBoundCommands
-} from "@guardian/prosemirror-typerighter";
-import { IMatch } from "@guardian/prosemirror-typerighter/dist/interfaces/IMatch";
+import { IMatch } from "@guardian/prosemirror-typerighter/src/ts/interfaces/IMatch";
 
 const appSchema = new Schema({
   nodes: addListNodes(schema.spec.nodes as any, "paragraph block*", "block"),
@@ -28,7 +26,7 @@ export const getBlocksFromHtmlString = (htmlStr: string) => {
   const element = document.createElement("div");
   element.innerHTML = htmlStr;
   const doc = parser.parse(element);
-  return getBlocksFromDocument(doc, "id");
+  return getBlocksFromDocument(doc);
 };
 
 const createBasePlugins = () => [
