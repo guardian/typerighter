@@ -7,21 +7,21 @@ import { selectors as capiSelectors } from "redux/modules/capiContent";
 import {
   selectors as uiSelectors,
 } from "redux/modules/ui";
-import { CapiContentModel } from "services/capi";
+import { CapiContentWithMatches } from "services/capi";
 import { notEmpty } from "utils/predicates";
 import CapiFeedItem from "./CapiFeedItem";
 
 type IProps = ReturnType<typeof mapStateToProps>;
 
 const filterArticles = (
-  articles: (CapiContentModel | undefined)[],
+  articles: (CapiContentWithMatches | undefined)[],
   showArticlesWithMatchesOnly: boolean
 ) =>
   showArticlesWithMatchesOnly
     ? (articles.filter(
         (_) => (_ !== undefined && !_.meta.matches) || _?.meta.matches.length
-      ) as CapiContentModel[])
-    : (articles.filter((_) => _ !== undefined) as CapiContentModel[]);
+      ) as CapiContentWithMatches[])
+    : (articles.filter((_) => _ !== undefined) as CapiContentWithMatches[]);
 
 const CapiResults = ({
   articles,
