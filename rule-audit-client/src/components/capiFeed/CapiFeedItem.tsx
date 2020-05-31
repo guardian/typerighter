@@ -5,7 +5,7 @@ import classnames from "classnames";
 
 import AppTypes from "AppTypes";
 import { selectors as capiSelectors } from "redux/modules/capiContent";
-import { CapiContentModel } from "services/capi";
+import { CapiContentWithMatches } from "services/capi";
 
 type ExternalProps = { id: string };
 
@@ -22,34 +22,62 @@ const CapiFeedItem = ({ article, isLoading }: IProps) => {
   return (
     <a
       href="#"
-      className={classnames(
-        "list-group-item list-group-item-action d-flex justify-content-between align-items-center",
-        {
-          "list-group-item-success":
-            article.meta.matches && !article.meta.matches.length,
-          "list-group-item-danger":
-            article.meta.matches && article.meta.matches.length,
-        }
-      )}
+      className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
       key={article.id}
     >
       <div className="card-text">{article.webTitle}</div>
-      {renderBadge(article, isLoading)}
+      {renderBadges(article, isLoading)}
     </a>
   );
 };
 
-const renderBadge = (article: CapiContentModel, isLoading: boolean) => {
+const renderBadges = (article: CapiContentWithMatches, isLoading: boolean) => {
   if (isLoading) {
-    return <div className="badge ml-1">...</div>;
+    return (
+      <div className="badge ml-1" title="Loading">
+        ...
+      </div>
+    );
   }
   if (!article.meta.matches) {
-    return <div className="badge ml-1">?</div>;
+    return (
+      <div className="badge ml-1" title="Not yet checked">
+        ?
+      </div>
+    );
   }
-  return article.meta.matches.length ? (
-    <div className="badge badge-danger ml-1">{article.meta.matches.length}</div>
-  ) : (
-    <div className="badge badge-success ml-1">✓</div>
+  if (article.meta.matches.length) {
+    const noOfCorrectMatches = article.meta.matches.filter(
+      (_) => _.markAsCorrect
+    ).length;
+    const noOfIncorrectMatches =
+      article.meta.matches.length - noOfCorrectMatches;
+    return (
+      <span>
+        {!!noOfCorrectMatches && (
+          <div
+            className="badge badge-success ml-1"
+            title={`${noOfCorrectMatches} matches marked as correct`}
+          >
+            {noOfCorrectMatches}
+          </div>
+        )}
+        {!!noOfIncorrectMatches && (
+          <div
+            className="badge badge-danger ml-1"
+            title={`${noOfIncorrectMatches} matches marked as incorrect`}
+          >
+            {noOfIncorrectMatches}
+          </div>
+        )}
+      </span>
+    );
+  }
+
+  return (
+    <div className="badge badge-default ml-1" title="No matches">
+      ✓
+    </div>
   );
 };
 

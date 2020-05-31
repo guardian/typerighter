@@ -1,4 +1,5 @@
 import { urls } from "../constants";
+import { IMatch, IBlock } from "@guardian/prosemirror-typerighter/dist/src/ts/interfaces/IMatch";
 
 export type CapiResponse<TContent> = {
   status: "ok" | "error";
@@ -31,11 +32,11 @@ export type CapiContent = {
   fields: { body: string };
 };
 
-export type CapiContentModel = CapiContent & {
+export type CapiContentWithMatches = CapiContent & {
   // Added by our application
   meta: {
-    blocks: [];
-    matches: [];
+    blocks: IBlock[];
+    matches: IMatch[];
   };
 };
 

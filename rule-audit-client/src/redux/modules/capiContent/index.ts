@@ -1,16 +1,15 @@
-import { createAction, createReducer, ActionType } from "typesafe-actions";
-import { Dispatch, compose } from "redux";
+import { Dispatch } from "redux";
 import set from "lodash/fp/set";
 import AppTypes from "AppTypes";
 import { createAsyncResourceBundle } from "redux-bundle-creator";
 import { IBlock } from "@guardian/prosemirror-typerighter/dist/interfaces/IMatch";
 
-import { CapiContent, fetchCapiSearch, CapiContentModel } from "services/capi";
+import { CapiContentWithMatches, fetchCapiSearch } from "services/capi";
 import { getBlocksFromHtmlString } from "utils/prosemirror";
 import { fetchTyperighterMatches } from "services/typerighter";
 import { notEmpty } from "utils/predicates";
 
-const bundle = createAsyncResourceBundle<CapiContentModel, {}, "capi">("capi", {
+const bundle = createAsyncResourceBundle<CapiContentWithMatches, {}, "capi">("capi", {
   indexById: true,
 });
 
@@ -61,7 +60,7 @@ const fetchMatches = () => async (
 
 const selectLastFetchedArticles = (
   state: AppTypes.RootState
-): CapiContentModel[] =>
+): CapiContentWithMatches[] =>
   selectors
     .selectLastFetchOrder(state)
     .map((id) => selectors.selectById(state, id))
