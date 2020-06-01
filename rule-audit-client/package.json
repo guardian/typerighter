@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --config ./conf/webpack.dev.config.js --open",
-    "build": "webpack --config ./conf/webpack.prod.config.js"
+    "build": "webpack --config ./conf/webpack.prod.config.js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/jest": "^25.1.3",
+    "@types/jest": "^25.1.4",
     "@types/lodash": "^4.14.149",
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
@@ -22,6 +23,7 @@
     "jest": "^25.1.0",
     "react-hot-loader": "^4.12.19",
     "source-map-loader": "^0.2.4",
+    "ts-jest": "^25.2.1",
     "ts-loader": "^6.2.1",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
     "typescript": "^3.8.3",
@@ -36,6 +38,7 @@
     "react-redux": "^7.2.0",
     "react-select": "^3.0.8",
     "redux": "^4.0.5",
+    "redux-bundle-creator": "^1.0.0",
     "redux-thunk": "^2.3.0",
     "typesafe-actions": "^5.1.0"
   }
