@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import AppTypes from "AppTypes";
-import { Dispatch } from "redux";
 import { connect } from "react-redux";
 
 import { selectors as capiSelectors } from "redux/modules/capiContent";

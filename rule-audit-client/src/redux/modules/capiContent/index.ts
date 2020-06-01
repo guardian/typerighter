@@ -8,9 +8,12 @@ import { getBlocksFromHtmlString } from "utils/prosemirror";
 import { fetchTyperighterMatches } from "services/typerighter";
 import { notEmpty } from "utils/predicates";
 
-const bundle = createAsyncResourceBundle<CapiContentWithMatches, {}, "capi">("capi", {
-  indexById: true,
-});
+const bundle = createAsyncResourceBundle<CapiContentWithMatches, {}, "capi">(
+  "capi",
+  {
+    indexById: true,
+  }
+);
 
 const fetchSearch = (
   query: string,

@@ -33,16 +33,7 @@ const CapiFeedItem = ({
   return (
     <a
       href="#"
-      className={classnames(
-        "list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-        // {
-        //   active: article.id === selectedArticle,
-        //   "list-group-item-success":
-        //     article.meta.matches && !article.meta.matches.length,
-        //   "list-group-item-danger":
-        //     article.meta.matches && article.meta.matches.length,
-        // }
-      )}
+      className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
       key={article.id}
       onClick={() => doSelectArticle(article.id)}
     >
