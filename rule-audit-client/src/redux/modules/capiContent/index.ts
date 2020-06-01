@@ -2,16 +2,18 @@ import { Dispatch } from "redux";
 import set from "lodash/fp/set";
 import AppTypes from "AppTypes";
 import { createAsyncResourceBundle } from "redux-bundle-creator";
-import { IBlock } from "@guardian/prosemirror-typerighter/dist/interfaces/IMatch";
 
 import { CapiContentWithMatches, fetchCapiSearch } from "services/capi";
 import { getBlocksFromHtmlString } from "utils/prosemirror";
 import { fetchTyperighterMatches } from "services/typerighter";
 import { notEmpty } from "utils/predicates";
 
-const bundle = createAsyncResourceBundle<CapiContentWithMatches, {}, "capi">("capi", {
-  indexById: true,
-});
+const bundle = createAsyncResourceBundle<CapiContentWithMatches, {}, "capi">(
+  "capi",
+  {
+    indexById: true,
+  }
+);
 
 const fetchSearch = (
   query: string,
