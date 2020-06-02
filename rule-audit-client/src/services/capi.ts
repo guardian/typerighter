@@ -1,4 +1,5 @@
 import { urls } from "../constants";
+import { IMatch, IBlock } from "@guardian/prosemirror-typerighter/dist/src/ts/interfaces/IMatch";
 
 export type CapiResponse<TContent> = {
   status: "ok" | "error";
@@ -28,6 +29,15 @@ export type CapiContent = {
   isHosted: string;
   pillarId: string;
   pillarName: string;
+  fields: { body: string };
+};
+
+export type CapiContentWithMatches = CapiContent & {
+  // Added by our application
+  meta: {
+    blocks: IBlock[];
+    matches: IMatch[];
+  };
 };
 
 export type CapiSection = {
@@ -60,18 +70,18 @@ export const fetchCapiSearch = async (
   tags.map(_ => params.append("tags", _));
   sections.map(_ => params.append("sections", _));
   return (
-    await fetch(`${urls.capiQueryUrl}/search?${params.toString()}`)
+    await fetch(`${urls.capiQuery}/search?${params.toString()}`)
   ).json();
 };
 
 export const fetchCapiTags = async (
   query: string
 ): Promise<CapiTagsResponse> => {
-  return (await fetch(`${urls.capiQueryUrl}/tags/${query}`, {})).json();
+  return (await fetch(`${urls.capiQuery}/tags/${query}`, {})).json();
 };
 
 export const fetchCapiSections = async (
   query: string[]
 ): Promise<CapiSectionsResponse> => {
-  return (await fetch(`${urls.capiQueryUrl}/sections/${query}`)).json();
+  return (await fetch(`${urls.capiQuery}/sections/${query}`)).json();
 };
