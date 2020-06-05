@@ -1,6 +1,6 @@
 import { EditorState, Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { Schema, DOMParser } from "prosemirror-model";
+import { Schema, DOMParser as ProsemirrorDOMParser } from "prosemirror-model";
 import { marks, schema } from "prosemirror-schema-basic";
 import { addListNodes } from "prosemirror-schema-list";
 import {
@@ -20,12 +20,12 @@ const appSchema = new Schema({
   marks
 });
 
-const parser = DOMParser.fromSchema(appSchema);
+const prosemirrorParser = ProsemirrorDOMParser.fromSchema(appSchema);
+const domParser = new DOMParser();
 
 export const getBlocksFromHtmlString = (htmlStr: string) => {
-  const element = document.createElement("div");
-  element.innerHTML = htmlStr;
-  const doc = parser.parse(element);
+  const xmlDoc = domParser.parseFromString(htmlStr, "text/html");
+  const doc = prosemirrorParser.parse(xmlDoc);
   return getBlocksFromDocument(doc);
 };
 
@@ -49,7 +49,7 @@ export const createTyperighterEditorView = (
 
   const editorView: EditorView = new EditorView(editorEl, {
     state: EditorState.create({
-      doc: DOMParser.fromSchema(schema).parse(contentNode),
+      doc: prosemirrorParser.parse(contentNode),
       plugins: [...createBasePlugins(), plugin]
     })
   });

@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import classnames from "classnames";
 
 import AppTypes from "AppTypes";
 import {

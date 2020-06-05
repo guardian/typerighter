@@ -1,5 +1,7 @@
 import { IBlock, IMatcherResponse } from "@guardian/prosemirror-typerighter/dist/src/ts/interfaces/IMatch";
 import { convertTyperighterResponse } from "@guardian/prosemirror-typerighter";
+
+import { v4 } from "uuid";
 import { urls } from "../constants";
 
 export const fetchTyperighterMatches = async (
@@ -12,7 +14,7 @@ export const fetchTyperighterMatches = async (
       "Content-Type": "application/json"
     }),
     body: JSON.stringify({
-      requestId: `audit-${articleId}`,
+      requestId: `audit-${articleId}-${v4()}`,
       blocks
     })
   });
