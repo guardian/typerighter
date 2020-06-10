@@ -1,17 +1,27 @@
 import React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
-import classnames from "classnames";
 
 import AppTypes from "AppTypes";
+import {
+  selectors as uiSelectors,
+  actions as uiActions,
+} from "redux/modules/ui";
 import { selectors as capiSelectors } from "redux/modules/capiContent";
 import { CapiContentWithMatches } from "services/capi";
 
 type ExternalProps = { id: string };
 
-type IProps = ReturnType<typeof mapStateToProps> & ExternalProps;
+type IProps = ReturnType<typeof mapStateToProps> &
+  ReturnType<typeof mapDispatchToProps> &
+  ExternalProps;
 
-const CapiFeedItem = ({ article, isLoading }: IProps) => {
+const CapiFeedItem = ({
+  doSelectArticle,
+  selectedArticle,
+  article,
+  isLoading,
+}: IProps) => {
   if (!article) {
     return (
       <div className="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
@@ -24,6 +34,7 @@ const CapiFeedItem = ({ article, isLoading }: IProps) => {
       href="#"
       className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
       key={article.id}
+      onClick={() => doSelectArticle(article.id)}
     >
       <div className="card-text">{article.webTitle}</div>
       {renderBadges(article, isLoading)}
@@ -84,6 +95,15 @@ const renderBadges = (article: CapiContentWithMatches, isLoading: boolean) => {
 const mapStateToProps = (state: AppTypes.RootState, { id }: ExternalProps) => ({
   article: capiSelectors.selectById(state, id),
   isLoading: capiSelectors.selectIsLoadingById(state, id),
+  selectedArticle: uiSelectors.selectSelectedArticle(state),
 });
 
-export default connect(mapStateToProps)(CapiFeedItem);
+const mapDispatchToProps = (dispatch: Dispatch, _: ExternalProps) =>
+  bindActionCreators(
+    {
+      doSelectArticle: uiActions.doSelectArticle,
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(CapiFeedItem);

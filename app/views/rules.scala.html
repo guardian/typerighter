@@ -6,7 +6,7 @@
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
         @CSRF.formField
-        <h1 class="align-middle">
+        <h1 class="align-middle mb-4">
             Current rules
             <button class="btn btn-primary btn-sm ml-3">Refresh rules</button>
         </h1>
@@ -19,7 +19,6 @@
             }
         </div>
     }
-    <hr />
     <div class="row">
         <div class="col-sm-5">
             <h5>Categories (@categories.size)</h5>

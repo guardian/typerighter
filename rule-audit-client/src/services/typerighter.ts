@@ -1,6 +1,5 @@
-import { IBlock } from "@guardian/prosemirror-typerighter/src/ts/interfaces/IMatch";
+import { IBlock, IMatcherResponse } from "@guardian/prosemirror-typerighter/dist/src/ts/interfaces/IMatch";
 import { convertTyperighterResponse } from "@guardian/prosemirror-typerighter";
-import { IMatcherResponse } from "@guardian/prosemirror-typerighter/src/ts/interfaces/IMatch";
 
 import { v4 } from "uuid";
 import { urls } from "../constants";
