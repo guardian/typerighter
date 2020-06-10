@@ -3,6 +3,9 @@ import AppTypes from "AppTypes";
 import { connect } from "react-redux";
 
 import { selectors as capiSelectors } from "redux/modules/capiContent";
+import {
+  selectors as uiSelectors,
+} from "redux/modules/ui";
 import { CapiContentWithMatches } from "services/capi";
 import { notEmpty } from "utils/predicates";
 import CapiFeedItem from "./CapiFeedItem";
@@ -68,6 +71,7 @@ const mapStateToProps = (state: AppTypes.RootState) => ({
   articles: capiSelectors.selectLastFetchedArticles(state),
   isLoading: capiSelectors.selectIsLoading(state),
   pagination: capiSelectors.selectPagination(state),
+  selectedArticle: uiSelectors.selectSelectedArticle(state),
 });
 
 export default connect(mapStateToProps)(CapiResults);

@@ -9,10 +9,12 @@ import Document from "./document/Document";
 const App = () => (
   <Provider store={store}>
     <div className="row">
-      <div className="col-4">
+      <div className="col-3">
+        <h5>Search CAPI Content</h5>
         <CapiFeed />
       </div>
-      <div className="col-8">
+      <div className="col-9">
+        <h5>Current document</h5>
         <Document />
       </div>
     </div>
