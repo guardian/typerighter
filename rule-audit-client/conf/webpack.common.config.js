@@ -34,8 +34,30 @@ module.exports = {
       {
         enforce: "pre",
         test: /\.js$/,
-        loader: "source-map-loader"
-      }
+        loader: "source-map-loader",
+        exclude: /node_modules/
+      },
+      {
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1,
+              modules: true
+            }
+          }
+        ]
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        use: [
+          {
+            loader: 'file-loader',
+          },
+        ],
+      },
     ]
   },
   plugins: [new CleanWebpackPlugin()]
