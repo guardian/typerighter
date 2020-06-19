@@ -10,6 +10,10 @@ const App = () => (
   <Provider store={store}>
     <style>
       {
+      /**
+       * Necessary to apply themed colors to @guardian/threads components (e.g. chips).
+       * This approach is hopefully temporary – see https://github.com/guardian/threads/issues/4
+       */
       `:root {
         --color-primary: #6c757d;
         --color-danger: #dc3545;
