@@ -67,8 +67,11 @@ export const fetchCapiSearch = async (
 ): Promise<CapiContentResponse> => {
   const params = new URLSearchParams();
   params.append("query", query);
-  tags.map(_ => params.append("tags", _));
-  sections.map(_ => params.append("sections", _));
+
+  // Do not include empty tag or section values.
+  tags.filter(_ => _).forEach(_ => params.append("tags", _));
+  sections.filter(_ => _).forEach(_ => params.append("sections", _));
+
   return (
     await fetch(`${urls.capiQuery}/search?${params.toString()}`)
   ).json();
@@ -81,7 +84,7 @@ export const fetchCapiTags = async (
 };
 
 export const fetchCapiSections = async (
-  query: string[]
+  query: string
 ): Promise<CapiSectionsResponse> => {
   return (await fetch(`${urls.capiQuery}/sections/${query}`)).json();
 };

@@ -3,14 +3,14 @@ import AppTypes from "AppTypes";
 import { connect } from "react-redux";
 
 import { selectors as capiSelectors } from "redux/modules/capiContent";
-import {
-  selectors as uiSelectors,
-} from "redux/modules/ui";
+import { selectors as uiSelectors } from "redux/modules/ui";
 import { CapiContentWithMatches } from "services/capi";
 import { notEmpty } from "utils/predicates";
 import CapiFeedItem from "./CapiFeedItem";
 
 type IProps = ReturnType<typeof mapStateToProps>;
+
+const articleNumberFormat = new Intl.NumberFormat("en-GB");
 
 const filterArticles = (
   articles: (CapiContentWithMatches | undefined)[],
@@ -22,11 +22,7 @@ const filterArticles = (
       ) as CapiContentWithMatches[])
     : (articles.filter((_) => _ !== undefined) as CapiContentWithMatches[]);
 
-const CapiResults = ({
-  articles,
-  isLoading,
-  pagination,
-}: IProps) => {
+const CapiResults = ({ articles, isLoading, pagination }: IProps) => {
   const [
     showArticlesWithMatchesOnly,
     setShowArticlesWithMatchesOnly,
@@ -37,13 +33,20 @@ const CapiResults = ({
     articleArray,
     showArticlesWithMatchesOnly
   );
+  const totalArticles = pagination
+    ? articleNumberFormat.format(
+        filteredArticles.length < pagination.pageSize
+          ? filteredArticles.length
+          : pagination.totalPages * pagination.pageSize
+      )
+    : "?";
   return (
     <>
       {isLoading ? (
         <h5 className="text-secondary mt-2 mb-0">Loading</h5>
       ) : (
         <h5 className="mt-2 mb-0">
-          {filteredArticles.length} of {pagination?.totalPages} articles
+          {filteredArticles.length} of {totalArticles} articles
         </h5>
       )}
       <div className="form-check form-check-inline mt-2">
