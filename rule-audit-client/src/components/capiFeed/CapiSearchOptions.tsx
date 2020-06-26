@@ -52,15 +52,16 @@ const filters: (Filter | SelectAsyncFilter)[] = [
 const getSearchEntitiesFromQueryElements = (elements: QueryElement[]) => ({
   query: elements
     .filter((element) => element.type === "text")
-    .reduce((acc, el) => `${acc} ${el.value}`, ""),
+    .map(_ => _.value)
+    .join(""),
   tags: elements
     .filter((element) => element.type === "filter" && element.name === "Tag")
-    .reduce((acc, el) => acc.concat(el.value), [] as string[]),
+    .map(_ => _.value),
   sections: elements
     .filter(
       (element) => element.type === "filter" && element.name === "Section"
     )
-    .reduce((acc, el) => acc.concat(el.value), [] as string[]),
+    .map(_ => _.value)
 });
 
 const CapiSearchOptions = ({ fetchSearch, fetchMatches }: IProps) => {
