@@ -1,9 +1,11 @@
 import { combineReducers } from "redux";
 
-import { reducer as capiReducer } from "../modules/capiContent";
-import { reducer as uiReducer } from "../modules/ui";
+import { reducer as capi } from "../modules/capiContent";
+import { reducer as ui } from "../modules/ui";
+import { reducer as searchMatches } from "../modules/searchMatches";
 
 export default combineReducers({
-  capi: capiReducer,
-  ui: uiReducer,
+  capi,
+  ui,
+  searchMatches
 });
