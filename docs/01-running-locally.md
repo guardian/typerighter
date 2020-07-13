@@ -1,8 +1,10 @@
 # Basic developer run
 
-`./script/start` and visit `localhost:9000` to confirm the service came up correctly.
+`./script/start` and visit `localhost:9000` to confirm the service came up correctly. 
 
 To attach an interactive debugger, run `./script/start --debug` to expose port 5005 for debugging.
+
+If you're testing changes to the rule audit client, see [the additional steps in its README](https://github.com/guardian/typerighter/tree/master/rule-audit-client).
 
 ## Demonstration of null request
 
