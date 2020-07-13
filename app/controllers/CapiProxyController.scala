@@ -10,11 +10,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class CapiProxyController(cc: ControllerComponents, contentClient: ContentClient)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
-  def searchContent(query: String, tags: Option[List[String]], sections: Option[List[String]]) = Action.async {
+  def searchContent(query: String, tags: Option[List[String]], sections: Option[List[String]], page: Option[Int]) = Action.async {
     contentClient.searchContent(
       query,
       tags.getOrElse(Nil),
-      sections.getOrElse(Nil)
+      sections.getOrElse(Nil),
+      page.getOrElse(1)
     ).map { result => Ok(result.asJson.toString).as(JSON) }
   }
 
