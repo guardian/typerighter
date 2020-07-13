@@ -11,7 +11,7 @@ import {
 import { debounce } from 'lodash';
 
 import AppTypes from "AppTypes";
-import { actions, selectors, thunks } from "redux/modules/capiContent";
+import { selectors, thunks } from "redux/modules/capiContent";
 import {
   fetchCapiTags,
   fetchCapiSections,
@@ -64,14 +64,14 @@ const getSearchEntitiesFromQueryElements = (elements: QueryElement[]) => ({
     .map(_ => _.value)
 });
 
-const CapiSearchOptions = ({ fetchSearch, fetchMatches }: IProps) => {
+const CapiSearchOptions = ({ fetchCapi, fetchMatches }: IProps) => {
   const [queryElements, setQueryElements] = useState<QueryElement[]>([]);
 
   useEffect(() => {
     const { query, tags, sections } = getSearchEntitiesFromQueryElements(
       queryElements
     );
-    fetchSearch(query, tags, sections);
+    fetchCapi(query, tags, sections);
   }, [queryElements]);
 
   return (
@@ -96,15 +96,15 @@ const mapStateToProps = (state: AppTypes.RootState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
-  const { fetchSearch, fetchMatches} = bindActionCreators(
+  const { fetchCapi, fetchMatches } = bindActionCreators(
     {
-      fetchSearch: thunks.fetchSearch,
-      fetchMatches: thunks.fetchMatches,
+      fetchCapi: thunks.doFetchCapi,
+      fetchMatches: thunks.doFetchMatchesForLastSearch,
     },
     dispatch
   );
   return {
-    fetchSearch: debounce(fetchSearch, 500),
+    fetchCapi: debounce(fetchCapi, 500),
     fetchMatches
   }
 }
