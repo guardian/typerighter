@@ -38,6 +38,7 @@
   "dependencies": {
     "@guardian/prosemirror-typerighter": "^0.5.1",
     "@guardian/threads": "^0.22.0-0",
+    "@types/classnames": "^2.2.10",
     "@types/prosemirror-history": "^1.0.1",
     "@types/prosemirror-inputrules": "^1.0.2",
     "@types/prosemirror-keymap": "^1.0.1",
@@ -64,7 +65,7 @@
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",
-    "redux-bundle-creator": "^1.0.1",
+    "redux-bundle-creator": "^1.0.2",
     "redux-thunk": "^2.3.0",
     "typesafe-actions": "^5.1.0",
     "uuid": "^8.1.0"
