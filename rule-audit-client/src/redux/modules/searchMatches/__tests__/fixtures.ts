@@ -1,11 +1,11 @@
-export const createCapiResponse = (noOfArticles: number, responseNo = 0) => ({
+export const createCapiResponse = (noOfArticles: number, responseNo = 0, pages = 1000) => ({
   status: "ok",
   userTier: "developer",
   total: 2142557,
   startIndex: 1,
   pageSize: 10,
   currentPage: 1,
-  pages: 214256,
+  pages,
   orderBy: "relevance",
   results: new Array(noOfArticles)
     .fill(undefined)

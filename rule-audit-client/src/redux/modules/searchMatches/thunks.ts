@@ -4,7 +4,7 @@ import { fetchTyperighterMatches } from "services/typerighter";
 import * as selectors from "./selectors";
 import * as actions from "./actions";
 import { notEmpty } from "utils/predicates";
-import { doFetchCapi, doFetchMatches } from "../capiContent/thunks";
+import { thunks as capiThunks, selectors as capiSelectors } from "../capiContent";
 
 export const doSearchMatches = (
   query: string,
@@ -23,13 +23,13 @@ export const doSearchMatches = (
     page: number = 1
   ): Promise<void> => {
     const articles = await dispatch(
-      doFetchCapi(query, tags, sections, page, fetchCapiSearchService)
+      capiThunks.doFetchCapi(query, tags, sections, page, fetchCapiSearchService)
     );
 
     const incomingArticleIds = (articles || []).map((_) => _.id);
 
     const articlesWithMatchData = await dispatch(
-      doFetchMatches(
+      capiThunks.doFetchMatches(
         articles.map((_) => _.id),
         fetchTyperighterMatchesService
       )
@@ -57,10 +57,14 @@ export const doSearchMatches = (
 
     dispatch(actions.doAppendSearchMatchesArticleIds(articleIdsToAdd));
 
+    const totalPages = (capiSelectors.selectPagination(getState())?.totalPages || 0);
+
     if (
       noOfArticlesToFetchRemaining > 0 &&
       // Do not continue if the user has stopped the search operation
-      selectors.selectIsSearchMatchesInProgress(getState())
+      selectors.selectIsSearchMatchesInProgress(getState()) &&
+      // Do not continue if there aren't any pages remaining
+      page < totalPages
     ) {
       await loop(noOfArticlesToFetchRemaining, page + 1);
     } else {

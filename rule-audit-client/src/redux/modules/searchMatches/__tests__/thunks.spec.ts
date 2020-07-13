@@ -157,7 +157,51 @@ describe("doSearchMatches", () => {
 
     expect(selectors.selectSearchMatchesArticleIds(state, false)).toEqual([capiResponse.results[0].id]);
   });
+  it("should stop asking for articles if no more remain", async () => {
+    const store = createStore();
+    store.dispatch(actions.doSetSearchMatchesLimit(2));
 
+    mockResponses(
+      [createCapiResponse(2, 0, 1)],
+      [
+        emptyTyperighterResponse,
+        emptyTyperighterResponse
+      ]
+    );
+
+   const thunk = (store.dispatch as ThunkDispatch<
+      AppTypes.RootState,
+      {},
+      AppTypes.RootAction
+    >)(
+      doSearchMatches(
+        "query",
+        [],
+        [],
+        mockCapiService,
+        mockTyperighterService
+      )
+    );
+
+    await thunk;
+
+    const state = store.getState();
+
+    // We call CAPI, and it's returned two articles.
+    // We then call Typerighter with those articles, and Typerighter
+    // returns matches for one. We call CAPI again, but the user
+    // cancels the search before the second CAPI request is processed,
+    // so nothing else should go to Typerighter.
+    expect(mockCapiService).toBeCalledTimes(1);
+    expect(mockTyperighterService).toBeCalledTimes(2);
+
+    capiResponse.results.forEach((article) => {
+      const articleInState = capiSelectors.selectById(state, article.id);
+      expect(articleInState).toMatchObject(article);
+    });
+
+    expect(selectors.selectSearchMatchesArticleIds(state, false)).toEqual([]);
+  });
   it("should not give the user more matches than they asked for", async () => {
     const store = createStore();
     store.dispatch(actions.doSetSearchMatchesLimit(2));
