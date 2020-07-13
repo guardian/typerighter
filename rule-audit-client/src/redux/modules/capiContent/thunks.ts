@@ -11,7 +11,7 @@ export const doFetchCapi = (
   query: string,
   tags: string[],
   sections: string[],
-  page: number,
+  page?: number,
   fetchCapiSearchService = fetchCapiSearch
 ) => async (dispatch: AppTypes.Dispatch): Promise<CapiContentWithMatches[]> => {
   dispatch(actions.fetchStart());

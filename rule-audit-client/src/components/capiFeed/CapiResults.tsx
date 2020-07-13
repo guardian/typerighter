@@ -11,32 +11,13 @@ import CapiFeedItem from "./CapiFeedItem";
 type IProps = ReturnType<typeof mapStateToProps>;
 
 const articleNumberFormat = new Intl.NumberFormat("en-GB");
+const checkboxId = "capi-results__show-all-articles";
 
-const filterArticles = (
-  articles: (CapiContentWithMatches | undefined)[],
-  showArticlesWithMatchesOnly: boolean
-) =>
-  showArticlesWithMatchesOnly
-    ? (articles.filter(
-        (_) => (_ !== undefined && !_.meta.matches) || _?.meta.matches.length
-      ) as CapiContentWithMatches[])
-    : (articles.filter((_) => _ !== undefined) as CapiContentWithMatches[]);
-
-const CapiResults = ({ articles, isLoading, pagination }: IProps) => {
-  const [
-    showArticlesWithMatchesOnly,
-    setShowArticlesWithMatchesOnly,
-  ] = useState(false);
-  const checkboxId = "checkbox-show-article-matches";
-  const articleArray = Object.values(articles).filter(notEmpty);
-  const filteredArticles = filterArticles(
-    articleArray,
-    showArticlesWithMatchesOnly
-  );
+const CapiResults = ({ articleIds, isLoading, pagination }: IProps) => {
   const totalArticles = pagination
     ? articleNumberFormat.format(
-        filteredArticles.length < pagination.pageSize
-          ? filteredArticles.length
+        articleIds.length < pagination.pageSize
+          ? articleIds.length
           : pagination.totalPages * pagination.pageSize
       )
     : "?";
@@ -46,24 +27,12 @@ const CapiResults = ({ articles, isLoading, pagination }: IProps) => {
         <h5 className="text-secondary mt-2 mb-0">Loading</h5>
       ) : (
         <h5 className="mt-2 mb-0">
-          {filteredArticles.length} of {totalArticles} articles
+          {articleIds.length} of {totalArticles} articles
         </h5>
       )}
-      <div className="form-check form-check-inline mt-2">
-        <input
-          className="form-check-input"
-          type="checkbox"
-          id={checkboxId}
-          value={showArticlesWithMatchesOnly.toString()}
-          onChange={(_) => setShowArticlesWithMatchesOnly(_.target.checked)}
-        />
-        <label className="form-check-label" htmlFor={checkboxId}>
-          <small>Hide articles that don't have matches</small>
-        </label>
-      </div>
       <div className="list-group mt-2">
-        {filteredArticles.map((article) => (
-          <CapiFeedItem id={article.id} />
+        {articleIds.map((id) => (
+          <CapiFeedItem id={id} />
         ))}
       </div>
     </>
@@ -71,7 +40,7 @@ const CapiResults = ({ articles, isLoading, pagination }: IProps) => {
 };
 
 const mapStateToProps = (state: AppTypes.RootState) => ({
-  articles: capiSelectors.selectLastFetchedArticles(state),
+  articleIds: capiSelectors.selectLastFetchedArticleIds(state),
   isLoading: capiSelectors.selectIsLoading(state),
   pagination: capiSelectors.selectPagination(state),
   selectedArticle: uiSelectors.selectSelectedArticle(state),
