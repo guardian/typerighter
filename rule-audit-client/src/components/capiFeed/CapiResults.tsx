@@ -37,7 +37,7 @@ const CapiResults = ({
   return (
     <>
       <p className={classnames("mt-2 mb-0", { "text-secondary": isLoading })}>
-        <span className="h5">{`Showing ${articleIds.length}  of ${totalArticles} articles`}</span>
+        <span className="h5">{`Showing ${articleIds.length}  of ~${totalArticles} articles`}</span>
         {isLoading && (
           <span
             className="spinner-border spinner-border-sm text-primary float-right"

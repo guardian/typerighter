@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config ./conf/webpack.dev.config.js --open",
+    "start": "webpack --config ./conf/webpack.prod.config.js --watch",
     "build": "webpack --config ./conf/webpack.prod.config.js",
     "test": "jest"
   },

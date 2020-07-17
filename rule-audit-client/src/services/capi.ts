@@ -70,8 +70,8 @@ export const fetchCapiSearch = async (
   page?: number
 ): Promise<CapiContentResponse> => {
   const params = new URLSearchParams();
-  page && params.append("page", page.toString());
   params.append("query", query);
+  page && params.append("page", page.toString());
 
   // Do not include empty tag or section values.
   tags.filter(_ => _).forEach(_ => params.append("tags", _));
