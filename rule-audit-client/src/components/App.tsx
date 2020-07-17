@@ -1,4 +1,3 @@
-import { hot } from "react-hot-loader/root";
 import * as React from "react";
 import { Provider } from "react-redux";
 
@@ -39,4 +38,4 @@ const App = () => (
   </Provider>
 );
 
-export default hot(App);
+export default App;

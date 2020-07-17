@@ -189,9 +189,9 @@ describe("doSearchMatches", () => {
 
     // We call CAPI, and it's returned two articles.
     // We then call Typerighter with those articles, and Typerighter
-    // returns matches for one. We call CAPI again, but the user
-    // cancels the search before the second CAPI request is processed,
-    // so nothing else should go to Typerighter.
+    // returns no matches. Normally we'd continue to call CAPI,
+    // but CAPI's pagination data indicates there are no more pages
+    // to consume, so we stop the loop.
     expect(mockCapiService).toBeCalledTimes(1);
     expect(mockTyperighterService).toBeCalledTimes(2);
 
@@ -231,11 +231,6 @@ describe("doSearchMatches", () => {
 
     const state = store.getState();
 
-    // We call CAPI, and it's returned two articles.
-    // We then call Typerighter with those articles, and Typerighter
-    // returns matches for one. We call CAPI again, but the user
-    // cancels the search before the second CAPI request is processed,
-    // so nothing else should go to Typerighter.
     expect(mockCapiService).toBeCalledTimes(1);
     expect(mockTyperighterService).toBeCalledTimes(3);
 

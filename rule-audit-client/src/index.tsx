@@ -5,11 +5,6 @@ import App from "./components/App";
 
 let rootElem: HTMLElement | null;
 
-if (ENV === 'prod') {
-  rootElem = document.getElementById("rule-audit-app");
-} else {
-  rootElem = document.createElement("div");
-  document.body.append(rootElem);
-}
+rootElem = document.getElementById("rule-audit-app");
 
 ReactDOM.render(<App />, rootElem);
