@@ -9,7 +9,40 @@ import org.languagetool.rules.{Rule => LanguageToolRule}
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 
+import scala.util.matching.Regex
 import scala.collection.JavaConverters._
+
+/**
+  * A rule to match text against.
+  */
+sealed trait BaseRule {
+  val id: String
+  val category: Category
+  val description: String
+  val suggestions: List[Suggestion]
+  val replacement: Option[TextSuggestion]
+}
+
+object BaseRule {
+  implicit val writes: Writes[BaseRule] = {
+    case r: RegexRule => RegexRule.writes.writes(r)
+    case r: LTRule => LTRule.writes.writes(r)
+  }
+}
+
+object RegexRule {
+  implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
+  implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
+}
+
+case class RegexRule(
+    id: String,
+    category: Category,
+    description: String,
+    suggestions: List[TextSuggestion] = List.empty,
+    replacement: Option[TextSuggestion] = None,
+    regex: Regex
+) extends BaseRule
 
 /**
   * The application's representation of a LanguageTool PatternRule.
