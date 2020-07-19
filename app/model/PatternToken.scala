@@ -2,6 +2,7 @@ package model
 
 import org.languagetool.rules.patterns.{PatternToken => LTPatternToken}
 import play.api.libs.json.{Json, Reads, Writes}
+import com.scalatsi.TypescriptType.TSAny
 
 /**
   * The application's representation of a LanguageTool PatternToken.
@@ -32,4 +33,5 @@ object PatternToken {
   implicit val writes: Writes[PatternToken] = Json.writes[PatternToken]
 
   implicit val reads: Reads[PatternToken] = Json.reads[PatternToken]
+  implicit val toTS = TSAny
 }

@@ -1,7 +1,7 @@
 package services
 
 import akka.event.{EventBus, LookupClassification}
-import model.MatcherResponse
+import model.ApiResponse
 
 case class MatcherPoolSubscriber(requestId: String, onEvent: MatcherPoolEvent => Unit)
 
@@ -10,7 +10,7 @@ sealed trait MatcherPoolEvent {
   val payload: Any
 }
 
-case class MatcherPoolResultEvent(override val requestId: String, payload: MatcherResponse) extends MatcherPoolEvent
+case class MatcherPoolResultEvent(override val requestId: String, payload: ApiResponse) extends MatcherPoolEvent
 case class MatcherPoolJobsCompleteEvent(override val requestId: String, payload: Unit = ()) extends MatcherPoolEvent
 
 class MatcherPoolEventBus extends EventBus with LookupClassification {

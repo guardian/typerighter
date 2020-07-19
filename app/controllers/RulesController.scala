@@ -1,6 +1,6 @@
 package controllers
 
-import matchers.{LanguageToolFactory, RegexMatcher}
+import matchers.RegexMatcher
 import model.{Category, RegexRule}
 import play.api.mvc._
 import rules.SheetsRuleResource

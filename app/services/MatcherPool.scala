@@ -7,7 +7,7 @@ import net.logstash.logback.marker.Markers
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import play.api.Logging
-import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
+import model.{BaseRule, Category, ApiRequest, ApiResponse, RuleMatch, TextBlock}
 import utils.Matcher
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
@@ -74,7 +74,7 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
     * Check the text with the matchers assigned to the given category ids.
     * If no ids are assigned, use all the currently available matchers.
     */
-  def check(query: Check): Future[List[RuleMatch]] = {
+  def check(query: ApiRequest): Future[List[RuleMatch]] = {
     val categoryIds = query.categoryIds match {
       case None => getCurrentCategories.map { case (_, category) => category.id }
       case Some(ids) => ids
@@ -197,7 +197,7 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
   private def publishResults(job: MatcherJob, results: List[RuleMatch]): Unit = {
     eventBus.publish(MatcherPoolResultEvent(
       job.requestId,
-      MatcherResponse(
+      ApiResponse(
         job.blocks,
         job.categoryIds,
         results

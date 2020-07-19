@@ -3,12 +3,15 @@ package model
 import org.languagetool.rules.{CategoryId, Category => LTCategory}
 import play.api.libs.json.{Json, Writes, Reads}
 
+import com.scalatsi.TypescriptType._
+import com.scalatsi.TSIType
+import com.scalatsi.TSType
+import com.scalatsi._
+
 case class Category(id: String, name: String, colour: String)
 
 /**
-  * The application's representation of a LanguageTool Category.
-  *
-  * We use tabName as a temporary place to store colour information.
+  * Categories define groups of Rules.
   */
 object Category {
   def fromLT(lt: LTCategory): Category = {
@@ -20,6 +23,7 @@ object Category {
   }
 
   implicit val writes: Writes[Category] = Json.writes[Category]
-
   implicit val reads: Reads[Category] = Json.reads[Category]
+
+  implicit val toTS: TSIType[Category] = TSType.interface("Category", "foo" -> TSAny)
 }

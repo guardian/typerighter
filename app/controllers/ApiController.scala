@@ -1,6 +1,6 @@
 package controllers
 
-import model.{Check, MatcherResponse}
+import model.{ApiRequest, ApiResponse}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services._
@@ -15,12 +15,12 @@ class ApiController(
   matcherPool: MatcherPool
 )(implicit ec: ExecutionContext) extends AbstractController(cc) {
   def check: Action[JsValue] = Action.async(parse.json) { request =>
-    request.body.validate[Check].asEither match {
+    request.body.validate[ApiRequest].asEither match {
       case Right(check) =>
         matcherPool
           .check(check)
           .map { matches =>
-            val response = MatcherResponse(
+            val response = ApiResponse(
               matches = matches,
               blocks = check.blocks,
               categoryIds = check.categoryIds.getOrElse(matcherPool.getCurrentCategories.map { _._1 })

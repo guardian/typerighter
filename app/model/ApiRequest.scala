@@ -4,7 +4,7 @@ import scala.collection.JavaConverters._
 import net.logstash.logback.marker.Markers
 import play.api.libs.json.{Json, Reads}
 
-case class Check(
+case class ApiRequest(
   documentId: Option[String],
   requestId: String,
   categoryIds: Option[List[String]],
@@ -18,7 +18,6 @@ case class Check(
   ).asJava)
 }
 
-
-object Check {
-  implicit val reads: Reads[Check] = Json.reads[Check]
+object ApiRequest {
+  implicit val reads: Reads[ApiRequest] = Json.reads[ApiRequest]
 }

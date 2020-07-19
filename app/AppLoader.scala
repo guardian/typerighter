@@ -10,7 +10,7 @@ class AppLoader extends ApplicationLoader {
     LoggerConfigurator(context.environment.classLoader).foreach {
       _.configure(context.environment, context.initialConfiguration, Map.empty)
     }
-    
+
     val identity = AppIdentity.whoAmI(defaultAppName = "typerighter")
 
     val creds = identity match {
@@ -24,7 +24,7 @@ class AppLoader extends ApplicationLoader {
     }
 
     new AppComponents(
-      context.copy(initialConfiguration = context.initialConfiguration ++ Configuration(loadedConfig)),
+      context.copy(initialConfiguration = context.initialConfiguration.withFallback(Configuration(loadedConfig))),
       identity
     ).application
   }

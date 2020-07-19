@@ -2,7 +2,6 @@ package model
 
 import java.util.{List => JList}
 import java.util.regex.Pattern
-
 import org.languagetool.Languages
 import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternToken => LTPatternToken}
 import org.languagetool.rules.{Rule => LanguageToolRule}
@@ -11,6 +10,10 @@ import play.api.libs.json.Reads._
 
 import scala.util.matching.Regex
 import scala.collection.JavaConverters._
+
+import com.scalatsi.TypescriptType.TSAny
+import com.scalatsi._
+import com.scalatsi.DefaultTSTypes._
 
 /**
   * A rule to match text against.
@@ -28,11 +31,17 @@ object BaseRule {
     case r: RegexRule => RegexRule.writes.writes(r)
     case r: LTRule => LTRule.writes.writes(r)
   }
+
+  implicit val toTS = TSType.fromSealed[BaseRule]
 }
 
 object RegexRule {
   implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
   implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
+
+  implicit val toTS: TSIType[RegexRule] = TSType.interface("ApiResponse", "foo" -> TSAny)
+  // @todo
+  // implicit val toTS: TSIType[RegexRule] = TSType.fromCaseClass[RegexRule]
 }
 
 case class RegexRule(
@@ -120,4 +129,6 @@ object LTRule {
 
   implicit val writes: Writes[LTRule] = Json.writes[LTRule]
   implicit val reads: Reads[LTRule] = Json.reads[LTRule]
+
+  implicit val toTS: TSIType[LTRule] = TSType.interface("ApiResponse", "foo" -> TSAny)
 }

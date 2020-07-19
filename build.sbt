@@ -5,8 +5,21 @@ organization := "com.gu"
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, RiffRaffArtifact, JDebPackaging, SystemdPlugin,
-  GatlingPlugin, BuildInfoPlugin)
+lazy val root = (project in file(".")).enablePlugins(
+  PlayScala,
+  RiffRaffArtifact,
+  JDebPackaging,
+  SystemdPlugin,
+  GatlingPlugin,
+  BuildInfoPlugin
+).settings(
+  // The output file which will contain the typescript interfaces
+  typescriptOutputFile := baseDirectory.value / "packages/typerighter-client/src/types/api.ts",
+  // Include the package(s) of the classes here
+  typescriptClassesToGenerateFor := Seq("ApiRequest", "ApiResponse"),
+  // Optionally import your own TSType implicits to override default default generated
+  typescriptGenerationImports := Seq("model._")
+)
 
 riffRaffArtifactResources := Seq(
   (packageBin in Debian).value -> s"${name.value}/${name.value}.deb",
@@ -42,6 +55,7 @@ buildInfoKeys := {
 
 resolvers += "Spring IO" at "https://repo.spring.io/plugins-release/"
 resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms"
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
 val languageToolVersion = "4.3"
 val awsSdkVersion = "1.11.571"
@@ -67,7 +81,8 @@ libraryDependencies ++= Seq(
   "com.gu" %% "content-api-models-scala" % capiModelsVersion,
   "com.gu" %% "content-api-models-json" % capiModelsVersion,
   "com.gu" %% "content-api-client-aws" % "0.5",
-  "com.gu" %% "content-api-client-default" % capiClientVersion
+  "com.gu" %% "content-api-client-default" % capiClientVersion,
+  "com.beachape" %% "enumeratum" % "1.5.15",
 )
 
 libraryDependencies ++= Seq(
@@ -76,10 +91,11 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser"
 ).map(_ % circeVersion)
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.12.12"
 
 scalacOptions := Seq(
-  "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
+  "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation", "-Xlint",
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
+
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.0.2" % "test,it"
 libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"

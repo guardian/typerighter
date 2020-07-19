@@ -103,7 +103,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private val setId = "set-id"
   private val blockId = "block-id"
 
-  private def getCheck(text: String, categoryIds: Option[List[String]] = None) = Check(
+  private def getCheck(text: String, categoryIds: Option[List[String]] = None) = ApiRequest(
     Some("example-document"),
     setId,
     categoryIds,
@@ -138,7 +138,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   "check" should "reject work that exceeds its buffer size" in {
     val matchers = getMatchers(1)
     // This check should produce a job for each block, filling the queue.
-    val checkWithManyBlocks = Check(
+    val checkWithManyBlocks = ApiRequest(
       Some("example-document"),
       setId,
       None,
@@ -187,8 +187,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     ScalaFutures.whenReady(futureResult) { _ =>
       val categories = matchers.map {_.getCategory}
       events.toSet shouldBe Set(
-        MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(0)), responses)),
-        MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(1)), responses)),
+        MatcherPoolResultEvent(setId, ApiResponse(check.blocks, List(categories(0)), responses)),
+        MatcherPoolResultEvent(setId, ApiResponse(check.blocks, List(categories(1)), responses)),
         MatcherPoolJobsCompleteEvent(setId)
       )
     }

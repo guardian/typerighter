@@ -1,17 +1,24 @@
 package model
 
 import play.api.libs.json.{Json, Reads, Writes}
+import com.scalatsi.TypescriptType._
+import com.scalatsi.TSIType
+import com.scalatsi.TSType
+import com.scalatsi._
+import com.scalatsi.DefaultTSTypes._
+
+sealed trait Suggestion {
+  val `type`: String
+  val text: String
+}
 
 object Suggestion {
   implicit val writes: Writes[Suggestion] = {
     case textSuggestion: TextSuggestion =>
       TextSuggestion.writes.writes(textSuggestion)
   }
-}
 
-sealed trait Suggestion {
-  val `type`: String
-  val text: String
+  implicit val toTS = TSType.fromSealed[Suggestion]
 }
 
 object TextSuggestion {
@@ -21,6 +28,8 @@ object TextSuggestion {
       "type" -> suggestion.`type`
     ) ++ Json.writes[TextSuggestion].writes(suggestion)
   }
+
+  implicit val toTS: TSIType[TextSuggestion] = TSType.fromCaseClass[TextSuggestion]
 }
 
 case class TextSuggestion(text: String) extends Suggestion {

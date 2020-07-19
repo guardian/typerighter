@@ -1,8 +1,6 @@
 logs
 target
 node_modules
-/.idea
-/.idea_modules
 /.classpath
 /.project
 /.settings
@@ -12,3 +10,19 @@ node_modules
 /public/javascript
 /RUNNING_PID
 .DS_Store
+
+# packages
+coverage
+.nyc_output
+dist
+compiled
+.awcache
+.rpt2_cache
+docs
+
+# IDE
+.vscode
+.idea
+.idea_modules
+
+
