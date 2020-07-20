@@ -1,8 +1,4 @@
-export interface ApiResponse {
-  foo: any
-}
-
-export type BaseRule = (ApiResponse | ApiResponse)
+export type BaseRule = (IRegexRule | ILTRule)
 
 export interface IApiRequest {
   documentId?: string
@@ -15,6 +11,40 @@ export interface IApiResponse {
   blocks: ITextBlock[]
   categoryIds: string[]
   matches: IRuleMatch[]
+}
+
+export interface ICategory {
+  id: string
+  name: string
+  colour: string
+}
+
+export interface ILTRule {
+  id: string
+  category: ICategory
+  languageShortcode?: string
+  patternTokens?: IPatternToken[]
+  pattern?: Pattern
+  description: string
+  message: string
+  url?: string
+  suggestions: ITextSuggestion[]
+}
+
+export interface IPatternToken {
+  token: string
+  caseSensitive: boolean
+  regexp: boolean
+  inflected: boolean
+}
+
+export interface IRegexRule {
+  id: string
+  category: ICategory
+  description: string
+  suggestions: ITextSuggestion[]
+  replacement?: ITextSuggestion
+  regex: string
 }
 
 export interface IRuleMatch {
@@ -38,5 +68,7 @@ export interface ITextBlock {
 export interface ITextSuggestion {
   text: string
 }
+
+export type Pattern = string
 
 export type Suggestion = ITextSuggestion

@@ -2,7 +2,10 @@ package model
 
 import org.languagetool.rules.patterns.{PatternToken => LTPatternToken}
 import play.api.libs.json.{Json, Reads, Writes}
+
 import com.scalatsi.TypescriptType.TSAny
+import com.scalatsi._
+import com.scalatsi.DefaultTSTypes._
 
 /**
   * The application's representation of a LanguageTool PatternToken.
@@ -31,7 +34,7 @@ object PatternToken {
       patternToken.inflected)
 
   implicit val writes: Writes[PatternToken] = Json.writes[PatternToken]
-
   implicit val reads: Reads[PatternToken] = Json.reads[PatternToken]
-  implicit val toTS = TSAny
+
+  implicit val tsPatternToken = TSType.fromCaseClass[PatternToken]
 }

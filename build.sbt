@@ -13,11 +13,9 @@ lazy val root = (project in file(".")).enablePlugins(
   GatlingPlugin,
   BuildInfoPlugin
 ).settings(
-  // The output file which will contain the typescript interfaces
+  // Generate interfaces for the Typescript API client library
   typescriptOutputFile := baseDirectory.value / "packages/typerighter-client/src/types/api.ts",
-  // Include the package(s) of the classes here
   typescriptClassesToGenerateFor := Seq("ApiRequest", "ApiResponse"),
-  // Optionally import your own TSType implicits to override default default generated
   typescriptGenerationImports := Seq("model._")
 )
 

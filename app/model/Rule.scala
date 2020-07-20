@@ -11,8 +11,8 @@ import play.api.libs.json.Reads._
 import scala.util.matching.Regex
 import scala.collection.JavaConverters._
 
-import com.scalatsi.TypescriptType.TSAny
 import com.scalatsi._
+import com.scalatsi.TypescriptType._
 import com.scalatsi.DefaultTSTypes._
 
 /**
@@ -32,16 +32,17 @@ object BaseRule {
     case r: LTRule => LTRule.writes.writes(r)
   }
 
-  implicit val toTS = TSType.fromSealed[BaseRule]
+  implicit val tsRegex: TSType[Regex] = TSType.sameAs[Regex, String]
+  implicit val tsPattern: TSType[Pattern] = TSType.alias("Pattern", TSString)
+  implicit val tsBaseRule = TSType.fromSealed[BaseRule]
 }
 
 object RegexRule {
   implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
   implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
 
-  implicit val toTS: TSIType[RegexRule] = TSType.interface("ApiResponse", "foo" -> TSAny)
-  // @todo
-  // implicit val toTS: TSIType[RegexRule] = TSType.fromCaseClass[RegexRule]
+  implicit val tsRegex: TSType[Regex] = TSType.sameAs[Regex, String]
+  implicit val toTS = TSType.fromCaseClass[RegexRule]
 }
 
 case class RegexRule(
@@ -130,5 +131,6 @@ object LTRule {
   implicit val writes: Writes[LTRule] = Json.writes[LTRule]
   implicit val reads: Reads[LTRule] = Json.reads[LTRule]
 
-  implicit val toTS: TSIType[LTRule] = TSType.interface("ApiResponse", "foo" -> TSAny)
+  implicit val tsPattern: TSType[Pattern] = TSType.alias("Pattern", TSString)
+  implicit val tsLTRule: TSType[LTRule] = TSType.fromCaseClass[LTRule]
 }

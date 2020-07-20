@@ -3,6 +3,7 @@ package model
 import org.languagetool.rules.{RuleMatch => LTRuleMatch}
 import play.api.libs.json.{Json}
 
+import com.scalatsi.TypescriptType.TSAny
 import com.scalatsi._
 import com.scalatsi.DefaultTSTypes._
 
@@ -23,7 +24,7 @@ object RuleMatch {
 
   implicit val writes = Json.writes[RuleMatch]
 
-  implicit val toTS = TSType.fromCaseClass[RuleMatch]
+  implicit val toTS: TSType[RuleMatch] = TSType.fromCaseClass[RuleMatch]
 }
 
 case class RuleMatch(rule: BaseRule,

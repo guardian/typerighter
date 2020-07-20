@@ -3,7 +3,7 @@ package model
 import org.languagetool.rules.{CategoryId, Category => LTCategory}
 import play.api.libs.json.{Json, Writes, Reads}
 
-import com.scalatsi.TypescriptType._
+import com.scalatsi.DefaultTSTypes._
 import com.scalatsi.TSIType
 import com.scalatsi.TSType
 import com.scalatsi._
@@ -25,5 +25,5 @@ object Category {
   implicit val writes: Writes[Category] = Json.writes[Category]
   implicit val reads: Reads[Category] = Json.reads[Category]
 
-  implicit val toTS: TSIType[Category] = TSType.interface("Category", "foo" -> TSAny)
+  implicit val toTS: TSIType[Category] = TSType.fromCaseClass[Category]
 }
