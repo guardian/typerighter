@@ -59,11 +59,11 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val publicSettings = new PublicSettings("", "pan-domain-auth-settings", s3Client)
   publicSettings.start()
 
-  val apiController = new ApiController(controllerComponents, matcherPool)
-  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId)
-  val homeController = new HomeController(controllerComponents)
-  val auditController = new AuditController(controllerComponents)
-  val capiProxyController = new CapiProxyController(controllerComponents, contentClient)
+  val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
+  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId, publicSettings)
+  val homeController = new HomeController(controllerComponents, publicSettings)
+  val auditController = new AuditController(controllerComponents, publicSettings)
+  val capiProxyController = new CapiProxyController(controllerComponents, contentClient, publicSettings)
 
   override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(
     "application/json" -> new JsonHttpErrorHandler(environment, None),

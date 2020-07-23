@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext
 /**
  * The controller that handles the management of matcher rules.
  */
-class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleResource: SheetsRuleResource, sheetId: String)(implicit ec: ExecutionContext)
+class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleResource: SheetsRuleResource, sheetId: String, val publicSettings: PublicSettings)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction.async { implicit request: Request[AnyContent] =>
     for {
