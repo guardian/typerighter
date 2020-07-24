@@ -65,6 +65,7 @@ Resources:
       MaxSize: !FindInMap [ StageVariables, !Ref Stage, MaxInstances ]
       TargetGroupARNs:
       - !Ref TargetGroup
+      - !Ref PublicTargetGroup
       HealthCheckType: ELB
       HealthCheckGracePeriod: 300
       Tags:
@@ -199,10 +200,10 @@ Resources:
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets: !Ref PublicSubnets
+      Subnets: !Ref PrivateSubnets
       SecurityGroups:
       - !Ref LoadBalancerSecurityGroup
-      Scheme: internet
+      Scheme: internal
       Tags:
       - Key: Stack
         Value: !Ref Stack
@@ -243,6 +244,54 @@ Resources:
         Value: '20'
     DependsOn:
     - ElasticLoadBalancer
+
+  PublicElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets: !Ref PublicSubnets
+      SecurityGroups:
+      - !Ref LoadBalancerSecurityGroup
+      Scheme: internet-facing
+      Tags:
+      - Key: Stack
+        Value: !Ref Stack
+      - Key: App
+        Value: !Ref App
+      - Key: Stage
+        Value: !Ref Stage
+
+  PublicLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: PublicTargetGroup
+      LoadBalancerArn:
+        Ref: PublicElasticLoadBalancer
+      Certificates:
+      - CertificateArn: !Ref CertificateArn
+      Port: 443
+      Protocol: HTTPS
+
+  PublicTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 9000
+      Protocol: HTTP
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /healthcheck
+      HealthCheckPort: 9000
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref Vpc
+      TargetGroupAttributes:
+      - Key: deregistration_delay.timeout_seconds
+        Value: '20'
+    DependsOn:
+    - PublicElasticLoadBalancer
 
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
