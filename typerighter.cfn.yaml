@@ -136,6 +136,21 @@ Resources:
       Roles:
       - !Ref AppRole
 
+  GetPandaAuthPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: GetPandaAuthPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource:
+          - arn:aws:s3:::pan-domain-auth-settings/*public
+      Roles:
+      - !Ref AppRole
+
   SimpleConfigPolicy:
     Type: AWS::IAM::Policy
     Properties:
