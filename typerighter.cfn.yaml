@@ -3,14 +3,17 @@ Description: Typerighter language and style checking tool
 
 Parameters:
   VpcId:
-    Type: AWS::EC2::VPC::Id
     Description: VpcId of your Virtual Private Cloud (VPC)
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /account/vpc/default/id
   PublicSubnets:
-    Type: List<AWS::EC2::Subnet::Id>
     Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
+    Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
+    Default: /account/vpc/default/public.subnets
   PrivateSubnets:
-    Type: List<AWS::EC2::Subnet::Id>
     Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
+    Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
+    Default: /account/vpc/default/private.subnets
   Stack:
     Description: Should never change
     Type: String
@@ -38,7 +41,7 @@ Parameters:
   KinesisLoggingStream:
     Description: Name of the ELK logging stream in this account
     Type: AWS::SSM::Parameter::Value<String>
-    Default: /accountServices/elkLoggingStreamArn
+    Default: /account/services/logging.stream
 Mappings:
   StageVariables:
     CODE:
