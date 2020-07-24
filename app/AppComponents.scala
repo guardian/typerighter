@@ -6,7 +6,7 @@ import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, 
 import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PublicSettings
-import com.gu.{AppIdentity, AwsIdentity}
+import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{ApiController, CapiProxyController, HomeController, RulesController, AuditController}
 import matchers.{RegexMatcher}
 import play.api.ApplicationLoader.Context
@@ -31,15 +31,10 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
-  private val awsCredentialsProvider = new AWSCredentialsProviderChain(
-    InstanceProfileCredentialsProvider.getInstance(),
-    new ProfileCredentialsProvider(configuration.get[String]("typerighter.defaultAwsProfile"))
-  )
-
   // initialise log shipping if we are in AWS
   private val logShipping = Some(identity).collect{ case awsIdentity: AwsIdentity =>
     val loggingStreamName = configuration.getOptional[String]("typerighter.loggingStreamName")
-    new ElkLogging(awsIdentity, loggingStreamName, awsCredentialsProvider, applicationLifecycle)
+    new ElkLogging(awsIdentity, loggingStreamName, creds, applicationLifecycle)
   }
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
@@ -56,7 +51,12 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val contentClient = new ContentClient(guardianContentClient)
 
   private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(AppIdentity.region).build()
-  val publicSettings = new PublicSettings("", "pan-domain-auth-settings", s3Client)
+  val settingsFile = identity match {
+    case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
+    case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
+    case development: DevIdentity => "local.dev-gutools.co.uk.settings.public"
+  }
+  val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", s3Client)
   publicSettings.start()
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
