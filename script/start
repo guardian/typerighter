@@ -1,5 +1,16 @@
 #!/bin/bash -e
 
+
+STATUS=$(aws sts get-caller-identity --profile composer 2>&1 || true)
+if [[ ${STATUS} =~ (ExpiredToken) ]]; then
+  echo -e "${red}Credentials for the composer profile are expired. Please fetch new credentials and run this again.${plain}"
+  exit 1
+elif [[ ${STATUS} =~ ("could not be found") ]]; then
+  echo -e "${red}Credentials for the composer profile are missing. Please ensure you have the right credentials.${plain}"
+  exit 1
+fi
+
+
 IS_DEBUG=false
 for arg in "$@"
 do
