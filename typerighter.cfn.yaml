@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Typerighter language and style checking tool
 
 Parameters:
-  VpcId:
+  Vpc:
     Description: VpcId of your Virtual Private Cloud (VPC)
     Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
     Default: /account/vpc/default/id
@@ -237,7 +237,7 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
+      VpcId: !Ref Vpc
       TargetGroupAttributes:
       - Key: deregistration_delay.timeout_seconds
         Value: '20'
@@ -248,7 +248,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Permit incoming HTTPS access on port 443, egress to port 9000
-      VpcId: !Ref VpcId
+      VpcId: !Ref Vpc
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 443
@@ -264,7 +264,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open up SSH access and enable HTTP access on the configured port
-      VpcId: !Ref VpcId
+      VpcId: !Ref Vpc
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
