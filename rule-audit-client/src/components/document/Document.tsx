@@ -26,7 +26,7 @@ const Document = ({ article }: IProps) => (
 const mapStateToProps = (state: AppTypes.RootState) => ({
   article: capiSelectors.selectById(
     state,
-    uiSelectors.selectSelectedArticle(state)
+    uiSelectors.selectSelectedArticle(state) || ""
   )
 });
 

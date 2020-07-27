@@ -8,14 +8,16 @@ import {
   Filter,
   SelectAsyncFilter,
 } from "@guardian/threads";
-import { debounce } from 'lodash';
+import { debounce } from "lodash";
 
 import AppTypes from "AppTypes";
-import { actions, selectors, thunks } from "redux/modules/capiContent";
+import { selectors, thunks, actions } from "redux/modules/searchMatches";
+import { selectors as capiSelectors, thunks as capiThunks } from "redux/modules/capiContent";
 import {
-  fetchCapiTags,
-  fetchCapiSections,
-} from "services/capi";
+  selectors as uiSelectors,
+  actions as uiActions,
+} from "redux/modules/ui";
+import { fetchCapiTags, fetchCapiSections } from "services/capi";
 
 type IProps = ReturnType<typeof mapDispatchToProps> &
   ReturnType<typeof mapStateToProps>;
@@ -52,61 +54,129 @@ const filters: (Filter | SelectAsyncFilter)[] = [
 const getSearchEntitiesFromQueryElements = (elements: QueryElement[]) => ({
   query: elements
     .filter((element) => element.type === "text")
-    .map(_ => _.value)
+    .map((_) => _.value)
     .join(""),
   tags: elements
     .filter((element) => element.type === "filter" && element.name === "Tag")
-    .map(_ => _.value),
+    .map((_) => _.value),
   sections: elements
     .filter(
       (element) => element.type === "filter" && element.name === "Section"
     )
-    .map(_ => _.value)
+    .map((_) => _.value),
 });
 
-const CapiSearchOptions = ({ fetchSearch, fetchMatches }: IProps) => {
+const CapiSearchOptions = ({
+  fetchSearch,
+  fetchMatches,
+  isLoading,
+  searchMode,
+  setSearchMode,
+  searchMatchesLimit,
+  setSearchMatchesLimit,
+  searchMatches,
+}: IProps) => {
   const [queryElements, setQueryElements] = useState<QueryElement[]>([]);
 
   useEffect(() => {
+    if (searchMode !== "ARTICLES") {
+      return;
+    }
     const { query, tags, sections } = getSearchEntitiesFromQueryElements(
       queryElements
     );
-    fetchSearch(query, tags, sections);
+    fetchSearch(query, tags, sections, 1);
   }, [queryElements]);
+
+  const searchMatchesWithCurrentQuery = () => {
+    const { query, tags, sections } = getSearchEntitiesFromQueryElements(
+      queryElements
+    );
+    searchMatches(query, tags, sections);
+  };
 
   return (
     <div>
+      <ul className="nav nav-tabs mb-2">
+        <li className="nav-item">
+          <a
+            className={`nav-link ${searchMode === "ARTICLES" && "active"}`}
+            href="#"
+            onClick={() => setSearchMode("ARTICLES")}
+          >
+            Search articles
+          </a>
+        </li>
+        <li className="nav-item">
+          <a
+            className={`nav-link ${searchMode === "MATCHES" && "active"}`}
+            href="#"
+            onClick={() => setSearchMode("MATCHES")}
+          >
+            Search matches
+          </a>
+        </li>
+      </ul>
       <InputSupper
         elements={queryElements}
         availableFilters={filters}
         onChange={setQueryElements}
       />
+      {searchMode === "MATCHES" && (
+        <div className="input-group mt-2">
+          <div className="input-group-prepend">
+            <button
+              className="btn btn-primary"
+              onClick={searchMatchesWithCurrentQuery}
+              disabled={isLoading}
+            >
+              Search for matches, limit
+            </button>
+          </div>
+          <input
+            className="form-control"
+            type="number"
+            step="1"
+            min="1"
+            max="100"
+            value={searchMatchesLimit}
+            onChange={(e) => setSearchMatchesLimit(parseInt(e.target.value))}
+          />
+        </div>
+      )}
       <button
-        className="btn btn-primary mt-2 w-100"
+        className="btn btn-secondary mt-2 w-100"
         onClick={() => fetchMatches()}
       >
-        Find matches for this search
+        Refresh matches
       </button>
     </div>
   );
 };
 
 const mapStateToProps = (state: AppTypes.RootState) => ({
-  content: selectors.selectAll(state),
+  searchMatchesLimit: selectors.selectSearchMatchesLimit(state),
+  searchMode: uiSelectors.selectSearchMode(state),
+  isLoading:
+    capiSelectors.selectIsLoading(state) ||
+    selectors.selectIsSearchMatchesInProgress(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
-  const { fetchSearch, fetchMatches} = bindActionCreators(
+  const boundActions = bindActionCreators(
     {
-      fetchSearch: thunks.fetchSearch,
-      fetchMatches: thunks.fetchMatches,
+      fetchSearch: capiThunks.doFetchCapi,
+      fetchMatches: capiThunks.doFetchMatchesForLastSearch,
+      searchMatches: thunks.doSearchMatches,
+      setSearchMatchesLimit: actions.doSetSearchMatchesLimit,
+      setSearchMode: uiActions.doSetSearchMode,
     },
     dispatch
   );
   return {
-    fetchSearch: debounce(fetchSearch, 500),
-    fetchMatches
-  }
-}
+    ...boundActions,
+    fetchSearch: debounce(boundActions.fetchSearch, 500),
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(CapiSearchOptions);

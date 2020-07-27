@@ -1,5 +1,8 @@
 import { urls } from "../constants";
-import { IMatch, IBlock } from "@guardian/prosemirror-typerighter/dist/src/ts/interfaces/IMatch";
+import {
+  IMatch,
+  IBlock,
+} from "@guardian/prosemirror-typerighter/dist/src/ts/interfaces/IMatch";
 
 export type CapiResponse<TContent> = {
   status: "ok" | "error";
@@ -63,10 +66,12 @@ export type CapiTag = {
 export const fetchCapiSearch = async (
   query: string,
   tags: string[],
-  sections: string[]
+  sections: string[],
+  page?: number
 ): Promise<CapiContentResponse> => {
   const params = new URLSearchParams();
   params.append("query", query);
+  page && params.append("page", page.toString());
 
   // Do not include empty tag or section values.
   tags.filter(_ => _).forEach(_ => params.append("tags", _));

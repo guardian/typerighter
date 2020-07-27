@@ -1,10 +1,11 @@
-import { hot } from "react-hot-loader/root";
 import * as React from "react";
 import { Provider } from "react-redux";
 
-import store from "redux/store";
+import { createStore } from "redux/store";
 import CapiFeed from "./capiFeed/CapiFeed";
 import Document from "./document/Document";
+
+const store = createStore();
 
 const App = () => (
   <Provider store={store}>
@@ -37,4 +38,4 @@ const App = () => (
   </Provider>
 );
 
-export default hot(App);
+export default App;

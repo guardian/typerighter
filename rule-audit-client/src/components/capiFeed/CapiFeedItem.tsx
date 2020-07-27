@@ -18,7 +18,6 @@ type IProps = ReturnType<typeof mapStateToProps> &
 
 const CapiFeedItem = ({
   doSelectArticle,
-  selectedArticle,
   article,
   isLoading,
 }: IProps) => {
