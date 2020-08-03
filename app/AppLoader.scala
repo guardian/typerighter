@@ -1,5 +1,5 @@
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain}
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain}
 import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import play.api.ApplicationLoader.Context
@@ -13,7 +13,7 @@ class AppLoader extends ApplicationLoader {
     
     val identity = AppIdentity.whoAmI(defaultAppName = "typerighter")
 
-    val creds = identity match {
+    val creds: AWSCredentialsProvider = identity match {
       case _: DevIdentity => new ProfileCredentialsProvider("composer")
       case _ => DefaultAWSCredentialsProviderChain.getInstance
     }
@@ -25,7 +25,8 @@ class AppLoader extends ApplicationLoader {
 
     new AppComponents(
       context.copy(initialConfiguration = context.initialConfiguration ++ Configuration(loadedConfig)),
-      identity
+      identity,
+      creds
     ).application
   }
 }

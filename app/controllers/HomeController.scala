@@ -1,14 +1,16 @@
 package controllers
 
 import play.api.mvc._
+import com.gu.pandomainauth.PublicSettings
+import services.PandaAuthentication
 
-import scala.concurrent.{ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 /**
  * The controller for the index pages.
  */
-class HomeController(cc: ControllerComponents)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
-  def index() = Action { implicit request: Request[AnyContent] =>
+class HomeController(cc: ControllerComponents, val publicSettings: PublicSettings)(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
+  def index() = ApiAuthAction { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
   }
 

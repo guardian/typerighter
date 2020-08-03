@@ -2,9 +2,11 @@ import java.io.File
 
 import scala.concurrent.Future
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
 import com.gu.contentapi.client.GuardianContentClient
-import com.gu.{AppIdentity, AwsIdentity}
+import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.gu.pandomainauth.PublicSettings
+import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{ApiController, CapiProxyController, HomeController, RulesController, AuditController}
 import matchers.{RegexMatcher}
 import play.api.ApplicationLoader.Context
@@ -19,7 +21,7 @@ import rules.SheetsRuleResource
 import services._
 import utils.Loggable
 
-class AppComponents(context: Context, identity: AppIdentity)
+class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with CORSComponents
@@ -29,15 +31,10 @@ class AppComponents(context: Context, identity: AppIdentity)
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
-  private val awsCredentialsProvider = new AWSCredentialsProviderChain(
-    InstanceProfileCredentialsProvider.getInstance(),
-    new ProfileCredentialsProvider(configuration.get[String]("typerighter.defaultAwsProfile"))
-  )
-
   // initialise log shipping if we are in AWS
   private val logShipping = Some(identity).collect{ case awsIdentity: AwsIdentity =>
     val loggingStreamName = configuration.getOptional[String]("typerighter.loggingStreamName")
-    new ElkLogging(awsIdentity, loggingStreamName, awsCredentialsProvider, applicationLifecycle)
+    new ElkLogging(awsIdentity, loggingStreamName, creds, applicationLifecycle)
   }
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
@@ -53,11 +50,20 @@ class AppComponents(context: Context, identity: AppIdentity)
   val guardianContentClient = GuardianContentClient(capiApiKey)
   val contentClient = new ContentClient(guardianContentClient)
 
-  val apiController = new ApiController(controllerComponents, matcherPool)
-  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId)
-  val homeController = new HomeController(controllerComponents)
-  val auditController = new AuditController(controllerComponents)
-  val capiProxyController = new CapiProxyController(controllerComponents, contentClient)
+  private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(AppIdentity.region).build()
+  val settingsFile = identity match {
+    case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
+    case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
+    case development: DevIdentity => "local.dev-gutools.co.uk.settings.public"
+  }
+  val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", s3Client)
+  publicSettings.start()
+
+  val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
+  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId, publicSettings)
+  val homeController = new HomeController(controllerComponents, publicSettings)
+  val auditController = new AuditController(controllerComponents, publicSettings)
+  val capiProxyController = new CapiProxyController(controllerComponents, contentClient, publicSettings)
 
   override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(
     "application/json" -> new JsonHttpErrorHandler(environment, None),

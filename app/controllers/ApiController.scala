@@ -1,9 +1,10 @@
 package controllers
 
+import com.gu.pandomainauth.PublicSettings
 import model.{Check, MatcherResponse}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import services._
+import services.{PandaAuthentication, MatcherPool}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -12,9 +13,11 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class ApiController(
   cc: ControllerComponents,
-  matcherPool: MatcherPool
-)(implicit ec: ExecutionContext) extends AbstractController(cc) {
-  def check: Action[JsValue] = Action.async(parse.json) { request =>
+  matcherPool: MatcherPool,
+  val publicSettings: PublicSettings
+)(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
+
+  def check: Action[JsValue] = ApiAuthAction.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
         matcherPool
@@ -35,7 +38,7 @@ class ApiController(
     }
   }
 
-  def getCurrentCategories: Action[AnyContent] = Action {
+  def getCurrentCategories: Action[AnyContent] = ApiAuthAction {
       Ok(Json.toJson(matcherPool.getCurrentCategories.map(_._2)))
   }
 }

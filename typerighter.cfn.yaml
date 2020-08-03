@@ -2,12 +2,18 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Typerighter language and style checking tool
 
 Parameters:
-  VpcId:
-    Type: AWS::EC2::VPC::Id
+  Vpc:
     Description: VpcId of your Virtual Private Cloud (VPC)
-  Subnets:
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: /account/vpc/default/id
+  PublicSubnets:
     Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
+    Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
+    Default: /account/vpc/default/public.subnets
+  PrivateSubnets:
+    Description: The list of SubnetIds in your Virtual Private Cloud (VPC)
+    Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
+    Default: /account/vpc/default/private.subnets
   Stack:
     Description: Should never change
     Type: String
@@ -35,7 +41,7 @@ Parameters:
   KinesisLoggingStream:
     Description: Name of the ELK logging stream in this account
     Type: AWS::SSM::Parameter::Value<String>
-    Default: /accountServices/elkLoggingStreamArn
+    Default: /account/services/logging.stream
 Mappings:
   StageVariables:
     CODE:
@@ -53,12 +59,13 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       AvailabilityZones: !GetAZs
-      VPCZoneIdentifier: !Ref Subnets
+      VPCZoneIdentifier: !Ref PrivateSubnets
       LaunchConfigurationName: !Ref LaunchConfig
       MinSize: !FindInMap [ StageVariables, !Ref Stage, MinInstances ]
       MaxSize: !FindInMap [ StageVariables, !Ref Stage, MaxInstances ]
       TargetGroupARNs:
       - !Ref TargetGroup
+      - !Ref PublicTargetGroup
       HealthCheckType: ELB
       HealthCheckGracePeriod: 300
       Tags:
@@ -133,6 +140,21 @@ Resources:
       Roles:
       - !Ref AppRole
 
+  GetPandaAuthPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: GetPandaAuthPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource:
+          - arn:aws:s3:::pan-domain-auth-settings/*public
+      Roles:
+      - !Ref AppRole
+
   SimpleConfigPolicy:
     Type: AWS::IAM::Policy
     Properties:
@@ -178,7 +200,7 @@ Resources:
   ElasticLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets: !Ref Subnets
+      Subnets: !Ref PrivateSubnets
       SecurityGroups:
       - !Ref LoadBalancerSecurityGroup
       Scheme: internal
@@ -216,18 +238,66 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 2
-      VpcId: !Ref VpcId
+      VpcId: !Ref Vpc
       TargetGroupAttributes:
       - Key: deregistration_delay.timeout_seconds
         Value: '20'
     DependsOn:
     - ElasticLoadBalancer
 
+  PublicElasticLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets: !Ref PublicSubnets
+      SecurityGroups:
+      - !Ref LoadBalancerSecurityGroup
+      Scheme: internet-facing
+      Tags:
+      - Key: Stack
+        Value: !Ref Stack
+      - Key: App
+        Value: !Ref App
+      - Key: Stage
+        Value: !Ref Stage
+
+  PublicLoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: PublicTargetGroup
+      LoadBalancerArn:
+        Ref: PublicElasticLoadBalancer
+      Certificates:
+      - CertificateArn: !Ref CertificateArn
+      Port: 443
+      Protocol: HTTPS
+
+  PublicTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 9000
+      Protocol: HTTP
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /healthcheck
+      HealthCheckPort: 9000
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref Vpc
+      TargetGroupAttributes:
+      - Key: deregistration_delay.timeout_seconds
+        Value: '20'
+    DependsOn:
+    - PublicElasticLoadBalancer
+
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Permit incoming HTTPS access on port 443, egress to port 9000
-      VpcId: !Ref VpcId
+      VpcId: !Ref Vpc
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 443
@@ -243,7 +313,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open up SSH access and enable HTTP access on the configured port
-      VpcId: !Ref VpcId
+      VpcId: !Ref Vpc
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22

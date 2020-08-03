@@ -1,12 +1,13 @@
 package controllers
 
 import play.api.mvc._
-
+import com.gu.pandomainauth.PublicSettings
+import services.PandaAuthentication
 import scala.concurrent.ExecutionContext
 
 /**
  * The controller that handles the management of matcher rules.
  */
-class AuditController(cc: ControllerComponents)(implicit ec: ExecutionContext)  extends AbstractController(cc) {
-  def index = Action { implicit request => Ok(views.html.audit()) }
+class AuditController(cc: ControllerComponents, val publicSettings: PublicSettings)(implicit ec: ExecutionContext)  extends AbstractController(cc) with PandaAuthentication {
+  def index = ApiAuthAction { implicit request => Ok(views.html.audit()) }
 }
