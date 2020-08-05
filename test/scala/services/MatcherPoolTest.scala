@@ -115,6 +115,20 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0))))
   }
 
+  "removeMatcherByCategory" should "remove a matcher by its category id" in {
+    val matchers = getMatchers(2)
+    val pool = getPool(matchers)
+    pool.removeMatcherByCategory(matchers(1).getCategory())
+    pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0))))
+  }
+
+  "removeMatcherByCategory" should "remove all matchers" in {
+    val matchers = getMatchers(2)
+    val pool = getPool(matchers)
+    pool.removeAllMatchers
+    pool.getCurrentCategories should be(List.empty)
+  }
+
   "check" should "return a list of MatcherResponses" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)

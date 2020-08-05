@@ -80,7 +80,6 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
       case Some(ids) => ids
     }
 
-
     logger.info(s"Matcher pool query received")(query.toMarker)
 
     val jobs = createJobsFromPartialJobs(query.requestId, query.documentId.getOrElse("no-document-id"),  checkStrategy(query.blocks, categoryIds))
@@ -110,6 +109,18 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
   def addMatcher(category: Category, matcher: Matcher): Option[(Category, Matcher)] = {
     logger.info(s"New instance of matcher available of id: ${matcher.getId} for category: ${category.id}")
     matchers.put(category.id, (category, matcher))
+  }
+
+  /**
+    * Remove a matcher from the pool by its category id.
+    * Returns the removed category and matcher.
+    */
+  def removeMatcherByCategory(categoryId: String): Option[(Category, Matcher)] = {
+    matchers.remove(categoryId)
+  }
+
+  def removeAllMatchers(): Unit = {
+    matchers.map(_._1).foreach(removeMatcherByCategory)
   }
 
   def getCurrentCategories: List[(String, Category)] = {

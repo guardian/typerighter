@@ -15,6 +15,10 @@ import scala.concurrent.ExecutionContext
 class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleResource: SheetsRuleResource, sheetId: String, val publicSettings: PublicSettings)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction.async { implicit request: Request[AnyContent] =>
+
+    // This reset will need to be revisited when we're ingesting from multiple matchers.
+    matcherPool.removeAllMatchers()
+
     for {
       (rulesByCategory, ruleErrors) <- ruleResource.fetchRulesByCategory()
       errorsByCategory = addMatcherToPool(rulesByCategory)
