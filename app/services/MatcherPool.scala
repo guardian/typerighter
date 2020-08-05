@@ -76,7 +76,7 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
     */
   def check(query: Check): Future[List[RuleMatch]] = {
     val categoryIds = query.categoryIds match {
-      case None => getCurrentCategories.map { case (_, category) => category.id }
+      case None => getCurrentCategories.map { case (_, category, _) => category.id }
       case Some(ids) => ids
     }
 
@@ -123,9 +123,9 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
     matchers.map(_._1).foreach(removeMatcherByCategory)
   }
 
-  def getCurrentCategories: List[(String, Category)] = {
+  def getCurrentCategories: List[(String, Category, Int)] = {
     val matchersAndCategories = matchers.values.map {
-      case (category, matcher) => (matcher.getId, category)
+      case (category, matcher) => (matcher.getId, category, matcher.getRules.length)
     }.toList
     matchersAndCategories
   }
