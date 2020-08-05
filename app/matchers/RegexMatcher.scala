@@ -23,17 +23,7 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
 
   private def checkRule(request: MatcherRequest, rule: RegexRule): List[RuleMatch] = {
     request.blocks.flatMap { block =>
-        rule.regex.findAllMatchIn(block.text).map { currentMatch => RuleMatch(
-          rule = rule,
-          fromPos = currentMatch.start + block.from,
-          toPos = currentMatch.end + block.from,
-          matchedText = block.text.substring(currentMatch.start, currentMatch.end),
-          message = rule.description,
-          shortMessage = Some(rule.description),
-          suggestions = rule.suggestions,
-          markAsCorrect = rule.replacement.map(_.text).getOrElse("") == block.text.substring(currentMatch.start, currentMatch.end)
-        )
-      }
+        rule.regex.findAllMatchIn(block.text).map { currentMatch => RuleMatch.fromMatch(currentMatch.start, currentMatch.end, block, rule) }
     }
   }
 }
