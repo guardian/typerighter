@@ -1,8 +1,9 @@
 @import model.BaseRule
+@import model.RegexRule
 @import model.Category
 @import helper._
 
-@(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category)], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
+@(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category, Int)], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
         @CSRF.formField
@@ -26,23 +27,23 @@
                 <thead>
                     <tr>
                         <th scope="col">Id</th>
-                        <th scope="col">Colour</th>
                         <th scope="col">Name</th>
                         <th scope="col">Handler</th>
+                        <th scope="col">Rule count</th>
                     </tr>
                 </thead>
                 <tbody>
-                @for((handler, category) <- categories) {
+                @for((handler, category, ruleCount) <- categories) {
                     <tr>
-                        <td>@category.name</td>
                         <td>
-                            <span class="badge" style="background-color: #@category.colour;
-                                color: white">
-                                #@category.colour
-                            </span>
+                          <span class="badge" style="background-color: #@category.colour; color: white">
+                              &nbsp;
+                          </span>
+                          @category.id
                         </td>
                         <td>@category.name</td>
                         <td>@handler</td>
+                        <td>@ruleCount</td>
                     </tr>
                 }
                 </tbody>
@@ -54,22 +55,29 @@
                 <thead>
                     <tr>
                         <th scope="col">Category</th>
-                        <th scope="col">Colour</th>
+                        <th scope="col">Match</th>
+                        <th scope="col">Replacement</th>
                         <th scope="col">Description</th>
                     </tr>
                 </thead>
                 <tbody>
                 @for(rule <- rules) {
                     <tr>
-                        <td>@rule.category.name</td>
                         <td>
-                            <span class="badge" style="background-color: #@rule.category.colour; color: white">
-                                #@rule.category.colour
-                            </span>
+                          @rule.category.name
                         </td>
+                        <td>@rule match {
+                          case r: RegexRule => {
+                            @r.regex.toString.slice(0, 30)
+                          }
+                          case _ => { None }
+                        }</td>
+                        <td>@if(rule.replacement.nonEmpty) {
+                            @rule.replacement.get.text
+                        } else { None }</td>
                         <td>@if(rule.description.nonEmpty) {
                             @rule.description
-                        } else { No&nbsp;description }</td>
+                        } else { None }</td>
                     </tr>
                 }
                 </tbody>
