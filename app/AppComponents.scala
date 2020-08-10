@@ -8,7 +8,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PublicSettings
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{ApiController, CapiProxyController, HomeController, RulesController, AuditController}
-import matchers.{RegexMatcher}
+import matchers.{RegexMatcher, LanguageToolFactory}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
@@ -38,6 +38,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   }
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
+  val languageToolFactory = new LanguageToolFactory(ngramPath)
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
   val matcherPool = new MatcherPool()(matcherPoolDispatcher, materializer)
 
@@ -86,6 +87,10 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     * Set up matchers and add them to the matcher pool as the app starts.
     */
   def initialiseMatchers: Future[Unit] = {
+    // LanguageTool
+    languageToolFactory.createInstance("Example", List.empty)
+
+    // Regex matcher
     for {
       (rulesByCategory, _) <- ruleResource.fetchRulesByCategory()
     } yield {

@@ -30,7 +30,10 @@ class LanguageToolFactory(
     }
 
     // Disable all default rules by ... default
-    instance.getCategories().asScala.foreach((categoryData) => instance.disableCategory(categoryData._1))
+    instance.getAllRules().asScala.foreach((rule) => {
+      logger.info(s"LanguageTool: Disabling ${rule.getCategory().getId()}: ${rule.toString}")
+      instance.disableRule(rule.getId())
+    })
 
     // Add the rules provided in the config
 
