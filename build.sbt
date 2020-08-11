@@ -69,7 +69,8 @@ libraryDependencies ++= Seq(
   "com.gu" %% "content-api-models-json" % capiModelsVersion,
   "com.gu" %% "content-api-client-aws" % "0.5",
   "com.gu" %% "content-api-client-default" % capiClientVersion,
-  "com.gu" %% "pan-domain-auth-verification" % "0.9.1"
+  "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
+  "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test
 )
 
 libraryDependencies ++= Seq(
