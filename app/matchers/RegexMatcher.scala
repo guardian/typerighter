@@ -14,7 +14,11 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
   def getId() = "regex-validator"
 
   override def check(request: MatcherRequest): Future[List[RuleMatch]] = {
-    Future.successful(rules.flatMap { checkRule(request, _) })
+    val matches = rules.foldLeft(List.empty[RuleMatch])((acc, rule) => {
+      val matches = checkRule(request, rule)
+      removeOverlappingRules(acc, matches) ++ matches
+    })
+    Future.successful(matches)
   }
 
   override def getRules(): List[RegexRule] = rules
@@ -26,4 +30,12 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
         rule.regex.findAllMatchIn(block.text).map { currentMatch => RuleMatch.fromMatch(currentMatch.start, currentMatch.end, block, rule) }
     }
   }
+
+  private def removeOverlappingRules(currentMatches: List[RuleMatch], incomingMatches: List[RuleMatch]): List[RuleMatch] =
+    currentMatches.filter { currentMatch =>
+      incomingMatches.forall { incomingMatch =>
+        currentMatch.fromPos < incomingMatch.fromPos && currentMatch.toPos < incomingMatch.fromPos ||
+        currentMatch.fromPos > incomingMatch.toPos
+      }
+    }
 }
