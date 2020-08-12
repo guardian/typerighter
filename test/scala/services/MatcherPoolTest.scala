@@ -6,6 +6,7 @@ import model._
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.SpanSugar._
+import com.softwaremill.diffx.scalatest.DiffMatcher._
 import utils.Matcher
 
 import scala.collection.mutable.ListBuffer
@@ -178,12 +179,25 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-  "check" should "handle requests for categories that do not exist" in {
+  "check" should "correctly check multiple categories for a single job" in {
+    val matchers = getMatchers(2)
+    val pool = getPool(matchers)
+    val futureResult = pool.check(getCheck(text = "Example text"))
+    val firstMatch = getResponses(List((0, 5, "test-response")))
+    val secondMatch = getResponses(List((6, 10, "test-response")))
+    matchers(0).markAsComplete(firstMatch)
+    matchers(1).markAsComplete(secondMatch)
+    futureResult.map { result =>
+      result should matchTo(secondMatch ++ firstMatch)
+    }
+  }
+
+   "check" should "handle requests for categories that do not exist" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
     ScalaFutures.whenReady(futureResult.failed) { e =>
-      e.getMessage should include("unknown category")
+      e.getMessage should include("category-id-does-not-exist")
     }
   }
 
