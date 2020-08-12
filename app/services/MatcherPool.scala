@@ -12,6 +12,7 @@ import utils.Matcher
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
+import scala.util.Failure
 
 case class MatcherRequest(blocks: List[TextBlock], categoryId: String)
 
@@ -39,7 +40,6 @@ object MatcherPool extends Logging {
   type CategoryIds = List[String]
   type CheckStrategy = (List[TextBlock], CategoryIds) => List[PartialMatcherJob]
 
-
   /**
     * This strategy divides the document into single blocks, and evaluates each block
     * against all of the passed categories.
@@ -57,7 +57,7 @@ object MatcherPool extends Logging {
   }
 }
 
-class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
+class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
 
   private val matchers = new ConcurrentHashMap[String, (Category, Matcher)]().asScala
@@ -153,9 +153,9 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
         failJobWith(job, s"Job failed, reason: ${err.getMessage}")
     }
 
-    job.promise.future.andThen {
+    job.promise.future.map {
       case result => {
-        logger.info(s"Job is complete")(job.toMarker)
+        logger.info("Job is complete")(job.toMarker)
         result
       }
     }
@@ -167,23 +167,26 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
   }
 
   private def runValidationJob(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
-    val jobResults = job.categoryIds.map { categoryId =>
-      matchers.get(categoryId) match {
-        case Some((_, matcher)) =>
-          val eventuallyMatches = matcher.check(MatcherRequest(job.blocks, categoryId))
-          job.promise.completeWith(eventuallyMatches)
-          eventuallyMatches
-        case None =>
-          val message = s"Could not run job with -- unknown category for id: $categoryId"
-          logger.error(message)(job.toMarker)
-          val error = new IllegalStateException(message)
-          job.promise.failure(error)
-          Future.failed(error)
-      }
+    val matchersAndCategoryIds = job.categoryIds
+      .map(categoryId => matchers.get(categoryId))
+      .zip(job.categoryIds)
+
+    val eventuallyJobResults = matchersAndCategoryIds.map {
+      case (Some((category, matcher)), _) =>
+        matcher.check(MatcherRequest(job.blocks, category.id))
+      case (None, categoryId) =>
+        val message = s"Could not run job with -- no matcher for category for id: $categoryId"
+        logger.error(message)(job.toMarker)
+        val error = new IllegalStateException(message)
+        Future.failed(error)
     }
 
-    Future.sequence(jobResults).map { results =>
-      (job, results.flatten)
+    Future.sequence(eventuallyJobResults).map { results =>
+      val flattenedResults = results.flatten
+      job.promise.completeWith(Future.successful(flattenedResults))
+      (job, flattenedResults)
+    }.andThen {
+      case Failure(exception) => job.promise.failure(exception)
     }
   }
 
