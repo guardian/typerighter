@@ -2,7 +2,8 @@ package matchers
 
 import model.{RegexRule, RuleMatch}
 import services.MatcherRequest
-import utils.Matcher
+import utils.{Matcher, RuleMatchHelpers}
+
 
 import scala.concurrent.Future
 
@@ -16,7 +17,7 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
   override def check(request: MatcherRequest): Future[List[RuleMatch]] = {
     val matches = rules.foldLeft(List.empty[RuleMatch])((acc, rule) => {
       val matches = checkRule(request, rule)
-      removeOverlappingRules(acc, matches) ++ matches
+      RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
     })
     Future.successful(matches)
   }
@@ -31,11 +32,5 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
     }
   }
 
-  private def removeOverlappingRules(currentMatches: List[RuleMatch], incomingMatches: List[RuleMatch]): List[RuleMatch] =
-    currentMatches.filter { currentMatch =>
-      incomingMatches.forall { incomingMatch =>
-        currentMatch.fromPos < incomingMatch.fromPos && currentMatch.toPos < incomingMatch.fromPos ||
-        currentMatch.fromPos > incomingMatch.toPos
-      }
-    }
+
 }
