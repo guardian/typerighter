@@ -8,7 +8,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import play.api.Logging
 import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
-import utils.Matcher
+import utils.{Matcher, RuleMatchHelpers}
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
@@ -171,9 +171,9 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
       .map(categoryId => matchers.get(categoryId))
       .zip(job.categoryIds)
 
-    val eventuallyJobResults = matchersAndCategoryIds.map {
+    val eventuallyJobResults : List[Future[(Category, List[RuleMatch])]] = matchersAndCategoryIds.map {
       case (Some((category, matcher)), _) =>
-        matcher.check(MatcherRequest(job.blocks, category.id))
+        matcher.check(MatcherRequest(job.blocks, category.id)).map((category, _))
       case (None, categoryId) =>
         val message = s"Could not run job with -- no matcher for category for id: $categoryId"
         logger.error(message)(job.toMarker)
@@ -181,10 +181,19 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
         Future.failed(error)
     }
 
-    Future.sequence(eventuallyJobResults).map { results =>
-      val flattenedResults = results.flatten
-      job.promise.completeWith(Future.successful(flattenedResults))
-      (job, flattenedResults)
+    Future.sequence(eventuallyJobResults).map { matchesByCategory =>
+      val sortedMatches = matchesByCategory.sortBy {
+        case (category, _) => category.id
+      }.foldLeft(List.empty[RuleMatch])(
+        (acc, categoryMatches) => {
+          categoryMatches match {
+            case (_, matches) =>
+              RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
+          }
+        }
+      )
+      job.promise.completeWith(Future.successful(sortedMatches))
+      (job, sortedMatches)
     }.andThen {
       case Failure(exception) => job.promise.failure(exception)
     }
