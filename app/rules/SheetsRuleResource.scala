@@ -20,7 +20,7 @@ import scala.util.{Failure, Success, Try}
   * @param spreadsheetId Available in the sheet URL
   * @param range E.g. "A:G"
   */
-class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, range: String) {
+class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) {
   private val APPLICATION_NAME = "Typerighter"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
 
@@ -32,7 +32,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, range: 
       JSON_FACTORY,
       credentials
     ).setApplicationName(APPLICATION_NAME).build
-    val response = service.spreadsheets.values.get(spreadsheetId, range).execute
+    val response = service.spreadsheets.values.get(spreadsheetId, "A:I").execute
     val values = response.getValues
     if (values == null || values.isEmpty) {
       Future.successful((Map(), Nil))
@@ -40,7 +40,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, range: 
       val (rules, errors) = values.asScala.zipWithIndex.foldLeft((List.empty[RegexRule], List.empty[String])) {
         case ((rules, errors), (row, index)) => {
           getPatternRuleFromRow(row.asScala.toList, index) match {
-            case Success(rule) => (rules :+ rule, errors)
+            case Success(rule) => (rules ++ rule, errors)
             case Failure(error) => (rules, errors :+ error.getMessage)
           }
         }
@@ -49,21 +49,29 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, range: 
     }
   }
 
-  private def getPatternRuleFromRow(row: List[Any], index: Int): Try[RegexRule] = {
+  private def getPatternRuleFromRow(row: List[Any], index: Int): Try[Option[RegexRule]] = {
     try {
-      val category = row(4).asInstanceOf[String]
-      val colour = row(3).asInstanceOf[String]
-      val rule = row(1).asInstanceOf[String]
-      val description = row.lift(6).asInstanceOf[Option[String]]
-      val suggestion = row(2).asInstanceOf[String]
+      val shouldIgnore = row.lift(8)
 
-      Success(RegexRule(
-        id = index.toString,
-        category = Category(category, category, colour),
-        description = description.getOrElse(""),
-        replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
-        regex = rule.r,
-      ))
+      shouldIgnore match {
+        case Some("TRUE") => Success(None)
+        case _ => {
+          val rule = row(1).asInstanceOf[String]
+          val suggestion = row(2).asInstanceOf[String]
+          val colour = row(3).asInstanceOf[String]
+          val category = row(4).asInstanceOf[String]
+          val description = row.lift(6).asInstanceOf[Option[String]]
+
+          Success(Some(RegexRule(
+            id = index.toString,
+            category = Category(category, category, colour),
+            description = description.getOrElse(""),
+            replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
+            regex = rule.r,
+          )))
+        }
+      }
+
     } catch {
       case e: Throwable => Failure(new Exception(s"Error parsing rule at index ${index} -- ${e.getMessage}"))
     }

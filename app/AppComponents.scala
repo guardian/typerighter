@@ -43,8 +43,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
 
   val credentials = configuration.get[String]("typerighter.google.credentials")
   val spreadsheetId = configuration.get[String]("typerighter.sheetId")
-  val range = configuration.get[String]("typerighter.sheetRange")
-  val ruleResource = new SheetsRuleResource(credentials, spreadsheetId, range)
+  val ruleResource = new SheetsRuleResource(credentials, spreadsheetId)
 
   val capiApiKey = configuration.get[String]("capi.apiKey")
   val guardianContentClient = GuardianContentClient(capiApiKey)
