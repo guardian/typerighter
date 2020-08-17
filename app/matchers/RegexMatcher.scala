@@ -28,9 +28,14 @@ class RegexMatcher(category: String, rules: List[RegexRule]) extends Matcher {
 
   private def checkRule(request: MatcherRequest, rule: RegexRule): List[RuleMatch] = {
     request.blocks.flatMap { block =>
-        rule.regex.findAllMatchIn(block.text).map { currentMatch => RuleMatch.fromMatch(currentMatch.start, currentMatch.end, block, rule) }
+        rule.regex.findAllMatchIn(block.text).map { currentMatch =>
+          println(currentMatch)
+          RuleMatch.fromRegex(
+            currentMatch.start,
+            currentMatch.end,
+            block,
+            rule
+          ) }
     }
   }
-
-
 }

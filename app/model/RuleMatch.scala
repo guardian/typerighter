@@ -33,18 +33,21 @@ object RuleMatch {
       matchContext = surroundingText(block.text, lt.getFromPos, lt.getToPos, surroundingBuffer)
     )
 
-  def fromMatch(start: Int, end: Int, block: TextBlock, rule: BaseRule): RuleMatch =
+  def fromRegex(start: Int, end: Int, block: TextBlock, rule: RegexRule): RuleMatch = {
+    val matchedText = block.text.substring(start, end)
     RuleMatch(
       rule = rule,
       fromPos = start + block.from,
       toPos = end + block.from,
-      matchedText = block.text.substring(start, end),
+      matchedText = matchedText,
       message = rule.description,
       shortMessage = Some(rule.description),
       suggestions = rule.suggestions,
+      replacement = rule.replacement.map(replacement => rule.regex.replaceAllIn(matchedText, replacement.text)),
       markAsCorrect = rule.replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
       matchContext = surroundingText(block.text, start, end, surroundingBuffer)
     )
+  }
 
 
   implicit val writes: Writes[RuleMatch] = Writes[RuleMatch]((ruleMatch: RuleMatch) => Json.obj(
@@ -68,6 +71,7 @@ case class RuleMatch(rule: BaseRule,
                      message: String,
                      shortMessage: Option[String] = None,
                      suggestions: List[Suggestion] = List.empty,
+                     replacement: Option[String] = None,
                      markAsCorrect: Boolean = false,
                      matchContext: String)
 
