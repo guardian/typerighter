@@ -6,6 +6,8 @@ import play.api.libs.json.{Json, Writes}
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
+import utils.Text
+
 object RuleMatch {
   def fromLT(lt: LTRuleMatch, block: TextBlock): RuleMatch = RuleMatch(
       rule = LTRule.fromLT(lt.getRule),
@@ -17,7 +19,7 @@ object RuleMatch {
       suggestions = lt.getSuggestedReplacements.asScala.toList.map {
         TextSuggestion(_)
       },
-      matchContext = surroundingText(block.text, lt.getFromPos, lt.getToPos, surroundingBuffer)
+      matchContext = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos)
     )
 
   implicit val writes: Writes[RuleMatch] = Writes[RuleMatch]((ruleMatch: RuleMatch) => Json.obj(

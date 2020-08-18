@@ -3,6 +3,7 @@ package model
 import play.api.libs.json.{JsString, Json, Writes}
 
 import scala.util.matching.Regex
+import utils.Text
 
 object RegexRule {
   implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
@@ -30,7 +31,7 @@ case class RegexRule(
       suggestions = suggestions,
       replacement = replacement.map(replacement => regex.replaceAllIn(matchedText, replacement.text)),
       markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
-      matchContext = surroundingText(block.text, start, end, surroundingBuffer)
+      matchContext = Text.getSurroundingText(block.text, start, end)
     )
   }
 }
