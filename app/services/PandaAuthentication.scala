@@ -21,7 +21,7 @@ trait PandaAuthentication extends BaseControllerHelpers with Loggable {
       cookie.value,
       publicKey,
       PanDomain.guardianValidation,
-      apiGracePeriod = 60 * 60 * 10000, // one hours worth of milliseconds
+      apiGracePeriod = 2 * 60 * 60 * 10000, // two hours worth of milliseconds
       system = "typerighter",
       cacheValidation = false
     )
