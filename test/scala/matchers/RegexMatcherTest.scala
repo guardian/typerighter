@@ -135,4 +135,26 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       matches(0) should matchTo(expectedMatch)
     }
   }
+
+   "check" should "handle multiple substitions" in {
+    val rule = RegexRule(
+      id = s"example-rule",
+      category = Category("new-category", "New Category", "puce"),
+      description = s"Example rule",
+      replacement = Some(TextSuggestion("$1-$2-long")),
+      regex = "\\b(one|two|three|four|five|six|seven|eight|nine|\\d)-? (year|day|month|week|mile)-? long".r
+    )
+
+    val validator = new RegexMatcher("example-category", List(rule))
+    val eventuallyMatches = validator.check(
+      MatcherRequest(getBlocks("A nine month long sabbatical"), "example-category")
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val expectedReplacement = Some("nine-month-long")
+      val expectedMatch = getMatch("nine month long", 2, 17, "A [nine month long] sabbatical", rule, expectedReplacement)
+      matches(0) should matchTo(expectedMatch)
+    }
+  }
 }
