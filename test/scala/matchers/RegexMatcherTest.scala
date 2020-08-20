@@ -33,7 +33,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     message = rule.description,
     shortMessage = Some(rule.description),
     suggestions = rule.suggestions,
-    replacement = replacement,
+    replacement = replacement.map(TextSuggestion(_)),
     matchContext = matchText
   )
 
