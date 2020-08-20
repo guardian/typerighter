@@ -21,6 +21,7 @@ case class RegexRule(
 
   def toMatch(start: Int, end: Int, block: TextBlock): RuleMatch = {
     val matchedText = block.text.substring(start, end)
+    val replacementText = replacement.map(replacement => regex.replaceAllIn(matchedText, replacement.text))
     RuleMatch(
       rule = this,
       fromPos = start + block.from,
@@ -29,7 +30,7 @@ case class RegexRule(
       message = description,
       shortMessage = Some(description),
       suggestions = suggestions,
-      replacement = replacement.map(replacement => regex.replaceAllIn(matchedText, replacement.text)),
+      replacement = replacementText.map(TextSuggestion(_)),
       markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
       matchContext = Text.getSurroundingText(block.text, start, end)
     )
