@@ -1,6 +1,7 @@
 package model
 
 import play.api.libs.json.{Json, Reads, Writes}
+import scala.util.matching.Regex
 
 object Suggestion {
   implicit val writes: Writes[Suggestion] = {
@@ -25,5 +26,7 @@ object TextSuggestion {
 
 case class TextSuggestion(text: String) extends Suggestion {
   val `type` = "TEXT_SUGGESTION"
-}
 
+  def replaceAllIn(regex: Regex, matchedText: String) =
+    this.copy(text = regex.replaceAllIn(matchedText, text))
+}
