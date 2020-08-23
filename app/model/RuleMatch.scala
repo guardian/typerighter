@@ -28,6 +28,7 @@ object RuleMatch {
     "toPos" -> ruleMatch.toPos,
     "matchedText" -> ruleMatch.matchedText,
     "message" -> ruleMatch.message,
+    "replacement" -> ruleMatch.replacement,
     "shortMessage" -> ruleMatch.shortMessage,
     "suggestions" -> ruleMatch.suggestions,
     "markAsCorrect" -> ruleMatch.markAsCorrect,
@@ -42,7 +43,7 @@ case class RuleMatch(rule: BaseRule,
                      message: String,
                      shortMessage: Option[String] = None,
                      suggestions: List[Suggestion] = List.empty,
-                     replacement: Option[String] = None,
+                     replacement: Option[Suggestion] = None,
                      markAsCorrect: Boolean = false,
                      matchContext: String)
 
