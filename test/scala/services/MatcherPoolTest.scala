@@ -4,13 +4,14 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import model._
 import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.SpanSugar._
 import com.softwaremill.diffx.scalatest.DiffMatcher._
 import utils.Matcher
 
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Promise}
+import scala.util.Failure
+import scala.util.Success
 
 /**
   * A mock matcher to test the pool implementation. Doesn't
@@ -146,7 +147,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
     matchers.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(futureResult) { result =>
+    futureResult.map { result =>
       result.length shouldBe 24
     }
   }
@@ -162,8 +163,9 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers, 1, 1, MatcherPool.blockLevelCheckStrategy)
     val futureResult = pool.check(checkWithManyBlocks)
     matchers.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(futureResult.failed) { e =>
-      e.getMessage should include ("full")
+    futureResult transformWith {
+      case Success(_) => fail
+      case Failure(e) => e.getMessage should include ("full")
     }
   }
 
@@ -172,27 +174,39 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
     val errorMessage = "Something went wrong"
+    val result = futureResult transformWith {
+      case Success(_) => fail
+      case Failure(e) => e.getMessage shouldBe errorMessage
+
+    }
     matchers(0).markAsComplete(responses)
     matchers(1).fail(errorMessage)
-    ScalaFutures.whenReady(futureResult.failed) { e =>
-      e.getMessage shouldBe errorMessage
-    }
+    result
   }
 
-    "check" should "recover from validation failures" in {
+  "check" should "recover from validation failures" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
     val errorMessage = "Something went wrong"
-    matchers(0).fail(errorMessage)
-    ScalaFutures.whenReady(futureResult) { e =>
-      println(e)
+
+    // Run an initial check, that fails
+    val eventualResult = futureResult transformWith {
+      case Success(_) => fail
+      case Failure(e) => e.getMessage shouldBe errorMessage
     }
-    val anotherResult = pool.check(getCheck(text = "Example text"))
-    matchers.head.markAsComplete(responses)
-    anotherResult.map { result =>
+
+    // The next check should work fine
+    eventualResult.flatMap { _ =>
+      val anotherResult = pool.check(getCheck(text = "Example text"))
+      matchers.head.markAsComplete(responses)
+      anotherResult
+    }.map { result =>
       result shouldBe responses
     }
+
+    matchers.head.fail(errorMessage)
+    eventualResult
   }
 
   "check" should "correctly check multiple categories for a single job" in {
@@ -226,30 +240,9 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
-    ScalaFutures.whenReady(futureResult.failed) { e =>
-      e.getMessage should include("category-id-does-not-exist")
-    }
-  }
-
-  "check" should "emit events when validations are complete" in {
-    val matchers = getMatchers(2)
-    val pool = getPool(matchers)
-    var events = ListBuffer.empty[MatcherPoolEvent]
-    val subscriber = MatcherPoolSubscriber("set-id", (e: MatcherPoolEvent) => {
-      events += e
-      ()
-    })
-    pool.subscribe(subscriber)
-    val check = getCheck("Example text")
-    val futureResult = pool.check(check)
-    matchers.foreach(_.markAsComplete(responses))
-    ScalaFutures.whenReady(futureResult) { _ =>
-      val categories = matchers.map {_.getCategory}
-      events.toSet shouldBe Set(
-        MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(0)), responses)),
-        MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(1)), responses)),
-        MatcherPoolJobsCompleteEvent(setId)
-      )
+    futureResult.transformWith {
+      case Success(_) => fail
+      case Failure(e) => e.getMessage should include("category-id-does-not-exist")
     }
   }
 }
