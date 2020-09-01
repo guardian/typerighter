@@ -179,6 +179,22 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
+    "check" should "recover from validation failures" in {
+    val matchers = getMatchers(1)
+    val pool = getPool(matchers)
+    val futureResult = pool.check(getCheck(text = "Example text"))
+    val errorMessage = "Something went wrong"
+    matchers(0).fail(errorMessage)
+    ScalaFutures.whenReady(futureResult) { e =>
+      println(e)
+    }
+    val anotherResult = pool.check(getCheck(text = "Example text"))
+    matchers.head.markAsComplete(responses)
+    anotherResult.map { result =>
+      result shouldBe responses
+    }
+  }
+
   "check" should "correctly check multiple categories for a single job" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
