@@ -62,8 +62,15 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
 
   private val matchers = new ConcurrentHashMap[String, (Category, Matcher)]().asScala
   private val eventBus = new MatcherPoolEventBus()
+
+  // This supervision strategy resumes the stream when `mapAsyncUnordered`
+  // emits failed futures. Without it, the stream fails when errors occur. See
+  // https://doc.akka.io/docs/akka/current/stream/stream-error.html#errors-from-mapasync
+  private val supervisionStrategy = ActorAttributes.supervisionStrategy(Supervision.resumingDecider)
+
   private val queue = Source.queue[MatcherJob](maxQueuedJobs, OverflowStrategy.dropNew)
     .mapAsyncUnordered(maxCurrentJobs)(runValidationJob)
+    .withAttributes(supervisionStrategy)
     .to(Sink.fold(Map[String, Int]())(markJobAsComplete))
     .run()
 
