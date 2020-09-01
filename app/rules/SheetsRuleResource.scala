@@ -37,7 +37,11 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) {
     if (values == null || values.isEmpty) {
       Future.successful((Map(), Nil))
     } else {
-      val (rules, errors) = values.asScala.zipWithIndex.foldLeft((List.empty[RegexRule], List.empty[String])) {
+      val (rules, errors) = values
+        .asScala
+        .zipWithIndex
+        .tail // The first row contains the table headings
+        .foldLeft((List.empty[RegexRule], List.empty[String])) {
         case ((rules, errors), (row, index)) => {
           getPatternRuleFromRow(row.asScala.toList, index) match {
             case Success(rule) => (rules ++ rule, errors)
