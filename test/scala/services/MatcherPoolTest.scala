@@ -112,27 +112,33 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     categoryIds,
     List(TextBlock(blockId, text, 0, text.length)))
 
-  "getCurrentCategories" should "report current categories" in {
+  behavior of "getCurrentCategories"
+
+  it should "report current categories" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
     pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
   }
 
-  "removeMatcherByCategory" should "remove a matcher by its category id" in {
+  behavior of "removeMatcherByCategory"
+
+  it should "remove a matcher by its category id" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     pool.removeMatcherByCategory(matchers(1).getCategory())
     pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
   }
 
-  "removeMatcherByCategory" should "remove all matchers" in {
+  it should "remove all matchers" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     pool.removeAllMatchers
     pool.getCurrentCategories should be(List.empty)
   }
 
-  "check" should "return a list of MatcherResponses" in {
+  behavior of "check"
+
+  it should "return a list of MatcherResponses" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
@@ -142,7 +148,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-  "check" should "complete queued jobs" in {
+  it should "complete queued jobs" in {
     val matchers = getMatchers(24)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
@@ -152,7 +158,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-  "check" should "reject work that exceeds its buffer size" in {
+  it should "reject work that exceeds its buffer size" in {
     val matchers = getMatchers(1)
     // This check should produce a job for each block, filling the queue.
     val checkWithManyBlocks = Check(
@@ -169,7 +175,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-  "check" should "handle validation failures" in {
+  it should "handle validation failures" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
@@ -184,7 +190,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     result
   }
 
-  "check" should "recover from validation failures" in {
+  it should "recover from validation failures" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
@@ -201,15 +207,16 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       val anotherResult = pool.check(getCheck(text = "Example text"))
       matchers.head.markAsComplete(responses)
       anotherResult
-    }.map { result =>
-      result shouldBe responses
+    } transformWith {
+      case Success(result) => result shouldBe responses
+      case Failure(e) => fail(e)
     }
 
     matchers.head.fail(errorMessage)
     eventualResult
   }
 
-  "check" should "correctly check multiple categories for a single job" in {
+  it should "correctly check multiple categories for a single job" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
@@ -222,7 +229,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-  "check" should "correctly check multiple categories for a single job don't overlap" in {
+  it should "correctly check multiple categories for a single job don't overlap" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers, 4, 100, MatcherPool.blockLevelCheckStrategy)
     val futureResult = pool.check(getCheck(text = "Example text"))
@@ -236,7 +243,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-   "check" should "handle requests for categories that do not exist" in {
+   it should "handle requests for categories that do not exist" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
