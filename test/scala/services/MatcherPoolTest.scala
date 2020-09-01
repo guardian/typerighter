@@ -252,4 +252,26 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       case Failure(e) => e.getMessage should include("category-id-does-not-exist")
     }
   }
+
+  it should "emit events when validations are complete" in {
+    val matchers = getMatchers(2)
+    val pool = getPool(matchers)
+    var events = ListBuffer.empty[MatcherPoolEvent]
+    val subscriber = MatcherPoolSubscriber("set-id", (e: MatcherPoolEvent) => {
+      events += e
+      ()
+    })
+    pool.subscribe(subscriber)
+    val check = getCheck("Example text")
+    val futureResult = pool.check(check)
+    matchers.foreach(_.markAsComplete(responses))
+    ScalaFutures.whenReady(futureResult) { _ =>
+      val categories = matchers.map {_.getCategory}
+      events.toSet shouldBe Set(
+        MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(0)), responses)),
+        MatcherPoolResultEvent(setId, MatcherResponse(check.blocks, List(categories(1)), responses)),
+        MatcherPoolJobsCompleteEvent(setId)
+      )
+    }
+  }
 }
