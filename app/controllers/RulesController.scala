@@ -19,19 +19,29 @@ class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleRe
     // This reset will need to be revisited when we're ingesting from multiple matchers.
     matcherPool.removeAllMatchers()
 
-    for {
-      (rulesByCategory, ruleErrors) <- ruleResource.fetchRulesByCategory()
-      errorsByCategory = addMatcherToPool(rulesByCategory)
-    } yield {
-      val errors = errorsByCategory.flatMap(_._2) ::: ruleErrors
-      val rulesIngested = rulesByCategory.map { _._2.size }.sum
-      Ok(views.html.rules(
-        sheetId,
-        matcherPool.getCurrentRules,
-        matcherPool.getCurrentCategories,
-        Some(rulesIngested),
-        errors
-      ))
+    ruleResource.fetchRulesByCategory().map { maybeRules =>
+      maybeRules match {
+        case Left(errors) => {
+          Ok(views.html.rules(
+            sheetId,
+            matcherPool.getCurrentRules,
+            matcherPool.getCurrentCategories,
+            None,
+            errors
+          ))
+        }
+        case Right(rules) => {
+          val errorsByCategory = addMatcherToPool(rules).flatMap(_._2)
+          val rulesIngested = rules.map { _._2.size }.sum
+          Ok(views.html.rules(
+            sheetId,
+            matcherPool.getCurrentRules,
+            matcherPool.getCurrentCategories,
+            Some(rulesIngested),
+            errorsByCategory
+          ))
+        }
+      }
     }
   }
 

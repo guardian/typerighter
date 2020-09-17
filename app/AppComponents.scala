@@ -86,12 +86,17 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     */
   def initialiseMatchers: Future[Unit] = {
     for {
-      (rulesByCategory, _) <- ruleResource.fetchRulesByCategory()
+      maybeRules <- ruleResource.fetchRulesByCategory()
     } yield {
-      rulesByCategory.foreach { case (category, rules) => {
-        val matcher = new RegexMatcher(category.name, rules)
-        matcherPool.addMatcher(category, matcher)
-      }}
+      maybeRules match {
+        case Left(errors) => log.error(s"Could not parse rules from spreadsheet on init: ${errors.mkString}")
+        case Right(rules) => {
+          rules.foreach { case (category, rules) => {
+            val matcher = new RegexMatcher(category.name, rules)
+            matcherPool.addMatcher(category, matcher)
+          }}
+        }
+      }
     }
   }
 }
