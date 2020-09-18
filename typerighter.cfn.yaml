@@ -332,7 +332,8 @@ Resources:
 
   RuleBucket:
     Type: AWS::S3::Bucket
-    Properties: 
+    Properties:
+      BucketName: "typerighter-rules"
       AccessControl: Private
       Tags:
       - Key: Stack

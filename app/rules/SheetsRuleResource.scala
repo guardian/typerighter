@@ -18,13 +18,12 @@ import scala.util.{Failure, Success, Try}
   *
   * @param credentialsJson A string containing the JSON the Google credentials service expects
   * @param spreadsheetId Available in the sheet URL
-  * @param range E.g. "A:G"
   */
 class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) {
   private val APPLICATION_NAME = "Typerighter"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
 
-  def fetchRulesByCategory(): Future[Either[List[String], Map[Category, List[RegexRule]]]] = { // Build a new authorized API client service.
+  def fetchRulesByCategory(): Future[Either[List[String], List[RegexRule]]] = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
     val credentials = getCredentials(credentialsJson)
     val service = new Sheets.Builder(
@@ -53,7 +52,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) {
       if (errors.size != 0) {
         Future.successful(Left(errors))
       } else {
-        Future.successful(Right(rules.groupBy(_.category)))
+        Future.successful(Right(rules))
       }
     }
   }

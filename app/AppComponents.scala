@@ -7,8 +7,8 @@ import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PublicSettings
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
-import controllers.{ApiController, CapiProxyController, HomeController, RulesController, AuditController}
-import matchers.{RegexMatcher}
+import controllers.{ApiController, AuditController, CapiProxyController, HomeController, RulesController}
+import matchers.RegexMatcher
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
@@ -17,7 +17,7 @@ import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-import rules.SheetsRuleResource
+import rules.{BucketRuleResource, SheetsRuleResource}
 import services._
 import utils.Loggable
 
@@ -53,13 +53,19 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val settingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
-    case development: DevIdentity => "local.dev-gutools.co.uk.settings.public"
+    case _: DevIdentity => "local.dev-gutools.co.uk.settings.public"
   }
   val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", s3Client)
   publicSettings.start()
 
+  val typerighterFile = identity match {
+    case identity: AwsIdentity => s"${identity.stage.toLowerCase}/TyperighterRules.json"
+    case _: DevIdentity => "code/TyperighterRules.json"
+  }
+  val bucketRuleResource = new BucketRuleResource(s3Client, typerighterFile)
+
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
-  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, spreadsheetId, publicSettings)
+  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, bucketRuleResource, spreadsheetId, publicSettings)
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient, publicSettings)
@@ -86,12 +92,12 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     */
   def initialiseMatchers: Future[Unit] = {
     for {
-      maybeRules <- ruleResource.fetchRulesByCategory()
+      maybeRules <- Future { bucketRuleResource.getRules() }
     } yield {
       maybeRules match {
-        case Left(errors) => log.error(s"Could not parse rules from spreadsheet on init: ${errors.mkString}")
-        case Right(rules) => {
-          rules.foreach { case (category, rules) => {
+        case None => log.error(s"Could not get rules from S3")
+        case Some(rules) => {
+          rules.groupBy(_.category).foreach { case (category, rules) => {
             val matcher = new RegexMatcher(category.name, rules)
             matcherPool.addMatcher(category, matcher)
           }}

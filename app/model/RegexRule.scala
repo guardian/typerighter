@@ -1,13 +1,15 @@
 package model
 
-import play.api.libs.json.{JsString, Json, Writes}
+import play.api.libs.json.{JsPath, JsResult, JsString, JsSuccess, JsValue, Json, Reads, Writes}
 
 import scala.util.matching.Regex
 import utils.Text
 
 object RegexRule {
   implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
+  implicit val regexReads: Reads[Regex] = (JsPath).read[String].map(new Regex(_))
   implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
+  implicit val reads: Reads[RegexRule] = Json.reads[RegexRule]
 }
 
 case class RegexRule(
