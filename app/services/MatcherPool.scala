@@ -62,7 +62,13 @@ object MatcherPool extends Logging {
   }
 }
 
-class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
+class MatcherPool(
+  val maxCurrentJobs: Int = 8,
+  val maxQueuedJobs: Int = 1000,
+  val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
+  val futures: Futures,
+  val checkTimeoutDuration: FiniteDuration = 1 second
+)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
 
   private val matchers = new ConcurrentHashMap[String, (Category, Matcher)]().asScala
@@ -185,7 +191,8 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
 
     val eventuallyJobResults : List[Future[(Category, List[RuleMatch])]] = matchersAndCategoryIds.map {
       case (Some((category, matcher)), _) =>
-        matcher.check(MatcherRequest(job.blocks, category.id)).map((category, _))
+        val eventuallyCheck = matcher.check(MatcherRequest(job.blocks, category.id)).map((category, _))
+        futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       case (None, categoryId) =>
         val message = s"Could not run job with -- no matcher for category for id: $categoryId"
         logger.error(message)(job.toMarker)

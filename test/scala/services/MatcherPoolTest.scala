@@ -13,6 +13,7 @@ import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.Failure
 import scala.util.Success
 import play.api.libs.concurrent.DefaultFutures
+import scala.concurrent.duration.FiniteDuration
 
 /**
   * A mock matcher to test the pool implementation. Doesn't
@@ -82,9 +83,15 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
   private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category", "Puce")
 
-  private def getPool(matchers: List[Matcher], maxCurrentJobs: Int = 4, maxQueuedJobs: Int = 100, strategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy): MatcherPool = {
+  private def getPool(
+    matchers: List[Matcher],
+    maxCurrentJobs: Int = 4,
+    maxQueuedJobs: Int = 100,
+    strategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy,
+    checkTimeoutDuration: FiniteDuration = 100 milliseconds
+  ): MatcherPool = {
     val futures = new DefaultFutures(system)
-    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, 500 milliseconds)
+    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, checkTimeoutDuration)
     matchers.zipWithIndex.foreach {
       case (matcher, index) => pool.addMatcher(getCategory(index), matcher)
     }
@@ -257,7 +264,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
   it should "time out jobs if they take too long" in {
     val matchers = getMatchers(1)
-    val pool = getPool(matchers)
+    val pool = getPool(matchers, checkTimeoutDuration = 500 milliseconds)
     val futureResult = pool.check(getCheck(text = "Example text"))
     futureResult.transformWith {
       case Success(_) => fail

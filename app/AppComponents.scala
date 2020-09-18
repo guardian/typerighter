@@ -40,7 +40,8 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
-  val matcherPool = new MatcherPool()(matcherPoolDispatcher, materializer)
+  val defaultFutures = new DefaultFutures(actorSystem)
+  val matcherPool = new MatcherPool(futures = defaultFutures)(matcherPoolDispatcher, materializer)
 
   val credentials = configuration.get[String]("typerighter.google.credentials")
   val spreadsheetId = configuration.get[String]("typerighter.sheetId")
