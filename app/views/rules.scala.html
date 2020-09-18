@@ -12,9 +12,9 @@
             <button class="btn btn-primary btn-sm ml-3">Refresh rules</button>
         </h1>
     }
-    @if(rulesIngested.nonEmpty) {
+    @if(rulesIngested.nonEmpty || errors.size != 0) {
         <div class="alert alert-@if(errors != Nil) {danger} else {success}" role="alert">
-            @rulesIngested rules added. @if(errors != Nil) {Errors found: @errors.size}
+            @rulesIngested.getOrElse("No") rules added. @if(errors != Nil) {Errors found: @errors.size}
             @for(error <- errors) {
                 <p>@error</p>
             }

@@ -24,7 +24,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) {
   private val APPLICATION_NAME = "Typerighter"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
 
-  def fetchRulesByCategory(): Future[(Map[Category, List[RegexRule]], List[String])] = { // Build a new authorized API client service.
+  def fetchRulesByCategory(): Future[Either[List[String], Map[Category, List[RegexRule]]]] = { // Build a new authorized API client service.
     val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
     val credentials = getCredentials(credentialsJson)
     val service = new Sheets.Builder(
@@ -35,7 +35,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) {
     val response = service.spreadsheets.values.get(spreadsheetId, "A:I").execute
     val values = response.getValues
     if (values == null || values.isEmpty) {
-      Future.successful((Map(), Nil))
+      Future.successful(Left(List(s"Found no rules to ingest for sheet ${spreadsheetId}")))
     } else {
       val (rules, errors) = values
         .asScala
@@ -49,7 +49,12 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) {
           }
         }
       }
-      Future.successful((rules.groupBy(_.category), errors))
+
+      if (errors.size != 0) {
+        Future.successful(Left(errors))
+      } else {
+        Future.successful(Right(rules.groupBy(_.category)))
+      }
     }
   }
 
