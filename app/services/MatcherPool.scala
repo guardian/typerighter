@@ -67,7 +67,7 @@ class MatcherPool(
   val maxQueuedJobs: Int = 1000,
   val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
   val futures: Futures,
-  val checkTimeoutDuration: FiniteDuration = 1 second
+  val checkTimeoutDuration: FiniteDuration = 5 seconds
 )(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
 
