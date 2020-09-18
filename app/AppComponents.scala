@@ -20,6 +20,7 @@ import router.Routes
 import rules.SheetsRuleResource
 import services._
 import utils.Loggable
+import play.api.libs.concurrent.DefaultFutures
 
 class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
   extends BuiltInComponentsFromContext(context)

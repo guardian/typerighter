@@ -6,13 +6,18 @@ import net.logstash.logback.marker.Markers
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import play.api.Logging
+import scala.util.Failure
+import scala.concurrent.duration._
+
 import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
 import utils.{Matcher, RuleMatchHelpers}
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import scala.util.Failure
+import play.api.libs.concurrent.Futures
+import play.api.Logging
+import java.util.concurrent.TimeoutException
+import scala.util.Success
 
 case class MatcherRequest(blocks: List[TextBlock], categoryId: String)
 

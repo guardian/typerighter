@@ -12,6 +12,7 @@ import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.Failure
 import scala.util.Success
+import play.api.libs.concurrent.DefaultFutures
 
 /**
   * A mock matcher to test the pool implementation. Doesn't
@@ -82,7 +83,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category", "Puce")
 
   private def getPool(matchers: List[Matcher], maxCurrentJobs: Int = 4, maxQueuedJobs: Int = 100, strategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy): MatcherPool = {
-    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy)
+    val futures = new DefaultFutures(system)
+    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, 500 milliseconds)
     matchers.zipWithIndex.foreach {
       case (matcher, index) => pool.addMatcher(getCategory(index), matcher)
     }
@@ -250,6 +252,19 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     futureResult.transformWith {
       case Success(_) => fail
       case Failure(e) => e.getMessage should include("category-id-does-not-exist")
+    }
+  }
+
+  it should "time out jobs if they take too long" in {
+    val matchers = getMatchers(1)
+    val pool = getPool(matchers)
+    val futureResult = pool.check(getCheck(text = "Example text"))
+    futureResult.transformWith {
+      case Success(_) => fail
+      case Failure(e) => {
+        e.getMessage should include("Timeout")
+        e.getMessage should include("500 milliseconds")
+      }
     }
   }
 }
