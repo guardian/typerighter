@@ -1,6 +1,7 @@
 package services
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeoutException
 
 import net.logstash.logback.marker.Markers
 
@@ -8,6 +9,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.Failure
 import scala.concurrent.duration._
+import scala.util.Success
 
 import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
 import utils.{Matcher, RuleMatchHelpers}
@@ -16,8 +18,6 @@ import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
 import play.api.libs.concurrent.Futures
 import play.api.Logging
-import java.util.concurrent.TimeoutException
-import scala.util.Success
 
 case class MatcherRequest(blocks: List[TextBlock], categoryId: String)
 
