@@ -13,6 +13,7 @@ import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
 import play.api.libs.ws.ahc.AhcWSComponents
+import play.api.libs.concurrent.DefaultFutures
 import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
@@ -20,7 +21,10 @@ import router.Routes
 import rules.{BucketRuleResource, RuleProvisionerService, SheetsRuleResource}
 import services._
 import utils.Loggable
-import play.api.libs.concurrent.DefaultFutures
+import matchers.LanguageToolMatcher
+import matchers.LanguageToolFactory
+import play.api.Logging
+import model.Category
 
 
 class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
@@ -29,7 +33,8 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   with CORSComponents
   with Loggable
   with controllers.AssetsComponents
-  with AhcWSComponents {
+  with AhcWSComponents
+  with Logging {
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
@@ -40,6 +45,8 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   }
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
+  val languageToolFactory = new LanguageToolFactory(ngramPath, true)
+
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
   val defaultFutures = new DefaultFutures(actorSystem)
   val matcherPool = new MatcherPool(futures = defaultFutures)(matcherPoolDispatcher, materializer)
@@ -93,5 +100,4 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     * Set up matchers and add them to the matcher pool as the app starts.
     */
   ruleProvisioner.scheduleUpdateRules(actorSystem.scheduler)
-
 }

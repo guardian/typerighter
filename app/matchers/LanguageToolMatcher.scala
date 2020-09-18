@@ -17,7 +17,7 @@ class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) extends Logging {
 
-  def createInstance(category: String, rules: List[LTRule])(implicit ec: ExecutionContext): (Matcher, List[String]) = {
+  def createInstance(category: String, rules: List[LTRule], defaultRuleIds: List[String])(implicit ec: ExecutionContext): (Matcher, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
@@ -30,7 +30,10 @@ class LanguageToolFactory(
     }
 
     // Disable all default rules by ... default
-    instance.getCategories().asScala.foreach((categoryData) => instance.disableCategory(categoryData._1))
+    instance.getAllRules().asScala.foreach((rule) => {
+      println(s"${rule.getCategory()} ${rule.getId()}  ${rule.getDescription()}  ${rule.getIncorrectExamples().toString()}   ${rule.getCorrectExamples().toString()}")
+    })
+
 
     // Add the rules provided in the config
 
