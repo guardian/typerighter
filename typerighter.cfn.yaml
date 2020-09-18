@@ -42,6 +42,7 @@ Parameters:
     Description: Name of the ELK logging stream in this account
     Type: AWS::SSM::Parameter::Value<String>
     Default: /account/services/logging.stream
+    
 Mappings:
   StageVariables:
     CODE:
@@ -328,3 +329,15 @@ Resources:
         FromPort: 443
         ToPort: 443
         CidrIp: 0.0.0.0/0
+
+  RuleBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: Private
+      Tags:
+      - Key: Stack
+        Value: !Ref Stack
+      - Key: App
+        Value: !Ref App
+      - Key: Stage
+        Value: !Ref Stage
