@@ -54,6 +54,7 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th scope="col">ID</th>
                         <th scope="col">Category</th>
                         <th scope="col">Match</th>
                         <th scope="col">Replacement</th>
@@ -63,6 +64,9 @@
                 <tbody>
                 @for(rule <- rules) {
                     <tr>
+                        <td>
+                          @rule.id
+                        </td>
                         <td>
                           @rule.category.name
                         </td>
