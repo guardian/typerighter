@@ -17,7 +17,6 @@ class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleRe
   def refresh = ApiAuthAction.async { implicit request: Request[AnyContent] =>
 
     // This reset will need to be revisited when we're ingesting from multiple matchers.
-    matcherPool.removeAllMatchers()
     ruleResource.fetchRulesByCategory().map { maybeRules =>
       maybeRules match {
         case Left(errors) => {
@@ -25,22 +24,38 @@ class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleRe
             sheetId,
             matcherPool.getCurrentRules,
             matcherPool.getCurrentCategories,
+            Some(false),
             None,
             errors
           ))
         }
         case Right(rules) => {
-          ruleBucketResouce.serialiseAndUploadRules(rules)
-          val rulesByCategory = rules.groupBy(_.category)
-          val errorsByCategory = addMatcherToPool(rulesByCategory).flatMap(_._2)
-          val rulesIngested = rules.length
-          Ok(views.html.rules(
-            sheetId,
-            matcherPool.getCurrentRules,
-            matcherPool.getCurrentCategories,
-            Some(rulesIngested),
-            errorsByCategory
-          ))
+          ruleBucketResouce.serialiseAndUploadRules(rules) match {
+            case Right(_) => {
+              matcherPool.removeAllMatchers()
+              val rulesByCategory = rules.groupBy(_.category)
+              val errorsByCategory = addMatcherToPool(rulesByCategory).flatMap(_._2)
+              val rulesIngested = rules.length
+              Ok(views.html.rules(
+                sheetId,
+                matcherPool.getCurrentRules,
+                matcherPool.getCurrentCategories,
+                Some(true),
+                Some(rulesIngested),
+                errorsByCategory
+              ))
+            }
+            case Left(message) => {
+              Ok(views.html.rules(
+                sheetId,
+                matcherPool.getCurrentRules,
+                matcherPool.getCurrentCategories,
+                Some(false),
+                None,
+                List(message)
+              ))
+            }
+          }
         }
       }
     }
