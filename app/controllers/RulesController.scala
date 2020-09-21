@@ -18,7 +18,6 @@ class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleRe
 
     // This reset will need to be revisited when we're ingesting from multiple matchers.
     matcherPool.removeAllMatchers()
-
     ruleResource.fetchRulesByCategory().map { maybeRules =>
       maybeRules match {
         case Left(errors) => {

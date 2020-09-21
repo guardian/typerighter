@@ -58,11 +58,11 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", s3Client)
   publicSettings.start()
 
-  val typerighterFile = identity match {
-    case identity: AwsIdentity => s"${identity.stage.toLowerCase}/TyperighterRules.json"
-    case _: DevIdentity => "code/TyperighterRules.json"
+  val typerighterBucket = identity match {
+    case identity: AwsIdentity => s"typerighter-rules-${identity.stage.toLowerCase}"
+    case _: DevIdentity => "typerighter-rules-code"
   }
-  val bucketRuleResource = new BucketRuleResource(s3Client, typerighterFile)
+  val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket)
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
   val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, bucketRuleResource, spreadsheetId, publicSettings)
@@ -90,18 +90,14 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   /**
     * Set up matchers and add them to the matcher pool as the app starts.
     */
-  def initialiseMatchers: Future[Unit] = {
-    for {
-      maybeRules <- Future { bucketRuleResource.getRules() }
-    } yield {
-      maybeRules match {
-        case None => log.error(s"Could not get rules from S3")
-        case Some(rules) => {
-          rules.groupBy(_.category).foreach { case (category, rules) => {
-            val matcher = new RegexMatcher(category.name, rules)
-            matcherPool.addMatcher(category, matcher)
-          }}
-        }
+  def initialiseMatchers: Unit = {
+   bucketRuleResource.getRules match {
+      case None => log.error(s"Could not get rules from S3")
+      case Some(rules) => {
+        rules.groupBy(_.category).foreach { case (category, rules) => {
+          val matcher = new RegexMatcher(category.name, rules)
+          matcherPool.addMatcher(category, matcher)
+        }}
       }
     }
   }

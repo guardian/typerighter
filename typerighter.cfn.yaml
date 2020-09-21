@@ -49,11 +49,14 @@ Mappings:
       MaxInstances: 2
       MinInstances: 1
       InstanceType: t3.small
-
     PROD:
       MaxInstances: 6
       MinInstances: 3
       InstanceType: t3.small
+  StageLookup:
+    Lowercase:
+      PROD: prod
+      CODE: code
 
 Resources:
   AutoScalingGroup:
@@ -333,7 +336,8 @@ Resources:
   RuleBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "typerighter-rules"
+      BucketName:
+        !Join [ "-", ['typerighter-rules', Fn::FindInMap: [ StageLookup, Lowercase, Ref: Stage ] ] ]
       AccessControl: Private
       Tags:
       - Key: Stack

@@ -12,8 +12,8 @@ import utils.Loggable
 import scala.io.Source.fromInputStream
 
 
-class BucketRuleResource (s3: AmazonS3, rulesKey: String) extends Loggable {
-    private val BUCKET_NAME = "typerighter-rules"
+class BucketRuleResource (s3: AmazonS3, bucketName: String) extends Loggable {
+    private val RULES_KEY = "typerighter-rules.json"
 
     def serialiseAndUploadRules(rules: List[RegexRule]) {
         val ruleJson = Json.toJson(rules)
@@ -24,7 +24,7 @@ class BucketRuleResource (s3: AmazonS3, rulesKey: String) extends Loggable {
     def uploadRules(stream: InputStream) {
         try {
             val metaData = new ObjectMetadata()
-            val putObjectRequest = new PutObjectRequest(BUCKET_NAME, rulesKey, stream, metaData)
+            val putObjectRequest = new PutObjectRequest(bucketName, RULES_KEY, stream, metaData)
             val result = s3.putObject(putObjectRequest)
         }
         catch  {
@@ -39,7 +39,7 @@ class BucketRuleResource (s3: AmazonS3, rulesKey: String) extends Loggable {
 
     def getRules(): Option[List[RegexRule]] = {
         try {
-            val rules = s3.getObject(BUCKET_NAME, rulesKey)
+            val rules = s3.getObject(bucketName, RULES_KEY)
             val rulesStream = rules.getObjectContent()
             val rulesJson = Json.parse(rulesStream)
             rules.close()
