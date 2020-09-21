@@ -1,18 +1,23 @@
 package services
 
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeoutException
 
 import net.logstash.logback.marker.Markers
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import play.api.Logging
+import scala.util.Failure
+import scala.concurrent.duration._
+import scala.util.Success
+
 import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
 import utils.{Matcher, RuleMatchHelpers}
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import scala.util.Failure
+import play.api.libs.concurrent.Futures
+import play.api.Logging
 
 case class MatcherRequest(blocks: List[TextBlock], categoryId: String)
 
@@ -57,7 +62,13 @@ object MatcherPool extends Logging {
   }
 }
 
-class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
+class MatcherPool(
+  val maxCurrentJobs: Int = 8,
+  val maxQueuedJobs: Int = 1000,
+  val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
+  val futures: Futures,
+  val checkTimeoutDuration: FiniteDuration = 5 seconds
+)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
 
   private val matchers = new ConcurrentHashMap[String, (Category, Matcher)]().asScala
@@ -180,7 +191,8 @@ class MatcherPool(val maxCurrentJobs: Int = 8, val maxQueuedJobs: Int = 1000, va
 
     val eventuallyJobResults : List[Future[(Category, List[RuleMatch])]] = matchersAndCategoryIds.map {
       case (Some((category, matcher)), _) =>
-        matcher.check(MatcherRequest(job.blocks, category.id)).map((category, _))
+        val eventuallyCheck = matcher.check(MatcherRequest(job.blocks, category.id)).map((category, _))
+        futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       case (None, categoryId) =>
         val message = s"Could not run job with -- no matcher for category for id: $categoryId"
         logger.error(message)(job.toMarker)
