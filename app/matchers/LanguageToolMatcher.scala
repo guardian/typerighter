@@ -36,7 +36,7 @@ class LanguageToolFactory(
       }
     }
 
-    logger.info(s"Adding ${rules.size} rules to matcher instance ${category}")
+    logger.info(s"Adding ${rules.size} rules and enabling ${defaultRuleIds.size} default rules to matcher instance ${category}")
     val ruleIngestionErrors = rules.flatMap { rule =>
       try {
         instance.addRule(LTRule.toLT(rule))
@@ -61,15 +61,13 @@ class LanguageToolMatcher(category: String, instance: JLanguageTool) extends Mat
 
   def getCategory = category
 
-  def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    Future {
-      request.blocks.flatMap { block =>
-        instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block)).toList.map { ruleMatch =>
-          ruleMatch.copy(
-            fromPos = ruleMatch.fromPos + block.from,
-            toPos = ruleMatch.toPos + block.from
-          )
-        }
+  def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = Future {
+    request.blocks.flatMap { block =>
+      instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block)).toList.map { ruleMatch =>
+        ruleMatch.copy(
+          fromPos = ruleMatch.fromPos + block.from,
+          toPos = ruleMatch.toPos + block.from
+        )
       }
     }
   }
