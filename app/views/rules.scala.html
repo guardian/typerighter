@@ -16,7 +16,7 @@
     @if(rulesRefreshed.isInstanceOf[Some[Boolean]] ) {
         <div class="alert alert-@if(errors != Nil) {danger} else {success}" role="alert">
             @if(rulesRefreshed == Some(true)){
-                Rules were refreshed, @rulesIngested.getOrElse("No") found. @if(errors != Nil) {Errors found: @errors.size}
+                Rules were refreshed, @rulesIngested.getOrElse("No") found. These will be available within a minute. @if(errors != Nil) {Errors found: @errors.size}
             } else {
                 Rules were not refreshed due to errors. @if(errors != Nil) {Errors found: @errors.size}
             }

@@ -17,9 +17,10 @@ import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-import rules.{BucketRuleResource, SheetsRuleResource}
+import rules.{BucketRuleResource, RuleProvisionerService, SheetsRuleResource}
 import services._
 import utils.Loggable
+
 
 class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
@@ -63,6 +64,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     case _: DevIdentity => "typerighter-rules-code"
   }
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket)
+  val ruleProvisioner = new RuleProvisionerService(bucketRuleResource, matcherPool)
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
   val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, bucketRuleResource, spreadsheetId, publicSettings)
@@ -74,8 +76,6 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     "application/json" -> new JsonHttpErrorHandler(environment, None),
     "text/html" -> new DefaultHttpErrorHandler(),
   )
-
-  initialiseMatchers
 
   lazy val router = new Routes(
     httpErrorHandler,
@@ -90,15 +90,6 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   /**
     * Set up matchers and add them to the matcher pool as the app starts.
     */
-  def initialiseMatchers: Unit = {
-   bucketRuleResource.getRules match {
-      case None => log.error(s"Could not get rules from S3")
-      case Some(rules) => {
-        rules.groupBy(_.category).foreach { case (category, rules) => {
-          val matcher = new RegexMatcher(category.name, rules)
-          matcherPool.addMatcher(category, matcher)
-        }}
-      }
-    }
-  }
+  ruleProvisioner.scheduleUpdateRules(actorSystem.scheduler)
+
 }

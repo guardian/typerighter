@@ -4,13 +4,11 @@ import play.api.libs.json.Json
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, S3Object}
 import java.io.InputStream
+import java.util.Date
 
 import com.amazonaws.{AmazonServiceException, SdkClientException}
 import model.RegexRule
 import utils.Loggable
-
-import scala.io.Source.fromInputStream
-
 
 class BucketRuleResource (s3: AmazonS3, bucketName: String) extends Loggable {
     private val RULES_KEY = "typerighter-rules.json"
@@ -40,13 +38,31 @@ class BucketRuleResource (s3: AmazonS3, bucketName: String) extends Loggable {
         }
     }
 
-    def getRules(): Option[List[RegexRule]] = {
+    def getRules(): Option[(List[RegexRule], Date)] = {
         try {
             val rules = s3.getObject(bucketName, RULES_KEY)
             val rulesStream = rules.getObjectContent()
             val rulesJson = Json.parse(rulesStream)
+            val lastModified = rules.getObjectMetadata.getLastModified
             rules.close()
-            Some(rulesJson.as[List[RegexRule]])
+            Some((rulesJson.as[List[RegexRule]], lastModified))
+        }
+        catch  {
+            case e: AmazonServiceException => {
+                log.warn(e.getMessage)
+                None
+            }
+            case e: SdkClientException => {
+                log.warn(e.getMessage)
+                None
+            }
+        }
+    }
+
+    def getRulesLastModified: Option[Date] = {
+        try {
+            val rulesMeta = s3.getObjectMetadata(bucketName, RULES_KEY)
+            Some(rulesMeta.getLastModified)
         }
         catch  {
             case e: AmazonServiceException => {
