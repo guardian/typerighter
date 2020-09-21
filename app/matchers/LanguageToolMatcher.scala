@@ -29,13 +29,12 @@ class LanguageToolFactory(
       if (useLanguageModelRules) instance.activateLanguageModelRules(languageModel)
     }
 
-    // Disable all default rules by ... default
-    instance.getAllRules().asScala.foreach((rule) => {
-      println(s"${rule.getCategory()} ${rule.getId()}  ${rule.getDescription()}  ${rule.getIncorrectExamples().toString()}   ${rule.getCorrectExamples().toString()}")
-    })
-
-
-    // Add the rules provided in the config
+    // Disable all default rules, apart from those we'd explicitly like
+    instance.getAllRules().asScala.foreach { rule =>
+      if (!defaultRuleIds.contains(rule.getId())) {
+        instance.disableRule(rule.getId())
+      }
+    }
 
     logger.info(s"Adding ${rules.size} rules to matcher instance ${category}")
     val ruleIngestionErrors = rules.flatMap { rule =>
@@ -53,7 +52,6 @@ class LanguageToolFactory(
     (new LanguageToolMatcher(category, instance), ruleIngestionErrors)
   }
 }
-
 
 /**
   * A Matcher that wraps a LanguageTool instance.
@@ -77,9 +75,9 @@ class LanguageToolMatcher(category: String, instance: JLanguageTool) extends Mat
   }
 
   def getRules: List[LTRule] = {
-    instance.getAllActiveRules.asScala.toList.flatMap(_ match {
+    instance.getAllActiveRules.asScala.toList.flatMap {
       case rule: LanguageToolRule => Some(LTRule.fromLT(rule))
       case _ => None
-    })
+    }
   }
 }
