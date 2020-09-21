@@ -13,18 +13,18 @@ import utils.Loggable
 class BucketRuleResource (s3: AmazonS3, bucketName: String) extends Loggable {
     private val RULES_KEY = "typerighter-rules.json"
 
-    def serialiseAndUploadRules(rules: List[RegexRule]): Either[String, Unit] = {
+    def serialiseAndUploadRules(rules: List[RegexRule]): Either[String, Date] = {
         val ruleJson = Json.toJson(rules)
         val stream: java.io.InputStream = new java.io.ByteArrayInputStream(ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name))
         uploadRules(stream)
     }
 
-    def uploadRules(stream: InputStream): Either[String, Unit] = {
+    def uploadRules(stream: InputStream): Either[String, Date] = {
         try {
             val metaData = new ObjectMetadata()
             val putObjectRequest = new PutObjectRequest(bucketName, RULES_KEY, stream, metaData)
-            s3.putObject(putObjectRequest)
-            Right(())
+            val result = s3.putObject(putObjectRequest)
+            Right(result.getMetadata.getLastModified)
         }
         catch  {
             case e: AmazonServiceException => {

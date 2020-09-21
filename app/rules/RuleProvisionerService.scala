@@ -29,7 +29,8 @@ class RuleProvisionerService(ruleBucket: BucketRuleResource, matcherPool: Matche
 
   def maybeUpdateRules(): Unit = {
     ruleBucket.getRulesLastModified match {
-      case Some(date) if (date.compareTo(lastModified) > 0) => updateRules
+      case Some(date) if date.compareTo(lastModified) > 0 => updateRules
+      case Some(_) => log.info("No rule update needed")
       case None => log.error("No last modified date found for rules")
     }
   }

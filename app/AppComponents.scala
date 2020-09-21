@@ -67,7 +67,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val ruleProvisioner = new RuleProvisionerService(bucketRuleResource, matcherPool)
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
-  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, bucketRuleResource, spreadsheetId, publicSettings)
+  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, bucketRuleResource, spreadsheetId, ruleProvisioner, publicSettings)
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient, publicSettings)
