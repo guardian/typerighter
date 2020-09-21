@@ -9,18 +9,25 @@ import scala.util.matching.Regex
 import utils.Text
 
 object RuleMatch {
-  def fromLT(lt: LTRuleMatch, block: TextBlock): RuleMatch = RuleMatch(
+  def fromLT(lt: LTRuleMatch, block: TextBlock): RuleMatch = {
+    val suggestions = lt.getSuggestedReplacements.asScala.toList.map {
+      TextSuggestion(_)
+    }
+    // Placeholder rule-of-thumb: if a rule has exactly one suggestion, add
+    // it as a replacement to trigger the 'replacement' behaviour in the client.
+    val replacement = if (suggestions.size == 1) Some(suggestions.head) else None
+    RuleMatch(
       rule = LTRule.fromLT(lt.getRule),
       fromPos = lt.getFromPos,
       toPos = lt.getToPos,
       matchedText = block.text.substring(lt.getFromPos, lt.getToPos),
       message = lt.getMessage,
       shortMessage = Some(lt.getMessage),
-      suggestions = lt.getSuggestedReplacements.asScala.toList.map {
-        TextSuggestion(_)
-      },
+      replacement = replacement,
+      suggestions = suggestions,
       matchContext = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos)
     )
+  }
 
   implicit val writes: Writes[RuleMatch] = Writes[RuleMatch]((ruleMatch: RuleMatch) => Json.obj(
     "rule" -> BaseRule.toJson(ruleMatch.rule),
