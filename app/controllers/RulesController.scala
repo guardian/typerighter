@@ -16,8 +16,6 @@ class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleRe
                       ruleProvisioner: RuleProvisionerService, val publicSettings: PublicSettings)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction.async { implicit request: Request[AnyContent] =>
-
-    // This reset will need to be revisited when we're ingesting from multiple matchers.
     ruleResource.fetchRulesByCategory().map { maybeRules =>
       maybeRules match {
         case Left(errors) => {

@@ -11,7 +11,7 @@ import model.RegexRule
 import utils.Loggable
 
 class BucketRuleResource (s3: AmazonS3, bucketName: String) extends Loggable {
-    private val RULES_KEY = "typerighter-rules.json"
+    private val RULES_KEY = "rules/typerighter-rules.json"
 
     def serialiseAndUploadRules(rules: List[RegexRule]): Either[String, Date] = {
         val ruleJson = Json.toJson(rules)

@@ -60,8 +60,8 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   publicSettings.start()
 
   val typerighterBucket = identity match {
-    case identity: AwsIdentity => s"typerighter-rules-${identity.stage.toLowerCase}"
-    case _: DevIdentity => "typerighter-rules-code"
+    case identity: AwsIdentity => s"typerighter-${identity.stage.toLowerCase}"
+    case _: DevIdentity => "typerighter-code"
   }
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleResource, matcherPool)

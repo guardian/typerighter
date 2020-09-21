@@ -333,11 +333,11 @@ Resources:
         ToPort: 443
         CidrIp: 0.0.0.0/0
 
-  RuleBucket:
+  Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName:
-        !Join [ "-", ['typerighter-rules', Fn::FindInMap: [ StageLookup, Lowercase, Ref: Stage ] ] ]
+        !Join [ "-", ['typerighter', Fn::FindInMap: [ StageLookup, Lowercase, Ref: Stage ] ] ]
       AccessControl: Private
       Tags:
       - Key: Stack
