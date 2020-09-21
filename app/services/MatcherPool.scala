@@ -30,7 +30,6 @@ case class PartialMatcherJob(blocks: List[TextBlock], categoryIds: List[String])
   * A MatcherJob represents everything we need to for a matcher to
   *  - perform work
   *  - notify its caller once work is complete
-  *
   */
 case class MatcherJob(requestId: String, documentId: String, blocks: List[TextBlock], categoryIds: List[String], promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer) {
   def toMarker = Markers.appendEntries(Map(
@@ -194,7 +193,7 @@ class MatcherPool(
         val eventuallyCheck = matcher.check(MatcherRequest(job.blocks, category.id)).map((category, _))
         futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       case (None, categoryId) =>
-        val message = s"Could not run job with -- no matcher for category for id: $categoryId"
+        val message = s"Could not run job: no matcher for category for id: $categoryId"
         logger.error(message)(job.toMarker)
         val error = new IllegalStateException(message)
         Future.failed(error)
@@ -214,7 +213,10 @@ class MatcherPool(
       job.promise.completeWith(Future.successful(sortedMatches))
       (job, sortedMatches)
     }.andThen {
-      case Failure(exception) => job.promise.failure(exception)
+      case Failure(exception) => {
+        logger.error(s"Job failed with error: ${exception.getMessage}")(job.toMarker)
+        job.promise.failure(exception)
+      }
     }
   }
 

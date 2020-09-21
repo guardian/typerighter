@@ -14,6 +14,7 @@ import scala.util.Failure
 import scala.util.Success
 import play.api.libs.concurrent.DefaultFutures
 import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.Future
 
 /**
   * A mock matcher to test the pool implementation. Doesn't
@@ -27,7 +28,7 @@ class MockMatcher(id: Int) extends Matcher {
   def getCategory = s"mock-category-$id"
   def getRules = List.empty
 
-  def check(request: MatcherRequest) = {
+  def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
     val promise = Promise[List[RuleMatch]]
     val future = promise.future
     currentWork = Some(promise)
@@ -56,6 +57,18 @@ class MockMatcher(id: Int) extends Matcher {
       promise <- currentWork
     } yield {
       promise.failure(new Throwable(message))
+    }
+  }
+}
+
+class MockMatcherThatThrows(e: Throwable) extends Matcher {
+  def getId = s"mock-matcher-that-throws"
+  def getCategory = s"mock-category"
+  def getRules = List.empty
+
+  def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
+    Future {
+      throw e
     }
   }
 }
@@ -192,11 +205,21 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val result = futureResult transformWith {
       case Success(_) => fail
       case Failure(e) => e.getMessage shouldBe errorMessage
-
     }
     matchers(0).markAsComplete(responses)
     matchers(1).fail(errorMessage)
     result
+  }
+
+  it should "handle validation failures when the matcher" in {
+    val errorMessage = "Something bad happened"
+    val matcher = new MockMatcherThatThrows(new Exception(errorMessage))
+    val pool = getPool(List(matcher))
+    val futureResult = pool.check(getCheck(text = "Example text"))
+    futureResult transformWith {
+      case Success(_) => fail
+      case Failure(e) => e.getMessage shouldBe errorMessage
+    }
   }
 
   it should "recover from validation failures" in {

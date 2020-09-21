@@ -55,12 +55,12 @@ class LanguageToolFactory(
 /**
   * A Matcher that wraps a LanguageTool instance.
   */
-class LanguageToolMatcher(category: String, instance: JLanguageTool)(implicit ec: ExecutionContext) extends Matcher {
+class LanguageToolMatcher(category: String, instance: JLanguageTool) extends Matcher {
   def getId = "language-tool"
 
   def getCategory = category
 
-  def check(request: MatcherRequest): Future[List[RuleMatch]] = {
+  def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     Future {
       request.blocks.flatMap { block =>
         instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block)).toList.map { ruleMatch =>
