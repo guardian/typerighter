@@ -42,17 +42,21 @@ Parameters:
     Description: Name of the ELK logging stream in this account
     Type: AWS::SSM::Parameter::Value<String>
     Default: /account/services/logging.stream
+    
 Mappings:
   StageVariables:
     CODE:
       MaxInstances: 2
       MinInstances: 1
       InstanceType: t3.small
-
     PROD:
       MaxInstances: 6
       MinInstances: 3
       InstanceType: t3.small
+  StageLookup:
+    Lowercase:
+      PROD: prod
+      CODE: code
 
 Resources:
   AutoScalingGroup:
@@ -189,6 +193,23 @@ Resources:
             Resource: !Ref KinesisLoggingStream
       Roles:
         - !Ref AppRole
+
+  GetRulesPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: GetRulesPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          - s3:PutObject
+          Resource: !Sub
+            - arn:aws:s3:::typerighter-${Stage}/rules/*
+            - { Stage: { Fn::FindInMap: [ StageLookup, Lowercase, Ref: Stage ] } }
+      Roles:
+      - !Ref AppRole
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
@@ -328,3 +349,17 @@ Resources:
         FromPort: 443
         ToPort: 443
         CidrIp: 0.0.0.0/0
+
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        !Join [ "-", ['typerighter', Fn::FindInMap: [ StageLookup, Lowercase, Ref: Stage ] ] ]
+      AccessControl: Private
+      Tags:
+      - Key: Stack
+        Value: !Ref Stack
+      - Key: App
+        Value: !Ref App
+      - Key: Stage
+        Value: !Ref Stage

@@ -3,7 +3,8 @@
 @import model.Category
 @import helper._
 
-@(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category, Int)], rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
+@(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category, Int)], rulesRefreshed: Option[Boolean] = None,
+        rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
         @CSRF.formField
@@ -12,12 +13,18 @@
             <button class="btn btn-primary btn-sm ml-3">Refresh rules</button>
         </h1>
     }
-    @if(rulesIngested.nonEmpty || errors.size != 0) {
+    @if(rulesRefreshed.isInstanceOf[Some[Boolean]] ) {
         <div class="alert alert-@if(errors != Nil) {danger} else {success}" role="alert">
-            @rulesIngested.getOrElse("No") rules added. @if(errors != Nil) {Errors found: @errors.size}
-            @for(error <- errors) {
-                <p>@error</p>
+            @if(rulesRefreshed == Some(true)){
+                Rules were refreshed, @rulesIngested.getOrElse("No") found. These rules will be available within a minute. @if(errors != Nil) {Errors found: @errors.size}
+            } else {
+                Rules were not refreshed due to errors. @if(errors != Nil) {Errors found: @errors.size}
             }
+            <ul>
+                @for(error <- errors) {
+                    <li>@error</li>
+                }
+            </ul>
         </div>
     }
     <div class="row">

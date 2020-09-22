@@ -4,7 +4,7 @@ import matchers.{LanguageToolFactory, RegexMatcher}
 import com.gu.pandomainauth.PublicSettings
 import model.{Category, RegexRule}
 import play.api.mvc._
-import rules.SheetsRuleResource
+import rules.{BucketRuleResource, RuleProvisionerService, SheetsRuleResource}
 import services._
 
 import scala.concurrent.ExecutionContext
@@ -12,13 +12,10 @@ import scala.concurrent.ExecutionContext
 /**
  * The controller that handles the management of matcher rules.
  */
-class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleResource: SheetsRuleResource, sheetId: String, val publicSettings: PublicSettings)(implicit ec: ExecutionContext)
+class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleResource: SheetsRuleResource, ruleBucketResouce: BucketRuleResource, sheetId: String,
+                      ruleProvisioner: RuleProvisionerService, val publicSettings: PublicSettings)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction.async { implicit request: Request[AnyContent] =>
-
-    // This reset will need to be revisited when we're ingesting from multiple matchers.
-    matcherPool.removeAllMatchers()
-
     ruleResource.fetchRulesByCategory().map { maybeRules =>
       maybeRules match {
         case Left(errors) => {
@@ -26,20 +23,35 @@ class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleRe
             sheetId,
             matcherPool.getCurrentRules,
             matcherPool.getCurrentCategories,
+            Some(false),
             None,
             errors
           ))
         }
         case Right(rules) => {
-          val errorsByCategory = addMatcherToPool(rules).flatMap(_._2)
-          val rulesIngested = rules.map { _._2.size }.sum
-          Ok(views.html.rules(
-            sheetId,
-            matcherPool.getCurrentRules,
-            matcherPool.getCurrentCategories,
-            Some(rulesIngested),
-            errorsByCategory
-          ))
+          ruleBucketResouce.serialiseAndUploadRules(rules) match {
+            case Right(_) => {
+              ruleProvisioner.updateRules()
+              val rulesIngested = rules.length
+              Ok(views.html.rules(
+                sheetId,
+                matcherPool.getCurrentRules,
+                matcherPool.getCurrentCategories,
+                Some(true),
+                Some(rulesIngested)
+              ))
+            }
+            case Left(message) => {
+              Ok(views.html.rules(
+                sheetId,
+                matcherPool.getCurrentRules,
+                matcherPool.getCurrentCategories,
+                Some(false),
+                None,
+                List(message)
+              ))
+            }
+          }
         }
       }
     }
@@ -51,14 +63,5 @@ class RulesController(cc: ControllerComponents, matcherPool: MatcherPool, ruleRe
       matcherPool.getCurrentRules,
       matcherPool.getCurrentCategories
     ))
-  }
-
-
-  private def addMatcherToPool(rulesByCategory: Map[Category, List[RegexRule]]) = {
-    rulesByCategory.map { case (category, rules) => {
-      val validator = new RegexMatcher(category.name, rules)
-      matcherPool.addMatcher(category, validator)
-      (category.name, List.empty)
-    }}.toList
   }
 }
