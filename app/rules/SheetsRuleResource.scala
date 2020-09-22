@@ -57,7 +57,6 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, matcher
         }
       }
 
-      println(maybeLTRules)
 
       val (ltErrors, noOfLtRulesIngested) = maybeLTRules match {
         case Left(errors) => {

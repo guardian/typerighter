@@ -82,11 +82,6 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     "text/html" -> new DefaultHttpErrorHandler(),
   )
 
-<<<<<<< HEAD
-=======
-  ruleResource.addRulesToMatcherPool
-
->>>>>>> 502c0371... Refactor sheetsRuleResource to fetch from multiple sheets, and encapsulate matcherPool wiring
   lazy val router = new Routes(
     httpErrorHandler,
     assets,
@@ -96,12 +91,9 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     apiController,
     capiProxyController
   )
-<<<<<<< HEAD
 
   /**
     * Set up matchers and add them to the matcher pool as the app starts.
     */
   ruleProvisioner.scheduleUpdateRules(actorSystem.scheduler)
-=======
->>>>>>> 502c0371... Refactor sheetsRuleResource to fetch from multiple sheets, and encapsulate matcherPool wiring
 }
