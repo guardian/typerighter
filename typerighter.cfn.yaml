@@ -207,7 +207,7 @@ Resources:
           - s3:PutObject
           Resource: !Sub
             - arn:aws:s3:::typerighter-${Stage}/rules/*
-            - { Stage: !Ref Stage }
+            - { Stage: { Fn::FindInMap: [ StageLookup, Lowercase, Ref: Stage ] } }
       Roles:
       - !Ref AppRole
 
