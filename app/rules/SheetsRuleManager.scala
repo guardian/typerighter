@@ -101,14 +101,14 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
           val maybeId = row.lift(10).asInstanceOf[Option[String]]
 
           maybeId match {
-            case Some(id) => Success(Some(RegexRule(
+            case Some(id) if id.length > 0 => Success(Some(RegexRule(
               id = id,
               category = Category(category, category, colour),
               description = description.getOrElse(""),
               replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
               regex = rule.r,
             )))
-            case None => {
+            case _ => {
               throw new Exception(s"No id for rule ${rule}")
             }
           }

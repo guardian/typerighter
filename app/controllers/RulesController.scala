@@ -41,7 +41,7 @@ class RulesController(
           sheetId,
           matcherPool.getCurrentRules,
           matcherPool.getCurrentCategories,
-          Some(true),
+          Some(false),
           Some(0),
           errors
         ))
