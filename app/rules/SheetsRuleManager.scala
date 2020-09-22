@@ -12,8 +12,7 @@ import model.{Category, RegexRule, TextSuggestion}
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-import model.LTRule
-import model.BaseRule
+import model.{LTRule, BaseRule, RuleResource}
 import scala.concurrent.ExecutionContext
 import services.MatcherPool
 import matchers.RegexMatcher
@@ -21,12 +20,12 @@ import matchers.LanguageToolFactory
 import play.api.Logging
 
 /**
-  * A resource that fetches rules from the given Google Sheet.
+  * A resource that gets rules from the given Google Sheet.
   *
   * @param credentialsJson A string containing the JSON the Google credentials service expects
   * @param spreadsheetId Available in the sheet URL
   */
-class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, matcherPool: MatcherPool, languageToolFactory: LanguageToolFactory) extends Logging {
+class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherPool: MatcherPool, languageToolFactory: LanguageToolFactory) extends Logging {
   private val APPLICATION_NAME = "Typerighter"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
 
@@ -38,51 +37,25 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, matcher
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def addRulesToMatcherPool()(implicit ec: ExecutionContext): Future[(Int, List[String])] = {
-    for {
-      maybeRegexRules <- fetchRegexRules()
-      maybeLTRules <- fetchLanguageToolDefaults()
-    } yield {
-      val (regexErrors, noOfRegexRulesIngested) = maybeRegexRules match {
-        case Left(errors) => {
-          logger.error(s"Could not parse regex rules from spreadsheet on init: ${errors.mkString}")
-          (errors, 0)
-        }
-        case Right(rules) => {
-          rules.groupBy(_.category).foreach { case (category, rules) => {
-            val matcher = new RegexMatcher(category.name, rules)
-            matcherPool.addMatcher(category, matcher)
-          }}
-          (Nil, rules.size)
-        }
-      }
+  def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
+    val maybeRegexRules = getRegexRules()
+    val maybeLTRuleIds = getLanguageToolDefaultRuleIds()
 
-
-      val (ltErrors, noOfLtRulesIngested) = maybeLTRules match {
-        case Left(errors) => {
-          logger.error(s"Could not parse LT defaultrules from spreadsheet on init: ${errors.mkString}")
-          (errors, 0)
-        }
-        case Right(rules) => {
-          val (matcher, errors) = languageToolFactory.createInstance("languagetool-default", Nil, rules)
-          matcherPool.addMatcher(new Category(matcher.getCategory(), "Default LanguageTool rules", "puce"), matcher)
-          (Nil, rules.size)
-        }
-      }
-
-      (noOfRegexRulesIngested + noOfLtRulesIngested, regexErrors ++ ltErrors)
+    (maybeRegexRules, maybeLTRuleIds) match {
+      case (Right(regexRules), Right(ltRules)) => Right(RuleResource(regexRules, ltRules))
+      case (maybeRegex, maybeLt) => Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRegexRules.left.getOrElse(Nil))
     }
   }
 
-  private def fetchRegexRules()(implicit ec: ExecutionContext): Future[Either[List[String], List[RegexRule]]] = {
-    fetchRulesFromSheet("regexRules", "A:N", getRegexRuleFromRow)
+  private def getRegexRules()(implicit ec: ExecutionContext): Either[List[String], List[RegexRule]] = {
+    getRulesFromSheet("regexRules", "A:N", getRegexRuleFromRow)
   }
 
-  private def fetchLanguageToolDefaults()(implicit ec: ExecutionContext): Future[Either[List[String], List[String]]] = {
-    fetchRulesFromSheet("languagetoolRules", "A:C", getLTRuleFromRow)
+  private def getLanguageToolDefaultRuleIds()(implicit ec: ExecutionContext): Either[List[String], List[String]] = {
+    getRulesFromSheet("languagetoolRules", "A:C", getLTRuleFromRow)
   }
 
-  private def fetchRulesFromSheet[RuleData](sheetName: String, sheetRange: String, rowToRule: (List[Object], Int) => Try[Option[RuleData]]): Future[Either[List[String], List[RuleData]]] = {
+  private def getRulesFromSheet[RuleData](sheetName: String, sheetRange: String, rowToRule: (List[Object], Int) => Try[Option[RuleData]]): Either[List[String], List[RuleData]] = {
     val response = service
       .spreadsheets
       .values
@@ -90,7 +63,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, matcher
       .execute
     val values = response.getValues
     if (values == null || values.isEmpty) {
-      Future.successful(Left(List(s"Found no rules to ingest for sheet ${spreadsheetId}")))
+      Left(List(s"Found no rules to ingest for sheet ${spreadsheetId}"))
     } else {
       val (rules, errors) = values
         .asScala
@@ -106,9 +79,9 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String, matcher
         }
 
       if (errors.size != 0) {
-        Future.successful(Left(errors))
+        Left(errors)
       } else {
-        Future.successful(Right(rules))
+        Right(rules)
       }
     }
   }

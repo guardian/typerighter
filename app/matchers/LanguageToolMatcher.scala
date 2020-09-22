@@ -12,12 +12,13 @@ import utils.Matcher
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
+import model.Category
 
 class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) extends Logging {
 
-  def createInstance(category: String, rules: List[LTRule], defaultRuleIds: List[String])(implicit ec: ExecutionContext): (Matcher, List[String]) = {
+  def createInstance(category: Category, rules: List[LTRule], defaultRuleIds: List[String])(implicit ec: ExecutionContext): (Matcher, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
@@ -47,7 +48,7 @@ class LanguageToolFactory(
         }
       }
     }
-    instance.enableRuleCategory(new CategoryId(category))
+    instance.enableRuleCategory(new CategoryId(category.id))
 
     (new LanguageToolMatcher(category, instance), ruleIngestionErrors)
   }
@@ -56,7 +57,7 @@ class LanguageToolFactory(
 /**
   * A Matcher that wraps a LanguageTool instance.
   */
-class LanguageToolMatcher(category: String, instance: JLanguageTool) extends Matcher {
+class LanguageToolMatcher(category: Category, instance: JLanguageTool) extends Matcher {
   def getId = "language-tool"
 
   def getCategory = category
