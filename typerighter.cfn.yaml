@@ -194,6 +194,22 @@ Resources:
       Roles:
         - !Ref AppRole
 
+  GetRulesPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: GetRulesPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          Resource: !Sub
+            - arn:aws:s3:::typerighter-${Stage}/rules/*
+            - { Stage: !Ref Stage }
+      Roles:
+      - !Ref AppRole
+
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
