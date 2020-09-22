@@ -14,9 +14,9 @@ class RuleProvisionerService(ruleBucket: BucketRuleResource, matcherPool: Matche
   var lastModified: Date = new Date(0)
 
   def updateRules(): Unit = {
-    matcherPool.removeAllMatchers()
     ruleBucket.getRules match {
       case Some((rules, date)) => {
+        matcherPool.removeAllMatchers()
         rules.groupBy(_.category).foreach { case (category, rules) => {
           val matcher = new RegexMatcher(category.name, rules)
           matcherPool.addMatcher(category, matcher)
@@ -31,7 +31,7 @@ class RuleProvisionerService(ruleBucket: BucketRuleResource, matcherPool: Matche
     ruleBucket.getRulesLastModified match {
       case Some(date) if date.compareTo(lastModified) > 0 => updateRules
       case Some(_) => log.info("No rule update needed")
-      case None => log.error("No last modified date found for rules")
+      case None => log.error("Could not get last modified from S3")
     }
   }
 
