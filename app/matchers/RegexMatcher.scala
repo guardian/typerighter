@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
   * A Matcher for rules based on regular expressions.
   */
 class RegexMatcher(category: Category, rules: List[RegexRule]) extends Matcher {
-  def getId() = "regex-validator"
+  def getType() = "regex"
 
   override def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     Future {

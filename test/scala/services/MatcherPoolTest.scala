@@ -24,7 +24,8 @@ import scala.concurrent.Future
 class MockMatcher(id: Int) extends Matcher {
   private var currentWork: Option[Promise[List[RuleMatch]]] = None
   private var currentResponses:  Option[List[RuleMatch]] = None
-  def getId = s"mock-matcher-$id"
+
+  def getType = s"mock-matcher-$id"
   def getCategory = Category(s"mock-category-$id", "Example category", "puce")
   def getRules = List.empty
 
@@ -62,7 +63,7 @@ class MockMatcher(id: Int) extends Matcher {
 }
 
 class MockMatcherThatThrows(e: Throwable) extends Matcher {
-  def getId = s"mock-matcher-that-throws"
+  def getType = s"mock-matcher-that-throws"
   def getCategory = Category("example-category", "Example category", "puce")
   def getRules = List.empty
 

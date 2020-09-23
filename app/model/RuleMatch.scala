@@ -39,7 +39,8 @@ object RuleMatch {
     "shortMessage" -> ruleMatch.shortMessage,
     "suggestions" -> ruleMatch.suggestions,
     "markAsCorrect" -> ruleMatch.markAsCorrect,
-    "matchContext" -> ruleMatch.matchContext
+    "matchContext" -> ruleMatch.matchContext,
+    "matcherId" -> ruleMatch.matcherId
   ))
 }
 
@@ -52,5 +53,5 @@ case class RuleMatch(rule: BaseRule,
                      suggestions: List[Suggestion] = List.empty,
                      replacement: Option[Suggestion] = None,
                      markAsCorrect: Boolean = false,
-                     matchContext: String)
-
+                     matchContext: String,
+                     matcherId: String)
