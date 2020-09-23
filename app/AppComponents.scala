@@ -13,14 +13,15 @@ import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
 import play.api.libs.ws.ahc.AhcWSComponents
+import play.api.libs.concurrent.DefaultFutures
 import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-import rules.{BucketRuleResource, RuleProvisionerService, SheetsRuleResource}
+import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
 import utils.Loggable
-import play.api.libs.concurrent.DefaultFutures
+import matchers.LanguageToolFactory
 
 
 class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
@@ -40,13 +41,11 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   }
 
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
+  val languageToolFactory = new LanguageToolFactory(ngramPath, true)
+
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
   val defaultFutures = new DefaultFutures(actorSystem)
   val matcherPool = new MatcherPool(futures = defaultFutures)(matcherPoolDispatcher, materializer)
-
-  val credentials = configuration.get[String]("typerighter.google.credentials")
-  val spreadsheetId = configuration.get[String]("typerighter.sheetId")
-  val ruleResource = new SheetsRuleResource(credentials, spreadsheetId)
 
   val capiApiKey = configuration.get[String]("capi.apiKey")
   val guardianContentClient = GuardianContentClient(capiApiKey)
@@ -65,11 +64,15 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     case identity: AwsIdentity => s"typerighter-${identity.stage.toLowerCase}"
     case _: DevIdentity => "typerighter-code"
   }
-  val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket)
-  val ruleProvisioner = new RuleProvisionerService(bucketRuleResource, matcherPool)
+  val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
+  val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory)
+
+  val credentials = configuration.get[String]("typerighter.google.credentials")
+  val spreadsheetId = configuration.get[String]("typerighter.sheetId")
+  val sheetsRuleManager = new SheetsRuleManager(credentials, spreadsheetId, matcherPool, languageToolFactory)
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
-  val rulesController = new RulesController(controllerComponents, matcherPool, ruleResource, bucketRuleResource, spreadsheetId, ruleProvisioner, publicSettings)
+  val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, spreadsheetId, ruleProvisioner, publicSettings)
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient, publicSettings)
@@ -93,5 +96,4 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     * Set up matchers and add them to the matcher pool as the app starts.
     */
   ruleProvisioner.scheduleUpdateRules(actorSystem.scheduler)
-
 }
