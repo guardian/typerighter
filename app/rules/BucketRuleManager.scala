@@ -20,7 +20,7 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Loggable {
         val ruleJson = Json.toJson(ruleResource)
         val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
 
-        logOnError {
+        logOnError("writing rules to S3") {
             val stream: java.io.InputStream = new java.io.ByteArrayInputStream(bytes)
             val metaData = new ObjectMetadata()
             metaData.setContentLength(bytes.length)
@@ -31,7 +31,7 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Loggable {
     }
 
     def getRules(): Either[Exception, (RuleResource, Date)] = {
-        logOnError {
+        logOnError("getting rules from S3") {
             val rules = s3.getObject(bucketName, RULES_KEY)
             val rulesStream = rules.getObjectContent()
             val rulesJson = Json.parse(rulesStream)
@@ -42,18 +42,18 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Loggable {
     }
 
     def getRulesLastModified: Either[Exception, Date] = {
-        logOnError {
+        logOnError("getting the lastModified date from S3") {
           val rulesMeta = s3.getObjectMetadata(bucketName, RULES_KEY)
           rulesMeta.getLastModified
         }
     }
 
-    def logOnError[T](op: => T): Either[Exception, T] = {
+    def logOnError[T](name: String)(op: => T): Either[Exception, T] = {
         try {
           Right(op)
         } catch {
           case e: Exception => {
-                log.error(e.getMessage)
+                log.error(s"Error whilst $name: ${e.getMessage}")
                 Left(e)
             }
         }
