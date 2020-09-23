@@ -23,7 +23,7 @@ class RuleProvisionerService(
   /**
     * Update the rules in our matcherPool, given a ruleResource.
     */
-  def updateRules(ruleResource: RuleResource, date: Date): Unit = {
+  def updateRules(ruleResource: RuleResource): Unit = {
     matcherPool.removeAllMatchers()
 
     ruleResource.regexRules.groupBy(_.category).foreach {
@@ -35,9 +35,8 @@ class RuleProvisionerService(
 
     val category = new Category("languagetool-default", "Default LanguageTool rules", "puce")
     val (matcher, errors) = languageToolFactory.createInstance(category, Nil, ruleResource.ltDefaultRuleIds)
-    matcherPool.addMatcher(category, matcher)
 
-    lastModified = date
+    matcherPool.addMatcher(category, matcher)
   }
 
   /**
@@ -45,7 +44,10 @@ class RuleProvisionerService(
     */
   def updateRulesFromBucket(): Unit = {
     bucketRuleManager.getRules.map {
-      case (ruleResource, date) => updateRules(ruleResource, date)
+      case (ruleResource, date) => {
+        updateRules(ruleResource)
+        lastModified = date
+      }
     }
   }
 

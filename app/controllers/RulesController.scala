@@ -27,12 +27,14 @@ class RulesController(
       Right(ruleResource)
     } match {
       case Right(ruleResource) => {
+        ruleProvisioner.updateRules(ruleResource)
+        val currentRules = matcherPool.getCurrentRules
         Ok(views.html.rules(
             sheetId,
-            matcherPool.getCurrentRules,
+            currentRules,
             matcherPool.getCurrentCategories,
             Some(true),
-            Some(ruleResource.regexRules.size + ruleResource.ltDefaultRuleIds.size),
+            Some(currentRules.size),
             Nil
         ))
       }
