@@ -61,7 +61,7 @@ object LanguageToolMatcher extends MatcherCompanion {
 /**
   * A Matcher that wraps a LanguageTool instance.
   */
-class LanguageToolMatcher(category: String, instance: JLanguageTool) extends Matcher {
+class LanguageToolMatcher(category: Category, instance: JLanguageTool) extends Matcher {
 
   def getType = LanguageToolMatcher.getType
   def getCategory = category
