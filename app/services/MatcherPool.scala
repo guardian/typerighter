@@ -185,37 +185,59 @@ class MatcherPool(
   }
 
   private def runValidationJob(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
-    val matchersAndCategoryIds = job.categoryIds
-      .map(categoryId => matchers.values.find(_.getCategory().id == categoryId))
-      .zip(job.categoryIds)
+    val matchersToCheck = matchers
+      .values
+      .toList
+      .filter(matcher => job.categoryIds.contains(matcher.getCategory().id))
 
-    val eventuallyJobResults : List[Future[List[RuleMatch]]] = matchersAndCategoryIds.map {
-      case (Some(matcher), _) =>
-        val eventuallyCheck = matcher.check(MatcherRequest(job.blocks))
-        futures.timeout(checkTimeoutDuration)(eventuallyCheck)
-      case (None, categoryId) =>
-        val message = s"Could not run job: no matcher for category for id: $categoryId"
-        logger.error(message)(job.toMarker)
-        val error = new IllegalStateException(message)
-        Future.failed(error)
+    val missingCategoryIds = job.categoryIds.diff(matchersToCheck.map(_.getCategory().id))
+
+    if (missingCategoryIds.size != 0) {
+      val message = s"Could not run job: no matcher for category for id(s): ${missingCategoryIds.mkString(", ")}"
+      val exception = new IllegalStateException(message)
+      logger.error(message)(job.toMarker)
+      job.promise.failure(exception)
+      Future.failed(exception)
+    } else {
+      runMatchersForJob(matchersToCheck, job)
+    }
+  }
+
+  private def runMatchersForJob(matchers: List[Matcher], job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
+    val eventuallyJobResults = matchers.map { matcher =>
+      val eventuallyCheck = matcher.check(MatcherRequest(job.blocks))
+      futures.timeout(checkTimeoutDuration)(eventuallyCheck)
     }
 
-    Future.sequence(eventuallyJobResults).map { matchesByCategory =>
-      val sortedMatches = matchesByCategory.sortBy {
-        case matches => matches.headOption.map(_.rule.category.id).getOrElse("no-category")
-      }.foldLeft(List.empty[RuleMatch])(
-        (acc, matches) => {
-          RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
-        }
-      )
-      job.promise.completeWith(Future.successful(sortedMatches))
-      (job, sortedMatches)
-    }.andThen {
+    val eventuallyAllMatches = Future.sequence(eventuallyJobResults).map { _.flatten }
+
+    val matchesWithoutOverlaps = eventuallyAllMatches.map(removeOverlappingMatches)
+
+    matchesWithoutOverlaps.transformWith {
+      case Success(matches) => {
+        job.promise.completeWith(Future.successful(matches))
+        Future.successful((job, matches))
+      }
       case Failure(exception) => {
         logger.error(s"Job failed with error: ${exception.getMessage}")(job.toMarker)
         job.promise.failure(exception)
+        Future.failed(exception)
       }
     }
+  }
+
+  private def removeOverlappingMatches(matches: List[RuleMatch]) = {
+    val matchesByCategory = matches.groupBy(_.rule.category.id).toList
+
+    val sortedMatches = matchesByCategory.sortBy {
+      case (categoryId, matches) => categoryId
+    }
+
+    sortedMatches.foldLeft(List.empty[RuleMatch])(
+      (acc, currentMatches) => currentMatches match {
+        case (_, matches) => RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
+      }
+    )
   }
 
   private def markJobAsComplete(progressMap: Map[String, Int], result: (MatcherJob, List[RuleMatch])): JobProgressMap = {
