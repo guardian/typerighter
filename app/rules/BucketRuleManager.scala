@@ -7,13 +7,13 @@ import java.io.InputStream
 import java.util.Date
 
 import com.amazonaws.{AmazonServiceException, SdkClientException}
-import utils.Loggable
 import play.api.libs.json.Writes
 import play.api.libs.json.Reads
 
 import model.{RegexRule, RuleResource}
+import play.api.Logging
 
-class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Loggable {
+class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Logging {
     private val RULES_KEY = "rules/typerighter-rules.json"
 
     def putRules(ruleResource: RuleResource): Either[Exception, Date] = {
@@ -50,10 +50,11 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Loggable {
 
     def logOnError[T](name: String)(op: => T): Either[Exception, T] = {
         try {
+          logger.info(s"BucketRuleManager: ${name}")
           Right(op)
         } catch {
           case e: Exception => {
-                log.error(s"Error whilst $name: ${e.getMessage}")
+                logger.error(s"BucketRuleManager: error whilst $name. ${e.getMessage}")
                 Left(e)
             }
         }
