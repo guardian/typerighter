@@ -38,7 +38,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
   ).setApplicationName(APPLICATION_NAME).build
 
   def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
-    val maybeRegexRules = getRegexRules()
+    val maybeRegexRules = getPatternRules()
     val maybeLTRuleIds = getLanguageToolDefaultRuleIds()
 
     (maybeRegexRules, maybeLTRuleIds) match {
@@ -47,8 +47,8 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     }
   }
 
-  private def getRegexRules()(implicit ec: ExecutionContext): Either[List[String], List[RegexRule]] = {
-    getRulesFromSheet("regexRules", "A:N", getRegexRuleFromRow)
+  private def getPatternRules()(implicit ec: ExecutionContext): Either[List[String], List[RegexRule]] = {
+    getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
   private def getLanguageToolDefaultRuleIds()(implicit ec: ExecutionContext): Either[List[String], List[String]] = {
@@ -86,39 +86,48 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     }
   }
 
-  private def getRegexRuleFromRow(row: List[Any], index: Int): Try[Option[RegexRule]] = {
+  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[RegexRule]] = {
     try {
-      val shouldIgnore = row.lift(8)
+      val ruleType = row(0)
+      val maybeIgnore = row.lift(8)
+      val maybeId = row.lift(10).asInstanceOf[Option[String]]
 
-      shouldIgnore match {
-        case Some("TRUE") => Success(None)
-        case _ => {
-          val rule = row(1).asInstanceOf[String]
-          val suggestion = row(2).asInstanceOf[String]
-          val colour = row(3).asInstanceOf[String]
-          val category = row(4).asInstanceOf[String]
-          val description = row.lift(6).asInstanceOf[Option[String]]
-          val maybeId = row.lift(10).asInstanceOf[Option[String]]
-
-          maybeId match {
-            case Some(id) if id.length > 0 => Success(Some(RegexRule(
-              id = id,
-              category = Category(category, category, colour),
-              description = description.getOrElse(""),
-              replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
-              regex = rule.r,
-            )))
-            case _ => {
-              throw new Exception(s"No id for rule ${rule}")
-            }
-          }
-        }
+      (maybeId, maybeIgnore, ruleType) match {
+        case (_, Some("TRUE"), _) => Success(None)
+        case (None, _, _) => Failure(new Exception(s"no id for rule"))
+        case (Some(id), _, _) if id.length == 0 => Failure(new Exception(s"empty id for rule"))
+        case (Some(id), _, "regex") => Success(Some(getRegexRule(
+            id,
+            row(1).asInstanceOf[String],
+            row(2).asInstanceOf[String],
+            row(3).asInstanceOf[String],
+            row(4).asInstanceOf[String],
+            row.lift(6).asInstanceOf[Option[String]]
+          )))
       }
+
     } catch {
       case e: Throwable => {
         Failure(new Exception(s"Error parsing rule at index ${index} – ${e.getMessage()}"))
       }
     }
+  }
+
+  private def getRegexRule(
+    id: String,
+    pattern: String,
+    suggestion: String,
+    colour: String,
+    category: String,
+    description: Option[String]
+  ) = {
+    RegexRule(
+      id = id,
+      category = Category(category, category, colour),
+      description = description.getOrElse(""),
+      replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
+      regex = pattern.r,
+    )
   }
 
   private def getLTRuleFromRow(row: List[Any], index: Int): Try[Option[String]] = {
