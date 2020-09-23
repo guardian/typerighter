@@ -24,7 +24,7 @@ class AppLoader extends ApplicationLoader {
     }
 
     new AppComponents(
-      context.copy(initialConfiguration = context.initialConfiguration.withFallback(Configuration(loadedConfig))),
+      context.copy(initialConfiguration = Configuration(loadedConfig).withFallback(context.initialConfiguration)),
       identity,
       creds
     ).application
