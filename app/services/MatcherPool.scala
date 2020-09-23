@@ -124,7 +124,7 @@ class MatcherPool(
     * the replaced matcher.
     */
   def addMatcher(category: Category, matcher: Matcher): Option[(Category, Matcher)] = {
-    logger.info(s"New instance of matcher available of id: ${matcher.getId} for category: ${category.id}")
+    logger.info(s"New instance of matcher available of type: ${matcher.getType} for category: ${category.id}")
     matchers.put(category.id, (category, matcher))
   }
 
@@ -142,7 +142,7 @@ class MatcherPool(
 
   def getCurrentCategories: List[(String, Category, Int)] = {
     val matchersAndCategories = matchers.values.map {
-      case (category, matcher) => (matcher.getId, category, matcher.getRules.length)
+      case (category, matcher) => (matcher.getType, category, matcher.getRules.length)
     }.toList
     matchersAndCategories
   }
@@ -253,4 +253,3 @@ class MatcherPool(
     eventBus.publish(MatcherPoolJobsCompleteEvent(requestId))
   }
 }
-

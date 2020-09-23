@@ -9,7 +9,7 @@ import scala.util.matching.Regex
 import utils.Text
 
 object RuleMatch {
-  def fromLT(lt: LTRuleMatch, block: TextBlock): RuleMatch = {
+  def fromLT(lt: LTRuleMatch, block: TextBlock, matcherType: String): RuleMatch = {
     val suggestions = lt.getSuggestedReplacements.asScala.toList.map {
       TextSuggestion(_)
     }
@@ -25,7 +25,8 @@ object RuleMatch {
       shortMessage = Some(lt.getMessage),
       replacement = replacement,
       suggestions = suggestions,
-      matchContext = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos)
+      matchContext = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos),
+      matcherType = matcherType
     )
   }
 
@@ -40,7 +41,7 @@ object RuleMatch {
     "suggestions" -> ruleMatch.suggestions,
     "markAsCorrect" -> ruleMatch.markAsCorrect,
     "matchContext" -> ruleMatch.matchContext,
-    "matcherId" -> ruleMatch.matcherId
+    "matcherType" -> ruleMatch.matcherType
   ))
 }
 
@@ -54,4 +55,4 @@ case class RuleMatch(rule: BaseRule,
                      replacement: Option[Suggestion] = None,
                      markAsCorrect: Boolean = false,
                      matchContext: String,
-                     matcherId: String)
+                     matcherType: String)

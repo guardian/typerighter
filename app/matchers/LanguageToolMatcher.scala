@@ -8,7 +8,7 @@ import org.languagetool.rules.spelling.morfologik.suggestions_ordering.Suggestio
 import org.languagetool.rules.{CategoryId, Rule => LanguageToolRule}
 import play.api.Logging
 import services.MatcherRequest
-import utils.Matcher
+import utils.{Matcher, MatcherCompanion}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,17 +54,21 @@ class LanguageToolFactory(
   }
 }
 
+object LanguageToolMatcher extends MatcherCompanion {
+  def getType = "languageTool"
+}
+
 /**
   * A Matcher that wraps a LanguageTool instance.
   */
-class LanguageToolMatcher(category: Category, instance: JLanguageTool) extends Matcher {
-  def getId = "language-tool"
+class LanguageToolMatcher(category: String, instance: JLanguageTool) extends Matcher {
 
+  def getType = LanguageToolMatcher.getType
   def getCategory = category
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = Future {
     request.blocks.flatMap { block =>
-      instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block)).toList.map { ruleMatch =>
+      instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block, getType)).toList.map { ruleMatch =>
         ruleMatch.copy(
           fromPos = ruleMatch.fromPos + block.from,
           toPos = ruleMatch.toPos + block.from
