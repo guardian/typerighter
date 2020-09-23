@@ -19,7 +19,7 @@ import akka.stream.scaladsl.{Sink, Source}
 import play.api.libs.concurrent.Futures
 import play.api.Logging
 
-case class MatcherRequest(blocks: List[TextBlock], categoryId: String)
+case class MatcherRequest(blocks: List[TextBlock])
 
 /**
   * A PartialMatcherJob represents the information our CheckStrategy needs to divide validation work into jobs.
@@ -69,8 +69,8 @@ class MatcherPool(
   val checkTimeoutDuration: FiniteDuration = 5 seconds
 )(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
-
-  private val matchers = new ConcurrentHashMap[String, (Category, Matcher)]().asScala
+  type MatcherId = String
+  private val matchers = new ConcurrentHashMap[MatcherId, Matcher]().asScala
   private val eventBus = new MatcherPoolEventBus()
 
   // This supervision strategy resumes the stream when `mapAsyncUnordered`
@@ -119,21 +119,19 @@ class MatcherPool(
   def unsubscribe(subscriber: MatcherPoolSubscriber): Boolean = eventBus.unsubscribe(subscriber, subscriber.requestId)
 
   /**
-    * Add a matcher to the pool of matchers for the given category.
-    * Replaces a matcher that's already present for that category, returning
-    * the replaced matcher.
+    * Add a matcher to the pool of matchers.
     */
-  def addMatcher(category: Category, matcher: Matcher): Option[(Category, Matcher)] = {
-    logger.info(s"New instance of matcher available of type: ${matcher.getType} for category: ${category.id}")
-    matchers.put(category.id, (category, matcher))
+  def addMatcher(matcher: Matcher): Option[Matcher] = {
+    logger.info(s"New instance of matcher available of type: ${matcher.getType} for category: ${matcher.getCategory().id}")
+    matchers.put(matcher.getId(), matcher)
   }
 
   /**
-    * Remove a matcher from the pool by its category id.
-    * Returns the removed category and matcher.
+    * Remove a matcher from the pool by its id.
+    * Returns the removed matcher.
     */
-  def removeMatcherByCategory(categoryId: String): Option[(Category, Matcher)] = {
-    matchers.remove(categoryId)
+  def removeMatcherByCategory(matcherId: String): Option[Matcher] = {
+    matchers.remove(matcherId)
   }
 
   def removeAllMatchers(): Unit = {
@@ -141,16 +139,19 @@ class MatcherPool(
   }
 
   def getCurrentCategories: List[(String, Category, Int)] = {
+<<<<<<< HEAD
     val matchersAndCategories = matchers.values.map {
       case (category, matcher) => (matcher.getType, category, matcher.getRules.length)
+=======
+    val matchersAndCategories = matchers.values.map { matcher =>
+      (matcher.getId, matcher.getCategory, matcher.getRules.length)
+>>>>>>> 25dd2b9e... Seal BaseRule trait for serialisation purposes; allow multiple matchers per category
     }.toList
     matchersAndCategories
   }
 
   def getCurrentRules: List[BaseRule] = {
-    matchers.values.flatMap {
-      case (_, matcher) =>  matcher.getRules
-    }.toList
+    matchers.values.flatMap { matcher => matcher.getRules }.toList
   }
 
   private def createJobsFromPartialJobs(requestId: String, documentId: String, partialJobs: List[PartialMatcherJob]) = partialJobs.map { partialJob =>
@@ -185,12 +186,12 @@ class MatcherPool(
 
   private def runValidationJob(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
     val matchersAndCategoryIds = job.categoryIds
-      .map(categoryId => matchers.get(categoryId))
+      .map(categoryId => matchers.values.find(_.getCategory().id == categoryId))
       .zip(job.categoryIds)
 
-    val eventuallyJobResults : List[Future[(Category, List[RuleMatch])]] = matchersAndCategoryIds.map {
-      case (Some((category, matcher)), _) =>
-        val eventuallyCheck = matcher.check(MatcherRequest(job.blocks, category.id)).map((category, _))
+    val eventuallyJobResults : List[Future[List[RuleMatch]]] = matchersAndCategoryIds.map {
+      case (Some(matcher), _) =>
+        val eventuallyCheck = matcher.check(MatcherRequest(job.blocks))
         futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       case (None, categoryId) =>
         val message = s"Could not run job: no matcher for category for id: $categoryId"
@@ -201,13 +202,10 @@ class MatcherPool(
 
     Future.sequence(eventuallyJobResults).map { matchesByCategory =>
       val sortedMatches = matchesByCategory.sortBy {
-        case (category, _) => category.id
+        case matches => matches.headOption.map(_.rule.category.id).getOrElse("no-category")
       }.foldLeft(List.empty[RuleMatch])(
-        (acc, categoryMatches) => {
-          categoryMatches match {
-            case (_, matches) =>
-              RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
-          }
+        (acc, matches) => {
+          RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
         }
       )
       job.promise.completeWith(Future.successful(sortedMatches))

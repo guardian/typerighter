@@ -30,19 +30,7 @@ object RuleMatch {
     )
   }
 
-  implicit val writes: Writes[RuleMatch] = Writes[RuleMatch]((ruleMatch: RuleMatch) => Json.obj(
-    "rule" -> BaseRule.toJson(ruleMatch.rule),
-    "fromPos" -> ruleMatch.fromPos,
-    "toPos" -> ruleMatch.toPos,
-    "matchedText" -> ruleMatch.matchedText,
-    "message" -> ruleMatch.message,
-    "replacement" -> ruleMatch.replacement,
-    "shortMessage" -> ruleMatch.shortMessage,
-    "suggestions" -> ruleMatch.suggestions,
-    "markAsCorrect" -> ruleMatch.markAsCorrect,
-    "matchContext" -> ruleMatch.matchContext,
-    "matcherType" -> ruleMatch.matcherType
-  ))
+  implicit val writes: Writes[RuleMatch] = Json.writes[RuleMatch]
 }
 
 case class RuleMatch(rule: BaseRule,

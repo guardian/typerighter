@@ -47,7 +47,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     }
   }
 
-  private def getPatternRules()(implicit ec: ExecutionContext): Either[List[String], List[RegexRule]] = {
+  private def getPatternRules()(implicit ec: ExecutionContext): Either[List[String], List[BaseRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
@@ -86,7 +86,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     }
   }
 
-  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[RegexRule]] = {
+  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[BaseRule]] = {
     try {
       val ruleType = row(0)
       val maybeIgnore = row.lift(8)
@@ -97,6 +97,14 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
         case (None, _, _) => Failure(new Exception(s"no id for rule"))
         case (Some(id), _, _) if id.length == 0 => Failure(new Exception(s"empty id for rule"))
         case (Some(id), _, "regex") => Success(Some(getRegexRule(
+            id,
+            row(1).asInstanceOf[String],
+            row(2).asInstanceOf[String],
+            row(3).asInstanceOf[String],
+            row(4).asInstanceOf[String],
+            row.lift(6).asInstanceOf[Option[String]]
+          )))
+         case (Some(id), _, "lt") => Success(Some(getLTRule(
             id,
             row(1).asInstanceOf[String],
             row(2).asInstanceOf[String],
@@ -127,6 +135,23 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
       description = description.getOrElse(""),
       replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
       regex = pattern.r,
+    )
+  }
+
+  private def getLTRule(
+    id: String,
+    pattern: String,
+    suggestion: String,
+    colour: String,
+    category: String,
+    description: Option[String]
+  ) = {
+    LTRule(
+      id = id,
+      category = Category(category, category, colour),
+      description = description.getOrElse(""),
+      message = description.getOrElse("No description"),
+      suggestions = Nil
     )
   }
 
