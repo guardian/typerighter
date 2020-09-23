@@ -53,7 +53,7 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Loggable {
           Right(op)
         } catch {
           case e: Exception => {
-                log.warn(e.getMessage)
+                log.error(e.getMessage)
                 Left(e)
             }
         }
