@@ -130,12 +130,12 @@ class MatcherPool(
     * Remove a matcher from the pool by its id.
     * Returns the removed matcher.
     */
-  def removeMatcherByCategory(matcherId: String): Option[Matcher] = {
+  def removeMatcherById(matcherId: String): Option[Matcher] = {
     matchers.remove(matcherId)
   }
 
   def removeAllMatchers(): Unit = {
-    matchers.map(_._1).foreach(removeMatcherByCategory)
+    matchers.map { case (_, matcher) => matcher.getId() }.foreach(removeMatcherById)
   }
 
   def getCurrentCategories: List[(String, Category, Int)] = {

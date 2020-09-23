@@ -24,9 +24,8 @@ import scala.concurrent.Future
 class MockMatcher(id: Int) extends Matcher {
   private var currentWork: Option[Promise[List[RuleMatch]]] = None
   private var currentResponses:  Option[List[RuleMatch]] = None
-
   def getType = s"mock-matcher-$id"
-  def getCategory = Category(s"mock-category-$id", "Example category", "puce")
+  def getCategory = Category(s"mock-category-$id", "Mock category", "puce")
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -64,7 +63,7 @@ class MockMatcher(id: Int) extends Matcher {
 
 class MockMatcherThatThrows(e: Throwable) extends Matcher {
   def getType = s"mock-matcher-that-throws"
-  def getCategory = Category("example-category", "Example category", "puce")
+  def getCategory = Category("mock-category", "Mock category", "puce")
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -80,10 +79,10 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private implicit val system = ActorSystem()
   private implicit val materializer = ActorMaterializer()
 
-  private val responseRule = RegexRule(
+  private def getResponseRule(id: Int = 0) = RegexRule(
     id = "test-rule",
     description = "test-description",
-    category = getCategory(0),
+    category = getCategory(id),
     regex = "test"r
   )
 
@@ -95,7 +94,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }.toList
   }
 
-  private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category", "Puce")
+  private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category", "puce")
 
   private def getPool(
     matchers: List[Matcher],
@@ -112,11 +111,11 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     pool
   }
 
-  private def getResponses(ruleSpec: List[(Int, Int, String)]) = {
+  private def getResponses(ruleSpec: List[(Int, Int, String)], categoryId: Int = 0) = {
     ruleSpec.map {
       case (from, to, message) =>
         RuleMatch(
-          rule = responseRule,
+          rule = getResponseRule(categoryId),
           fromPos = from,
           toPos = to,
           matchedText = "placeholder text",
@@ -144,12 +143,12 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
   }
 
-  behavior of "removeMatcherByCategory"
+  behavior of "removeMatcherById"
 
-  it should "remove a matcher by its category id" in {
+  it should "remove a matcher by its matcher id" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
-    pool.removeMatcherByCategory(matchers(1).getCategory().id)
+    pool.removeMatcherById(matchers(1).getId())
     pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
   }
 
@@ -213,7 +212,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     result
   }
 
-  it should "handle validation failures when the matcher" in {
+  it should "handle validation failures when the matcher throws an error" in {
     val errorMessage = "Something bad happened"
     val matcher = new MockMatcherThatThrows(new Exception(errorMessage))
     val pool = getPool(List(matcher))
@@ -254,12 +253,12 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
-    val firstMatch = getResponses(List((0, 5, "test-response")))
-    val secondMatch = getResponses(List((6, 10, "test-response")))
+    val firstMatch = getResponses(List((0, 5, "test-response")), 0)
+    val secondMatch = getResponses(List((6, 10, "test-response")), 1)
     matchers(0).markAsComplete(firstMatch)
     matchers(1).markAsComplete(secondMatch)
     futureResult.map { result =>
-      result should matchTo(secondMatch ++ firstMatch)
+      result should matchTo(firstMatch ++ secondMatch)
     }
   }
 
@@ -267,8 +266,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(2)
     val pool = getPool(matchers, 4, 100, MatcherPool.blockLevelCheckStrategy)
     val futureResult = pool.check(getCheck(text = "Example text"))
-    val firstMatch = getResponses(List((0, 5, "test-response")))
-    val secondMatch = getResponses(List((0, 5, "test-response-2")))
+    val firstMatch = getResponses(List((0, 5, "test-response")), 0)
+    val secondMatch = getResponses(List((0, 5, "test-response-2")), 1)
     matchers(0).markAsComplete(firstMatch)
     matchers(1).markAsComplete(secondMatch)
     futureResult.map { result =>
