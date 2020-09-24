@@ -111,7 +111,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     pool
   }
 
-  private def getResponses(ruleSpec: List[(Int, Int, String)], categoryId: Int = 0) = {
+  private def getResponses(ruleSpec: List[(Int, Int, String)], categoryId: Int = 0): List[RuleMatch] = {
     ruleSpec.map {
       case (from, to, message) =>
         RuleMatch(
@@ -258,7 +258,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers(0).markAsComplete(firstMatch)
     matchers(1).markAsComplete(secondMatch)
     futureResult.map { result =>
-      result should matchTo(firstMatch ++ secondMatch)
+      result.contains(firstMatch.head) shouldBe true
+      result.contains(secondMatch.head) shouldBe true
     }
   }
 
