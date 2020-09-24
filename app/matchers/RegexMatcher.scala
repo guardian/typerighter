@@ -2,16 +2,22 @@ package matchers
 
 import model.{RegexRule, RuleMatch, Category}
 import services.MatcherRequest
-import utils.{Matcher, RuleMatchHelpers}
+import utils.{Matcher, MatcherCompanion, RuleMatchHelpers}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
+
+object RegexMatcher extends MatcherCompanion {
+  def getType() = "regex"
+}
+
 
 /**
   * A Matcher for rules based on regular expressions.
   */
 class RegexMatcher(category: Category, rules: List[RegexRule]) extends Matcher {
-  def getId() = "regex-validator"
+
+  def getType() = RegexMatcher.getType
 
   override def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     Future {

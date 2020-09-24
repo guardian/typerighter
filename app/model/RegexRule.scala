@@ -4,6 +4,7 @@ import play.api.libs.json.{JsPath, JsResult, JsString, JsSuccess, JsValue, Json,
 
 import scala.util.matching.Regex
 import utils.Text
+import matchers.RegexMatcher
 
 object RegexRule {
   implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
@@ -34,7 +35,8 @@ case class RegexRule(
       suggestions = suggestions,
       replacement = replacement.map(_.replaceAllIn(regex, matchedText)),
       markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
-      matchContext = Text.getSurroundingText(block.text, start, end)
+      matchContext = Text.getSurroundingText(block.text, start, end),
+      matcherType = RegexMatcher.getType
     )
   }
 }

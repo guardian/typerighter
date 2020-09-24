@@ -35,7 +35,8 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     shortMessage = Some(rule.description),
     suggestions = rule.suggestions,
     replacement = replacement.map(TextSuggestion(_)),
-    matchContext = matchText
+    matchContext = matchText,
+    matcherType = RegexMatcher.getType()
   )
 
 

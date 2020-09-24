@@ -36,7 +36,7 @@ export const createCapiArticle = (articleId: string) => ({
 
 export const createTyperighterResponse = (noOfMatches = 0) => ({
   type: "VALIDATOR_RESPONSE",
-  categoryIds: ["regex-validator"],
+  categoryIds: ["regex"],
   blocks: [
     {
       id: "0-from:1-to:427",
