@@ -15,6 +15,7 @@ import scala.util.matching.Regex
 import scala.collection.JavaConverters._
 
 import utils.Text
+import matchers.RegexMatcher
 
 /**
   * A rule to match text against.
