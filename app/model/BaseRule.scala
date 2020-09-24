@@ -1,8 +1,19 @@
 package model
 
+import java.util.{List => JList}
+import java.util.regex.Pattern
+
 import play.api.libs.json.{JsObject, Json, JsPath, JsResult, JsString, JsSuccess, Reads, Writes}
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+
+import org.languagetool.Languages
+import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternToken => LTPatternToken}
+import org.languagetool.rules.{Rule => LanguageToolRule}
 
 import scala.util.matching.Regex
+import scala.collection.JavaConverters._
+
 import utils.Text
 
 /**
@@ -55,17 +66,6 @@ case class RegexRule(
     )
   }
 }
-
-import java.util.{List => JList}
-import java.util.regex.Pattern
-
-import org.languagetool.Languages
-import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternToken => LTPatternToken}
-import org.languagetool.rules.{Rule => LanguageToolRule}
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-
-import scala.collection.JavaConverters._
 
 /**
   * The application's representation of a LanguageTool PatternRule.
