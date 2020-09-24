@@ -139,13 +139,8 @@ class MatcherPool(
   }
 
   def getCurrentCategories: List[(String, Category, Int)] = {
-<<<<<<< HEAD
-    val matchersAndCategories = matchers.values.map {
-      case (category, matcher) => (matcher.getType, category, matcher.getRules.length)
-=======
     val matchersAndCategories = matchers.values.map { matcher =>
-      (matcher.getId, matcher.getCategory, matcher.getRules.length)
->>>>>>> 25dd2b9e... Seal BaseRule trait for serialisation purposes; allow multiple matchers per category
+      (matcher.getType, matcher.getCategory, matcher.getRules.length)
     }.toList
     matchersAndCategories
   }

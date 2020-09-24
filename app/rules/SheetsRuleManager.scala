@@ -104,14 +104,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
             row(4).asInstanceOf[String],
             row.lift(6).asInstanceOf[Option[String]]
           )))
-         case (Some(id), _, "lt") => Success(Some(getLTRule(
-            id,
-            row(1).asInstanceOf[String],
-            row(2).asInstanceOf[String],
-            row(3).asInstanceOf[String],
-            row(4).asInstanceOf[String],
-            row.lift(6).asInstanceOf[Option[String]]
-          )))
+        case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
       }
 
     } catch {
@@ -135,23 +128,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
       description = description.getOrElse(""),
       replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
       regex = pattern.r,
-    )
-  }
-
-  private def getLTRule(
-    id: String,
-    pattern: String,
-    suggestion: String,
-    colour: String,
-    category: String,
-    description: Option[String]
-  ) = {
-    LTRule(
-      id = id,
-      category = Category(category, category, colour),
-      description = description.getOrElse(""),
-      message = description.getOrElse("No description"),
-      suggestions = Nil
     )
   }
 
