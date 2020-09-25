@@ -7,10 +7,8 @@ import net.logstash.logback.marker.Markers
 
 import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.util.Failure
+import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
-import scala.util.Success
-
 import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
 import utils.{Matcher, RuleMatchHelpers}
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
@@ -31,7 +29,7 @@ case class PartialMatcherJob(blocks: List[TextBlock], categoryIds: List[String])
   *  - perform work
   *  - notify its caller once work is complete
   */
-case class MatcherJob(requestId: String, documentId: String, blocks: List[TextBlock], categoryIds: List[String], promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer) {
+case class MatcherJob(requestId: String, documentId: String, blocks: List[TextBlock], categoryIds: MatcherPool.CategoryIds, promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer) {
   def toMarker = Markers.appendEntries(Map(
     "requestId" -> this.requestId,
     "documentId" -> this.documentId,
@@ -79,7 +77,7 @@ class MatcherPool(
   private val supervisionStrategy = ActorAttributes.supervisionStrategy(Supervision.resumingDecider)
 
   private val queue = Source.queue[MatcherJob](maxQueuedJobs, OverflowStrategy.dropNew)
-    .mapAsyncUnordered(maxCurrentJobs)(runValidationJob)
+    .mapAsyncUnordered(maxCurrentJobs)(getMatchesForJob)
     .withAttributes(supervisionStrategy)
     .to(Sink.fold(Map[String, Int]())(markJobAsComplete))
     .run()
@@ -179,7 +177,27 @@ class MatcherPool(
     job.promise.failure(new Throwable(message))
   }
 
-  private def runValidationJob(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
+  private def getMatchesForJob(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
+    val maybeMatchesForJob = for {
+      matchers <- getMatchersForJob(job)
+    } yield {
+      val eventuallyMatches = runMatchersForJob(matchers, job.blocks).map{(job, _)}
+      job.promise.completeWith(eventuallyMatches.map{
+        case (_, matches) => matches
+      })
+      eventuallyMatches
+    }
+
+    maybeMatchesForJob.failed.map { exception =>
+        logger.error(s"Job failed with error: ${exception.getMessage}")(job.toMarker)
+        job.promise.failure(exception)
+        exception
+    }
+
+    Future.fromTry(maybeMatchesForJob).flatten
+  }
+
+  private def getMatchersForJob(job: MatcherJob): Try[List[Matcher]] = {
     val matchersToCheck = matchers
       .values
       .toList
@@ -191,34 +209,21 @@ class MatcherPool(
       val message = s"Could not run job: no matcher for category for id(s): ${missingCategoryIds.mkString(", ")}"
       val exception = new IllegalStateException(message)
       logger.error(message)(job.toMarker)
-      job.promise.failure(exception)
-      Future.failed(exception)
+      Failure(exception)
     } else {
-      runMatchersForJob(matchersToCheck, job)
+      Success(matchersToCheck)
     }
   }
 
-  private def runMatchersForJob(matchers: List[Matcher], job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
+  private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
-      val eventuallyCheck = matcher.check(MatcherRequest(job.blocks))
+      val eventuallyCheck = matcher.check(MatcherRequest(blocks))
       futures.timeout(checkTimeoutDuration)(eventuallyCheck)
     }
 
     val eventuallyAllMatches = Future.sequence(eventuallyJobResults).map { _.flatten }
 
-    val matchesWithoutOverlaps = eventuallyAllMatches.map(removeOverlappingMatches)
-
-    matchesWithoutOverlaps.transformWith {
-      case Success(matches) => {
-        job.promise.completeWith(Future.successful(matches))
-        Future.successful((job, matches))
-      }
-      case Failure(exception) => {
-        logger.error(s"Job failed with error: ${exception.getMessage}")(job.toMarker)
-        job.promise.failure(exception)
-        Future.failed(exception)
-      }
-    }
+    eventuallyAllMatches.map(removeOverlappingMatches)
   }
 
   private def removeOverlappingMatches(matches: List[RuleMatch]) = {
