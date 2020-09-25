@@ -38,19 +38,25 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
   ).setApplicationName(APPLICATION_NAME).build
 
   def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
-    val maybeRegexRules = getPatternRules()
+    val maybeRules = getPatternRules()
     val maybeLTRuleIds = getLanguageToolDefaultRuleIds()
 
-    (maybeRegexRules, maybeLTRuleIds) match {
-      case (Right(regexRules), Right(ltRules)) => Right(RuleResource(regexRules, ltRules))
-      case (maybeRegex, maybeLt) => Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRegexRules.left.getOrElse(Nil))
+    (maybeRules, maybeLTRuleIds) match {
+      case (Right(rules), Right(ltRules)) => Right(RuleResource(rules, ltRules))
+      case (mamaybeRules, maybeLt) => Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRules.left.getOrElse(Nil))
     }
   }
 
+  /**
+    * Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
+    */
   private def getPatternRules()(implicit ec: ExecutionContext): Either[List[String], List[BaseRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
+  /**
+    * Get the rule ids of the LanguageTool rules we'd like to enable.
+    */
   private def getLanguageToolDefaultRuleIds()(implicit ec: ExecutionContext): Either[List[String], List[String]] = {
     getRulesFromSheet("languagetoolRules", "A:C", getLTRuleFromRow)
   }
