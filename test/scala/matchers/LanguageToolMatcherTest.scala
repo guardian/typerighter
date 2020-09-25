@@ -47,7 +47,7 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     val ltFactory = new LanguageToolFactory(None)
     val defaultRules = List("FEWER_LESS")
     val (instance, _) = ltFactory.createInstance(exampleCategory, Nil, defaultRules)
-    val request = MatcherRequest(List(TextBlock("id-1", "Three or less tests passed!", 0, 29)), "EXAMPLE_CAT")
+    val request = MatcherRequest(List(TextBlock("id-1", "Three or less tests passed!", 0, 29)))
 
     val eventuallyMatches = instance.check(request)
     val expectedMatchMessages = List("Did you mean <suggestion>fewer</suggestion>? The noun tests is countable.")

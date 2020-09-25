@@ -11,6 +11,7 @@ import scala.concurrent.duration._
 import model.{RegexRule, BaseRule, Category, RuleResource}
 import rules.BucketRuleManager
 import matchers.LanguageToolFactory
+import model.LTRule
 
 class RuleProvisionerService(
   bucketRuleManager: BucketRuleManager,
@@ -26,17 +27,25 @@ class RuleProvisionerService(
   def updateRules(ruleResource: RuleResource, date: Date): Unit = {
     matcherPool.removeAllMatchers()
 
-    ruleResource.regexRules.groupBy(_.category).foreach {
+    ruleResource.rules.groupBy(_.category).foreach {
       case (category, rules) => {
-        val matcher = new RegexMatcher(category, rules)
-        matcherPool.addMatcher(category, matcher)
+        val regexRules = rules.collect { case r: RegexRule => r }
+        if (regexRules.size > 0) {
+          val regexMatcher = new RegexMatcher(category, regexRules)
+          matcherPool.addMatcher(regexMatcher)
+        }
+
+        val ltRules = rules.collect { case r: LTRule => r }
+        if (ltRules.size > 0) {
+          val (ltMatcher, _) = languageToolFactory.createInstance(category, ltRules)
+          matcherPool.addMatcher(ltMatcher)
+        }
       }
     }
 
     val category = new Category("languagetool-default", "Default LanguageTool rules", "puce")
     val (matcher, errors) = languageToolFactory.createInstance(category, Nil, ruleResource.ltDefaultRuleIds)
-
-    matcherPool.addMatcher(category, matcher)
+    matcherPool.addMatcher(matcher)
 
     lastModified = date
   }

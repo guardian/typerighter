@@ -1,11 +1,26 @@
 package model
 
-import play.api.libs.json.{JsObject, Json}
+import java.util.{List => JList}
+import java.util.regex.Pattern
+
+import play.api.libs.json.{JsObject, Json, JsPath, JsResult, JsString, JsSuccess, Reads, Writes}
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+
+import org.languagetool.Languages
+import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternToken => LTPatternToken}
+import org.languagetool.rules.{Rule => LanguageToolRule}
+
+import scala.util.matching.Regex
+import scala.collection.JavaConverters._
+
+import utils.Text
+import matchers.RegexMatcher
 
 /**
   * A rule to match text against.
   */
-trait BaseRule {
+sealed trait BaseRule {
   val id: String
   val category: Category
   val description: String
@@ -14,11 +29,119 @@ trait BaseRule {
 }
 
 object BaseRule {
-  def toJson(rule: BaseRule): JsObject = Json.obj(
-    "id" -> rule.id,
-    "category" -> rule.category,
-    "description" -> rule.description,
-    "suggestions" -> rule.suggestions,
-    "replacement" -> rule.replacement
-  )
+  implicit val writes: Writes[BaseRule] = Json.writes[BaseRule]
+  implicit val reads: Reads[BaseRule] = Json.reads[BaseRule]
+}
+
+object RegexRule {
+  implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
+  implicit val regexReads: Reads[Regex] = (JsPath).read[String].map(new Regex(_))
+  implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
+  implicit val reads: Reads[RegexRule] = Json.reads[RegexRule]
+}
+
+case class RegexRule(
+    id: String,
+    category: Category,
+    description: String,
+    suggestions: List[TextSuggestion] = List.empty,
+    replacement: Option[TextSuggestion] = None,
+    regex: Regex
+) extends BaseRule {
+
+  def toMatch(start: Int, end: Int, block: TextBlock): RuleMatch = {
+    val matchedText = block.text.substring(start, end)
+
+    RuleMatch(
+      rule = this,
+      fromPos = start + block.from,
+      toPos = end + block.from,
+      matchedText = matchedText,
+      message = description,
+      shortMessage = Some(description),
+      suggestions = suggestions,
+      replacement = replacement.map(_.replaceAllIn(regex, matchedText)),
+      markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
+      matchContext = Text.getSurroundingText(block.text, start, end),
+      matcherType = RegexMatcher.getType
+    )
+  }
+}
+
+/**
+  * The application's representation of a LanguageTool PatternRule.
+  */
+case class LTRule(id: String,
+                  category: Category,
+                  languageShortcode: Option[String] = None,
+                  patternTokens: Option[List[PatternToken]] = None,
+                  pattern: Option[Pattern] = None,
+                  description: String,
+                  message: String,
+                  url: Option[String] = None,
+                  suggestions: List[TextSuggestion]) extends BaseRule {
+  val replacement: Option[TextSuggestion] = None
+}
+
+object LTRule {
+  def fromLT(lt: LanguageToolRule): LTRule = {
+    val maybePatternTokens = lt match {
+      case rule: LTPatternRule => Some(rule.getPatternTokens.asScala
+        .toList
+        .map(PatternToken.fromLT)
+      )
+      case _ => None
+    }
+
+    val maybeLanguageShortcode = lt match {
+      case rule: LTPatternRule => Some(rule.getLanguage.getShortCode)
+      case _ => None
+    }
+
+    LTRule(
+      id = lt.getId,
+      category = Category.fromLT(lt.getCategory),
+      languageShortcode = maybeLanguageShortcode,
+      patternTokens = maybePatternTokens,
+      pattern = None,
+      description = lt.getDescription,
+      message = lt.getDescription,
+      url = Option(if (lt.getUrl == null) null else lt.toString),
+      suggestions = List.empty
+    )
+  }
+
+  def toLT(rule: LTRule): LanguageToolRule = {
+    val patternTokens: JList[LTPatternToken] = seqAsJavaList(rule.patternTokens.getOrElse(List[PatternToken]()).map(PatternToken.toLT))
+    val language = Languages.getLanguageForShortCode(rule.languageShortcode.getOrElse("en-GB"))
+    val message = rule.suggestions match {
+      case Nil => rule.message
+      case suggestions => {
+        val ruleMessage = if (rule.message == "") "" else rule.message + ". "
+        ruleMessage.concat(suggestions.map(s => s"<suggestion>${s.text}</suggestion>").mkString(", "))
+      }
+    }
+
+    val ltRule = new LTPatternRule(
+      rule.id,
+      language,
+      patternTokens,
+      rule.description,
+      message,
+      rule.message
+    )
+
+    ltRule.setCategory(Category.toLT(rule.category))
+    ltRule
+  }
+
+  implicit val patternWrites = new Writes[Pattern] {
+    def writes(pattern: Pattern) = JsString(pattern.toString)
+  }
+  implicit val patternReads: Reads[Pattern] = JsPath.read[String].map {
+    regex => Pattern.compile(regex)
+  }
+
+  implicit val writes: Writes[LTRule] = Json.writes[LTRule]
+  implicit val reads: Reads[LTRule] = Json.reads[LTRule]
 }

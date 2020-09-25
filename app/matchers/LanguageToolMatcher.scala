@@ -18,7 +18,7 @@ class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) extends Logging {
 
-  def createInstance(category: Category, rules: List[LTRule], defaultRuleIds: List[String])(implicit ec: ExecutionContext): (Matcher, List[String]) = {
+  def createInstance(category: Category, rules: List[LTRule], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): (Matcher, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()

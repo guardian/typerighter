@@ -45,7 +45,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     val matchText = "example [text] is here"
 
     val eventuallyMatches = regexValidator.check(
-      MatcherRequest(getBlocks(sampleText), "example-category")
+      MatcherRequest(getBlocks(sampleText))
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
@@ -80,7 +80,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
                        |""".stripMargin.replace("\n", "")
 
     val eventuallyMatches = regexValidator.check(
-      MatcherRequest(getBlocks(sampleText), "example-category")
+      MatcherRequest(getBlocks(sampleText))
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
@@ -91,7 +91,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   "check" should "report multiple matches" in {
     val eventuallyMatches = regexValidator.check(
-      MatcherRequest(getBlocks("text text text"), "example-category")
+      MatcherRequest(getBlocks("text text text"))
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
@@ -106,7 +106,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     val overlapRules = createRules(List("to", "ton", "one", "got"))
     val overlapValidator = new RegexMatcher(exampleCategory, overlapRules)
     val eventuallyMatches = overlapValidator.check(
-      MatcherRequest(getBlocks("tone ton goto"), "example-category")
+      MatcherRequest(getBlocks("tone ton goto"))
     )
     eventuallyMatches.map { matches =>
       matches.size shouldBe 3
@@ -127,7 +127,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
     val validator = new RegexMatcher(exampleCategory, List(rule))
     val eventuallyMatches = validator.check(
-      MatcherRequest(getBlocks("I'm a little tea pot"), "example-category")
+      MatcherRequest(getBlocks("I'm a little tea pot"))
     )
 
     eventuallyMatches.map { matches =>
@@ -149,7 +149,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
     val validator = new RegexMatcher(exampleCategory, List(rule))
     val eventuallyMatches = validator.check(
-      MatcherRequest(getBlocks("A nine month long sabbatical"), "example-category")
+      MatcherRequest(getBlocks("A nine month long sabbatical"))
     )
 
     eventuallyMatches.map { matches =>

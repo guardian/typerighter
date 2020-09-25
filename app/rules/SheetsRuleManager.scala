@@ -19,6 +19,17 @@ import matchers.RegexMatcher
 import matchers.LanguageToolFactory
 import play.api.Logging
 
+object PatternRuleCols {
+  val Type = 0
+  val Pattern = 1
+  val Suggestion = 2
+  val Colour = 3
+  val Category = 4
+  val Description = 6
+  val ShouldIgnore = 8
+  val Id = 10
+}
+
 /**
   * A resource that gets rules from the given Google Sheet.
   *
@@ -38,19 +49,25 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
   ).setApplicationName(APPLICATION_NAME).build
 
   def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
-    val maybeRegexRules = getRegexRules()
+    val maybeRules = getPatternRules()
     val maybeLTRuleIds = getLanguageToolDefaultRuleIds()
 
-    (maybeRegexRules, maybeLTRuleIds) match {
-      case (Right(regexRules), Right(ltRules)) => Right(RuleResource(regexRules, ltRules))
-      case (maybeRegex, maybeLt) => Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRegexRules.left.getOrElse(Nil))
+    (maybeRules, maybeLTRuleIds) match {
+      case (Right(rules), Right(ltRules)) => Right(RuleResource(rules, ltRules))
+      case (mamaybeRules, maybeLt) => Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRules.left.getOrElse(Nil))
     }
   }
 
-  private def getRegexRules()(implicit ec: ExecutionContext): Either[List[String], List[RegexRule]] = {
-    getRulesFromSheet("regexRules", "A:N", getRegexRuleFromRow)
+  /**
+    * Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
+    */
+  private def getPatternRules()(implicit ec: ExecutionContext): Either[List[String], List[BaseRule]] = {
+    getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
+  /**
+    * Get the rule ids of the LanguageTool rules we'd like to enable.
+    */
   private def getLanguageToolDefaultRuleIds()(implicit ec: ExecutionContext): Either[List[String], List[String]] = {
     getRulesFromSheet("languagetoolRules", "A:C", getLTRuleFromRow)
   }
@@ -86,39 +103,49 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     }
   }
 
-  private def getRegexRuleFromRow(row: List[Any], index: Int): Try[Option[RegexRule]] = {
+  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[BaseRule]] = {
     try {
-      val shouldIgnore = row.lift(8)
+      val ruleType = row(PatternRuleCols.Type)
+      val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
+      val maybeId = row.lift(PatternRuleCols.Id).asInstanceOf[Option[String]]
 
-      shouldIgnore match {
-        case Some("TRUE") => Success(None)
-        case _ => {
-          val rule = row(1).asInstanceOf[String]
-          val suggestion = row(2).asInstanceOf[String]
-          val colour = row(3).asInstanceOf[String]
-          val category = row(4).asInstanceOf[String]
-          val description = row.lift(6).asInstanceOf[Option[String]]
-          val maybeId = row.lift(10).asInstanceOf[Option[String]]
-
-          maybeId match {
-            case Some(id) if id.length > 0 => Success(Some(RegexRule(
-              id = id,
-              category = Category(category, category, colour),
-              description = description.getOrElse(""),
-              replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
-              regex = rule.r,
-            )))
-            case _ => {
-              throw new Exception(s"No id for rule ${rule}")
-            }
-          }
-        }
+      (maybeId, maybeIgnore, ruleType) match {
+        case (_, Some("TRUE"), _) => Success(None)
+        case (None, _, _) => Failure(new Exception(s"no id for rule"))
+        case (Some(id), _, _) if id.length == 0 => Failure(new Exception(s"empty id for rule"))
+        case (Some(id), _, "regex") => Success(Some(getRegexRule(
+            id,
+            row(PatternRuleCols.Pattern).asInstanceOf[String],
+            row(PatternRuleCols.Suggestion).asInstanceOf[String],
+            row(PatternRuleCols.Colour).asInstanceOf[String],
+            row(PatternRuleCols.Category).asInstanceOf[String],
+            row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]]
+          )))
+        case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
       }
+
     } catch {
       case e: Throwable => {
         Failure(new Exception(s"Error parsing rule at index ${index} – ${e.getMessage()}"))
       }
     }
+  }
+
+  private def getRegexRule(
+    id: String,
+    pattern: String,
+    suggestion: String,
+    colour: String,
+    category: String,
+    description: Option[String]
+  ) = {
+    RegexRule(
+      id = id,
+      category = Category(category, category, colour),
+      description = description.getOrElse(""),
+      replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
+      regex = pattern.r,
+    )
   }
 
   private def getLTRuleFromRow(row: List[Any], index: Int): Try[Option[String]] = {
