@@ -133,7 +133,7 @@ class MatcherPool(
   }
 
   def removeAllMatchers(): Unit = {
-    matchers.map { case (_, matcher) => matcher.getId() }.foreach(removeMatcherById)
+    matchers.clear
   }
 
   def getCurrentCategories: List[(String, Category, Int)] = {
