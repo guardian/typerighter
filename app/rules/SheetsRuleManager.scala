@@ -19,6 +19,17 @@ import matchers.RegexMatcher
 import matchers.LanguageToolFactory
 import play.api.Logging
 
+object PatternRuleCols {
+  val Type = 0
+  val Pattern = 1
+  val Suggestion = 2
+  val Colour = 3
+  val Category = 4
+  val Description = 6
+  val ShouldIgnore = 8
+  val Id = 10
+}
+
 /**
   * A resource that gets rules from the given Google Sheet.
   *
@@ -94,9 +105,9 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
 
   private def getRuleFromRow(row: List[Any], index: Int): Try[Option[BaseRule]] = {
     try {
-      val ruleType = row(0)
-      val maybeIgnore = row.lift(8)
-      val maybeId = row.lift(10).asInstanceOf[Option[String]]
+      val ruleType = row(PatternRuleCols.Type)
+      val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
+      val maybeId = row.lift(PatternRuleCols.Id).asInstanceOf[Option[String]]
 
       (maybeId, maybeIgnore, ruleType) match {
         case (_, Some("TRUE"), _) => Success(None)
@@ -104,11 +115,11 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
         case (Some(id), _, _) if id.length == 0 => Failure(new Exception(s"empty id for rule"))
         case (Some(id), _, "regex") => Success(Some(getRegexRule(
             id,
-            row(1).asInstanceOf[String],
-            row(2).asInstanceOf[String],
-            row(3).asInstanceOf[String],
-            row(4).asInstanceOf[String],
-            row.lift(6).asInstanceOf[Option[String]]
+            row(PatternRuleCols.Pattern).asInstanceOf[String],
+            row(PatternRuleCols.Suggestion).asInstanceOf[String],
+            row(PatternRuleCols.Colour).asInstanceOf[String],
+            row(PatternRuleCols.Category).asInstanceOf[String],
+            row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]]
           )))
         case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
       }
