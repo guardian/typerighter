@@ -108,11 +108,12 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
       val ruleType = row(PatternRuleCols.Type)
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
       val maybeId = row.lift(PatternRuleCols.Id).asInstanceOf[Option[String]]
+      val rowNumber = index + 1
 
       (maybeId, maybeIgnore, ruleType) match {
         case (_, Some("TRUE"), _) => Success(None)
-        case (None, _, _) => Failure(new Exception(s"no id for rule"))
-        case (Some(id), _, _) if id.length == 0 => Failure(new Exception(s"empty id for rule"))
+        case (None, _, _) => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
+        case (Some(id), _, _) if id.length == 0 => Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
         case (Some(id), _, "regex") => Success(Some(getRegexRule(
             id,
             row(PatternRuleCols.Pattern).asInstanceOf[String],
@@ -121,7 +122,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
             row(PatternRuleCols.Category).asInstanceOf[String],
             row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]]
           )))
-        case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
+        case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported (row: ${rowNumber})"))
       }
 
     } catch {
