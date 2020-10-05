@@ -52,15 +52,23 @@ class LanguageToolFactory(
     // Add custom rules
     val ruleErrors = applyXMLRules(instance, ruleXMLs)
 
+
     instance.enableRuleCategory(new CategoryId(category.id))
+    println(instance.getAllActiveRules)
 
     (new LanguageToolMatcher(category, instance), ruleErrors)
   }
 
+  /**
+    * As a side-effect, apply the given ltRuleXmls to the given
+    * LanguageTool instance and enable them for matching.
+    */
   private def applyXMLRules(instance: JLanguageTool, ltRuleXmls: List[LTRuleXML]) = {
     val maybeRuleErrors = getRulesFromXML(ltRuleXmls) match {
-      case Success(rules) => {
-        rules.map { rule => Try(instance.addRule(rule)) }
+      case Success(rules) => rules.map { rule => Try {
+          instance.addRule(rule)
+          instance.enableRule(rule.getId())
+        }
       }
       case Failure(e) => List(Failure(e))
     }
@@ -85,12 +93,21 @@ class LanguageToolFactory(
   }
 
   private def getXMLStreamFromLTRules(rules: List[LTRuleXML]): Try[ByteArrayInputStream] = Try {
-      val rulesXml = rules.map(rule =>
-        <rule id={rule.id} name={rule.description}>
-          {XML.loadString(rule.xml)}
-        </rule>
-      )
-      val ruleXml = <rules>{rulesXml}</rules>
+      val rulesByCategory = rules.groupBy(_.category)
+      val rulesXml = rulesByCategory.map {
+        case (category, rules) =>
+          <category id={category.id} name={category.name} type="grammar">
+            {rules.map { rule =>
+              <rule id={rule.id} name={rule.description}>
+                {XML.loadString(s"<tempRoot>${rule.xml}</tempRoot>").child}
+              </rule>
+            }}
+          </category>
+      }
+
+      // Temporarily hardcode language settings
+      val ruleXml = <rules lang="en">{rulesXml}</rules>
+
       val outputStream = new ByteArrayOutputStream()
       val writer = new OutputStreamWriter(outputStream)
       XML.write(writer, ruleXml, "UTF-8", xmlDecl = false, doctype = xml.dtd.DocType("rules"))

@@ -122,11 +122,11 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
             row(PatternRuleCols.Category).asInstanceOf[String],
             row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]]
           )))
-        case (Some(id), _, "lt") => Success(Some(getLTPatternRule(
+        case (Some(id), _, "lt") => Success(Some(getLTRuleXML(
             id,
             row(PatternRuleCols.Pattern).asInstanceOf[String],
-            row(PatternRuleCols.Suggestion).asInstanceOf[String],
-            row(PatternRuleCols.Category).asInstanceOf[String]
+            row(PatternRuleCols.Category).asInstanceOf[String],
+            row(PatternRuleCols.Description).asInstanceOf[String],
           )))
         case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
       }
@@ -152,7 +152,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
       regex = pattern.r,
     )
 
-  private def getLTPatternRule(
+  private def getLTRuleXML(
     id: String,
     pattern: String,
     category: String,
