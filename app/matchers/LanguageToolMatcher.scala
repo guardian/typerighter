@@ -20,6 +20,9 @@ import scala.xml.XML
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
+import java.io.ByteArrayOutputStream
+import java.io.OutputStreamWriter
+import java.io.ByteArrayInputStream
 
 class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
@@ -47,43 +50,51 @@ class LanguageToolFactory(
     }
 
     // Add custom rules
-    val maybeRuleErrors = getRulesFromXML(ruleXMLs) match {
-      case Success(rules) => {
-        rules.map { rule => Try(instance.addRule(rule)) }
-      }
-      case Failure(e) => List(Failure(e))
-    }
-    val ruleErrors = maybeRuleErrors.flatMap {
-      case Success(_) => None
-      case Failure(e) => {
-        logger.error(e.getMessage(), e)
-        Some(e.getMessage())
-      }
-    }
+    val ruleErrors = applyXMLRules(instance, ruleXMLs)
 
     instance.enableRuleCategory(new CategoryId(category.id))
 
     (new LanguageToolMatcher(category, instance), ruleErrors)
   }
 
-  private def getRulesFromXML(rules: List[LTRuleXML]): Try[List[AbstractPatternRule]] = {
-    val loader = new PatternRuleLoader()
-    getXMLStreamFromLTRules(rules) flatMap {
-      xmlStream => Try(loader.getRules(xmlStream, "languagetool-generated-xml").asScala.toList)
+  private def applyXMLRules(instance: JLanguageTool, ltRuleXmls: List[LTRuleXML]) = {
+    val maybeRuleErrors = getRulesFromXML(ltRuleXmls) match {
+      case Success(rules) => {
+        rules.map { rule => Try(instance.addRule(rule)) }
+      }
+      case Failure(e) => List(Failure(e))
+    }
+
+    maybeRuleErrors.flatMap {
+      case Success(_) => None
+      case Failure(e) => {
+        logger.error(e.getMessage(), e)
+        Some(e.getMessage())
+      }
     }
   }
 
-  private def getXMLStreamFromLTRules(rules: List[LTRuleXML]): Try[java.io.ByteArrayInputStream] = {
-    Try {
+  private def getRulesFromXML(rules: List[LTRuleXML]): Try[List[AbstractPatternRule]] = rules match {
+    case Nil => Success(Nil)
+    case r => {
+      val loader = new PatternRuleLoader()
+      getXMLStreamFromLTRules(rules) flatMap {
+        xmlStream => Try(loader.getRules(xmlStream, "languagetool-generated-xml").asScala.toList)
+      }
+    }
+  }
+
+  private def getXMLStreamFromLTRules(rules: List[LTRuleXML]): Try[ByteArrayInputStream] = Try {
       val rulesXml = rules.map(rule =>
         <rule id={rule.id} name={rule.description}>
           {XML.loadString(rule.xml)}
         </rule>
       )
       val ruleXml = <rules>{rulesXml}</rules>
-      val bytes = rulesXml.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
-      new java.io.ByteArrayInputStream(bytes)
-    }
+      val outputStream = new ByteArrayOutputStream()
+      val writer = new OutputStreamWriter(outputStream)
+      XML.write(writer, ruleXml, "UTF-8", xmlDecl = false, doctype = xml.dtd.DocType("rules"))
+      new ByteArrayInputStream(outputStream.toByteArray())
   }
 }
 

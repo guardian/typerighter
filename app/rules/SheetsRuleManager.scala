@@ -157,7 +157,9 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     pattern: String,
     category: String,
     description: String
-  ) = LTRuleXML(id, pattern, Category(category, category), description)
+  ) = {
+    LTRuleXML(id, pattern, Category(category, category), description)
+  }
 
   private def getLTRuleFromRow(row: List[Any], index: Int): Try[Option[String]] = {
      try {
