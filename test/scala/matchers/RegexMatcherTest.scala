@@ -12,14 +12,14 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     textsToMatch.zipWithIndex.map { case (text, index) =>
       RegexRule(
         id = s"example-rule-$index",
-        category = Category("new-category", "New Category", "puce"),
+        category = Category("new-category", "New Category"),
         description = s"Example rule $index",
         suggestions = List(TextSuggestion(s"Suggestion for rule $index")),
         regex = text.r
       )
     }
   }
-  val exampleCategory = Category("example-category", "Example category", "puce")
+  val exampleCategory = Category("example-category", "Example category")
   val exampleRule = createRules(List("text"))(0)
 
   val regexValidator = new RegexMatcher(exampleCategory, List(exampleRule))
@@ -119,7 +119,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   "check" should "use substitions when generating replacements" in {
     val rule = RegexRule(
       id = s"example-rule",
-      category = Category("new-category", "New Category", "puce"),
+      category = Category("new-category", "New Category"),
       description = s"Example rule",
       replacement = Some(TextSuggestion("tea$1")),
       regex = "\\btea-? ?(shop|bag|leaf|leaves|pot)".r
@@ -141,7 +141,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
    "check" should "handle multiple substitions" in {
     val rule = RegexRule(
       id = s"example-rule",
-      category = Category("new-category", "New Category", "puce"),
+      category = Category("new-category", "New Category"),
       description = s"Example rule",
       replacement = Some(TextSuggestion("$1-$2-long")),
       regex = "\\b(one|two|three|four|five|six|seven|eight|nine|\\d)-? (year|day|month|week|mile)-? long".r

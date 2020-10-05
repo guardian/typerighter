@@ -26,7 +26,7 @@ class MockMatcher(id: Int) extends Matcher {
   private var maybeResponse: Option[Either[String, List[RuleMatch]]] = None
 
   def getType = s"mock-matcher-$id"
-  def getCategory = Category(s"mock-category-$id", "Mock category", "puce")
+  def getCategory = Category(s"mock-category-$id", "Mock category")
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -61,7 +61,7 @@ class MockMatcher(id: Int) extends Matcher {
 
 class MockMatcherThatThrows(e: Throwable) extends Matcher {
   def getType = s"mock-matcher-that-throws"
-  def getCategory = Category("mock-category", "Mock category", "puce")
+  def getCategory = Category("mock-category", "Mock category")
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -92,7 +92,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }.toList
   }
 
-  private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category", "puce")
+  private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category")
 
   private def getPool(
     matchers: List[Matcher],

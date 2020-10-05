@@ -43,7 +43,7 @@ class RuleProvisionerService(
       }
     }
 
-    val category = new Category("languagetool-default", "Default LanguageTool rules", "puce")
+    val category = new Category("languagetool-default", "Default LanguageTool rules")
     val (matcher, errors) = languageToolFactory.createInstance(category, Nil, ruleResource.ltDefaultRuleIds)
     matcherPool.addMatcher(matcher)
 
