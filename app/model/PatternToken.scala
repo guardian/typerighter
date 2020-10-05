@@ -4,7 +4,7 @@ import org.languagetool.rules.patterns.{PatternToken => LTPatternToken}
 import play.api.libs.json.{Json, Reads, Writes}
 
 /**
-  * The application's representation of a LanguageTool PatternToken.
+  * The application's representation of a LanguageTool PatternToken, for display purposes only.
   */
 case class PatternToken(
                        token: String,

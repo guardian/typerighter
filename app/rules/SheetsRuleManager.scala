@@ -18,6 +18,7 @@ import services.MatcherPool
 import matchers.RegexMatcher
 import matchers.LanguageToolFactory
 import play.api.Logging
+import model.LTRuleXML
 
 object PatternRuleCols {
   val Type = 0
@@ -118,11 +119,16 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
             id,
             row(PatternRuleCols.Pattern).asInstanceOf[String],
             row(PatternRuleCols.Suggestion).asInstanceOf[String],
-            row(PatternRuleCols.Colour).asInstanceOf[String],
             row(PatternRuleCols.Category).asInstanceOf[String],
             row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]]
           )))
-        case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported (row: ${rowNumber})"))
+        case (Some(id), _, "lt") => Success(Some(getLTPatternRule(
+            id,
+            row(PatternRuleCols.Pattern).asInstanceOf[String],
+            row(PatternRuleCols.Suggestion).asInstanceOf[String],
+            row(PatternRuleCols.Category).asInstanceOf[String]
+          )))
+        case (Some(id), _, ruleType) => Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
       }
 
     } catch {
@@ -136,18 +142,22 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     id: String,
     pattern: String,
     suggestion: String,
-    colour: String,
     category: String,
     description: Option[String]
-  ) = {
-    RegexRule(
+  ) = RegexRule(
       id = id,
       category = Category(category, category),
       description = description.getOrElse(""),
       replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
       regex = pattern.r,
     )
-  }
+
+  private def getLTPatternRule(
+    id: String,
+    pattern: String,
+    category: String,
+    description: String
+  ) = LTRuleXML(id, pattern, Category(category, category), description)
 
   private def getLTRuleFromRow(row: List[Any], index: Int): Try[Option[String]] = {
      try {
