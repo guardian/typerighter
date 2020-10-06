@@ -28,7 +28,7 @@ class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) extends Logging {
 
-  def createInstance(category: Category, ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): (Matcher, List[String]) = {
+  def createInstance(ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): (Matcher, List[String]) = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
@@ -40,8 +40,6 @@ class LanguageToolFactory(
       if (useLanguageModelRules) instance.activateLanguageModelRules(languageModel)
     }
 
-    logger.info(s"Adding ${ruleXMLs.size} rules and enabling ${defaultRuleIds.size} default rules to matcher instance ${category}")
-
     // Disable all default rules, apart from those we'd explicitly like
     instance.getAllRules().asScala.foreach { rule =>
       if (!defaultRuleIds.contains(rule.getId())) {
@@ -52,9 +50,11 @@ class LanguageToolFactory(
     // Add custom rules
     val ruleErrors = applyXMLRules(instance, ruleXMLs)
 
-    instance.enableRuleCategory(new CategoryId(category.id))
+    val matcher = new LanguageToolMatcher(instance)
 
-    (new LanguageToolMatcher(category, instance), ruleErrors)
+    logger.info(s"Added ${ruleXMLs.size} rules and enabled ${defaultRuleIds.size} default rules for matcher instance with id: ${matcher.getId()}")
+
+    (matcher, ruleErrors)
   }
 
   /**
@@ -124,7 +124,7 @@ object LanguageToolMatcher extends MatcherCompanion {
 /**
   * A Matcher that wraps a LanguageTool instance.
   */
-class LanguageToolMatcher(category: Category, instance: JLanguageTool) extends Matcher {
+class LanguageToolMatcher(instance: JLanguageTool) extends Matcher {
 
   def getType = LanguageToolMatcher.getType
 

@@ -38,14 +38,13 @@ class RuleProvisionerService(
 
         val ltRules = rules.collect { case r: LTRuleXML => r }
         if (ltRules.size > 0) {
-          val (ltMatcher, _) = languageToolFactory.createInstance(category, ltRules)
+          val (ltMatcher, _) = languageToolFactory.createInstance(ltRules)
           matcherPool.addMatcher(ltMatcher)
         }
       }
     }
 
-    val category = new Category("languagetool-default", "Default LanguageTool rules")
-    val (matcher, errors) = languageToolFactory.createInstance(category, Nil, ruleResource.ltDefaultRuleIds)
+    val (matcher, errors) = languageToolFactory.createInstance(Nil, ruleResource.ltDefaultRuleIds)
     matcherPool.addMatcher(matcher)
 
     lastModified = date
