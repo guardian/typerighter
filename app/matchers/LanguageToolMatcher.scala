@@ -52,9 +52,7 @@ class LanguageToolFactory(
     // Add custom rules
     val ruleErrors = applyXMLRules(instance, ruleXMLs)
 
-
     instance.enableRuleCategory(new CategoryId(category.id))
-    println(instance.getAllActiveRules)
 
     (new LanguageToolMatcher(category, instance), ruleErrors)
   }
@@ -64,7 +62,7 @@ class LanguageToolFactory(
     * LanguageTool instance and enable them for matching.
     */
   private def applyXMLRules(instance: JLanguageTool, ltRuleXmls: List[LTRuleXML]) = {
-    val maybeRuleErrors = getRulesFromXML(ltRuleXmls) match {
+    val maybeRuleErrors = getLTRulesFromXML(ltRuleXmls) match {
       case Success(rules) => rules.map { rule => Try {
           instance.addRule(rule)
           instance.enableRule(rule.getId())
@@ -82,36 +80,40 @@ class LanguageToolFactory(
     }
   }
 
-  private def getRulesFromXML(rules: List[LTRuleXML]): Try[List[AbstractPatternRule]] = rules match {
+  private def getLTRulesFromXML(rules: List[LTRuleXML]): Try[List[AbstractPatternRule]] = rules match {
     case Nil => Success(Nil)
     case r => {
       val loader = new PatternRuleLoader()
       getXMLStreamFromLTRules(rules) flatMap {
-        xmlStream => Try(loader.getRules(xmlStream, "languagetool-generated-xml").asScala.toList)
+        xmlStream => {
+          Try(loader.getRules(xmlStream, "languagetool-generated-xml").asScala.toList)
+        }
       }
     }
   }
 
   private def getXMLStreamFromLTRules(rules: List[LTRuleXML]): Try[ByteArrayInputStream] = Try {
-      val rulesByCategory = rules.groupBy(_.category)
-      val rulesXml = rulesByCategory.map {
-        case (category, rules) =>
-          <category id={category.id} name={category.name} type="grammar">
-            {rules.map { rule =>
-              <rule id={rule.id} name={rule.description}>
-                {XML.loadString(s"<tempRoot>${rule.xml}</tempRoot>").child}
-              </rule>
-            }}
-          </category>
-      }
+    val rulesByCategory = rules.groupBy(_.category)
+    val rulesXml = rulesByCategory.map {
+      case (category, rules) =>
+        <category id={category.id} name={category.name} type="grammar">
+          {rules.map { rule =>
+            <rule id={rule.id} name={rule.description}>
+              {XML.loadString(s"<temp>${rule.xml}</temp>").child}
+            </rule>
+          }}
+        </category>
+    }
 
-      // Temporarily hardcode language settings
-      val ruleXml = <rules lang="en">{rulesXml}</rules>
+    // Temporarily hardcode language settings
+    val ruleXml = <rules lang="en">{rulesXml}</rules>
 
-      val outputStream = new ByteArrayOutputStream()
-      val writer = new OutputStreamWriter(outputStream)
-      XML.write(writer, ruleXml, "UTF-8", xmlDecl = false, doctype = xml.dtd.DocType("rules"))
-      new ByteArrayInputStream(outputStream.toByteArray())
+    val outputStream = new ByteArrayOutputStream()
+    val writer = new OutputStreamWriter(outputStream)
+    XML.write(writer, ruleXml, "UTF-8", xmlDecl = true, doctype = xml.dtd.DocType("rules"))
+    writer.close()
+
+    new ByteArrayInputStream(outputStream.toByteArray())
   }
 }
 
