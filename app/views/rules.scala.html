@@ -45,7 +45,7 @@
                         <td>
                           @matcher
                         </td>
-                        <td>@categories.map(_.id)</td>
+                        <td>@categories.map(_.id).mkString(", ")</td>
                         <td>@ruleCount</td>
                     </tr>
                 }
