@@ -15,7 +15,7 @@ object RegexMatcher extends MatcherCompanion {
 /**
   * A Matcher for rules based on regular expressions.
   */
-class RegexMatcher(category: Category, rules: List[RegexRule]) extends Matcher {
+class RegexMatcher(rules: List[RegexRule]) extends Matcher {
 
   def getType() = RegexMatcher.getType
 
@@ -30,7 +30,7 @@ class RegexMatcher(category: Category, rules: List[RegexRule]) extends Matcher {
 
   override def getRules(): List[RegexRule] = rules
 
-  override def getCategory() = category
+  override def getCategories() = rules.map(_.category).toSet
 
   private def checkRule(request: MatcherRequest, rule: RegexRule): List[RuleMatch] = {
     request.blocks.flatMap { block =>

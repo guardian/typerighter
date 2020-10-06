@@ -91,7 +91,7 @@ class MatcherPool(
     */
   def check(query: Check): Future[List[RuleMatch]] = {
     val categoryIds = query.categoryIds match {
-      case None => getCurrentCategories.map { case (_, category, _) => category.id }
+      case None => getCurrentCategories.flatMap { case (_, categories, _) => categories.map(_.id) }
       case Some(ids) => ids
     }
 
@@ -120,7 +120,7 @@ class MatcherPool(
     * Add a matcher to the pool of matchers.
     */
   def addMatcher(matcher: Matcher): Option[Matcher] = {
-    logger.info(s"New instance of matcher available of type: ${matcher.getType} for category: ${matcher.getCategory().id}")
+    logger.info(s"New instance of matcher available of type: ${matcher.getType} for categories: ${matcher.getCategories().map(_.id)}")
     matchers.put(matcher.getId(), matcher)
   }
 
@@ -136,9 +136,9 @@ class MatcherPool(
     matchers.clear
   }
 
-  def getCurrentCategories: List[(String, Category, Int)] = {
+  def getCurrentCategories: List[(String, Set[Category], Int)] = {
     val matchersAndCategories = matchers.values.map { matcher =>
-      (matcher.getType, matcher.getCategory, matcher.getRules.length)
+      (matcher.getType, matcher.getCategories, matcher.getRules.length)
     }.toList
     matchersAndCategories
   }
@@ -201,9 +201,9 @@ class MatcherPool(
     val matchersToCheck = matchers
       .values
       .toList
-      .filter(matcher => job.categoryIds.contains(matcher.getCategory().id))
+      .filter { doesMatcherServeAllCategories(job.categoryIds, _) }
 
-    val missingCategoryIds = job.categoryIds.diff(matchersToCheck.map(_.getCategory().id))
+    val missingCategoryIds = job.categoryIds.diff(matchersToCheck.flatMap(_.getCategories().map(_.id)))
 
     if (missingCategoryIds.size != 0) {
       val message = s"Could not run job: no matcher for category for id(s): ${missingCategoryIds.mkString(", ")}"
@@ -214,6 +214,9 @@ class MatcherPool(
       Success(matchersToCheck)
     }
   }
+
+  private def doesMatcherServeAllCategories(categoryIds: List[String], matcher: Matcher) =
+    categoryIds.exists { matcher.getCategories().map(_.id).contains }
 
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>

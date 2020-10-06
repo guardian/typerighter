@@ -26,7 +26,7 @@ class ApiController(
             val response = MatcherResponse(
               matches = matches,
               blocks = check.blocks,
-              categoryIds = check.categoryIds.getOrElse(matcherPool.getCurrentCategories.map { _._2.id })
+              categoryIds = matches.map(_.rule.category.id).toSet.toList
             )
             Ok(Json.toJson(response))
           } recover {

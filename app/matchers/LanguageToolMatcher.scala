@@ -127,7 +127,13 @@ object LanguageToolMatcher extends MatcherCompanion {
 class LanguageToolMatcher(category: Category, instance: JLanguageTool) extends Matcher {
 
   def getType = LanguageToolMatcher.getType
-  def getCategory = category
+
+  def getCategories = instance
+    .getCategories()
+    .asScala
+    .toList
+    .map { case (id, cat) => Category.fromLT(cat) }
+    .toSet
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = Future {
     request.blocks.flatMap { block =>

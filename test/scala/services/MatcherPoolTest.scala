@@ -26,7 +26,7 @@ class MockMatcher(id: Int) extends Matcher {
   private var maybeResponse: Option[Either[String, List[RuleMatch]]] = None
 
   def getType = s"mock-matcher-$id"
-  def getCategory = Category(s"mock-category-$id", "Mock category")
+  def getCategories = Set(Category(s"mock-category-$id", "Mock category"))
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -61,7 +61,7 @@ class MockMatcher(id: Int) extends Matcher {
 
 class MockMatcherThatThrows(e: Throwable) extends Matcher {
   def getType = s"mock-matcher-that-throws"
-  def getCategory = Category("mock-category", "Mock category")
+  def getCategories = Set(Category(s"mock-category-that-throws", "Mock category"))
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -138,7 +138,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   it should "report current categories" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
-    pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
+    pool.getCurrentCategories should be(List(("mock-matcher-0", Set(getCategory(0)), 0)))
   }
 
   behavior of "removeMatcherById"
@@ -147,7 +147,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     pool.removeMatcherById(matchers(1).getId())
-    pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
+    pool.getCurrentCategories should be(List(("mock-matcher-0", Set(getCategory(0)), 0)))
   }
 
   it should "remove all matchers" in {

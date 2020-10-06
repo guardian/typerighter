@@ -4,7 +4,7 @@
 @import model.Category
 @import helper._
 
-@(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category, Int)], rulesRefreshed: Option[Boolean] = None,
+@(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[(String, Set[Category], Int)], rulesRefreshed: Option[Boolean] = None,
         rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
@@ -30,24 +30,22 @@
     }
     <div class="row">
         <div class="col-sm-5">
-            <h5>Categories (@categories.size)</h5>
+            <h5>Matchers (@matchers.size)</h5>
             <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">Id</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Handler</th>
+                        <th scope="col">Categories</th>
                         <th scope="col">Rule count</th>
                     </tr>
                 </thead>
                 <tbody>
-                @for((handler, category, ruleCount) <- categories) {
+                @for((matcher, categories, ruleCount) <- matchers) {
                     <tr>
                         <td>
-                          @category.id
+                          @matcher
                         </td>
-                        <td>@category.name</td>
-                        <td>@handler</td>
+                        <td>@categories.map(_.id)</td>
                         <td>@ruleCount</td>
                     </tr>
                 }

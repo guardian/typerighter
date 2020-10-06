@@ -32,7 +32,7 @@ class RuleProvisionerService(
       case (category, rules) => {
         val regexRules = rules.collect { case r: RegexRule => r }
         if (regexRules.size > 0) {
-          val regexMatcher = new RegexMatcher(category, regexRules)
+          val regexMatcher = new RegexMatcher(regexRules)
           matcherPool.addMatcher(regexMatcher)
         }
 
