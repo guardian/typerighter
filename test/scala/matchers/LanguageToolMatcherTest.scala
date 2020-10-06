@@ -7,7 +7,7 @@ import com.softwaremill.diffx.scalatest.DiffMatcher._
 import services.MatcherRequest
 
 class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
-  val exampleCategory = Category("EXAMPLE_CAT", "Example Category", "puce")
+  val exampleCategory = Category("EXAMPLE_CAT", "Example Category")
   val exampleRule =  LTRule(
     "EXAMPLE_RULE",
     exampleCategory,

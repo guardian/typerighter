@@ -142,7 +142,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
   ) = {
     RegexRule(
       id = id,
-      category = Category(category, category, colour),
+      category = Category(category, category),
       description = description.getOrElse(""),
       replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
       regex = pattern.r,
