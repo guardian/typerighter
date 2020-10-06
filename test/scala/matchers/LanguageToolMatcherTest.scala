@@ -34,40 +34,37 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
 
   "getInstance" should "provide no rules by default" in {
     val ltFactory = new LanguageToolFactory(None)
-    val (instance, _) = ltFactory.createInstance(Nil)
+    val instance = ltFactory.createInstance(Nil).getOrElse(fail)
     instance.getRules() shouldBe Nil
   }
 
   "getInstance" should "include the rules we provide by id via `defaultRules`" in {
     val ltFactory = new LanguageToolFactory(None)
     val defaultRules = List("FEWER_LESS", "DOES_YOU")
-    val (instance, errors) = ltFactory.createInstance(Nil, defaultRules)
+    val instance = ltFactory.createInstance(Nil, defaultRules).getOrElse(fail)
     // These rule ids map to rule groups, which contain two rules each.
     // This is weird, as we'd assume ids to be unique. We may want to alter
     // this to reflect rule groupings to ensure id uniqueness, for example.
-    errors shouldBe Nil
     instance.getRules().map(_.id) shouldBe List("FEWER_LESS", "FEWER_LESS", "DOES_YOU", "DOES_YOU")
   }
 
   "getInstance" should "include the XML-based rules we provide via `rules`" in {
     val ltFactory = new LanguageToolFactory(None)
     val exampleRules = List(exampleRule)
-    val (instance, errors) = ltFactory.createInstance(exampleRules)
-    errors shouldBe Nil
+    val instance = ltFactory.createInstance(exampleRules).getOrElse(fail)
     instance.getRules().map(_.id) shouldBe List("EXAMPLE_RULE")
   }
 
   "getInstance" should "handle cases where no novel rules are available" in {
     val ltFactory = new LanguageToolFactory(None)
-    val (instance, errors) = ltFactory.createInstance(List.empty)
+    val instance = ltFactory.createInstance(List.empty).getOrElse(fail)
     instance.getRules().map(_.id) shouldBe List.empty
-    errors shouldBe List.empty
   }
 
   "check" should "apply LanguageTool default rules" in {
     val ltFactory = new LanguageToolFactory(None)
     val defaultRules = List("FEWER_LESS")
-    val (instance, _) = ltFactory.createInstance(Nil, defaultRules)
+    val instance = ltFactory.createInstance(Nil, defaultRules).getOrElse(fail)
     val request = MatcherRequest(List(TextBlock("id-1", "Three or less tests passed!", 0, 29)))
 
     val eventuallyMatches = instance.check(request)
@@ -80,7 +77,7 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
   "check" should "apply LanguageTool custom rules" in {
     val ltFactory = new LanguageToolFactory(None)
     val exampleRules = List(exampleRule)
-    val (instance, _) = ltFactory.createInstance(List(exampleRule))
+    val instance = ltFactory.createInstance(List(exampleRule)).getOrElse(fail)
     val request = MatcherRequest(List(TextBlock("id-1", "Three mistakes or less", 0, 29)))
 
     val eventuallyMatches = instance.check(request)

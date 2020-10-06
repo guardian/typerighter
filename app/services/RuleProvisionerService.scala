@@ -38,14 +38,12 @@ class RuleProvisionerService(
 
         val ltRules = rules.collect { case r: LTRuleXML => r }
         if (ltRules.size > 0) {
-          val (ltMatcher, _) = languageToolFactory.createInstance(ltRules)
-          matcherPool.addMatcher(ltMatcher)
+          addLTMatcherToPool(matcherPool, ltRules)
         }
       }
     }
 
-    val (matcher, errors) = languageToolFactory.createInstance(Nil, ruleResource.ltDefaultRuleIds)
-    matcherPool.addMatcher(matcher)
+    addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
 
     lastModified = date
   }
@@ -77,5 +75,15 @@ class RuleProvisionerService(
 
   def scheduleUpdateRules(scheduler: Scheduler): Unit = {
     scheduler.scheduleWithFixedDelay(0.seconds, 1.minute)(this)
+  }
+
+  private def addLTMatcherToPool(matcherPool: MatcherPool, xmlRules: List[LTRuleXML], defaultRules: List[String] = Nil) = {
+    languageToolFactory.createInstance(xmlRules, defaultRules) match {
+      case Right(matcher) => matcherPool.addMatcher(matcher)
+      case Left(errors) => {
+        logger.error(s"Could not create languageTool instance from ruleResource: ${errors.size} errors found")
+        errors.foreach(e => logger.error(e.getMessage(), e))
+      }
+    }
   }
 }
