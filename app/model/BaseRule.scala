@@ -69,7 +69,27 @@ case class RegexRule(
 }
 
 /**
-  * The application's representation of a LanguageTool PatternRule.
+  * The application's representation of a LanguageTool PatternRule as expressed
+  * in XML. Consumed directly by the LanguageToolMatcher to produce a rule.
+  */
+case class LTRuleXML(
+  id: String,
+  xml: String,
+  category: Category,
+  description: String
+) extends BaseRule {
+  val suggestions = List.empty
+  val replacement: Option[TextSuggestion] = None
+}
+
+object LTRuleXML {
+  implicit val writes: Writes[LTRuleXML] = Json.writes[LTRuleXML]
+  implicit val reads: Reads[LTRuleXML] = Json.reads[LTRuleXML]
+}
+
+/**
+  * The application's representation of a LanguageTool PatternRule. Used to
+  * (lossily) present a LanguageTool PatternRule in a UI.
   */
 case class LTRule(id: String,
                   category: Category,

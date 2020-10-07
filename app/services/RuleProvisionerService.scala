@@ -12,6 +12,7 @@ import model.{RegexRule, BaseRule, Category, RuleResource}
 import rules.BucketRuleManager
 import matchers.LanguageToolFactory
 import model.LTRule
+import model.LTRuleXML
 
 class RuleProvisionerService(
   bucketRuleManager: BucketRuleManager,
@@ -35,7 +36,7 @@ class RuleProvisionerService(
           matcherPool.addMatcher(regexMatcher)
         }
 
-        val ltRules = rules.collect { case r: LTRule => r }
+        val ltRules = rules.collect { case r: LTRuleXML => r }
         if (ltRules.size > 0) {
           val (ltMatcher, _) = languageToolFactory.createInstance(category, ltRules)
           matcherPool.addMatcher(ltMatcher)

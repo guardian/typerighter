@@ -255,12 +255,14 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
   it should "correctly check multiple categories for a single job" in {
     val matchers = getMatchers(2)
-    val pool = getPool(matchers)
-    val futureResult = pool.check(getCheck(text = "Example text"))
     val firstMatch = getResponses(List((0, 5, "test-response")), 0)
     val secondMatch = getResponses(List((6, 10, "test-response")), 1)
     matchers(0).completeWith(firstMatch)
     matchers(1).completeWith(secondMatch)
+
+    val pool = getPool(matchers)
+    val futureResult = pool.check(getCheck(text = "Example text"))
+
     futureResult.map { result =>
       result.contains(firstMatch.head) shouldBe true
       result.contains(secondMatch.head) shouldBe true
