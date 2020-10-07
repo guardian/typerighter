@@ -55,6 +55,14 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     instance.getRules().map(_.id) shouldBe List("EXAMPLE_RULE")
   }
 
+  "getInstance" should "report categories both sorts of rules" in {
+    val ltFactory = new LanguageToolFactory(None)
+    val defaultRules = List("FEWER_LESS", "DOES_YOU")
+    val exampleRules = List(exampleRule)
+    val instance = ltFactory.createInstance(exampleRules, defaultRules).getOrElse(fail)
+    instance.getCategories().map(_.id) shouldBe Set("GRAMMAR", "EXAMPLE_CAT")
+  }
+
   "getInstance" should "handle cases where no novel rules are available" in {
     val ltFactory = new LanguageToolFactory(None)
     val instance = ltFactory.createInstance(List.empty).getOrElse(fail)
