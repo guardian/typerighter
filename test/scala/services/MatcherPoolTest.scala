@@ -118,7 +118,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
           toPos = to,
           matchedText = "placeholder text",
           message = message,
-          matchContext = "[placeholder text]",
+          matchContext = MatchContext("", ""),
+          shortMatchContext = "[placeholder text]",
           matcherType = "regex"
         )
     }

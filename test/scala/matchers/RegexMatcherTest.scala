@@ -6,6 +6,7 @@ import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffMatcher._
 
 import services.MatcherRequest
+import utils.Text
 
 class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   def createRules(textsToMatch: List[String]) = {
@@ -26,7 +27,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   def getBlocks(text: String) = List(TextBlock("text-block-id", text, 0, text.length))
 
-  def getMatch(text: String, fromPos: Int, toPos: Int, matchText: String, rule: RegexRule = exampleRule, replacement: Option[String] = None) = RuleMatch(
+  def getMatch(text: String, fromPos: Int, toPos: Int, before: String, after: String, rule: RegexRule = exampleRule, replacement: Option[String] = None) = RuleMatch(
     rule = rule,
     fromPos = fromPos,
     toPos = toPos,
@@ -35,21 +36,21 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     shortMessage = Some(rule.description),
     suggestions = rule.suggestions,
     replacement = replacement.map(TextSuggestion(_)),
-    matchContext = matchText,
+    matchContext = MatchContext(before, after),
+    shortMatchContext = Text.getMatchTextSnippet(before, text, after),
     matcherType = RegexMatcher.getType()
   )
 
 
   "check" should "report single matches in short text" in {
     val sampleText = "example text is here"
-    val matchText = "example [text] is here"
 
     val eventuallyMatches = regexValidator.check(
       MatcherRequest(getBlocks(sampleText))
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        getMatch("text", 8, 12, matchText)
+        getMatch("text", 8, 12, "example ", " is here")
       ))
     }
   }
@@ -67,12 +68,13 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
                        | 123456789 123456789 123456789
                        |""".stripMargin.replace("\n", "")
 
-    val matchText = """
+    val before = """
                        |123456789
                        | 123456789 123456789 123456789
                        | 123456789 123456789 123456789
                        | 123456789 123456789 123456789
-                       | [text]
+                       | """.stripMargin.replace("\n", "")
+    val after = """
                        | 123456789 123456789 123456789
                        | 123456789 123456789 123456789
                        | 123456789 123456789 123456789
@@ -84,7 +86,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        getMatch("text", 121, 125, matchText)
+        getMatch("text", 121, 125, before, after)
       ))
     }
   }
@@ -95,9 +97,9 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        getMatch("text", 0, 4, "[text] text text"),
-        getMatch("text", 5, 9, "text [text] text"),
-        getMatch("text", 10, 14, "text text [text]")
+        getMatch("text", 0, 4, "", " text text"),
+        getMatch("text", 5, 9, "text ", " text"),
+        getMatch("text", 10, 14, "text text ", "")
       ))
     }
   }
@@ -110,9 +112,9 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     )
     eventuallyMatches.map { matches =>
       matches.size shouldBe 3
-      matches(0) should matchTo(getMatch("ton", 5, 8, "tone [ton] goto", overlapRules(1)))
-      matches(1) should matchTo(getMatch("one", 1, 4, "t[one] ton goto", overlapRules(2)))
-      matches(2) should matchTo(getMatch("got", 9, 12, "tone ton [got]o", overlapRules(3)))
+      matches(0) should matchTo(getMatch("ton", 5, 8, "tone ", " goto", overlapRules(1)))
+      matches(1) should matchTo(getMatch("one", 1, 4, "t", " ton goto", overlapRules(2)))
+      matches(2) should matchTo(getMatch("got", 9, 12, "tone ton ", "o", overlapRules(3)))
     }
   }
 
@@ -133,7 +135,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     eventuallyMatches.map { matches =>
       matches.size shouldBe 1
       val expectedReplacement = Some("teapot")
-      val expectedMatch = getMatch("tea pot", 13, 20, "I'm a little [tea pot]", rule, expectedReplacement)
+      val expectedMatch = getMatch("tea pot", 13, 20, "I'm a little ", "", rule, expectedReplacement)
       matches(0) should matchTo(expectedMatch)
     }
   }
@@ -155,7 +157,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     eventuallyMatches.map { matches =>
       matches.size shouldBe 1
       val expectedReplacement = Some("nine-month-long")
-      val expectedMatch = getMatch("nine month long", 2, 17, "A [nine month long] sabbatical", rule, expectedReplacement)
+      val expectedMatch = getMatch("nine month long", 2, 17, "A ", " sabbatical", rule, expectedReplacement)
       matches(0) should matchTo(expectedMatch)
     }
   }
