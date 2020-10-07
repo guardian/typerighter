@@ -51,19 +51,20 @@ case class RegexRule(
 
   def toMatch(start: Int, end: Int, block: TextBlock): RuleMatch = {
     val matchedText = block.text.substring(start, end)
-
+    val (before, after) = Text.getSurroundingText(block.text, start, end)
     RuleMatch(
       rule = this,
       fromPos = start + block.from,
       toPos = end + block.from,
+      before = before,
+      after = after,
       matchedText = matchedText,
       message = description,
       shortMessage = Some(description),
       suggestions = suggestions,
       replacement = replacement.map(_.replaceAllIn(regex, matchedText)),
       markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
-      matchContext = Text.getSurroundingText(block.text, start, end),
-      shortMatchContext = Text.getSurroundingText(block.text, start, end, 50),
+      matchContext = Text.getMatchTextSnippet(before, matchedText, after),
       matcherType = RegexMatcher.getType
     )
   }

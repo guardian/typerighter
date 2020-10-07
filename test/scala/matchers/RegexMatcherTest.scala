@@ -31,13 +31,14 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     rule = rule,
     fromPos = fromPos,
     toPos = toPos,
+    before = before,
+    after = after,
     matchedText = text,
     message = rule.description,
     shortMessage = Some(rule.description),
     suggestions = rule.suggestions,
     replacement = replacement.map(TextSuggestion(_)),
-    matchContext = MatchContext(before, after),
-    shortMatchContext = Text.getMatchTextSnippet(before, text, after),
+    matchContext = Text.getMatchTextSnippet(before, text, after),
     matcherType = RegexMatcher.getType()
   )
 

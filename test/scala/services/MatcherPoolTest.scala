@@ -116,10 +116,11 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
           rule = getResponseRule(categoryId),
           fromPos = from,
           toPos = to,
+          before = "",
+          after = "",
           matchedText = "placeholder text",
           message = message,
-          matchContext = MatchContext("", ""),
-          shortMatchContext = "[placeholder text]",
+          matchContext = "[placeholder text]",
           matcherType = "regex"
         )
     }
