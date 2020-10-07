@@ -26,6 +26,7 @@ object RuleMatch {
       replacement = replacement,
       suggestions = suggestions,
       matchContext = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos),
+      shortMatchContext = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos, 50),
       matcherType = matcherType
     )
   }
@@ -43,4 +44,5 @@ case class RuleMatch(rule: BaseRule,
                      replacement: Option[Suggestion] = None,
                      markAsCorrect: Boolean = false,
                      matchContext: String,
+                     shortMatchContext: String,
                      matcherType: String)

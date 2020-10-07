@@ -63,6 +63,7 @@ case class RegexRule(
       replacement = replacement.map(_.replaceAllIn(regex, matchedText)),
       markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
       matchContext = Text.getSurroundingText(block.text, start, end),
+      shortMatchContext = Text.getSurroundingText(block.text, start, end, 50),
       matcherType = RegexMatcher.getType
     )
   }
