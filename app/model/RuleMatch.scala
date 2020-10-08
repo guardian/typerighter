@@ -16,16 +16,20 @@ object RuleMatch {
     // Placeholder rule-of-thumb: if a rule has exactly one suggestion, add
     // it as a replacement to trigger the 'replacement' behaviour in the client.
     val replacement = if (suggestions.size == 1) Some(suggestions.head) else None
+    val matchedText = block.text.substring(lt.getFromPos, lt.getToPos)
+    val (precedingText, subsequentText) = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos, 50)
     RuleMatch(
       rule = LTRule.fromLT(lt.getRule),
       fromPos = lt.getFromPos,
       toPos = lt.getToPos,
-      matchedText = block.text.substring(lt.getFromPos, lt.getToPos),
+      precedingText = precedingText,
+      subsequentText = subsequentText,
+      matchedText = matchedText,
       message = lt.getMessage,
       shortMessage = Some(lt.getMessage),
       replacement = replacement,
       suggestions = suggestions,
-      matchContext = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos),
+      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
       matcherType = matcherType
     )
   }
@@ -36,6 +40,8 @@ object RuleMatch {
 case class RuleMatch(rule: BaseRule,
                      fromPos: Int,
                      toPos: Int,
+                     precedingText: String,
+                     subsequentText: String,
                      matchedText: String,
                      message: String,
                      shortMessage: Option[String] = None,
