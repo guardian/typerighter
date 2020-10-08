@@ -81,8 +81,9 @@ class RuleProvisionerService(
     languageToolFactory.createInstance(xmlRules, defaultRules) match {
       case Right(matcher) => matcherPool.addMatcher(matcher)
       case Left(errors) => {
-        logger.error(s"Could not create languageTool instance from ruleResource: ${errors.size} errors found")
-        errors.foreach(e => logger.error(e.getMessage(), e))
+        val logPrefix = "RuleProvisionerService error: "
+        logger.error(s"${logPrefix} could not create languageTool instance from ruleResource: ${errors.size} errors found")
+        errors.foreach(e => logger.error(s"${logPrefix} ${e.getMessage()}", e))
       }
     }
   }
