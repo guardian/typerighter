@@ -2,9 +2,10 @@
 @import model.RegexRule
 @import model.LTRule
 @import model.Category
+@import utils.Matcher
 @import helper._
 
-@(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[(String, Set[Category], Int)], rulesRefreshed: Option[Boolean] = None,
+@(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[Matcher], rulesRefreshed: Option[Boolean] = None,
         rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
@@ -40,13 +41,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                @for((matcher, categories, ruleCount) <- matchers) {
+                @for(matcher <- matchers) {
                     <tr>
                         <td>
-                          @matcher
+                          @matcher.getType()
                         </td>
-                        <td>@categories.map(_.id).mkString(", ")</td>
-                        <td>@ruleCount</td>
+                        <td>@matcher.getCategories().map(_.id).mkString(", ")</td>
+                        <td>@matcher.getRules().size</td>
                     </tr>
                 }
                 </tbody>

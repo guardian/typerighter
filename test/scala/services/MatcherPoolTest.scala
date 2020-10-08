@@ -138,7 +138,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   it should "report current categories" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
-    pool.getCurrentCategories should be(List(("mock-matcher-0", Set(getCategory(0)), 0)))
+    pool.getCurrentCategories should be(Set(getCategory(0)))
   }
 
   behavior of "removeMatcherById"
@@ -147,14 +147,14 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     pool.removeMatcherById(matchers(1).getId())
-    pool.getCurrentCategories should be(List(("mock-matcher-0", Set(getCategory(0)), 0)))
+    pool.getCurrentCategories should be(Set(getCategory(0)))
   }
 
   it should "remove all matchers" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     pool.removeAllMatchers
-    pool.getCurrentCategories should be(List.empty)
+    pool.getCurrentCategories should be(Set.empty)
   }
 
   behavior of "check"

@@ -39,6 +39,6 @@ class ApiController(
   }
 
   def getCurrentCategories: Action[AnyContent] = ApiAuthAction {
-      Ok(Json.toJson(matcherPool.getCurrentCategories.map(_._2)))
+      Ok(Json.toJson(matcherPool.getCurrentCategories))
   }
 }

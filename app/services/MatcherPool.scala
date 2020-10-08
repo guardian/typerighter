@@ -91,7 +91,7 @@ class MatcherPool(
     */
   def check(query: Check): Future[List[RuleMatch]] = {
     val categoryIds = query.categoryIds match {
-      case None => getCurrentCategories.flatMap { case (_, categories, _) => categories.map(_.id) }.toSet
+      case None => getCurrentCategories.map(_.id)
       case Some(ids) => ids
     }
 
@@ -136,12 +136,11 @@ class MatcherPool(
     matchers.clear
   }
 
-  def getCurrentCategories: List[(String, Set[Category], Int)] = {
-    val matchersAndCategories = matchers.values.map { matcher =>
-      (matcher.getType, matcher.getCategories, matcher.getRules.length)
-    }.toList
-    matchersAndCategories
-  }
+  def getCurrentMatchers: List[Matcher] =
+    matchers.values.toList
+
+  def getCurrentCategories: Set[Category] =
+    matchers.values.flatMap { _.getCategories }.toSet
 
   def getCurrentRules: List[BaseRule] = {
     matchers.values.flatMap { matcher => matcher.getRules }.toList

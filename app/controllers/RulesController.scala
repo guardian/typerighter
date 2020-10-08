@@ -34,7 +34,7 @@ class RulesController(
         Ok(views.html.rules(
             sheetId,
             currentRules,
-            matcherPool.getCurrentCategories,
+            matcherPool.getCurrentMatchers,
             Some(true),
             Some(currentRules.size),
             Nil
@@ -44,7 +44,7 @@ class RulesController(
         Ok(views.html.rules(
           sheetId,
           matcherPool.getCurrentRules,
-          matcherPool.getCurrentCategories,
+          matcherPool.getCurrentMatchers,
           Some(false),
           Some(0),
           errors
@@ -57,7 +57,7 @@ class RulesController(
     Ok(views.html.rules(
       sheetId,
       matcherPool.getCurrentRules,
-      matcherPool.getCurrentCategories
+      matcherPool.getCurrentMatchers
     ))
   }
 }
