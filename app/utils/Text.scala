@@ -2,10 +2,10 @@ package utils
 
 object Text {
   def getSurroundingText(text: String, from: Int, to: Int, buffer: Int = 100): (String, String) = {
-    val textBefore = text.substring(scala.math.max(from - buffer, 0), scala.math.max(from, 0))
-    val textAfter = text.substring(scala.math.min(to, text.length), scala.math.min(to + buffer, text.length))
+    val precedingText = text.substring(scala.math.max(from - buffer, 0), scala.math.max(from, 0))
+    val subsequentText = text.substring(scala.math.min(to, text.length), scala.math.min(to + buffer, text.length))
 
-    (textBefore, textAfter)
+    (precedingText, subsequentText)
   }
 
   /**

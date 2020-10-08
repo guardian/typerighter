@@ -17,19 +17,19 @@ object RuleMatch {
     // it as a replacement to trigger the 'replacement' behaviour in the client.
     val replacement = if (suggestions.size == 1) Some(suggestions.head) else None
     val matchedText = block.text.substring(lt.getFromPos, lt.getToPos)
-    val (before, after) = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos, 50)
+    val (precedingText, subsequentText) = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos, 50)
     RuleMatch(
       rule = LTRule.fromLT(lt.getRule),
       fromPos = lt.getFromPos,
       toPos = lt.getToPos,
-      before = before,
-      after = after,
+      precedingText = precedingText,
+      subsequentText = subsequentText,
       matchedText = matchedText,
       message = lt.getMessage,
       shortMessage = Some(lt.getMessage),
       replacement = replacement,
       suggestions = suggestions,
-      matchContext = Text.getMatchTextSnippet(before, matchedText, after),
+      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
       matcherType = matcherType
     )
   }
@@ -40,8 +40,8 @@ object RuleMatch {
 case class RuleMatch(rule: BaseRule,
                      fromPos: Int,
                      toPos: Int,
-                     before: String,
-                     after: String,
+                     precedingText: String,
+                     subsequentText: String,
                      matchedText: String,
                      message: String,
                      shortMessage: Option[String] = None,
