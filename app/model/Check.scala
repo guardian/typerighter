@@ -4,11 +4,20 @@ import scala.collection.JavaConverters._
 import net.logstash.logback.marker.Markers
 import play.api.libs.json.{Json, Reads}
 
+object TextRange {
+  implicit val reads = Json.reads[TextRange]
+}
+
+case class TextRange(from: Int, to: Int) {
+  def length = to - from
+}
+
 case class Check(
   documentId: Option[String],
   requestId: String,
   categoryIds: Option[Set[String]],
-  blocks: List[TextBlock]
+  blocks: List[TextBlock],
+  rangesToIgnore: List[TextRange] = Nil
 ) {
   def toMarker = Markers.appendEntries(Map(
     "requestId" -> this.requestId,

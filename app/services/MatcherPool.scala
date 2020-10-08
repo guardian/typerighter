@@ -220,6 +220,7 @@ class MatcherPool(
 
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
+
       val eventuallyCheck = matcher.check(MatcherRequest(blocks))
       futures.timeout(checkTimeoutDuration)(eventuallyCheck)
     }

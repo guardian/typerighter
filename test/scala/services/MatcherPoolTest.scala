@@ -24,6 +24,7 @@ import scala.concurrent.Future
 class MockMatcher(id: Int) extends Matcher {
   private var currentWork: Option[Promise[List[RuleMatch]]] = None
   private var maybeResponse: Option[Either[String, List[RuleMatch]]] = None
+  var maybeRequest: Option[MatcherRequest] = None
 
   def getType = s"mock-matcher-$id"
   def getCategories = Set(Category(s"mock-category-$id", "Mock category"))
@@ -33,6 +34,7 @@ class MockMatcher(id: Int) extends Matcher {
     val promise = Promise[List[RuleMatch]]
     val future = promise.future
     currentWork = Some(promise)
+    maybeRequest = Some(request)
     maybeComplete()
     future
   }
@@ -129,11 +131,13 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private val setId = "set-id"
   private val blockId = "block-id"
 
-  private def getCheck(text: String, categoryIds: Option[Set[String]] = None) = Check(
+  private def getCheck(text: String, categoryIds: Option[Set[String]] = None, ignoredRanges: List[TextRange] = Nil) = Check(
     Some("example-document"),
     setId,
     categoryIds,
-    List(TextBlock(blockId, text, 0, text.length)))
+    List(TextBlock(blockId, text, 0, text.length)),
+    ignoredRanges
+  )
 
   behavior of "getCurrentCategories"
 
@@ -305,6 +309,41 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
         e.getMessage should include("Timeout")
         e.getMessage should include("500 milliseconds")
       }
+    }
+  }
+
+  it should "pass text to matchers without the ignored ranges" in {
+    val matchers = getMatchers(1)
+    val matcher = matchers.head
+    matcher.completeWith(responses)
+
+    val pool = getPool(matchers)
+    val check = getCheck(text = "Example [noted] text")
+    val futureResult = pool.check(check)
+
+    futureResult.map { _ =>
+      val expectedBlock = check.blocks.head.copy(text = "Example text", from = 0, to = 12)
+      matcher.maybeRequest.get.blocks shouldBe List(expectedBlock)
+    }
+  }
+
+  it should "map matches that succeed ignored ranges through those ranges to ensure they're correct" in {
+    val matchers = getMatchers(1)
+    val matcher = matchers.head
+    val responses = getResponses(List((8, 12, "This matches the word 'text' in the example")))
+    matcher.completeWith(responses)
+
+    val pool = getPool(matchers)
+    val check = getCheck(
+      text = "Example [noted] text",
+      // We ignore the text marked [noted], so the matcher just sees 'Example text'
+      ignoredRanges = List(TextRange(8, 15)
+    ))
+    val futureResult = pool.check(check)
+
+    futureResult.map { results =>
+      results.head.fromPos shouldBe 16
+      results.head.toPos shouldBe 20
     }
   }
 }
