@@ -2,7 +2,7 @@ package model
 
 import play.api.libs.json._
 
-case class MatcherResponse(blocks: List[TextBlock], categoryIds: List[String], matches: List[RuleMatch]) {
+case class MatcherResponse(blocks: List[TextBlock], categoryIds: Set[String], matches: List[RuleMatch]) {
   val `type` = "VALIDATOR_RESPONSE"
 }
 

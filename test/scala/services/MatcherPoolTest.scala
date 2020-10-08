@@ -127,7 +127,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private val setId = "set-id"
   private val blockId = "block-id"
 
-  private def getCheck(text: String, categoryIds: Option[List[String]] = None) = Check(
+  private def getCheck(text: String, categoryIds: Option[Set[String]] = None) = Check(
     Some("example-document"),
     setId,
     categoryIds,
@@ -286,7 +286,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
    it should "handle requests for categories that do not exist" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
-    val futureResult = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
+    val futureResult = pool.check(getCheck("Example text", Some(Set("category-id-does-not-exist"))))
     futureResult.transformWith {
       case Success(_) => fail
       case Failure(e) => e.getMessage should include("category-id-does-not-exist")
