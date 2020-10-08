@@ -29,24 +29,21 @@ class RuleProvisionerService(
     matcherPool.removeAllMatchers()
 
     ruleResource.rules.groupBy(_.category).foreach {
-      case (category, rules) => {
+      case (_, rules) => {
         val regexRules = rules.collect { case r: RegexRule => r }
         if (regexRules.size > 0) {
-          val regexMatcher = new RegexMatcher(category, regexRules)
+          val regexMatcher = new RegexMatcher(regexRules)
           matcherPool.addMatcher(regexMatcher)
         }
 
         val ltRules = rules.collect { case r: LTRuleXML => r }
         if (ltRules.size > 0) {
-          val (ltMatcher, _) = languageToolFactory.createInstance(category, ltRules)
-          matcherPool.addMatcher(ltMatcher)
+          addLTMatcherToPool(matcherPool, ltRules)
         }
       }
     }
 
-    val category = new Category("languagetool-default", "Default LanguageTool rules")
-    val (matcher, errors) = languageToolFactory.createInstance(category, Nil, ruleResource.ltDefaultRuleIds)
-    matcherPool.addMatcher(matcher)
+    addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
 
     lastModified = date
   }
@@ -78,5 +75,16 @@ class RuleProvisionerService(
 
   def scheduleUpdateRules(scheduler: Scheduler): Unit = {
     scheduler.scheduleWithFixedDelay(0.seconds, 1.minute)(this)
+  }
+
+  private def addLTMatcherToPool(matcherPool: MatcherPool, xmlRules: List[LTRuleXML], defaultRules: List[String] = Nil) = {
+    languageToolFactory.createInstance(xmlRules, defaultRules) match {
+      case Right(matcher) => matcherPool.addMatcher(matcher)
+      case Left(errors) => {
+        val logPrefix = "RuleProvisionerService error"
+        logger.error(s"${logPrefix}: could not create languageTool instance from ruleResource: ${errors.size} errors found")
+        errors.foreach { logger.error(logPrefix, _) }
+      }
+    }
   }
 }

@@ -28,7 +28,7 @@ class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) extends Logging {
 
-  def createInstance(category: Category, ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): (Matcher, List[String]) = {
+  def createInstance(ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): Either[List[Throwable], Matcher] = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
@@ -40,8 +40,6 @@ class LanguageToolFactory(
       if (useLanguageModelRules) instance.activateLanguageModelRules(languageModel)
     }
 
-    logger.info(s"Adding ${ruleXMLs.size} rules and enabling ${defaultRuleIds.size} default rules to matcher instance ${category}")
-
     // Disable all default rules, apart from those we'd explicitly like
     instance.getAllRules().asScala.foreach { rule =>
       if (!defaultRuleIds.contains(rule.getId())) {
@@ -50,18 +48,18 @@ class LanguageToolFactory(
     }
 
     // Add custom rules
-    val ruleErrors = applyXMLRules(instance, ruleXMLs)
-
-    instance.enableRuleCategory(new CategoryId(category.id))
-
-    (new LanguageToolMatcher(category, instance), ruleErrors)
+    applyXMLRules(instance, ruleXMLs) map { _ =>
+      val matcher = new LanguageToolMatcher(instance)
+      logger.info(s"Added ${ruleXMLs.size} rules and enabled ${defaultRuleIds.size} default rules for matcher instance with id: ${matcher.getId()}")
+      matcher
+    }
   }
 
   /**
     * As a side-effect, apply the given ltRuleXmls to the given
     * LanguageTool instance and enable them for matching.
     */
-  private def applyXMLRules(instance: JLanguageTool, ltRuleXmls: List[LTRuleXML]) = {
+  private def applyXMLRules(instance: JLanguageTool, ltRuleXmls: List[LTRuleXML]): Either[List[Throwable], Unit] = {
     val maybeRuleErrors = getLTRulesFromXML(ltRuleXmls) match {
       case Success(rules) => rules.map { rule => Try {
           instance.addRule(rule)
@@ -75,8 +73,11 @@ class LanguageToolFactory(
       case Success(_) => None
       case Failure(e) => {
         logger.error(e.getMessage(), e)
-        Some(e.getMessage())
+        Some(e)
       }
+    } match {
+      case Nil => Right(())
+      case errors => Left(errors)
     }
   }
 
@@ -124,10 +125,16 @@ object LanguageToolMatcher extends MatcherCompanion {
 /**
   * A Matcher that wraps a LanguageTool instance.
   */
-class LanguageToolMatcher(category: Category, instance: JLanguageTool) extends Matcher {
+class LanguageToolMatcher(instance: JLanguageTool) extends Matcher {
 
   def getType = LanguageToolMatcher.getType
-  def getCategory = category
+
+  def getCategories = instance
+    .getAllActiveRules()
+    .asScala
+    .toList
+    .map { rule => Category.fromLT(rule.getCategory()) }
+    .toSet
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = Future {
     request.blocks.flatMap { block =>

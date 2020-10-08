@@ -22,7 +22,7 @@ case class MatcherRequest(blocks: List[TextBlock])
 /**
   * A PartialMatcherJob represents the information our CheckStrategy needs to divide validation work into jobs.
   */
-case class PartialMatcherJob(blocks: List[TextBlock], categoryIds: List[String])
+case class PartialMatcherJob(blocks: List[TextBlock], categoryIds: Set[String])
 
 /**
   * A MatcherJob represents everything we need to for a matcher to
@@ -39,7 +39,7 @@ case class MatcherJob(requestId: String, documentId: String, blocks: List[TextBl
 }
 
 object MatcherPool extends Logging {
-  type CategoryIds = List[String]
+  type CategoryIds = Set[String]
   type CheckStrategy = (List[TextBlock], CategoryIds) => List[PartialMatcherJob]
 
   /**
@@ -55,7 +55,7 @@ object MatcherPool extends Logging {
     * separately against each of the passed categories.
     */
   def documentPerCategoryCheckStrategy: CheckStrategy = (blocks, categoryIds) => {
-    categoryIds.map(categoryId => PartialMatcherJob(blocks, List(categoryId)))
+    categoryIds.map(categoryId => PartialMatcherJob(blocks, Set(categoryId))).toList
   }
 }
 
@@ -91,7 +91,7 @@ class MatcherPool(
     */
   def check(query: Check): Future[List[RuleMatch]] = {
     val categoryIds = query.categoryIds match {
-      case None => getCurrentCategories.map { case (_, category, _) => category.id }
+      case None => getCurrentCategories.map(_.id)
       case Some(ids) => ids
     }
 
@@ -120,7 +120,7 @@ class MatcherPool(
     * Add a matcher to the pool of matchers.
     */
   def addMatcher(matcher: Matcher): Option[Matcher] = {
-    logger.info(s"New instance of matcher available of type: ${matcher.getType} for category: ${matcher.getCategory().id}")
+    logger.info(s"New instance of matcher available of type: ${matcher.getType} for categories: ${matcher.getCategories().map(_.id)}")
     matchers.put(matcher.getId(), matcher)
   }
 
@@ -136,12 +136,11 @@ class MatcherPool(
     matchers.clear
   }
 
-  def getCurrentCategories: List[(String, Category, Int)] = {
-    val matchersAndCategories = matchers.values.map { matcher =>
-      (matcher.getType, matcher.getCategory, matcher.getRules.length)
-    }.toList
-    matchersAndCategories
-  }
+  def getCurrentMatchers: List[Matcher] =
+    matchers.values.toList
+
+  def getCurrentCategories: Set[Category] =
+    matchers.values.flatMap { _.getCategories }.toSet
 
   def getCurrentRules: List[BaseRule] = {
     matchers.values.flatMap { matcher => matcher.getRules }.toList
@@ -201,9 +200,10 @@ class MatcherPool(
     val matchersToCheck = matchers
       .values
       .toList
-      .filter(matcher => job.categoryIds.contains(matcher.getCategory().id))
+      .filter { doesMatcherServeAllCategories(job.categoryIds, _) }
 
-    val missingCategoryIds = job.categoryIds.diff(matchersToCheck.map(_.getCategory().id))
+    val availableCategories = matchersToCheck.flatMap(_.getCategories().map(_.id)).toSet
+    val missingCategoryIds = job.categoryIds.diff(availableCategories)
 
     if (missingCategoryIds.size != 0) {
       val message = s"Could not run job: no matcher for category for id(s): ${missingCategoryIds.mkString(", ")}"
@@ -214,6 +214,9 @@ class MatcherPool(
       Success(matchersToCheck)
     }
   }
+
+  private def doesMatcherServeAllCategories(categoryIds: Set[String], matcher: Matcher) =
+    categoryIds.exists { matcher.getCategories().map(_.id).contains }
 
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>

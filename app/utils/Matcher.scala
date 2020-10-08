@@ -18,7 +18,7 @@ trait Matcher {
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]]
   def getRules(): List[BaseRule]
-  def getCategory(): Category
+  def getCategories(): Set[Category]
   def getType(): String
   def getId() = id
 }

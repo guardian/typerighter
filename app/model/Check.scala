@@ -7,7 +7,7 @@ import play.api.libs.json.{Json, Reads}
 case class Check(
   documentId: Option[String],
   requestId: String,
-  categoryIds: Option[List[String]],
+  categoryIds: Option[Set[String]],
   blocks: List[TextBlock]
 ) {
   def toMarker = Markers.appendEntries(Map(

@@ -2,9 +2,10 @@
 @import model.RegexRule
 @import model.LTRule
 @import model.Category
+@import utils.Matcher
 @import helper._
 
-@(sheetId: String, rules: scala.List[BaseRule], categories: scala.List[(String, Category, Int)], rulesRefreshed: Option[Boolean] = None,
+@(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[Matcher], rulesRefreshed: Option[Boolean] = None,
         rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     @form(CSRF(routes.RulesController.refresh())) {
@@ -30,25 +31,23 @@
     }
     <div class="row">
         <div class="col-sm-5">
-            <h5>Categories (@categories.size)</h5>
+            <h5>Matchers (@matchers.size)</h5>
             <table class="table">
                 <thead>
                     <tr>
                         <th scope="col">Id</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Handler</th>
+                        <th scope="col">Categories</th>
                         <th scope="col">Rule count</th>
                     </tr>
                 </thead>
                 <tbody>
-                @for((handler, category, ruleCount) <- categories) {
+                @for(matcher <- matchers) {
                     <tr>
                         <td>
-                          @category.id
+                          @matcher.getType()
                         </td>
-                        <td>@category.name</td>
-                        <td>@handler</td>
-                        <td>@ruleCount</td>
+                        <td>@matcher.getCategories().map(_.id).mkString(", ")</td>
+                        <td>@matcher.getRules().size</td>
                     </tr>
                 }
                 </tbody>
@@ -85,7 +84,7 @@
                           case r: RegexRule => {
                             @r.regex.toString.slice(0, 30)
                           }
-                          case _ => { None }
+                          case _ => { N/A }
                         }</td>
                         <td>@if(rule.description.nonEmpty) {
                             @rule.description

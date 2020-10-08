@@ -26,7 +26,7 @@ class ApiController(
             val response = MatcherResponse(
               matches = matches,
               blocks = check.blocks,
-              categoryIds = check.categoryIds.getOrElse(matcherPool.getCurrentCategories.map { _._2.id })
+              categoryIds = matches.map(_.rule.category.id).toSet
             )
             Ok(Json.toJson(response))
           } recover {
@@ -39,6 +39,6 @@ class ApiController(
   }
 
   def getCurrentCategories: Action[AnyContent] = ApiAuthAction {
-      Ok(Json.toJson(matcherPool.getCurrentCategories.map(_._2)))
+      Ok(Json.toJson(matcherPool.getCurrentCategories))
   }
 }

@@ -26,7 +26,7 @@ class MockMatcher(id: Int) extends Matcher {
   private var maybeResponse: Option[Either[String, List[RuleMatch]]] = None
 
   def getType = s"mock-matcher-$id"
-  def getCategory = Category(s"mock-category-$id", "Mock category")
+  def getCategories = Set(Category(s"mock-category-$id", "Mock category"))
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -61,7 +61,7 @@ class MockMatcher(id: Int) extends Matcher {
 
 class MockMatcherThatThrows(e: Throwable) extends Matcher {
   def getType = s"mock-matcher-that-throws"
-  def getCategory = Category("mock-category", "Mock category")
+  def getCategories = Set(Category(s"mock-category-that-throws", "Mock category"))
   def getRules = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
@@ -129,7 +129,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private val setId = "set-id"
   private val blockId = "block-id"
 
-  private def getCheck(text: String, categoryIds: Option[List[String]] = None) = Check(
+  private def getCheck(text: String, categoryIds: Option[Set[String]] = None) = Check(
     Some("example-document"),
     setId,
     categoryIds,
@@ -140,7 +140,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   it should "report current categories" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
-    pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
+    pool.getCurrentCategories should be(Set(getCategory(0)))
   }
 
   behavior of "removeMatcherById"
@@ -149,14 +149,14 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     pool.removeMatcherById(matchers(1).getId())
-    pool.getCurrentCategories should be(List(("mock-matcher-0", getCategory(0), 0)))
+    pool.getCurrentCategories should be(Set(getCategory(0)))
   }
 
   it should "remove all matchers" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     pool.removeAllMatchers
-    pool.getCurrentCategories should be(List.empty)
+    pool.getCurrentCategories should be(Set.empty)
   }
 
   behavior of "check"
@@ -288,7 +288,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
    it should "handle requests for categories that do not exist" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
-    val futureResult = pool.check(getCheck("Example text", Some(List("category-id-does-not-exist"))))
+    val futureResult = pool.check(getCheck("Example text", Some(Set("category-id-does-not-exist"))))
     futureResult.transformWith {
       case Success(_) => fail
       case Failure(e) => e.getMessage should include("category-id-does-not-exist")
