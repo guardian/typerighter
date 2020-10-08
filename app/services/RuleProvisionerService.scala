@@ -29,7 +29,7 @@ class RuleProvisionerService(
     matcherPool.removeAllMatchers()
 
     ruleResource.rules.groupBy(_.category).foreach {
-      case (category, rules) => {
+      case (_, rules) => {
         val regexRules = rules.collect { case r: RegexRule => r }
         if (regexRules.size > 0) {
           val regexMatcher = new RegexMatcher(regexRules)
