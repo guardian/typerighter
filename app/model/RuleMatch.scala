@@ -17,7 +17,7 @@ object RuleMatch {
     // it as a replacement to trigger the 'replacement' behaviour in the client.
     val replacement = if (suggestions.size == 1) Some(suggestions.head) else None
     val matchedText = block.text.substring(lt.getFromPos, lt.getToPos)
-    val (precedingText, subsequentText) = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos, 50)
+    val (precedingText, subsequentText) = Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos)
     RuleMatch(
       rule = LTRule.fromLT(lt.getRule),
       fromPos = lt.getFromPos,
