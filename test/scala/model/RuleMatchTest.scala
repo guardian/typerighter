@@ -44,6 +44,14 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
     mappedMatch.toPos shouldBe 20
   }
 
+  it should "account for a range ignored within the given range, and extending beyond it" in {
+    val ruleMatch = getRuleMatch(8, 12)
+    val ignoredRange = List(TextRange(8, 15))
+    val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
+    mappedMatch.fromPos shouldBe 15
+    mappedMatch.toPos shouldBe 19
+  }
+
   it should "account for a range ignored partially within the given range – left hand side" in {
     val ruleMatch = getRuleMatch(10, 15)
     val ignoredRange = List(TextRange(5, 12))

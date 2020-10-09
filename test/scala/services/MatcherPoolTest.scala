@@ -136,7 +136,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     setId,
     categoryIds,
     List(TextBlock(blockId, text, 0, text.length)),
-    ignoredRanges
+    Some(ignoredRanges)
   )
 
   behavior of "getCurrentCategories"
@@ -318,7 +318,10 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matcher.completeWith(responses)
 
     val pool = getPool(matchers)
-    val check = getCheck(text = "Example [noted] text")
+    val check = getCheck(text = "Example [noted] text",
+      // We ignore the text marked [noted], so the matcher just sees 'Example text'
+      ignoredRanges = List(TextRange(8, 15))
+    )
     val futureResult = pool.check(check)
 
     futureResult.map { _ =>
@@ -342,8 +345,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futureResult = pool.check(check)
 
     futureResult.map { results =>
-      results.head.fromPos shouldBe 16
-      results.head.toPos shouldBe 20
+      results.head.fromPos shouldBe 15
+      results.head.toPos shouldBe 19
     }
   }
 }

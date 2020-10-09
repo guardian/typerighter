@@ -9,7 +9,7 @@ case class Check(
   requestId: String,
   categoryIds: Option[Set[String]],
   blocks: List[TextBlock],
-  rangesToIgnore: List[TextRange] = Nil
+  rangesToIgnore: Option[List[TextRange]] = None
 ) {
   def toMarker = Markers.appendEntries(Map(
     "requestId" -> this.requestId,
