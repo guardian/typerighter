@@ -23,8 +23,10 @@ class RulesController(
 )(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
     sheetsRuleManager.getRules flatMap { ruleResource =>
-      val maybeRules = bucketRuleManager.putRules(ruleResource).map { lastModified =>
-        (ruleResource, lastModified)
+      val maybeRules = bucketRuleManager.putRules(ruleResource).flatMap { _ =>
+        bucketRuleManager.getRulesLastModified.map { lastModified =>
+          (ruleResource, lastModified)
+        }
       }
       maybeRules.left.map { error => List(error.getMessage) }
     } match {

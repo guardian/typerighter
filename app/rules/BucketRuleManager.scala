@@ -12,11 +12,12 @@ import play.api.libs.json.Reads
 
 import model.{RegexRule, RuleResource}
 import play.api.Logging
+import com.amazonaws.services.s3.model.PutObjectResult
 
 class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Logging {
     private val RULES_KEY = "rules/typerighter-rules.json"
 
-    def putRules(ruleResource: RuleResource): Either[Exception, Date] = {
+    def putRules(ruleResource: RuleResource): Either[Exception, PutObjectResult] = {
         val ruleJson = Json.toJson(ruleResource)
         val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
 
@@ -25,8 +26,7 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Logging {
             val metaData = new ObjectMetadata()
             metaData.setContentLength(bytes.length)
             val putObjectRequest = new PutObjectRequest(bucketName, RULES_KEY, stream, metaData)
-            val result = s3.putObject(putObjectRequest)
-            result.getMetadata.getLastModified
+            s3.putObject(putObjectRequest)
         }
     }
 
