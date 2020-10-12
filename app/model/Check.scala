@@ -8,8 +8,7 @@ case class Check(
   documentId: Option[String],
   requestId: String,
   categoryIds: Option[Set[String]],
-  blocks: List[TextBlock],
-  rangesToIgnore: Option[List[TextRange]] = None
+  blocks: List[TextBlock]
 ) {
   def toMarker = Markers.appendEntries(Map(
     "requestId" -> this.requestId,

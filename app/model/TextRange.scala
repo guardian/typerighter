@@ -4,6 +4,7 @@ import play.api.libs.json.{Json, Reads}
 
 object TextRange {
   implicit val reads = Json.reads[TextRange]
+  implicit val writes = Json.writes[TextRange]
 }
 
 case class TextRange(from: Int, to: Int) {

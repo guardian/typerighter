@@ -97,10 +97,7 @@ class MatcherPool(
 
     logger.info(s"Matcher pool query received")(query.toMarker)
 
-    val ignoredRanges = query.rangesToIgnore.getOrElse(Nil);
-    val blocksWithIgnoredRangesRemoved = query.blocks.map(_.removeIgnoredRanges(ignoredRanges))
-
-    val partialJobs = checkStrategy(blocksWithIgnoredRangesRemoved, categoryIds)
+    val partialJobs = checkStrategy(query.blocks, categoryIds)
     val jobs = createJobsFromPartialJobs(
       query.requestId,
       query.documentId.getOrElse("no-document-id"),
@@ -111,9 +108,7 @@ class MatcherPool(
 
     Future.sequence(eventuallyResponses).map { matchesPerFuture =>
       logger.info(s"Matcher pool query complete")(query.toMarker)
-      val matches = matchesPerFuture.flatten
-      val mappedMatches = matches.map(_.mapThroughIgnoredRanges(ignoredRanges))
-      mappedMatches
+      matchesPerFuture.flatten
     }
   }
 
@@ -231,7 +226,17 @@ class MatcherPool(
 
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
-      val eventuallyCheck = matcher.check(MatcherRequest(blocks))
+      val blocksWithIgnoredRangesRemoved = blocks.map(_.removeIgnoredRanges)
+      println(blocks, blocksWithIgnoredRangesRemoved)
+      val eventuallyCheck = matcher.check(MatcherRequest(blocksWithIgnoredRangesRemoved)) map { matches =>
+        val allIgnoredRanges = blocks.flatMap(_.ignoredRanges)
+        matches.map { ruleMatch =>
+          val maybeBlockForThisMatch = blocks.find(block => ruleMatch.fromPos >= block.from  && ruleMatch.toPos <= block.to)
+          val ignoredRangesForThisBlock = maybeBlockForThisMatch.map(_.ignoredRanges).getOrElse(Nil)
+          println(ignoredRangesForThisBlock, ruleMatch)
+          ruleMatch.mapThroughIgnoredRanges(ignoredRangesForThisBlock)
+        }
+      }
       futures.timeout(checkTimeoutDuration)(eventuallyCheck)
     }
 

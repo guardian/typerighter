@@ -5,11 +5,11 @@ import play.api.libs.json.{Json, Reads, Writes}
 /**
   * A block of text to match against.
   */
-case class TextBlock(id: String, text: String, from: Int, to: Int) {
+case class TextBlock(id: String, text: String, from: Int, to: Int, ignoredRanges: List[TextRange] = Nil) {
   /**
     * Remove the given ranges from the block text, adjusting the block range accordingly.
     */
-  def removeIgnoredRanges(ignoredRanges: List[TextRange]): TextBlock = {
+  def removeIgnoredRanges(): TextBlock = {
     val (newBlock, _) = ignoredRanges.foldLeft((this, List.empty[TextRange]))((acc, range) => acc match {
       case (block, rangesAlreadyApplied) => {
         val mappedRange = rangesAlreadyApplied.foldRight(range)((acc, range) => range.mapRemovedRange(acc))
