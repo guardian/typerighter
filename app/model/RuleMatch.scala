@@ -53,17 +53,20 @@ case class RuleMatch(rule: BaseRule,
   /**
     * Map the range this match applies to through the given ranges, adjusting its range accordingly.
     */
-  def mapThroughIgnoredRanges(ignoredRanges: List[TextRange]): RuleMatch = {
-    val (newMatch, _) = ignoredRanges.foldLeft((this, List.empty[TextRange]))((acc, range) => acc match {
-      case (ruleMatch, rangesAlreadyApplied) => {
-        val mappedRange = rangesAlreadyApplied.foldRight(range)((acc, range) => acc.mapAddedRange(range))
-        val newMatchRange = TextRange(ruleMatch.fromPos, ruleMatch.toPos).mapAddedRange(mappedRange)
-        val newRuleMatch = ruleMatch.copy(fromPos = newMatchRange.from, toPos = newMatchRange.to)
-        (newRuleMatch, rangesAlreadyApplied :+ mappedRange)
-      }
-    })
+  def mapThroughIgnoredRanges(ignoredRanges: List[TextRange]): RuleMatch = ignoredRanges match {
+    case Nil => this
+    case ignoredRanges => {
+      val (newMatch, _) = ignoredRanges.foldLeft((this, List.empty[TextRange]))((acc, range) => acc match {
+        case (ruleMatch, rangesAlreadyApplied) => {
+          val newMatchRange = TextRange(ruleMatch.fromPos, ruleMatch.toPos).mapAddedRange(range)
+          val newRuleMatch = ruleMatch.copy(fromPos = newMatchRange.from, toPos = newMatchRange.to)
 
-    newMatch
+          (newRuleMatch, rangesAlreadyApplied)
+        }
+      })
+
+      newMatch
+    }
   }
 }
 

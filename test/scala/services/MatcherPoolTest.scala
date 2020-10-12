@@ -317,14 +317,20 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matcher.completeWith(responses)
 
     val pool = getPool(matchers)
-    val check = getCheck(text = "Example [noted] text",
+    val ignoredRanges = List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
+    val check = getCheck(text = "ABCDEF",
       // We ignore the text marked [noted], so the matcher just sees 'Example text'
-      ignoredRanges = List(TextRange(8, 15))
+      ignoredRanges = ignoredRanges
     )
     val futureResult = pool.check(check)
 
     futureResult.map { _ =>
-      val expectedBlock = check.blocks.head.copy(text = "Example text", from = 0, to = 12)
+      val expectedBlock = check.blocks.head.copy(
+        text = "BDF",
+        from = 0,
+        to = 3,
+        ignoredRanges = Nil
+      )
       matcher.maybeRequest.get.blocks shouldBe List(expectedBlock)
     }
   }
@@ -332,21 +338,23 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   it should "map matches that succeed ignored ranges through those ranges to ensure they're correct" in {
     val matchers = getMatchers(1)
     val matcher = matchers.head
-    val responses = getResponses(List((8, 12, "This matches the word 'text' in the example")))
+    val text = "ABCDEF"
+    val ignoredRanges =  List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
+    // The matcher sees "BDF"
+    val responses = getResponses(List((0, 0, "This matches B"), (2, 2, "This matches F")))
     matcher.completeWith(responses)
 
     val pool = getPool(matchers)
     val check = getCheck(
-      text = "Example [noted] text with other [noted] text",
+      text = text,
       // We ignore the text marked [noted], so the matcher just sees 'Example text with other text'
-      ignoredRanges = List(TextRange(8, 15), TextRange(32, 9))
+      ignoredRanges = ignoredRanges
     )
     val futureResult = pool.check(check)
 
     futureResult.map { results =>
       val resultRanges = results.map { result => (result.fromPos, result.toPos) }
-      println(results)
-      resultRanges shouldBe ((8, 15), (27, 31))
+      resultRanges shouldBe List((1, 1), (5, 5))
     }
   }
 }

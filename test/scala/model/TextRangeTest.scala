@@ -22,6 +22,12 @@ class TextRangeTest extends AsyncFlatSpec with Matchers {
     incomingRange.mapAddedRange(addedRange) shouldBe TextRange(15, 20)
   }
 
+  it should "account for a range added within the given range" in {
+    val incomingRange = TextRange(15, 20)
+    val addedRange = TextRange(10, 15)
+    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(10, 15)
+  }
+
   it should "account for a range added partially within the given range – left hand side" in {
     val incomingRange = TextRange(10, 15)
     val addedRange = TextRange(5, 12)

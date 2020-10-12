@@ -16,7 +16,10 @@ case class TextRange(from: Int, to: Int) {
   def mapRemovedRange(removedRange: TextRange): TextRange = {
     val charsRemovedBeforeFrom = if (removedRange.from < this.from) {
       val rangeBetweenRemovedStartAndIncomingStart = TextRange(removedRange.from, this.from)
-      rangeBetweenRemovedStartAndIncomingStart.getIntersection(removedRange).map(_.length).getOrElse(0)
+      rangeBetweenRemovedStartAndIncomingStart
+        .getIntersection(removedRange)
+        .map(_.length)
+        .getOrElse(1) // If there's no intersection, this is range from (n,n)
     } else 0
 
     val charsRemovedBeforeTo = this.getIntersection(removedRange) match {
@@ -30,11 +33,11 @@ case class TextRange(from: Int, to: Int) {
     TextRange(newFrom, newTo)
   }
 
-    /**
+  /**
     * Map a from and to position through the given added range.
     */
   def mapAddedRange(addedRange: TextRange): TextRange = {
-    val charsAddedBeforeFrom = if (addedRange.from <= this.from) { addedRange.length } else 0
+    val charsAddedBeforeFrom = if (addedRange.from <= this.from) { addedRange.length + 1 } else 0
     val charsAddedBeforeTo = this.getIntersection(addedRange) match {
       case Some(intersection) => addedRange.length
       case None => charsAddedBeforeFrom

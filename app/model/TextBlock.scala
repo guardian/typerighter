@@ -18,7 +18,7 @@ case class TextBlock(id: String, text: String, from: Int, to: Int, ignoredRanges
         val snipRange = TextRange(Math.max(snipFrom, 0), Math.min(block.to, snipTo) + 1)
 
         val newText = block.text.slice(0, snipRange.from) + block.text.slice(snipRange.to, block.text.size)
-        val newBlock = block.copy(text = newText, to = block.from + newText.length)
+        val newBlock = block.copy(text = newText, to = block.from + newText.length, ignoredRanges = Nil)
 
         (newBlock, rangesAlreadyApplied :+ mappedRange)
       }
