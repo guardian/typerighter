@@ -9,7 +9,7 @@ import net.logstash.logback.marker.LogstashMarker
 
 object Timer extends Logging {
   /**
-    * Time a synchronous task and log the results. Warns if the
+    * Time a synchronous task and log the results.
     */
   def time[R](taskName: String, additionalMarkers: LogstashMarker)(block: => R): R = {
     val t0 = System.nanoTime()
@@ -41,7 +41,7 @@ object Timer extends Logging {
     ).asJava)
     markers.add(additionalMarkers)
 
-    val message = s"Task $taskName complete in $durationInMs"
+    val message = s"Task $taskName complete in ${durationInMs}ms"
     logger.info(message)(markers)
   }
 }

@@ -23,9 +23,11 @@ class ApiController(
   def check: Action[JsValue] = ApiAuthAction.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
-        val markers = check.toMarker
-        markers.add(Markers.appendEntries(Map("userEmail" -> request.user.email).asJava))
-        val eventuallyMatches = Timer.timeAsync("ApiController.check", markers) {
+        val checkMarkers = check.toMarker
+        val userMarkers = Markers.appendEntries(Map("userEmail" -> request.user.email).asJava)
+        checkMarkers.add(userMarkers)
+
+        val eventuallyMatches = Timer.timeAsync("ApiController.check", checkMarkers) {
           matcherPool.check(check)
         }
 
