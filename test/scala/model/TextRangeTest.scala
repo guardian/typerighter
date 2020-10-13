@@ -39,7 +39,7 @@ class TextRangeTest extends AsyncFlatSpec with Matchers {
   it should "account for a range removed before the given range" in {
     val incomingRange = TextRange(10, 15)
     val removedRange = TextRange(0, 5)
-    incomingRange.mapRemovedRange(removedRange) shouldBe TextRange(5, 10)
+    incomingRange.mapRemovedRange(removedRange) shouldBe TextRange(4, 9)
   }
 
   it should "account for a range completely removed within the given range" in {
@@ -51,7 +51,7 @@ class TextRangeTest extends AsyncFlatSpec with Matchers {
   it should "account for a range partially removed within the given range – left hand side" in {
     val incomingRange = TextRange(10, 15)
     val removedRange = TextRange(5, 12)
-    incomingRange.mapRemovedRange(removedRange) shouldBe TextRange(5, 8)
+    incomingRange.mapRemovedRange(removedRange) shouldBe TextRange(4, 7)
   }
 
   it should "account for a range partially within the given range – right hand side" in {

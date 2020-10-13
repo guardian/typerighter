@@ -18,7 +18,7 @@ case class TextRange(from: Int, to: Int) {
       val rangeBetweenRemovedStartAndIncomingStart = TextRange(removedRange.from, this.from)
       rangeBetweenRemovedStartAndIncomingStart
         .getIntersection(removedRange)
-        .map(_.length)
+        .map(_.length + 1)
         .getOrElse(1) // If there's no intersection, this is range from (n,n)
     } else 0
 
