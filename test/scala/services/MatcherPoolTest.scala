@@ -135,7 +135,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     Some("example-document"),
     setId,
     categoryIds,
-    List(TextBlock(blockId, text, 0, text.length, ignoredRanges))
+    List(TextBlock(blockId, text, 0, text.length, Some(ignoredRanges)))
   )
 
   behavior of "getCurrentCategories"
@@ -319,7 +319,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val ignoredRanges = List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
     val check = getCheck(text = "ABCDEF",
-      // We ignore the text marked [noted], so the matcher just sees 'Example text'
+      // We ignore A, C and E, so the matcher just sees BDF
       ignoredRanges = ignoredRanges
     )
     val futureResult = pool.check(check)
@@ -329,7 +329,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
         text = "BDF",
         from = 0,
         to = 3,
-        ignoredRanges = Nil
+        ignoredRanges = None
       )
       matcher.maybeRequest.get.blocks shouldBe List(expectedBlock)
     }

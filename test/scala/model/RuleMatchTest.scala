@@ -64,7 +64,7 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
     val ruleMatch = getRuleMatch(10, 15)
     val ignoredRange = List(TextRange(13, 20))
     val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
-    mappedMatch.fromPos shouldBe 11
+    mappedMatch.fromPos shouldBe 10
     mappedMatch.toPos shouldBe 23
   }
 

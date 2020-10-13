@@ -13,31 +13,25 @@ class TextRangeTest extends AsyncFlatSpec with Matchers {
   it should "account for a range added before the given range" in {
     val incomingRange = TextRange(10, 15)
     val addedRange = TextRange(0, 5)
-    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(15, 20)
+    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(16, 21)
   }
 
   it should "account for a range added within the given range" in {
     val incomingRange = TextRange(10, 15)
     val addedRange = TextRange(10, 15)
-    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(15, 20)
-  }
-
-  it should "account for a range added within the given range" in {
-    val incomingRange = TextRange(15, 20)
-    val addedRange = TextRange(10, 15)
-    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(10, 15)
+    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(16, 21)
   }
 
   it should "account for a range added partially within the given range – left hand side" in {
     val incomingRange = TextRange(10, 15)
     val addedRange = TextRange(5, 12)
-    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(17, 22)
+    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(18, 23)
   }
 
   it should "account for a range added partially the given range – right hand side" in {
     val incomingRange = TextRange(10, 15)
     val addedRange = TextRange(13, 20)
-    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(10, 22)
+    incomingRange.mapAddedRange(addedRange) shouldBe TextRange(10, 23)
   }
 
   behavior of "mapRemovedRange"

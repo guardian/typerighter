@@ -68,5 +68,14 @@ case class RuleMatch(rule: BaseRule,
       newMatch
     }
   }
+
+  /**
+    * Map this match through the given blocks' ignored ranges.
+    */
+  def mapMatchThroughBlocks(blocks: List[TextBlock]): RuleMatch = {
+    val maybeBlockForThisMatch = blocks.find(block => fromPos >= block.from  && toPos <= block.to)
+    val ignoredRangesForThisBlock = maybeBlockForThisMatch.flatMap(_.ignoredRanges).getOrElse(Nil)
+    mapThroughIgnoredRanges(ignoredRangesForThisBlock)
+  }
 }
 

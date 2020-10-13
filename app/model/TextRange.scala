@@ -37,9 +37,11 @@ case class TextRange(from: Int, to: Int) {
     * Map a from and to position through the given added range.
     */
   def mapAddedRange(addedRange: TextRange): TextRange = {
+    // We add one to our lengths here to ensure the to value
+    // is placed beyond the last position the range occupies.
     val charsAddedBeforeFrom = if (addedRange.from <= this.from) { addedRange.length + 1 } else 0
     val charsAddedBeforeTo = this.getIntersection(addedRange) match {
-      case Some(intersection) => addedRange.length
+      case Some(intersection) => addedRange.length + 1
       case None => charsAddedBeforeFrom
     }
 

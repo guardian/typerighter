@@ -227,14 +227,11 @@ class MatcherPool(
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
       val blocksWithIgnoredRangesRemoved = blocks.map(_.removeIgnoredRanges)
-      val eventuallyCheck = matcher.check(MatcherRequest(blocksWithIgnoredRangesRemoved)) map { matches =>
-        val allIgnoredRanges = blocks.flatMap(_.ignoredRanges)
-        matches.map { ruleMatch =>
-          val maybeBlockForThisMatch = blocks.find(block => ruleMatch.fromPos >= block.from  && ruleMatch.toPos <= block.to)
-          val ignoredRangesForThisBlock = maybeBlockForThisMatch.map(_.ignoredRanges).getOrElse(Nil)
-          ruleMatch.mapThroughIgnoredRanges(ignoredRangesForThisBlock)
-        }
-      }
+
+      val eventuallyCheck = matcher
+        .check(MatcherRequest(blocksWithIgnoredRangesRemoved))
+        .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
+
       futures.timeout(checkTimeoutDuration)(eventuallyCheck)
     }
 
@@ -242,6 +239,7 @@ class MatcherPool(
 
     eventuallyAllMatches.map(removeOverlappingMatches)
   }
+
 
   private def removeOverlappingMatches(matches: List[RuleMatch]) = {
     val matchesByCategory = matches.groupBy(_.rule.category.id).toList
