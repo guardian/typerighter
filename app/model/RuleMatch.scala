@@ -49,4 +49,33 @@ case class RuleMatch(rule: BaseRule,
                      replacement: Option[Suggestion] = None,
                      markAsCorrect: Boolean = false,
                      matchContext: String,
-                     matcherType: String)
+                     matcherType: String) {
+  /**
+    * Map the range this match applies to through the given ranges, adjusting its range accordingly.
+    */
+  def mapThroughSkippedRanges(skipRanges: List[TextRange]): RuleMatch = skipRanges match {
+    case Nil => this
+    case skipRanges => {
+      val (newMatch, _) = skipRanges.foldLeft((this, List.empty[TextRange]))((acc, range) => acc match {
+        case (ruleMatch, rangesAlreadyApplied) => {
+          val newMatchRange = TextRange(ruleMatch.fromPos, ruleMatch.toPos).mapAddedRange(range)
+          val newRuleMatch = ruleMatch.copy(fromPos = newMatchRange.from, toPos = newMatchRange.to)
+
+          (newRuleMatch, rangesAlreadyApplied)
+        }
+      })
+
+      newMatch
+    }
+  }
+
+  /**
+    * Map this match through the given blocks' skipped ranges.
+    */
+  def mapMatchThroughBlocks(blocks: List[TextBlock]): RuleMatch = {
+    val maybeBlockForThisMatch = blocks.find(block => fromPos >= block.from  && toPos <= block.to)
+    val skipRangesForThisBlock = maybeBlockForThisMatch.flatMap(_.skipRanges).getOrElse(Nil)
+    mapThroughSkippedRanges(skipRangesForThisBlock)
+  }
+}
+

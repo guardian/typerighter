@@ -1,5 +1,7 @@
 package utils
 
+import model.{RuleMatch, TextBlock, TextRange}
+
 object Text {
   def getSurroundingText(text: String, from: Int, to: Int): (String, String) = {
     val buffer = 100
@@ -16,3 +18,4 @@ object Text {
   def getMatchTextSnippet(before: String, matchedText: String, after: String) =
     before + "[[" + matchedText + "]]" + after
 }
+

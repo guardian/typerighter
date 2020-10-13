@@ -24,6 +24,7 @@ import scala.concurrent.Future
 class MockMatcher(id: Int) extends Matcher {
   private var currentWork: Option[Promise[List[RuleMatch]]] = None
   private var maybeResponse: Option[Either[String, List[RuleMatch]]] = None
+  var maybeRequest: Option[MatcherRequest] = None
 
   def getType = s"mock-matcher-$id"
   def getCategories = Set(Category(s"mock-category-$id", "Mock category"))
@@ -33,6 +34,7 @@ class MockMatcher(id: Int) extends Matcher {
     val promise = Promise[List[RuleMatch]]
     val future = promise.future
     currentWork = Some(promise)
+    maybeRequest = Some(request)
     maybeComplete()
     future
   }
@@ -129,11 +131,12 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private val setId = "set-id"
   private val blockId = "block-id"
 
-  private def getCheck(text: String, categoryIds: Option[Set[String]] = None) = Check(
+  private def getCheck(text: String, categoryIds: Option[Set[String]] = None, skippedRanges: List[TextRange] = Nil) = Check(
     Some("example-document"),
     setId,
     categoryIds,
-    List(TextBlock(blockId, text, 0, text.length)))
+    List(TextBlock(blockId, text, 0, text.length, Some(skippedRanges)))
+  )
 
   behavior of "getCurrentCategories"
 
@@ -305,6 +308,53 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
         e.getMessage should include("Timeout")
         e.getMessage should include("500 milliseconds")
       }
+    }
+  }
+
+  it should "pass text to matchers without the skipped ranges" in {
+    val matchers = getMatchers(1)
+    val matcher = matchers.head
+    matcher.completeWith(responses)
+
+    val pool = getPool(matchers)
+    val skippedRanges = List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
+    val check = getCheck(text = "ABCDEF",
+      // We skip A, C and E, so the matcher just sees BDF
+      skippedRanges = skippedRanges
+    )
+    val futureResult = pool.check(check)
+
+    futureResult.map { _ =>
+      val expectedBlock = check.blocks.head.copy(
+        text = "BDF",
+        from = 0,
+        to = 3,
+        skipRanges = None
+      )
+      matcher.maybeRequest.get.blocks shouldBe List(expectedBlock)
+    }
+  }
+
+  it should "map matches that succeed skipped ranges through those ranges to ensure they're correct" in {
+    val matchers = getMatchers(1)
+    val matcher = matchers.head
+    val text = "ABCDEF"
+    val skippedRanges =  List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
+    // The matcher sees "BDF"
+    val responses = getResponses(List((0, 0, "This matches B"), (2, 2, "This matches F")))
+    matcher.completeWith(responses)
+
+    val pool = getPool(matchers)
+    val check = getCheck(
+      text = text,
+      // We skip the text marked [noted], so the matcher just sees 'Example text with other text'
+      skippedRanges = skippedRanges
+    )
+    val futureResult = pool.check(check)
+
+    futureResult.map { results =>
+      val resultRanges = results.map { result => (result.fromPos, result.toPos) }
+      resultRanges shouldBe List((1, 1), (5, 5))
     }
   }
 }

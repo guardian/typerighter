@@ -97,12 +97,18 @@ class MatcherPool(
 
     logger.info(s"Matcher pool query received")(query.toMarker)
 
-    val jobs = createJobsFromPartialJobs(query.requestId, query.documentId.getOrElse("no-document-id"),  checkStrategy(query.blocks, categoryIds))
+    val partialJobs = checkStrategy(query.blocks, categoryIds)
+    val jobs = createJobsFromPartialJobs(
+      query.requestId,
+      query.documentId.getOrElse("no-document-id"),
+      partialJobs
+    )
+
     val eventuallyResponses = jobs.map(offerJobToQueue)
 
-    Future.sequence(eventuallyResponses).map { matches =>
+    Future.sequence(eventuallyResponses).map { matchesPerFuture =>
       logger.info(s"Matcher pool query complete")(query.toMarker)
-      matches.flatten
+      matchesPerFuture.flatten
     }
   }
 
@@ -220,7 +226,12 @@ class MatcherPool(
 
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
-      val eventuallyCheck = matcher.check(MatcherRequest(blocks))
+      val blocksWithSkippedRangesRemoved = blocks.map(_.removeSkippedRanges)
+
+      val eventuallyCheck = matcher
+        .check(MatcherRequest(blocksWithSkippedRangesRemoved))
+        .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
+
       futures.timeout(checkTimeoutDuration)(eventuallyCheck)
     }
 
@@ -228,6 +239,7 @@ class MatcherPool(
 
     eventuallyAllMatches.map(removeOverlappingMatches)
   }
+
 
   private def removeOverlappingMatches(matches: List[RuleMatch]) = {
     val matchesByCategory = matches.groupBy(_.rule.category.id).toList
