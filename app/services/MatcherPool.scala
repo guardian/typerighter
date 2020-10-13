@@ -108,11 +108,10 @@ class MatcherPool(
     val eventuallyResponses = jobs.map(offerJobToQueue)
 
     val totalCharsForCheck = query.blocks.foldLeft(0)((acc, block) => acc + block.text.size)
-    Timer.timeAsync("matcherPool.check", Map("characterCount" -> totalCharsForCheck.toString)) {
-      Future.sequence(eventuallyResponses).map { matchesPerFuture =>
-        logger.info(s"Matcher pool query complete")(query.toMarker)
-        matchesPerFuture.flatten
-      }
+
+    Future.sequence(eventuallyResponses).map { matchesPerFuture =>
+      logger.info(s"Matcher pool query complete")(query.toMarker)
+      matchesPerFuture.flatten
     }
   }
 
