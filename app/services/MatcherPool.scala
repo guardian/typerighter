@@ -16,6 +16,7 @@ import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
 import play.api.libs.concurrent.Futures
 import play.api.Logging
+import utils.Timer
 
 case class MatcherRequest(blocks: List[TextBlock])
 
@@ -106,9 +107,12 @@ class MatcherPool(
 
     val eventuallyResponses = jobs.map(offerJobToQueue)
 
-    Future.sequence(eventuallyResponses).map { matchesPerFuture =>
-      logger.info(s"Matcher pool query complete")(query.toMarker)
-      matchesPerFuture.flatten
+    val totalCharsForCheck = query.blocks.foldLeft(0)((acc, block) => acc + block.text.size)
+    Timer.timeAsync("matcherPool.check", Map("characterCount" -> totalCharsForCheck.toString)) {
+      Future.sequence(eventuallyResponses).map { matchesPerFuture =>
+        logger.info(s"Matcher pool query complete")(query.toMarker)
+        matchesPerFuture.flatten
+      }
     }
   }
 
