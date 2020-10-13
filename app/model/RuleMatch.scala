@@ -53,10 +53,10 @@ case class RuleMatch(rule: BaseRule,
   /**
     * Map the range this match applies to through the given ranges, adjusting its range accordingly.
     */
-  def mapThroughIgnoredRanges(ignoredRanges: List[TextRange]): RuleMatch = ignoredRanges match {
+  def mapThroughSkippedRanges(skipRanges: List[TextRange]): RuleMatch = skipRanges match {
     case Nil => this
-    case ignoredRanges => {
-      val (newMatch, _) = ignoredRanges.foldLeft((this, List.empty[TextRange]))((acc, range) => acc match {
+    case skipRanges => {
+      val (newMatch, _) = skipRanges.foldLeft((this, List.empty[TextRange]))((acc, range) => acc match {
         case (ruleMatch, rangesAlreadyApplied) => {
           val newMatchRange = TextRange(ruleMatch.fromPos, ruleMatch.toPos).mapAddedRange(range)
           val newRuleMatch = ruleMatch.copy(fromPos = newMatchRange.from, toPos = newMatchRange.to)
@@ -70,12 +70,12 @@ case class RuleMatch(rule: BaseRule,
   }
 
   /**
-    * Map this match through the given blocks' ignored ranges.
+    * Map this match through the given blocks' skipped ranges.
     */
   def mapMatchThroughBlocks(blocks: List[TextBlock]): RuleMatch = {
     val maybeBlockForThisMatch = blocks.find(block => fromPos >= block.from  && toPos <= block.to)
-    val ignoredRangesForThisBlock = maybeBlockForThisMatch.flatMap(_.ignoredRanges).getOrElse(Nil)
-    mapThroughIgnoredRanges(ignoredRangesForThisBlock)
+    val skipRangesForThisBlock = maybeBlockForThisMatch.flatMap(_.skipRanges).getOrElse(Nil)
+    mapThroughSkippedRanges(skipRangesForThisBlock)
   }
 }
 

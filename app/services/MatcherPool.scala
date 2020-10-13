@@ -226,10 +226,10 @@ class MatcherPool(
 
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
-      val blocksWithIgnoredRangesRemoved = blocks.map(_.removeIgnoredRanges)
+      val blocksWithSkippedRangesRemoved = blocks.map(_.removeSkippedRanges)
 
       val eventuallyCheck = matcher
-        .check(MatcherRequest(blocksWithIgnoredRangesRemoved))
+        .check(MatcherRequest(blocksWithSkippedRangesRemoved))
         .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
 
       futures.timeout(checkTimeoutDuration)(eventuallyCheck)

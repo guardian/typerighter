@@ -26,44 +26,44 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
     matcherType = "regex"
   )
 
-  behavior of "mapMatchThroughIgnoredRanges"
+  behavior of "mapMatchThroughSkippedRanges"
 
-  it should "account for a range ignored before the given range" in {
+  it should "account for a range skipped before the given range" in {
     val ruleMatch = getRuleMatch(10, 15)
-    val ignoredRange = List(TextRange(0, 5))
-    val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
+    val skippedRange = List(TextRange(0, 5))
+    val mappedMatch = ruleMatch.mapThroughSkippedRanges(skippedRange)
     mappedMatch.fromPos shouldBe 16
     mappedMatch.toPos shouldBe 21
   }
 
-  it should "account for a range ignored within the given range" in {
+  it should "account for a range skipped within the given range" in {
     val ruleMatch = getRuleMatch(10, 15)
-    val ignoredRange = List(TextRange(10, 15))
-    val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
+    val skippedRange = List(TextRange(10, 15))
+    val mappedMatch = ruleMatch.mapThroughSkippedRanges(skippedRange)
     mappedMatch.fromPos shouldBe 16
     mappedMatch.toPos shouldBe 21
   }
 
-  it should "account for a range ignored within the given range, and extending beyond it" in {
+  it should "account for a range skipped within the given range, and extending beyond it" in {
     val ruleMatch = getRuleMatch(8, 12)
-    val ignoredRange = List(TextRange(8, 15))
-    val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
+    val skippedRange = List(TextRange(8, 15))
+    val mappedMatch = ruleMatch.mapThroughSkippedRanges(skippedRange)
     mappedMatch.fromPos shouldBe 16
     mappedMatch.toPos shouldBe 20
   }
 
-  it should "account for a range ignored partially within the given range – left hand side" in {
+  it should "account for a range skipped partially within the given range – left hand side" in {
     val ruleMatch = getRuleMatch(10, 15)
-    val ignoredRange = List(TextRange(5, 12))
-    val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
+    val skippedRange = List(TextRange(5, 12))
+    val mappedMatch = ruleMatch.mapThroughSkippedRanges(skippedRange)
     mappedMatch.fromPos shouldBe 18
     mappedMatch.toPos shouldBe 23
   }
 
-  it should "account for a range ignored partially the given range – right hand side" in {
+  it should "account for a range skipped partially the given range – right hand side" in {
     val ruleMatch = getRuleMatch(10, 15)
-    val ignoredRange = List(TextRange(13, 20))
-    val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
+    val skippedRange = List(TextRange(13, 20))
+    val mappedMatch = ruleMatch.mapThroughSkippedRanges(skippedRange)
     mappedMatch.fromPos shouldBe 10
     mappedMatch.toPos shouldBe 23
   }
@@ -71,8 +71,8 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
     it should "account for multiple ranges" in {
     // E.g. "Example [noted ]text with more [noted ]text"
     val ruleMatch = getRuleMatch(18, 22)
-    val ignoredRange = List(TextRange(18, 25), TextRange(40, 47))
-    val mappedMatch = ruleMatch.mapThroughIgnoredRanges(ignoredRange)
+    val skippedRange = List(TextRange(18, 25), TextRange(40, 47))
+    val mappedMatch = ruleMatch.mapThroughSkippedRanges(skippedRange)
     mappedMatch.fromPos shouldBe 26
     mappedMatch.toPos shouldBe 30
   }
