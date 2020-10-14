@@ -107,8 +107,6 @@ class MatcherPool(
 
     val eventuallyResponses = jobs.map(offerJobToQueue)
 
-    val totalCharsForCheck = query.blocks.foldLeft(0)((acc, block) => acc + block.text.size)
-
     Future.sequence(eventuallyResponses).map { matchesPerFuture =>
       logger.info(s"Matcher pool query complete")(query.toMarker)
       matchesPerFuture.flatten
