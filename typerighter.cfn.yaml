@@ -42,6 +42,9 @@ Parameters:
     Description: Name of the ELK logging stream in this account
     Type: AWS::SSM::Parameter::Value<String>
     Default: /account/services/logging.stream
+  CloudFrontSSLCertificateArn:
+    Description: The ARN of the certificate for the CloudFront distribution
+    Type: String
     
 Mappings:
   StageVariables:
@@ -49,10 +52,14 @@ Mappings:
       MaxInstances: 2
       MinInstances: 1
       InstanceType: t3.small
+      CloudfrontAliases:
+      - api.typerighter.code.dev-gutools.co.uk
     PROD:
       MaxInstances: 6
       MinInstances: 3
       InstanceType: t3.small
+      CloudfrontAliases:
+      - api.typerighter.gutools.co.uk
   StageLookup:
     Lowercase:
       PROD: prod
@@ -363,3 +370,59 @@ Resources:
         Value: !Ref App
       - Key: Stage
         Value: !Ref Stage
+
+  CloudfrontBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      LifecycleConfiguration:
+        Rules:
+        - ExpirationInDays: 90
+          Status: Enabled
+      Tags:
+      - Key: Stack
+        Value: !Ref Stack
+      - Key: App
+        Value: !Ref App
+      - Key: Stage
+        Value: !Ref Stage
+
+  Cloudfront:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases: !FindInMap [ StageVariables, !Ref 'Stage', CloudfrontAliases]
+        Origins:
+        - CustomOriginConfig:
+            HTTPSPort: '443'
+            OriginProtocolPolicy: https-only
+          DomainName: !GetAtt 'PublicElasticLoadBalancer.DNSName'
+          Id: typerighter
+        DefaultCacheBehavior:
+          AllowedMethods:
+          - DELETE
+          - GET
+          - HEAD
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+          Compress: true
+          ForwardedValues:
+            Headers:
+            - '*'
+            QueryString: true
+            Cookies:
+              Forward: all
+          TargetOriginId: typerighter
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: PriceClass_All
+        Enabled: 'true'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref 'CloudFrontSSLCertificateArn'
+          MinimumProtocolVersion: TLSv1.2_2019
+          SslSupportMethod: sni-only
+        Logging:
+          Bucket: !GetAtt CloudfrontBucket.DomainName
+          IncludeCookies: 'false'
+          Prefix: ''
