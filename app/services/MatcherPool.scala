@@ -16,6 +16,7 @@ import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
 import play.api.libs.concurrent.Futures
 import play.api.Logging
+import utils.Timer
 
 case class MatcherRequest(blocks: List[TextBlock])
 
