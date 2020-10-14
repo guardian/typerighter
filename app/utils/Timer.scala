@@ -42,6 +42,6 @@ object Timer extends Logging {
     markers.add(additionalMarkers)
 
     val message = s"Task $taskName complete in ${durationInMs}ms"
-    logger.debug(message)(markers)
+    logger.info(message)(markers)
   }
 }
