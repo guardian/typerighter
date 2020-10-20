@@ -4,7 +4,7 @@ Get credentials for Composer profile then run `./script/start` and visit `localh
 
 To attach an interactive debugger, run `./script/start --debug` to expose port 5005 for debugging.
 
-If you're testing changes to the rule audit client, see [the additional steps in its README](https://github.com/guardian/typerighter/tree/master/rule-audit-client).
+If you're testing changes to the rule audit client, see [the additional steps in its README](https://github.com/guardian/typerighter/tree/main/rule-audit-client).
 
 ## Demonstration of null request
 
