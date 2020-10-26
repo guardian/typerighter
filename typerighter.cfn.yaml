@@ -218,6 +218,20 @@ Resources:
       Roles:
       - !Ref AppRole
 
+  CloudWatchPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CloudWatchPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - cloudwatch:PutMetricData
+          Resource: "*"
+      Roles:
+      - !Ref AppRole
+
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
