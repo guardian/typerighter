@@ -45,6 +45,9 @@ Parameters:
   CloudFrontSSLCertificateArn:
     Description: The ARN of the certificate for the CloudFront distribution
     Type: String
+  AlertTopic:
+    Description: The SNS topic for pager duty alarms to be sent from this Stack - Not used for CODE
+    Type: String
     
 Mappings:
   StageVariables:
@@ -64,6 +67,9 @@ Mappings:
     Lowercase:
       PROD: prod
       CODE: code
+
+Conditions:
+  CreateProdAlarms: !Equals [ !Ref Stage, PROD ]
 
 Resources:
   AutoScalingGroup:
@@ -440,3 +446,26 @@ Resources:
           Bucket: !GetAtt CloudfrontBucket.DomainName
           IncludeCookies: 'false'
           Prefix: ''
+
+  RuleIngestionAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateProdAlarms
+    Properties:
+      MetricName: RulesIngested
+      Namespace: Typerighter
+      ComparisonOperator: LessThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      Period: 300
+      Statistic: Average
+      Threshold: 500
+      ActionsEnabled: true
+      AlarmActions:
+        - !Ref "AlertTopic"
+      AlarmName: !Sub "Typerighter - ${Stage} - rule ingestion issue"
+      AlarmDescription: "There was a problem with the number of rules ingested"
+      Dimensions:
+        - Name: Stage
+          Value: !Ref Stage
+      OKActions:
+        - !Ref "AlertTopic"
+      TreatMissingData: ignore
