@@ -49,7 +49,7 @@ class RuleProvisionerService(
 
     lastModified = date
 
-    cloudWatchClient.putRulesIngested(ruleResource.rules.length)
+    cloudWatchClient.putRulesIngested(matcherPool.getCurrentRules.size)
 
   }
 
