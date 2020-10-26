@@ -447,25 +447,25 @@ Resources:
           IncludeCookies: 'false'
           Prefix: ''
 
-  RuleIngestionAlarm:
+  RuleProvisionerAlarm:
     Type: AWS::CloudWatch::Alarm
     Condition: CreateProdAlarms
     Properties:
-      MetricName: RulesIngested
+      MetricName: RulesNotFound
       Namespace: Typerighter
-      ComparisonOperator: LessThanOrEqualToThreshold
-      EvaluationPeriods: 1
-      Period: 300
-      Statistic: Average
-      Threshold: 500
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 3
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
       ActionsEnabled: true
       AlarmActions:
         - !Ref "AlertTopic"
-      AlarmName: !Sub "Typerighter - ${Stage} - rule ingestion issue"
-      AlarmDescription: "There was a problem with the number of rules ingested"
+      AlarmName: !Sub "Typerighter - ${Stage} - rule provisioner issue"
+      AlarmDescription: "There was a problem with the rule provisioning"
       Dimensions:
         - Name: Stage
           Value: !Ref Stage
       OKActions:
         - !Ref "AlertTopic"
-      TreatMissingData: ignore
+      TreatMissingData: notBreaching

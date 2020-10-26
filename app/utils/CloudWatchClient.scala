@@ -8,6 +8,7 @@ import com.amazonaws.services.cloudwatch.model.StandardUnit;
 
 object Metrics {
   val RulesIngested = "RulesIngested"
+  val RulesNotFound = "RulesNotFound"
 }
 
 class CloudWatchClient(stage: String) extends Loggable {
@@ -16,14 +17,14 @@ class CloudWatchClient(stage: String) extends Loggable {
 
   private lazy val cloudWatchClient = builder
 
-  def putRulesIngested(numberOfRules: Int): Unit = {
+  def putMetric(metirc: String, value: Int = 1): Unit = {
 
     val dimension = new Dimension().withName("Stage").withValue(stage.toUpperCase());
 
     val datum = new MetricDatum()
       .withMetricName(Metrics.RulesIngested)
       .withUnit(StandardUnit.Count)
-      .withValue(numberOfRules)
+      .withValue(value)
       .withDimensions(dimension)
 
     val request = new PutMetricDataRequest().withNamespace("Typerighter").withMetricData(datum)

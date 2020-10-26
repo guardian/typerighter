@@ -14,6 +14,7 @@ import matchers.LanguageToolFactory
 import model.LTRule
 import model.LTRuleXML
 import utils.CloudWatchClient
+import utils.Metrics
 
 class RuleProvisionerService(
   bucketRuleManager: BucketRuleManager,
@@ -46,11 +47,8 @@ class RuleProvisionerService(
     }
 
     addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
-
     lastModified = date
-
-    cloudWatchClient.putRulesIngested(matcherPool.getCurrentRules.size)
-
+    cloudWatchClient.putMetric(Metrics.RulesIngested ,matcherPool.getCurrentRules.size)
   }
 
   /**
@@ -72,7 +70,10 @@ class RuleProvisionerService(
     bucketRuleManager.getRulesLastModified match {
       case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket
       case Right(_) => logger.info("No rule update needed")
-      case Left(error) => logger.error("Could not get last modified from S3")
+      case Left(error) => {
+        logger.error("Could not get last modified from S3")
+        cloudWatchClient.putMetric(Metrics.RulesNotFound)
+      }
     }
   }
 
