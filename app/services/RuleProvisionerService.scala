@@ -13,11 +13,13 @@ import rules.BucketRuleManager
 import matchers.LanguageToolFactory
 import model.LTRule
 import model.LTRuleXML
+import utils.CloudWatchClient
 
 class RuleProvisionerService(
   bucketRuleManager: BucketRuleManager,
   matcherPool: MatcherPool,
-  languageToolFactory: LanguageToolFactory
+  languageToolFactory: LanguageToolFactory,
+  cloudWatchClient: CloudWatchClient
 )(implicit ec: ExecutionContext) extends Logging with Runnable {
 
   var lastModified: Date = new Date(0)
@@ -46,6 +48,9 @@ class RuleProvisionerService(
     addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
 
     lastModified = date
+
+    cloudWatchClient.putRulesIngested(ruleResource.rules.length)
+
   }
 
   /**
