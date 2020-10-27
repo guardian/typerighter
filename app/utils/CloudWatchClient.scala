@@ -17,12 +17,12 @@ class CloudWatchClient(stage: String) extends Loggable {
 
   private lazy val cloudWatchClient = builder
 
-  def putMetric(metirc: String, value: Int = 1): Unit = {
+  def putMetric(metric: String, value: Int = 1): Unit = {
 
     val dimension = new Dimension().withName("Stage").withValue(stage.toUpperCase());
 
     val datum = new MetricDatum()
-      .withMetricName(Metrics.RulesIngested)
+      .withMetricName(metric)
       .withUnit(StandardUnit.Count)
       .withValue(value)
       .withDimensions(dimension)
