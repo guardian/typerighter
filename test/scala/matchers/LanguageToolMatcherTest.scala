@@ -9,21 +9,23 @@ import services.MatcherRequest
 class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
   val exampleCategory = Category("EXAMPLE_CAT", "Example Category")
   val exampleRuleXml = """
-    <pattern>
-        <token postag="CD" />
-        <token postag="NNS">
-            <exception regexp="yes">centuries|decades|years|months|days|hours|minutes|seconds|stars</exception>
-        </token>
-        <token>or</token>
-        <marker>
-            <token>less</token>
-        </marker>
-    </pattern>
-    <message>Did you mean <suggestion>fewer</suggestion>? The noun \2 is countable.</message>
-    <short>Grammatical error</short>
-    <example correction="fewer">Ten items or <marker>less</marker></example>
-    <example>It typically takes 30 seconds or <marker>less</marker></example>
-    <example>I would only give that hotel 3 stars or <marker>less</marker>.</example>
+    <rule>
+      <pattern>
+          <token postag="CD" />
+          <token postag="NNS">
+              <exception regexp="yes">centuries|decades|years|months|days|hours|minutes|seconds|stars</exception>
+          </token>
+          <token>or</token>
+          <marker>
+              <token>less</token>
+          </marker>
+      </pattern>
+      <message>Did you mean <suggestion>fewer</suggestion>? The noun \2 is countable.</message>
+      <short>Grammatical error</short>
+      <example correction="fewer">Ten items or <marker>less</marker></example>
+      <example>It typically takes 30 seconds or <marker>less</marker></example>
+      <example>I would only give that hotel 3 stars or <marker>less</marker>.</example>
+    </rule>
   """
   val exampleRule =  LTRuleXML(
     "EXAMPLE_RULE",
