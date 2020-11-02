@@ -13,11 +13,14 @@ import rules.BucketRuleManager
 import matchers.LanguageToolFactory
 import model.LTRule
 import model.LTRuleXML
+import utils.CloudWatchClient
+import utils.Metrics
 
 class RuleProvisionerService(
   bucketRuleManager: BucketRuleManager,
   matcherPool: MatcherPool,
-  languageToolFactory: LanguageToolFactory
+  languageToolFactory: LanguageToolFactory,
+  cloudWatchClient: CloudWatchClient
 )(implicit ec: ExecutionContext) extends Logging with Runnable {
 
   var lastModified: Date = new Date(0)
@@ -44,8 +47,8 @@ class RuleProvisionerService(
     }
 
     addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
-
     lastModified = date
+    cloudWatchClient.putMetric(Metrics.RulesIngested ,matcherPool.getCurrentRules.size)
   }
 
   /**
@@ -67,7 +70,10 @@ class RuleProvisionerService(
     bucketRuleManager.getRulesLastModified match {
       case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket
       case Right(_) => logger.info("No rule update needed")
-      case Left(error) => logger.error("Could not get last modified from S3")
+      case Left(error) => {
+        logger.error("Could not get last modified from S3")
+        cloudWatchClient.putMetric(Metrics.RulesNotFound)
+      }
     }
   }
 

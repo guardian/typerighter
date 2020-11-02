@@ -45,6 +45,9 @@ Parameters:
   CloudFrontSSLCertificateArn:
     Description: The ARN of the certificate for the CloudFront distribution
     Type: String
+  AlertTopic:
+    Description: The SNS topic for pager duty alarms to be sent from this Stack - Not used for CODE
+    Type: String
     
 Mappings:
   StageVariables:
@@ -64,6 +67,9 @@ Mappings:
     Lowercase:
       PROD: prod
       CODE: code
+
+Conditions:
+  CreateProdAlarms: !Equals [ !Ref Stage, PROD ]
 
 Resources:
   AutoScalingGroup:
@@ -215,6 +221,20 @@ Resources:
           Resource: !Sub
             - arn:aws:s3:::typerighter-${Stage}/rules/*
             - { Stage: { Fn::FindInMap: [ StageLookup, Lowercase, Ref: Stage ] } }
+      Roles:
+      - !Ref AppRole
+
+  CloudWatchPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CloudWatchPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Action:
+          - cloudwatch:PutMetricData
+          Resource: "*"
       Roles:
       - !Ref AppRole
 
@@ -426,3 +446,26 @@ Resources:
           Bucket: !GetAtt CloudfrontBucket.DomainName
           IncludeCookies: 'false'
           Prefix: ''
+
+  RuleProvisionerAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: CreateProdAlarms
+    Properties:
+      MetricName: RulesNotFound
+      Namespace: Typerighter
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 3
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+      ActionsEnabled: true
+      AlarmActions:
+        - !Ref "AlertTopic"
+      AlarmName: !Sub "Typerighter - ${Stage} - rule provisioner issue"
+      AlarmDescription: "There was a problem with the rule provisioning"
+      Dimensions:
+        - Name: Stage
+          Value: !Ref Stage
+      OKActions:
+        - !Ref "AlertTopic"
+      TreatMissingData: notBreaching

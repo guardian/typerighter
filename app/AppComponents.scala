@@ -22,6 +22,7 @@ import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
 import utils.Loggable
 import matchers.LanguageToolFactory
+import utils.CloudWatchClient
 
 
 class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
@@ -60,12 +61,15 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", s3Client)
   publicSettings.start()
 
-  val typerighterBucket = identity match {
-    case identity: AwsIdentity => s"typerighter-${identity.stage.toLowerCase}"
-    case _: DevIdentity => "typerighter-code"
+  val stage = identity match {
+    case identity: AwsIdentity => identity.stage.toLowerCase
+    case _ => "code"
   }
+  val typerighterBucket = s"typerighter-${stage}"
+  val cloudWatchClient = new CloudWatchClient(stage)
+
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
-  val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory)
+  val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)
 
   val credentials = configuration.get[String]("typerighter.google.credentials")
   val spreadsheetId = configuration.get[String]("typerighter.sheetId")

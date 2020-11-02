@@ -58,6 +58,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
   "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
   "com.amazonaws" % "aws-java-sdk-kinesis" % awsSdkVersion,
+  "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
   "com.google.api-client" % "google-api-client" % "1.23.0",
   "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0",
   "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
