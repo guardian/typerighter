@@ -16,7 +16,7 @@ import model.Category
 import org.languagetool.rules.patterns.PatternRuleLoader
 import org.languagetool.rules.patterns.PatternRule
 import org.languagetool.rules.patterns.AbstractPatternRule
-import scala.xml.XML
+import scala.xml.{XML, MetaData, Attribute, Null, Text}
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
@@ -99,10 +99,9 @@ class LanguageToolFactory(
       case (category, rules) =>
         <category id={category.id} name={category.name} type="grammar">
           {rules.map { rule =>
-            <rule id={rule.id} name={rule.description}>
-              {XML.loadString(s"<temp>${rule.xml}</temp>").child}
-            </rule>
-          }}
+              XML.loadString(rule.xml) % Attribute(None, "id", Text(rule.id), Null) % Attribute(None, "name", Text(rule.description), Null)
+            }
+          }
         </category>
     }
 
