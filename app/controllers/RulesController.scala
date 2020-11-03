@@ -31,7 +31,10 @@ class RulesController(
       maybeRules.left.map { error => List(error.getMessage) }
     } match {
       case Right((ruleResource, lastModified)) => {
-        ruleProvisioner.updateRules(ruleResource, lastModified)
+        val ruleErrors = ruleProvisioner.updateRules(ruleResource, lastModified) match {
+          case Right(()) => Nil
+          case Left(errors) => errors.map(_.getMessage)
+        }
         val currentRules = matcherPool.getCurrentRules
         Ok(views.html.rules(
             sheetId,
@@ -39,7 +42,7 @@ class RulesController(
             matcherPool.getCurrentMatchers,
             Some(true),
             Some(currentRules.size),
-            Nil
+            ruleErrors
         ))
       }
       case Left(errors) => {

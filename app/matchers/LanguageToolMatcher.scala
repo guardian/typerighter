@@ -40,18 +40,26 @@ class LanguageToolFactory(
       if (useLanguageModelRules) instance.activateLanguageModelRules(languageModel)
     }
 
-    // Disable all default rules, apart from those we'd explicitly like
-    instance.getAllRules().asScala.foreach { rule =>
-      if (!defaultRuleIds.contains(rule.getId())) {
-        instance.disableRule(rule.getId())
-      }
-    }
+    // Disable all default rules ...
+    val allRuleIds = instance.getAllRules().asScala.map(_.getId())
+    allRuleIds.foreach(ruleId => instance.disableRule(ruleId))
+    // ... apart from those we'd explicitly like
+    val errors = defaultRuleIds.foldLeft(List.empty[Throwable])((acc, ruleId) =>
+      if (allRuleIds.contains(ruleId)) {
+        instance.enableRule(ruleId)
+        acc
+      } else new Exception(s"Attempted to enable a default rule with id ${ruleId}, but the rule was not available on the instance") :: acc
+    )
 
-    // Add custom rules
-    applyXMLRules(instance, ruleXMLs) map { _ =>
-      val matcher = new LanguageToolMatcher(instance)
-      logger.info(s"Added ${ruleXMLs.size} rules and enabled ${defaultRuleIds.size} default rules for matcher instance with id: ${matcher.getId()}")
-      matcher
+    errors match {
+      // Add custom rules
+      case Nil => applyXMLRules(instance, ruleXMLs) map { _ =>
+        val matcher = new LanguageToolMatcher(instance)
+        logger.info(s"Added ${ruleXMLs.size} rules and enabled ${defaultRuleIds.size} default rules for matcher instance with id: ${matcher.getId()}")
+        matcher
+      }
+      // Fail fast
+      case e => Left(e)
     }
   }
 
@@ -61,10 +69,12 @@ class LanguageToolFactory(
     */
   private def applyXMLRules(instance: JLanguageTool, ltRuleXmls: List[LTRuleXML]): Either[List[Throwable], Unit] = {
     val maybeRuleErrors = getLTRulesFromXML(ltRuleXmls) match {
-      case Success(rules) => rules.map { rule => Try {
+      case Success(rules) => rules.map { rule =>
+        val ruleTry = Try {
           instance.addRule(rule)
           instance.enableRule(rule.getId())
         }
+        ruleTry.transform(s => Success(s), e => Failure(annotateExceptionWithRuleId(e, rule.getId)))
       }
       case Failure(e) => List(Failure(e))
     }
@@ -93,13 +103,24 @@ class LanguageToolFactory(
     }
   }
 
+  /**
+    * Attempt to get an XML stream representing a valid XML document containing the given rules.
+    *
+    * Fails if any of the rules contain invalid XML.
+    */
   private def getXMLStreamFromLTRules(rules: List[LTRuleXML]): Try[ByteArrayInputStream] = Try {
     val rulesByCategory = rules.groupBy(_.category)
     val rulesXml = rulesByCategory.map {
       case (category, rules) =>
         <category id={category.id} name={category.name} type="grammar">
           {rules.map { rule =>
-              XML.loadString(rule.xml) % Attribute(None, "id", Text(rule.id), Null) % Attribute(None, "name", Text(rule.description), Null)
+              try {
+                XML.loadString(rule.xml) % Attribute(None, "id", Text(rule.id), Null) % Attribute(None, "name", Text(rule.description), Null)
+              } catch {
+                case e: Throwable =>
+                  val additionalMessage = s"Other rules for categories ${rulesByCategory.keys.map(_.id).mkString(", ")} have also been discarded"
+                  throw annotateExceptionWithRuleId(e, rule.id, additionalMessage)
+              }
             }
           }
         </category>
@@ -115,6 +136,9 @@ class LanguageToolFactory(
 
     new ByteArrayInputStream(outputStream.toByteArray())
   }
+
+  private def annotateExceptionWithRuleId(e: Throwable, ruleId: String, additionalMessage: String = "") =
+    new Exception(s"Error applying LanguageTool rule `${ruleId}`: ${e.getMessage} ${if (additionalMessage.size > 0) additionalMessage else ""}".trim, e)
 }
 
 object LanguageToolMatcher extends MatcherCompanion {

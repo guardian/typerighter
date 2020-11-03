@@ -28,27 +28,32 @@ class RuleProvisionerService(
   /**
     * Update the rules in our matcherPool, given a ruleResource.
     */
-  def updateRules(ruleResource: RuleResource, date: Date): Unit = {
+  def updateRules(ruleResource: RuleResource, date: Date): Either[List[Throwable], Unit] = {
     matcherPool.removeAllMatchers()
 
-    ruleResource.rules.groupBy(_.category).foreach {
+    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
+
+    val addedRulesErrors = ruleResource.rules.groupBy(_.category).toList.flatMap {
       case (_, rules) => {
         val regexRules = rules.collect { case r: RegexRule => r }
+        val ltRules = rules.collect { case r: LTRuleXML => r }
+
         if (regexRules.size > 0) {
           val regexMatcher = new RegexMatcher(regexRules)
           matcherPool.addMatcher(regexMatcher)
         }
 
-        val ltRules = rules.collect { case r: LTRuleXML => r }
-        if (ltRules.size > 0) {
-          addLTMatcherToPool(matcherPool, ltRules)
-        }
+        if (ltRules.size > 0) addLTMatcherToPool(matcherPool, ltRules) else Nil
       }
     }
 
-    addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
     lastModified = date
     cloudWatchClient.putMetric(Metrics.RulesIngested ,matcherPool.getCurrentRules.size)
+
+    defaultRulesErrors ++ addedRulesErrors match {
+      case Nil => Right(())
+      case e => Left(e)
+    }
   }
 
   /**
@@ -83,13 +88,17 @@ class RuleProvisionerService(
     scheduler.scheduleWithFixedDelay(0.seconds, 1.minute)(this)
   }
 
-  private def addLTMatcherToPool(matcherPool: MatcherPool, xmlRules: List[LTRuleXML], defaultRules: List[String] = Nil) = {
+  private def addLTMatcherToPool(matcherPool: MatcherPool, xmlRules: List[LTRuleXML], defaultRules: List[String] = Nil): List[Throwable]= {
     languageToolFactory.createInstance(xmlRules, defaultRules) match {
-      case Right(matcher) => matcherPool.addMatcher(matcher)
+      case Right(matcher) => {
+        matcherPool.addMatcher(matcher)
+        Nil
+      }
       case Left(errors) => {
         val logPrefix = "RuleProvisionerService error"
         logger.error(s"${logPrefix}: could not create languageTool instance from ruleResource: ${errors.size} errors found")
         errors.foreach { logger.error(logPrefix, _) }
+        errors
       }
     }
   }
