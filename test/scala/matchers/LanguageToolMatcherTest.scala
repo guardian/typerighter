@@ -8,6 +8,8 @@ import services.MatcherRequest
 
 class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
   val exampleCategory = Category("EXAMPLE_CAT", "Example Category")
+  val exampleCategory2 = Category("EXAMPLE_CAT_2", "Example Category 2")
+  val exampleCategory3 = Category("EXAMPLE_CAT_3", "Example Category 3")
   val exampleRuleXml = """
     <rule>
       <pattern>
@@ -27,7 +29,26 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
       <example>I would only give that hotel 3 stars or <marker>less</marker>.</example>
     </rule>
   """
-  val exampleRule =  LTRuleXML(
+  val exampleBadRuleXml = """
+    <rule>
+      <antipattern>
+        <token regexp='yes'>\d+|&months;|&abbrevMonths;|&weekdays;|&abbrevWeekdays;</token>
+      </antipattern>
+      <pattern>
+          <token postag="CD" />
+          <token postag="NNS">
+              <exception regexp="yes">centuries|decades|years|months|days|hours|minutes|seconds|stars</exception>
+          </token>
+          <token>or</token>
+          <marker>
+              <token>less</token>
+          </marker>
+      </pattern>
+      <message>Did you mean <suggestion>fewer</suggestion>? The noun \2 is countable.</message>
+      <short>Grammatical error</short>
+    </rule>
+  """
+  val exampleRule = LTRuleXML(
     "EXAMPLE_RULE",
     exampleRuleXml,
     exampleCategory,
@@ -45,7 +66,7 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
         <suggestion><match no="1"/> … <match no="3"/></suggestion>
         <example>This is important – as far as I know.</example>
         <example correction="…">This is important<marker>...</marker> as far as I know.</example>
-      </rule> 
+      </rule>
       <rule>
         <pattern>
           <token regexp="yes">(January|February|March|April|May|June|July|August|September|October|November|December)</token>
@@ -53,7 +74,7 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
         </pattern>
         <message>Incorrect date format: <suggestion><match no="2" regexp_match="(\d\d?)(th|rd|nd)?" regexp_replace="$1"/> <match no="1"/></suggestion></message>
         <example correction="">It happened on <marker>3 November</marker> etc</example>
-      </rule>  
+      </rule>
       <rule>
         <pattern>
           <token regexp="yes">the</token>
@@ -80,6 +101,18 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     exampleCategory,
     "An example rulegroup with custom XML"
   )
+  val exampleBadRule1 = LTRuleXML(
+    "EXAMPLE_RULE",
+    exampleBadRuleXml,
+    exampleCategory2,
+    "An example rule with custom XML that contains references to nonexistent entities"
+  )
+  val exampleBadRule2 = LTRuleXML(
+    "EXAMPLE_RULE",
+    exampleRuleXml.slice(15, exampleBadRuleXml.size),
+    exampleCategory3,
+    "An example rule with custom XML that's malformed"
+  )
 
   "getInstance" should "provide no rules by default" in {
     val ltFactory = new LanguageToolFactory(None)
@@ -95,6 +128,14 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     // This is weird, as we'd assume ids to be unique. We may want to alter
     // this to reflect rule groupings to ensure id uniqueness, for example.
     instance.getRules().map(_.id) shouldBe List("FEWER_LESS", "FEWER_LESS", "DOES_YOU", "DOES_YOU")
+  }
+
+  "getInstance" should "return an error if a defaultRule we provide is not available" in {
+    val ltFactory = new LanguageToolFactory(None)
+    val defaultRules = List("NOT_A_THING")
+    val errors = ltFactory.createInstance(Nil, defaultRules).left.getOrElse(fail("Expected a list of errors from unavailable default rules, not a valid instance"))
+    val messages = errors.map(_.getMessage())
+    messages.filter(_.contains("rule was not available")).size shouldBe 1
   }
 
   "getInstance" should "include the XML-based rules we provide via `rules`" in {
@@ -121,8 +162,28 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
 
   "getInstance" should "handle cases where no novel rules are available" in {
     val ltFactory = new LanguageToolFactory(None)
-    val instance = ltFactory.createInstance(List.empty).getOrElse(fail)
+    val instance = ltFactory.createInstance(List.empty).getOrElse(fail("Attempted to create an instance with no rules, but got a `Left` instead"))
     instance.getRules().map(_.id) shouldBe List.empty
+  }
+
+  "getInstance" should "handle cases where the XML is inconsistent, reporting the affect rule(s) correctly" in {
+    val ltFactory = new LanguageToolFactory(None)
+    val exampleRules = List(exampleBadRule1)
+    val errors = ltFactory.createInstance(exampleRules).left.getOrElse(fail("Expected a list of errors from bad rules, not a valid instance"))
+    val messages = errors.map(_.getMessage())
+
+    errors.size shouldBe 1
+    messages.filter(_.contains("""The entity "months" was referenced, but not declared.""")).size shouldBe 1
+  }
+
+  "getInstance" should "handle cases where the XML is malformed, reporting the affect rule(s) correctly" in {
+    val ltFactory = new LanguageToolFactory(None)
+    val exampleRules = List(exampleBadRule2)
+    val errors = ltFactory.createInstance(exampleRules).left.getOrElse(fail("Expected a list of errors from bad rules, not a valid instance"))
+    val messages = errors.map(_.getMessage())
+
+    errors.size shouldBe 1
+    messages.filter(_.contains("""The markup in the document following the root element must be well-formed.""")).size shouldBe 1
   }
 
   "check" should "apply LanguageTool default rules" in {
