@@ -11,7 +11,7 @@ object Timer extends Logging {
   /**
     * Time a synchronous task and log the results.
     */
-  def time[R](taskName: String, additionalMarkers: LogstashMarker)(block: => R): R = {
+  def time[R](taskName: String, additionalMarkers: LogstashMarker = Markers.empty())(block: => R): R = {
     val t0 = System.nanoTime()
     val result = block
     val t1 = System.nanoTime()
@@ -22,7 +22,7 @@ object Timer extends Logging {
   /**
     * Time an asynchronous task returning a Future, and log the results.
     */
-  def timeAsync[R](taskName: String, additionalMarkers: LogstashMarker)(block: => Future[R])(implicit ec: ExecutionContext): Future[R] = {
+  def timeAsync[R](taskName: String, additionalMarkers: LogstashMarker = Markers.empty())(block: => Future[R])(implicit ec: ExecutionContext): Future[R] = {
     val t0 = System.nanoTime()
     block.map { result =>
       val t1 = System.nanoTime()

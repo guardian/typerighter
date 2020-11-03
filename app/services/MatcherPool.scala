@@ -237,7 +237,9 @@ class MatcherPool(
         .check(MatcherRequest(blocksWithSkippedRangesRemoved))
         .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
 
-      futures.timeout(checkTimeoutDuration)(eventuallyCheck)
+      Timer.timeAsync(s"MatcherPool.runMatchersForJob (type: ${matcher.getType}, categories: ${matcher.getCategories.map(_.name).mkString(", ")})") {
+        futures.timeout(checkTimeoutDuration)(eventuallyCheck)
+      }
     }
 
     val eventuallyAllMatches = Future.sequence(eventuallyJobResults).map { _.flatten }
