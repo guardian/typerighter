@@ -31,13 +31,15 @@ class ApiController(
           matcherPool.check(check)
         }
 
-        eventuallyMatches.map { matches =>
-          val response = MatcherResponse(
-            matches = matches,
-            blocks = check.blocks,
-            categoryIds = matches.map(_.rule.category.id).toSet
-          )
-          Ok(Json.toJson(response))
+        eventuallyMatches.map {
+          case (categoryIds, matches) => {
+            val response = MatcherResponse(
+              matches = matches,
+              blocks = check.blocks,
+              categoryIds = categoryIds
+            )
+            Ok(Json.toJson(response))
+          }
         } recover {
         case e: Exception =>
           InternalServerError(Json.obj("error" -> e.getMessage))

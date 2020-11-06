@@ -170,8 +170,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
-    futureResult.map { result =>
-      result shouldBe responses
+    futureResult.map { case (categoryIds, matches) =>
+      matches shouldBe responses
     }
   }
 
@@ -182,8 +182,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
 
-    futureResult.map { result =>
-      result.length shouldBe 24
+    futureResult.map { case (categoryIds, matches) =>
+      matches.length shouldBe 24
     }
   }
 
@@ -268,9 +268,21 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
 
-    futureResult.map { result =>
-      result.contains(firstMatch.head) shouldBe true
-      result.contains(secondMatch.head) shouldBe true
+    futureResult.map { case (categoryIds, matches) =>
+      matches.contains(firstMatch.head) shouldBe true
+      matches.contains(secondMatch.head) shouldBe true
+    }
+  }
+
+    it should "report the categories that are checked, even if no matches are found" in {
+    val matchers = getMatchers(1)
+    matchers(0).completeWith(getResponses(List.empty))
+
+    val pool = getPool(matchers)
+    val futureResult = pool.check(getCheck(text = "Example text"))
+
+    futureResult.map { case (categoryIds, matches) =>
+      categoryIds shouldBe Set("mock-category-0")
     }
   }
 
@@ -282,9 +294,9 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val secondMatch = getResponses(List((0, 5, "test-response-2")), 1)
     matchers(0).completeWith(firstMatch)
     matchers(1).completeWith(secondMatch)
-    futureResult.map { result =>
-      result.size should matchTo(1)
-      result should matchTo(secondMatch)
+    futureResult.map { case (categoryIds, matches) =>
+      matches.size should matchTo(1)
+      matches should matchTo(secondMatch)
     }
   }
 
@@ -352,9 +364,9 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     )
     val futureResult = pool.check(check)
 
-    futureResult.map { results =>
-      val resultRanges = results.map { result => (result.fromPos, result.toPos) }
-      resultRanges shouldBe List((1, 1), (5, 5))
+    futureResult.map { case (categoryIds, matches) =>
+      val matchRanges = matches.map { matches => (matches.fromPos, matches.toPos) }
+      matchRanges shouldBe List((1, 1), (5, 5))
     }
   }
 }
