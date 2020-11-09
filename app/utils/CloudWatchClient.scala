@@ -29,7 +29,7 @@ class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
 
     try {
       cloudWatchClient.map(_.putMetricData(request))
-      log.info(s"Published metric data")
+      log.info(s"Published $metric metric data. ${if (dryRun) "DRY RUN" else ""}")
     } catch {
       case e: Exception =>
         log.error(s"CloudWatch putMetricData exception message: ${e.getMessage}", e)
