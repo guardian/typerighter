@@ -66,7 +66,11 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     case _ => "code"
   }
   val typerighterBucket = s"typerighter-${stage}"
-  val cloudWatchClient = new CloudWatchClient(stage)
+ 
+  val cloudWatchClient = identity match {
+    case identity: AwsIdentity => new CloudWatchClient(stage, false)
+    case _ : DevIdentity => new CloudWatchClient(stage, true)
+  } 
 
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)

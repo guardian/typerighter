@@ -11,11 +11,9 @@ object Metrics {
   val RulesNotFound = "RulesNotFound"
 }
 
-class CloudWatchClient(stage: String) extends Loggable {
+class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
 
-  private val builder = AmazonCloudWatchClientBuilder.defaultClient()
-
-  private lazy val cloudWatchClient = builder
+  private val cloudWatchClient = if(dryRun) None else Some(AmazonCloudWatchClientBuilder.defaultClient())
 
   def putMetric(metric: String, value: Int = 1): Unit = {
 
@@ -30,8 +28,8 @@ class CloudWatchClient(stage: String) extends Loggable {
     val request = new PutMetricDataRequest().withNamespace("Typerighter").withMetricData(datum)
 
     try {
-      val result = cloudWatchClient.putMetricData(request)
-      log.info(s"Published metric data: $result")
+      cloudWatchClient.map(_.putMetricData(request))
+      log.info(s"Published $metric metric data. ${if (dryRun) "DRY RUN" else ""}")
     } catch {
       case e: Exception =>
         log.error(s"CloudWatch putMetricData exception message: ${e.getMessage}", e)
