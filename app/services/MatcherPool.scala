@@ -69,6 +69,7 @@ class MatcherPool(
 )(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
   type MatcherId = String
+  type CategoryId = String
   private val matchers = new ConcurrentHashMap[MatcherId, Matcher]().asScala
   private val eventBus = new MatcherPoolEventBus()
 
@@ -90,7 +91,7 @@ class MatcherPool(
     * Check the text with the matchers assigned to the given category ids.
     * If no ids are assigned, use all the currently available matchers.
     */
-  def check(query: Check): Future[List[RuleMatch]] = {
+  def check(query: Check): Future[(Set[CategoryId], List[RuleMatch])] = {
     val categoryIds = query.categoryIds match {
       case None => getCurrentCategories.map(_.id)
       case Some(ids) => ids
@@ -109,7 +110,7 @@ class MatcherPool(
 
     Future.sequence(eventuallyResponses).map { matchesPerFuture =>
       logger.info(s"Matcher pool query complete")(query.toMarker)
-      matchesPerFuture.flatten
+      (categoryIds, matchesPerFuture.flatten)
     }
   }
 
@@ -188,9 +189,12 @@ class MatcherPool(
       matchers <- getMatchersForJob(job)
     } yield {
       val eventuallyMatches = runMatchersForJob(matchers, job.blocks).map{(job, _)}
-      job.promise.completeWith(eventuallyMatches.map{
-        case (_, matches) => matches
+      job.promise.completeWith(eventuallyMatches.map {
+        case (_, matches) => {
+          matches
+        }
       })
+
       eventuallyMatches
     }
 
