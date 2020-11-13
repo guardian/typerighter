@@ -29,7 +29,7 @@ class LanguageToolFactory(
                            useLanguageModelRules: Boolean = false) extends Logging {
 
   def createInstance(ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): Either[List[Throwable], Matcher] = {
-    val language: Language = Languages.getLanguageForShortCode("en")
+    val language: Language = Languages.getLanguageForShortCode("en-GB")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
 
@@ -46,6 +46,7 @@ class LanguageToolFactory(
     // ... apart from those we'd explicitly like
     val errors = defaultRuleIds.foldLeft(List.empty[Throwable])((acc, ruleId) =>
       if (allRuleIds.contains(ruleId)) {
+        println(s"Enabling rule: ${ruleId}")
         instance.enableRule(ruleId)
         acc
       } else new Exception(s"Attempted to enable a default rule with id ${ruleId}, but the rule was not available on the instance") :: acc
@@ -71,6 +72,8 @@ class LanguageToolFactory(
     val maybeRuleErrors = getLTRulesFromXML(ltRuleXmls) match {
       case Success(rules) => rules.map { rule =>
         val ruleTry = Try {
+          println("Adding custom rule")
+          println(rule)
           instance.addRule(rule)
           instance.enableRule(rule.getId())
         }
@@ -127,7 +130,7 @@ class LanguageToolFactory(
     }
 
     // Temporarily hardcode language settings
-    val ruleXml = <rules lang="en">{rulesXml}</rules>
+    val ruleXml = <rules lang="en-GB">{rulesXml}</rules>
 
     val outputStream = new ByteArrayOutputStream()
     val writer = new OutputStreamWriter(outputStream)

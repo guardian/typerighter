@@ -44,9 +44,6 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val languageToolFactory = new LanguageToolFactory(ngramPath, true)
 
-  val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
-  val defaultFutures = new DefaultFutures(actorSystem)
-  val matcherPool = new MatcherPool(futures = defaultFutures)(matcherPoolDispatcher, materializer)
 
   val capiApiKey = configuration.get[String]("capi.apiKey")
   val guardianContentClient = GuardianContentClient(capiApiKey)
@@ -71,6 +68,10 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     case identity: AwsIdentity => new CloudWatchClient(stage, false)
     case _ : DevIdentity => new CloudWatchClient(stage, true)
   } 
+
+  val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
+  val defaultFutures = new DefaultFutures(actorSystem)
+  val matcherPool = new MatcherPool(futures = defaultFutures, maybeCloudWatchClient = Some(cloudWatchClient))(matcherPoolDispatcher, materializer)
 
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)

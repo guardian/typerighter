@@ -65,6 +65,7 @@ libraryDependencies ++= Seq(
   "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
   "com.gu" % "kinesis-logback-appender" % "1.4.4",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
   "org.webjars" % "bootstrap" % "4.3.1",
   "com.gu" %% "content-api-models-scala" % capiModelsVersion,
   "com.gu" %% "content-api-models-json" % capiModelsVersion,

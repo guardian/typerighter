@@ -17,6 +17,8 @@ import akka.stream.scaladsl.{Sink, Source}
 import play.api.libs.concurrent.Futures
 import play.api.Logging
 import utils.Timer
+import utils.CloudWatchClient
+import utils.Metrics
 
 case class MatcherRequest(blocks: List[TextBlock])
 
@@ -65,7 +67,8 @@ class MatcherPool(
   val maxQueuedJobs: Int = 1000,
   val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
   val futures: Futures,
-  val checkTimeoutDuration: FiniteDuration = 5 seconds
+  val checkTimeoutDuration: FiniteDuration = 10 seconds,
+  val maybeCloudWatchClient: Option[CloudWatchClient] = None
 )(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
   type MatcherId = String
@@ -237,7 +240,9 @@ class MatcherPool(
         .check(MatcherRequest(blocksWithSkippedRangesRemoved))
         .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
 
-      Timer.timeAsync(s"MatcherPool.runMatchersForJob (type: ${matcher.getType}, categories: ${matcher.getCategories.map(_.name).mkString(", ")})") {
+      val taskName = s"MatcherPool.runMatchersForJob (type: ${matcher.getType}, categories: ${matcher.getCategories.map(_.name).mkString(", ")})"
+      val onSlowLog = (durationMs: Int) => maybeCloudWatchClient.map(_.putMetric(Metrics.MatcherPoolJobDuration, durationMs))
+      Timer.timeAsync(taskName, slowLogThresholdMs = 5000, onSlowLog = onSlowLog) {
         futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       }
     }

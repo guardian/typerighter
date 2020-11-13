@@ -9,6 +9,7 @@ import com.amazonaws.services.cloudwatch.model.StandardUnit;
 object Metrics {
   val RulesIngested = "RulesIngested"
   val RulesNotFound = "RulesNotFound"
+  val MatcherPoolJobDuration = "MatcherPoolJobDuration"
 }
 
 class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
