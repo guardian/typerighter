@@ -242,7 +242,7 @@ class MatcherPool(
         .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
 
       val taskName = s"MatcherPool.runMatchersForJob (type: ${matcher.getType}, categories: ${matcher.getCategories.map(_.name).mkString(", ")})"
-      val onSlowLog = (durationMs: Long) => maybeCloudWatchClient.foreach(_.putMetric(Metrics.MatcherPoolJobDuration, durationMs.toInt))
+      val onSlowLog = (durationMs: Long) => maybeCloudWatchClient.foreach(_.putMetric(Metrics.MatcherPoolJobDurationMs, durationMs.toInt))
       Timer.timeAsync(taskName, slowLogThresholdMs = checkSlowLogDuration.toMillis, onSlowLog = onSlowLog) {
         futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       }
