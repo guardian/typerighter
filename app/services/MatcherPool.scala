@@ -67,6 +67,7 @@ class MatcherPool(
   val maxQueuedJobs: Int = 1000,
   val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
   val futures: Futures,
+  val checkSlowLogDuration: FiniteDuration = 5 seconds,
   val checkTimeoutDuration: FiniteDuration = 10 seconds,
   val maybeCloudWatchClient: Option[CloudWatchClient] = None
 )(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
@@ -241,8 +242,8 @@ class MatcherPool(
         .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
 
       val taskName = s"MatcherPool.runMatchersForJob (type: ${matcher.getType}, categories: ${matcher.getCategories.map(_.name).mkString(", ")})"
-      val onSlowLog = (durationMs: Int) => maybeCloudWatchClient.map(_.putMetric(Metrics.MatcherPoolJobDuration, durationMs))
-      Timer.timeAsync(taskName, slowLogThresholdMs = 5000, onSlowLog = onSlowLog) {
+      val onSlowLog = (durationMs: Long) => maybeCloudWatchClient.foreach(_.putMetric(Metrics.MatcherPoolJobDuration, durationMs.toInt))
+      Timer.timeAsync(taskName, slowLogThresholdMs = checkSlowLogDuration.toMillis, onSlowLog = onSlowLog) {
         futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       }
     }

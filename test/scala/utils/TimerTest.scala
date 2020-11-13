@@ -1,4 +1,4 @@
-package scala.utils
+package utils
 
 import model._
 import org.scalatest.flatspec.AnyFlatSpec
@@ -6,7 +6,6 @@ import org.mockito.{ ArgumentMatchersSugar, IdiomaticMockito }
 import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffMatcher._
 
-import utils.Timer
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Await
@@ -18,44 +17,46 @@ class TimerTest extends AnyFlatSpec with Matchers with IdiomaticMockito {
   behavior of "time"
 
   it should "not call `onSlowLog` when a task does not its slow log threshold" in {
-    val mockFunction = mock[() => Unit]
+    val mockFunction = spyLambda((d: Long) => ())
 
-    Timer.time(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction.apply()){}
+    Timer.time(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction){}
 
-    mockFunction() wasNever called
+    mockFunction wasNever called
   }
 
   it should "call `onSlowLog` when a task exceeds its slow log threshold" in {
-    val mockFunction = mock[() => Unit]
+    var eventualDuration = 0L
+    val mockFunction = spyLambda((duration: Long) => eventualDuration = duration)
 
-    Timer.time(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction.apply()){
+    Timer.time(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction){
       Thread.sleep(200)
     }
 
-    mockFunction() was called
+    eventualDuration.toInt should be >= 200
   }
 
   behavior of "timeAsync"
 
   it should "not call `onSlowLog` when a task does not its slow log threshold" in {
-    val mockFunction = mock[() => Unit]
+    val mockFunction = spyLambda((d: Long) => ())
 
-    Timer.timeAsync(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction.apply()){
+    Timer.timeAsync(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction){
       Future.successful(())
     }
 
-    mockFunction() wasNever called
+    mockFunction wasNever called
   }
 
   it should "call `onSlowLog` when a task exceeds its slow log threshold" in {
-    val mockFunction = mock[() => Unit]
+    var eventualDuration = 0L
+    val mockFunction = (duration: Long) => eventualDuration = duration
 
-    val task = Timer.timeAsync(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction.apply()){
+    val task = Timer.timeAsync(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction){
       Thread.sleep(200)
       Future.successful(())
     }
     Await.result(task, 1.second)
 
-    mockFunction() was called
+    eventualDuration.toInt should be >= 200
   }
 }

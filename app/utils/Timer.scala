@@ -21,7 +21,7 @@ object Timer extends Logging {
     * @param slowLogThresholdMs pass to log at `warn` level when the operation exceeds the threshold.
     * @param onSlowLog evaluated when the operation exceeds the slow log threshold
     */
-  def time[R](taskName: String, additionalMarkers: LogstashMarker = Markers.empty(), slowLogThresholdMs: Int = Int.MaxValue, onSlowLog: => Unit = {})(block: => R): R = {
+  def time[R](taskName: String, additionalMarkers: LogstashMarker = Markers.empty(), slowLogThresholdMs: Long = Long.MaxValue, onSlowLog: Long => Unit = identity)(block: => R): R = {
     val t0 = System.nanoTime()
     val result = block
     val t1 = System.nanoTime()
@@ -37,7 +37,7 @@ object Timer extends Logging {
     * @param slowLogThresholdMs pass to log at `warn` level when the operation exceeds the threshold.
     * @param onSlowLog evaluated when the operation exceeds the slow log threshold
     */
-  def timeAsync[R](taskName: String, additionalMarkers: LogstashMarker = Markers.empty(), slowLogThresholdMs: Int = Int.MaxValue, onSlowLog: => Unit = {})(block: => Future[R])(implicit ec: ExecutionContext): Future[R] = {
+  def timeAsync[R](taskName: String, additionalMarkers: LogstashMarker = Markers.empty(), slowLogThresholdMs: Long = Long.MaxValue, onSlowLog: Long => Unit = identity)(block: => Future[R])(implicit ec: ExecutionContext): Future[R] = {
     val t0 = System.nanoTime()
     block.map { result =>
       val t1 = System.nanoTime()
@@ -46,7 +46,7 @@ object Timer extends Logging {
     }
   }
 
-  private def logTime(taskName: String, fromInNs: Long, toInNs: Long, additionalMarkers: LogstashMarker, slowLogThresholdMs: Int, onSlowLog: => Unit) = {
+  private def logTime(taskName: String, fromInNs: Long, toInNs: Long, additionalMarkers: LogstashMarker, slowLogThresholdMs: Long, onSlowLog: Long => Unit) = {
     val durationInMs = (toInNs - fromInNs) / 1000000
     val markers = Markers.appendEntries((
       Map(
@@ -61,8 +61,7 @@ object Timer extends Logging {
 
     if (durationInMs > slowLogThresholdMs) {
       logger.warn(s"$message, exceeding slow log threshold of ${slowLogThresholdMs}")(markers)
-      println("call onSlowlog")
-      onSlowLog
+      onSlowLog(durationInMs)
     } else {
       logger.info(message)(markers)
     }
