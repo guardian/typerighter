@@ -104,7 +104,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     checkTimeoutDuration: FiniteDuration = 100 milliseconds
   ): MatcherPool = {
     val futures = new DefaultFutures(system)
-    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, checkTimeoutDuration)
+    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, checkTimeoutDuration = checkTimeoutDuration)
     matchers.zipWithIndex.foreach {
       case (matcher, index) => pool.addMatcher(matcher)
     }

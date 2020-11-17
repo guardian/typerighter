@@ -40,8 +40,10 @@ buildInfoKeys := {
   )
 }
 
-resolvers += "Spring IO" at "https://repo.spring.io/plugins-release/"
 resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms"
+// Used to resolve xgboost-predictor, which is no longer available
+// at spring.io without auth.
+resolvers += "komiya-atsushi Bintray" at "https://dl.bintray.com/komiya-atsushi/maven"
 
 val languageToolVersion = "4.3"
 val awsSdkVersion = "1.11.571"
@@ -65,13 +67,15 @@ libraryDependencies ++= Seq(
   "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
   "com.gu" % "kinesis-logback-appender" % "1.4.4",
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
   "org.webjars" % "bootstrap" % "4.3.1",
   "com.gu" %% "content-api-models-scala" % capiModelsVersion,
   "com.gu" %% "content-api-models-json" % capiModelsVersion,
   "com.gu" %% "content-api-client-aws" % "0.5",
   "com.gu" %% "content-api-client-default" % capiClientVersion,
   "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
-  "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test
+  "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
+  "biz.k11i" % "xgboost-predictor" % "0.3.1"
 )
 
 libraryDependencies ++= Seq(

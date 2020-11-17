@@ -9,6 +9,7 @@ import com.amazonaws.services.cloudwatch.model.StandardUnit;
 object Metrics {
   val RulesIngested = "RulesIngested"
   val RulesNotFound = "RulesNotFound"
+  val MatcherPoolJobDurationMs = "MatcherPoolJobDurationMs"
 }
 
 class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
@@ -29,7 +30,7 @@ class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
 
     try {
       cloudWatchClient.map(_.putMetricData(request))
-      log.info(s"Published $metric metric data. ${if (dryRun) "DRY RUN" else ""}")
+      log.info(s"Published $metric metric data with value ${value}. ${if (dryRun) "DRY RUN" else ""}")
     } catch {
       case e: Exception =>
         log.error(s"CloudWatch putMetricData exception message: ${e.getMessage}", e)

@@ -68,7 +68,7 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
     mappedMatch.toPos shouldBe 23
   }
 
-    it should "account for multiple ranges" in {
+  it should "account for multiple ranges" in {
     // E.g. "Example [noted ]text with more [noted ]text"
     val ruleMatch = getRuleMatch(18, 22)
     val skippedRange = List(TextRange(18, 25), TextRange(40, 47))
