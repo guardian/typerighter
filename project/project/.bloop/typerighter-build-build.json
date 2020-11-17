@@ -2,111 +2,111 @@
     "version": "1.4.0",
     "project": {
         "name": "typerighter-build-build",
-        "directory": "/Users/jonathon_herbert/code/typerighter/project/project",
-        "workspaceDir": "/Users/jonathon_herbert/code/typerighter/project/project",
+        "directory": "/Users/sam_hession/Code/typerighter/project/project",
+        "workspaceDir": "/Users/sam_hession/Code/typerighter/project/project",
         "sources": [
-            "/Users/jonathon_herbert/code/typerighter/project/project/src/main/scala-2.12",
-            "/Users/jonathon_herbert/code/typerighter/project/project/src/main/scala",
-            "/Users/jonathon_herbert/code/typerighter/project/project/src/main/java",
-            "/Users/jonathon_herbert/code/typerighter/project/project/src/main/scala-sbt-1.0",
-            "/Users/jonathon_herbert/code/typerighter/project/project/target/scala-2.12/sbt-1.0/src_managed/main"
+            "/Users/sam_hession/Code/typerighter/project/project/src/main/scala-2.12",
+            "/Users/sam_hession/Code/typerighter/project/project/src/main/scala",
+            "/Users/sam_hession/Code/typerighter/project/project/src/main/java",
+            "/Users/sam_hession/Code/typerighter/project/project/src/main/scala-sbt-1.0",
+            "/Users/sam_hession/Code/typerighter/project/project/target/scala-2.12/sbt-1.0/src_managed/main"
         ],
         "dependencies": [
             
         ],
         "classpath": [
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-interface/1.0/test-interface-1.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/io_2.12/1.3.1/io_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.4.0/ssl-config-core_2.12-0.4.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/lenses/lenses_2.12/0.4.12/lenses_2.12-0.4.12.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/core-macros_2.12/1.3.5/core-macros_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbt/1.3.5/sbt-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/ben-manes/caffeine/caffeine/2.5.6/caffeine-2.5.6.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-core_2.12/0.5.0/gigahorse-core_2.12-0.5.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-okhttp_2.12/0.5.0/gigahorse-okhttp_2.12-0.5.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/collections_2.12/1.3.5/collections_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-scalajson_2.12/0.8.3/sjson-new-scalajson_2.12-0.8.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-relation_2.12/1.3.3/util-relation_2.12-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.2.0/scala-xml_2.12-1.2.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/spire-math/jawn-parser_2.12/0.10.4/jawn-parser_2.12-0.10.4.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/tasks_2.12/1.3.5/tasks_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna/4.5.0/jna-4.5.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse-utils_2.12/0.4.2/fastparse-utils_2.12-0.4.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lmax/disruptor/3.4.2/disruptor-3.4.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc_2.12/1.3.1/zinc_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/swoval/file-tree-views/2.1.3/file-tree-views-2.1.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp/3.14.2/okhttp-3.14.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.12/0.1.3/sourcecode_2.12-0.1.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/jcraft/jsch/0.1.54/jsch-0.1.54.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-scripted_2.12/1.3.3/util-scripted_2.12-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-persist_2.12/1.3.1/zinc-persist_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-cache_2.12/1.3.3/util-cache_2.12-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-core_2.12/1.3.1/zinc-core_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl/2.11.2/log4j-slf4j-impl-2.11.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna-platform/4.5.0/jna-platform-4.5.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/jline/jline/2.14.6/jline-2.14.6.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-sbt-redux_2.12/1.3.5/scripted-sbt-redux_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse_2.12/0.4.2/fastparse_2.12-0.4.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.1.2/scala-parser-combinators_2.12-1.1.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/testing_2.12/1.3.5/testing_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-agent/1.3.5/test-agent-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main-settings_2.12/1.3.5/main-settings_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-caffeine_2.12/0.20.0/scalacache-caffeine_2.12-0.20.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ivy/ivy/2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19/ivy-2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile-core_2.12/1.3.1/zinc-compile-core_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/io/get-coursier/lm-coursier-shaded_2.12/2.0.0-RC5-2/lm-coursier-shaded_2.12-2.0.0-RC5-2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/ch/epfl/scala/sbt-bloop_2.12_1.0/1.4.3-23-550c6c0a/sbt-bloop-1.4.3-23-550c6c0a.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-interface/1.3.1/compiler-interface-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ipcsocket/ipcsocket/1.0.0/ipcsocket-1.0.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/shaded-scalajson_2.12/1.0.0-M4/shaded-scalajson_2.12-1.0.0-M4.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/task-system_2.12/1.3.5/task-system_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/gson/gson/2.7/gson-2.7.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/command_2.12/1.3.5/command_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/launcher-interface/1.1.3/launcher-interface-1.1.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/scalapb/scalapb-runtime_2.12/0.6.0/scalapb-runtime_2.12-0.6.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/actions_2.12/1.3.5/actions_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-control_2.12/1.3.3/util-control_2.12-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/run_2.12/1.3.5/run_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-core_2.12/0.20.0/scalacache-core_2.12-0.20.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-apiinfo_2.12/1.3.1/zinc-apiinfo_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/protocol_2.12/1.3.5/protocol_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-position_2.12/1.3.3/util-position_2.12-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-core_2.12/0.8.3/sjson-new-core_2.12-0.8.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.3/config-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-core_2.12/1.3.1/librarymanagement-core_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-lm-integration_2.12/1.3.5/zinc-lm-integration_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-plugin_2.12/1.3.5/scripted-plugin_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbinary_2.12/0.5.0/sbinary_2.12-0.5.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp-urlconnection/3.7.0/okhttp-urlconnection-3.7.0.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classpath_2.12/1.3.1/zinc-classpath_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main_2.12/1.3.5/main_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.11.2/log4j-api-2.11.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-bridge_2.12/1.3.1/compiler-bridge_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okio/okio/1.17.2/okio-1.17.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-interface/1.3.3/util-interface-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.11.2/log4j-core-2.11.2.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-logging_2.12/1.3.3/util-logging_2.12-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classfile_2.12/1.3.1/zinc-classfile_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-tracking_2.12/1.3.3/util-tracking_2.12-1.3.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-murmurhash_2.12/0.8.3/sjson-new-murmurhash_2.12-0.8.3.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/logic_2.12/1.3.5/logic_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile_2.12/1.3.1/zinc-compile_2.12-1.3.1.jar",
-            "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-library.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/template-resolver/0.1/template-resolver-0.1.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/completion_2.12/1.3.5/completion_2.12-1.3.5.jar",
-            "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-ivy_2.12/1.3.1/librarymanagement-ivy_2.12-1.3.1.jar"
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-interface/1.0/test-interface-1.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/io_2.12/1.3.1/io_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.4.0/ssl-config-core_2.12-0.4.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/lenses/lenses_2.12/0.4.12/lenses_2.12-0.4.12.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/core-macros_2.12/1.3.5/core-macros_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbt/1.3.5/sbt-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/ben-manes/caffeine/caffeine/2.5.6/caffeine-2.5.6.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-core_2.12/0.5.0/gigahorse-core_2.12-0.5.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-okhttp_2.12/0.5.0/gigahorse-okhttp_2.12-0.5.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/collections_2.12/1.3.5/collections_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-scalajson_2.12/0.8.3/sjson-new-scalajson_2.12-0.8.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-relation_2.12/1.3.3/util-relation_2.12-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.2.0/scala-xml_2.12-1.2.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/spire-math/jawn-parser_2.12/0.10.4/jawn-parser_2.12-0.10.4.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/tasks_2.12/1.3.5/tasks_2.12-1.3.5.jar",
+            "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna/4.5.0/jna-4.5.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse-utils_2.12/0.4.2/fastparse-utils_2.12-0.4.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lmax/disruptor/3.4.2/disruptor-3.4.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc_2.12/1.3.1/zinc_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/swoval/file-tree-views/2.1.3/file-tree-views-2.1.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp/3.14.2/okhttp-3.14.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.12/0.1.3/sourcecode_2.12-0.1.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/jcraft/jsch/0.1.54/jsch-0.1.54.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-scripted_2.12/1.3.3/util-scripted_2.12-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-persist_2.12/1.3.1/zinc-persist_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-cache_2.12/1.3.3/util-cache_2.12-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-core_2.12/1.3.1/zinc-core_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl/2.11.2/log4j-slf4j-impl-2.11.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna-platform/4.5.0/jna-platform-4.5.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/jline/jline/2.14.6/jline-2.14.6.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-sbt-redux_2.12/1.3.5/scripted-sbt-redux_2.12-1.3.5.jar",
+            "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse_2.12/0.4.2/fastparse_2.12-0.4.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.1.2/scala-parser-combinators_2.12-1.1.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/testing_2.12/1.3.5/testing_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-agent/1.3.5/test-agent-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main-settings_2.12/1.3.5/main-settings_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-caffeine_2.12/0.20.0/scalacache-caffeine_2.12-0.20.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ivy/ivy/2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19/ivy-2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile-core_2.12/1.3.1/zinc-compile-core_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/io/get-coursier/lm-coursier-shaded_2.12/2.0.0-RC5-2/lm-coursier-shaded_2.12-2.0.0-RC5-2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/ch/epfl/scala/sbt-bloop_2.12_1.0/1.4.3-23-550c6c0a/sbt-bloop-1.4.3-23-550c6c0a.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-interface/1.3.1/compiler-interface-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ipcsocket/ipcsocket/1.0.0/ipcsocket-1.0.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/shaded-scalajson_2.12/1.0.0-M4/shaded-scalajson_2.12-1.0.0-M4.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/task-system_2.12/1.3.5/task-system_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/gson/gson/2.7/gson-2.7.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/command_2.12/1.3.5/command_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/launcher-interface/1.1.3/launcher-interface-1.1.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/scalapb/scalapb-runtime_2.12/0.6.0/scalapb-runtime_2.12-0.6.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/actions_2.12/1.3.5/actions_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-control_2.12/1.3.3/util-control_2.12-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/run_2.12/1.3.5/run_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-core_2.12/0.20.0/scalacache-core_2.12-0.20.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-apiinfo_2.12/1.3.1/zinc-apiinfo_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/protocol_2.12/1.3.5/protocol_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-position_2.12/1.3.3/util-position_2.12-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-core_2.12/0.8.3/sjson-new-core_2.12-0.8.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.3/config-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-core_2.12/1.3.1/librarymanagement-core_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-lm-integration_2.12/1.3.5/zinc-lm-integration_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-plugin_2.12/1.3.5/scripted-plugin_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbinary_2.12/0.5.0/sbinary_2.12-0.5.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp-urlconnection/3.7.0/okhttp-urlconnection-3.7.0.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classpath_2.12/1.3.1/zinc-classpath_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main_2.12/1.3.5/main_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.11.2/log4j-api-2.11.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-bridge_2.12/1.3.1/compiler-bridge_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okio/okio/1.17.2/okio-1.17.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-interface/1.3.3/util-interface-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.11.2/log4j-core-2.11.2.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-logging_2.12/1.3.3/util-logging_2.12-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classfile_2.12/1.3.1/zinc-classfile_2.12-1.3.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-tracking_2.12/1.3.3/util-tracking_2.12-1.3.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-murmurhash_2.12/0.8.3/sjson-new-murmurhash_2.12-0.8.3.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/logic_2.12/1.3.5/logic_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile_2.12/1.3.1/zinc-compile_2.12-1.3.1.jar",
+            "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-library.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/template-resolver/0.1/template-resolver-0.1.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/completion_2.12/1.3.5/completion_2.12-1.3.5.jar",
+            "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-ivy_2.12/1.3.1/librarymanagement-ivy_2.12-1.3.1.jar"
         ],
-        "out": "/Users/jonathon_herbert/code/typerighter/project/project/.bloop/typerighter-build-build",
-        "classesDir": "/Users/jonathon_herbert/code/typerighter/project/project/.bloop/typerighter-build-build/scala-2.12/sbt-1.0/classes",
+        "out": "/Users/sam_hession/Code/typerighter/project/project/.bloop/typerighter-build-build",
+        "classesDir": "/Users/sam_hession/Code/typerighter/project/project/.bloop/typerighter-build-build/scala-2.12/sbt-1.0/classes",
         "resources": [
-            "/Users/jonathon_herbert/code/typerighter/project/project/src/main/resources",
-            "/Users/jonathon_herbert/code/typerighter/project/project/target/scala-2.12/sbt-1.0/resource_managed/main"
+            "/Users/sam_hession/Code/typerighter/project/project/src/main/resources",
+            "/Users/sam_hession/Code/typerighter/project/project/target/scala-2.12/sbt-1.0/resource_managed/main"
         ],
         "scala": {
             "organization": "org.scala-lang",
@@ -116,14 +116,14 @@
                 "-deprecation"
             ],
             "jars": [
-                "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-library.jar",
-                "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar",
-                "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/jline.jar",
-                "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar",
-                "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/jansi.jar",
-                "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-xml_2.12.jar"
+                "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-library.jar",
+                "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar",
+                "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/jline.jar",
+                "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar",
+                "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/jansi.jar",
+                "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-xml_2.12.jar"
             ],
-            "analysis": "/Users/jonathon_herbert/code/typerighter/project/project/target/streams/compile/bloopAnalysisOut/_global/streams/inc_compile_2.12.zip",
+            "analysis": "/Users/sam_hession/Code/typerighter/project/project/target/streams/compile/bloopAnalysisOut/_global/streams/inc_compile_2.12.zip",
             "setup": {
                 "order": "mixed",
                 "addLibraryToBootClasspath": true,
@@ -193,7 +193,7 @@
             "config": {
                 "home": "/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/jre",
                 "options": [
-                    "-Duser.dir=/Users/jonathon_herbert/code/typerighter/project/project"
+                    "-Duser.dir=/Users/sam_hession/Code/typerighter/project/project"
                 ]
             },
             "mainClass": [
@@ -208,6 +208,10 @@
                     "version": "4.5.0",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "jna",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna/4.5.0/jna-4.5.0.jar"
+                        },
                         {
                             "name": "jna",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna/4.5.0/jna-4.5.0.jar"
@@ -227,7 +231,7 @@
                     "artifacts": [
                         {
                             "name": "jsr305",
-                            "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"
                         }
                     ]
                 },
@@ -237,6 +241,10 @@
                     "version": "4.5.0",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "jna-platform",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna-platform/4.5.0/jna-platform-4.5.0.jar"
+                        },
                         {
                             "name": "jna-platform",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/net/java/dev/jna/jna-platform/4.5.0/jna-platform-4.5.0.jar"
@@ -256,7 +264,7 @@
                     "artifacts": [
                         {
                             "name": "sbt-bloop",
-                            "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/ch/epfl/scala/sbt-bloop_2.12_1.0/1.4.3-23-550c6c0a/sbt-bloop-1.4.3-23-550c6c0a.jar"
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/ch/epfl/scala/sbt-bloop_2.12_1.0/1.4.3-23-550c6c0a/sbt-bloop-1.4.3-23-550c6c0a.jar"
                         }
                     ]
                 },
@@ -268,7 +276,7 @@
                     "artifacts": [
                         {
                             "name": "gson",
-                            "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/gson/gson/2.7/gson-2.7.jar"
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/code/gson/gson/2.7/gson-2.7.jar"
                         }
                     ]
                 },
@@ -278,6 +286,10 @@
                     "version": "1.0",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "test-interface",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-interface/1.0/test-interface-1.0.jar"
+                        },
                         {
                             "name": "test-interface",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-interface/1.0/test-interface-1.0.jar"
@@ -297,6 +309,10 @@
                     "artifacts": [
                         {
                             "name": "io_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/io_2.12/1.3.1/io_2.12-1.3.1.jar"
+                        },
+                        {
+                            "name": "io_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/io_2.12/1.3.1/io_2.12-1.3.1.jar"
                         },
                         {
@@ -312,6 +328,10 @@
                     "version": "0.4.0",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "ssl-config-core_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.4.0/ssl-config-core_2.12-0.4.0.jar"
+                        },
                         {
                             "name": "ssl-config-core_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/ssl-config-core_2.12/0.4.0/ssl-config-core_2.12-0.4.0.jar"
@@ -331,6 +351,10 @@
                     "artifacts": [
                         {
                             "name": "lenses_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/lenses/lenses_2.12/0.4.12/lenses_2.12-0.4.12.jar"
+                        },
+                        {
+                            "name": "lenses_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/lenses/lenses_2.12/0.4.12/lenses_2.12-0.4.12.jar"
                         },
                         {
@@ -346,6 +370,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "core-macros_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/core-macros_2.12/1.3.5/core-macros_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "core-macros_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/core-macros_2.12/1.3.5/core-macros_2.12-1.3.5.jar"
@@ -365,6 +393,10 @@
                     "artifacts": [
                         {
                             "name": "sbt",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbt/1.3.5/sbt-1.3.5.jar"
+                        },
+                        {
+                            "name": "sbt",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbt/1.3.5/sbt-1.3.5.jar"
                         },
                         {
@@ -380,6 +412,10 @@
                     "version": "2.5.6",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "caffeine",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/ben-manes/caffeine/caffeine/2.5.6/caffeine-2.5.6.jar"
+                        },
                         {
                             "name": "caffeine",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/ben-manes/caffeine/caffeine/2.5.6/caffeine-2.5.6.jar"
@@ -399,6 +435,10 @@
                     "artifacts": [
                         {
                             "name": "gigahorse-core_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-core_2.12/0.5.0/gigahorse-core_2.12-0.5.0.jar"
+                        },
+                        {
+                            "name": "gigahorse-core_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-core_2.12/0.5.0/gigahorse-core_2.12-0.5.0.jar"
                         },
                         {
@@ -414,6 +454,10 @@
                     "version": "3.7.0",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "protobuf-java",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar"
+                        },
                         {
                             "name": "protobuf-java",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar"
@@ -433,6 +477,10 @@
                     "artifacts": [
                         {
                             "name": "gigahorse-okhttp_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-okhttp_2.12/0.5.0/gigahorse-okhttp_2.12-0.5.0.jar"
+                        },
+                        {
+                            "name": "gigahorse-okhttp_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/gigahorse-okhttp_2.12/0.5.0/gigahorse-okhttp_2.12-0.5.0.jar"
                         },
                         {
@@ -448,6 +496,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "collections_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/collections_2.12/1.3.5/collections_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "collections_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/collections_2.12/1.3.5/collections_2.12-1.3.5.jar"
@@ -467,6 +519,10 @@
                     "artifacts": [
                         {
                             "name": "sjson-new-scalajson_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-scalajson_2.12/0.8.3/sjson-new-scalajson_2.12-0.8.3.jar"
+                        },
+                        {
+                            "name": "sjson-new-scalajson_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-scalajson_2.12/0.8.3/sjson-new-scalajson_2.12-0.8.3.jar"
                         },
                         {
@@ -482,6 +538,10 @@
                     "version": "1.3.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "util-relation_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-relation_2.12/1.3.3/util-relation_2.12-1.3.3.jar"
+                        },
                         {
                             "name": "util-relation_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-relation_2.12/1.3.3/util-relation_2.12-1.3.3.jar"
@@ -501,6 +561,10 @@
                     "artifacts": [
                         {
                             "name": "scala-xml_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.2.0/scala-xml_2.12-1.2.0.jar"
+                        },
+                        {
+                            "name": "scala-xml_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-xml_2.12/1.2.0/scala-xml_2.12-1.2.0.jar"
                         },
                         {
@@ -516,6 +580,10 @@
                     "version": "0.10.4",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "jawn-parser_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/spire-math/jawn-parser_2.12/0.10.4/jawn-parser_2.12-0.10.4.jar"
+                        },
                         {
                             "name": "jawn-parser_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/spire-math/jawn-parser_2.12/0.10.4/jawn-parser_2.12-0.10.4.jar"
@@ -535,6 +603,10 @@
                     "artifacts": [
                         {
                             "name": "tasks_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/tasks_2.12/1.3.5/tasks_2.12-1.3.5.jar"
+                        },
+                        {
+                            "name": "tasks_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/tasks_2.12/1.3.5/tasks_2.12-1.3.5.jar"
                         },
                         {
@@ -550,6 +622,10 @@
                     "version": "2.12.10",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "scala-compiler",
+                            "path": "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar"
+                        },
                         {
                             "name": "scala-compiler",
                             "path": "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar"
@@ -569,6 +645,10 @@
                     "artifacts": [
                         {
                             "name": "fastparse-utils_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse-utils_2.12/0.4.2/fastparse-utils_2.12-0.4.2.jar"
+                        },
+                        {
+                            "name": "fastparse-utils_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse-utils_2.12/0.4.2/fastparse-utils_2.12-0.4.2.jar"
                         },
                         {
@@ -584,6 +664,10 @@
                     "version": "3.4.2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "disruptor",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lmax/disruptor/3.4.2/disruptor-3.4.2.jar"
+                        },
                         {
                             "name": "disruptor",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lmax/disruptor/3.4.2/disruptor-3.4.2.jar"
@@ -603,6 +687,10 @@
                     "artifacts": [
                         {
                             "name": "zinc_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc_2.12/1.3.1/zinc_2.12-1.3.1.jar"
+                        },
+                        {
+                            "name": "zinc_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc_2.12/1.3.1/zinc_2.12-1.3.1.jar"
                         },
                         {
@@ -618,6 +706,10 @@
                     "version": "1.0.2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "reactive-streams",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2.jar"
+                        },
                         {
                             "name": "reactive-streams",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/reactivestreams/reactive-streams/1.0.2/reactive-streams-1.0.2.jar"
@@ -637,6 +729,10 @@
                     "artifacts": [
                         {
                             "name": "slf4j-api",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26.jar"
+                        },
+                        {
+                            "name": "slf4j-api",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.26/slf4j-api-1.7.26.jar"
                         },
                         {
@@ -652,6 +748,10 @@
                     "version": "2.1.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "file-tree-views",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/swoval/file-tree-views/2.1.3/file-tree-views-2.1.3.jar"
+                        },
                         {
                             "name": "file-tree-views",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/swoval/file-tree-views/2.1.3/file-tree-views-2.1.3.jar"
@@ -671,6 +771,10 @@
                     "artifacts": [
                         {
                             "name": "okhttp",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp/3.14.2/okhttp-3.14.2.jar"
+                        },
+                        {
+                            "name": "okhttp",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp/3.14.2/okhttp-3.14.2.jar"
                         },
                         {
@@ -686,6 +790,10 @@
                     "version": "0.1.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "sourcecode_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.12/0.1.3/sourcecode_2.12-0.1.3.jar"
+                        },
                         {
                             "name": "sourcecode_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/sourcecode_2.12/0.1.3/sourcecode_2.12-0.1.3.jar"
@@ -705,6 +813,10 @@
                     "artifacts": [
                         {
                             "name": "jsch",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/jcraft/jsch/0.1.54/jsch-0.1.54.jar"
+                        },
+                        {
+                            "name": "jsch",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/jcraft/jsch/0.1.54/jsch-0.1.54.jar"
                         },
                         {
@@ -720,6 +832,10 @@
                     "version": "1.3.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "util-scripted_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-scripted_2.12/1.3.3/util-scripted_2.12-1.3.3.jar"
+                        },
                         {
                             "name": "util-scripted_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-scripted_2.12/1.3.3/util-scripted_2.12-1.3.3.jar"
@@ -739,6 +855,10 @@
                     "artifacts": [
                         {
                             "name": "zinc-persist_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-persist_2.12/1.3.1/zinc-persist_2.12-1.3.1.jar"
+                        },
+                        {
+                            "name": "zinc-persist_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-persist_2.12/1.3.1/zinc-persist_2.12-1.3.1.jar"
                         },
                         {
@@ -754,6 +874,10 @@
                     "version": "1.3.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "util-cache_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-cache_2.12/1.3.3/util-cache_2.12-1.3.3.jar"
+                        },
                         {
                             "name": "util-cache_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-cache_2.12/1.3.3/util-cache_2.12-1.3.3.jar"
@@ -773,6 +897,10 @@
                     "artifacts": [
                         {
                             "name": "zinc-core_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-core_2.12/1.3.1/zinc-core_2.12-1.3.1.jar"
+                        },
+                        {
+                            "name": "zinc-core_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-core_2.12/1.3.1/zinc-core_2.12-1.3.1.jar"
                         },
                         {
@@ -788,6 +916,10 @@
                     "version": "2.11.2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "log4j-slf4j-impl",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl/2.11.2/log4j-slf4j-impl-2.11.2.jar"
+                        },
                         {
                             "name": "log4j-slf4j-impl",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl/2.11.2/log4j-slf4j-impl-2.11.2.jar"
@@ -807,6 +939,10 @@
                     "artifacts": [
                         {
                             "name": "jline",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/jline/jline/2.14.6/jline-2.14.6.jar"
+                        },
+                        {
+                            "name": "jline",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/jline/jline/2.14.6/jline-2.14.6.jar"
                         },
                         {
@@ -822,6 +958,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "scripted-sbt-redux_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-sbt-redux_2.12/1.3.5/scripted-sbt-redux_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "scripted-sbt-redux_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-sbt-redux_2.12/1.3.5/scripted-sbt-redux_2.12-1.3.5.jar"
@@ -841,6 +981,10 @@
                     "artifacts": [
                         {
                             "name": "scala-reflect",
+                            "path": "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar"
+                        },
+                        {
+                            "name": "scala-reflect",
                             "path": "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-reflect.jar"
                         },
                         {
@@ -856,6 +1000,10 @@
                     "version": "0.4.2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "fastparse_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse_2.12/0.4.2/fastparse_2.12-0.4.2.jar"
+                        },
                         {
                             "name": "fastparse_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/lihaoyi/fastparse_2.12/0.4.2/fastparse_2.12-0.4.2.jar"
@@ -875,6 +1023,10 @@
                     "artifacts": [
                         {
                             "name": "scala-parser-combinators_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.1.2/scala-parser-combinators_2.12-1.1.2.jar"
+                        },
+                        {
+                            "name": "scala-parser-combinators_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.12/1.1.2/scala-parser-combinators_2.12-1.1.2.jar"
                         },
                         {
@@ -890,6 +1042,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "testing_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/testing_2.12/1.3.5/testing_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "testing_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/testing_2.12/1.3.5/testing_2.12-1.3.5.jar"
@@ -909,6 +1065,10 @@
                     "artifacts": [
                         {
                             "name": "test-agent",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-agent/1.3.5/test-agent-1.3.5.jar"
+                        },
+                        {
+                            "name": "test-agent",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/test-agent/1.3.5/test-agent-1.3.5.jar"
                         },
                         {
@@ -924,6 +1084,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "main-settings_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main-settings_2.12/1.3.5/main-settings_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "main-settings_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main-settings_2.12/1.3.5/main-settings_2.12-1.3.5.jar"
@@ -943,6 +1107,10 @@
                     "artifacts": [
                         {
                             "name": "scalacache-caffeine_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-caffeine_2.12/0.20.0/scalacache-caffeine_2.12-0.20.0.jar"
+                        },
+                        {
+                            "name": "scalacache-caffeine_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-caffeine_2.12/0.20.0/scalacache-caffeine_2.12-0.20.0.jar"
                         },
                         {
@@ -958,6 +1126,10 @@
                     "version": "2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "ivy",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ivy/ivy/2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19/ivy-2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19.jar"
+                        },
                         {
                             "name": "ivy",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ivy/ivy/2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19/ivy-2.3.0-sbt-88d6a93d15f9b029958c1c289a8859e8dfe31a19.jar"
@@ -977,6 +1149,10 @@
                     "artifacts": [
                         {
                             "name": "zinc-compile-core_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile-core_2.12/1.3.1/zinc-compile-core_2.12-1.3.1.jar"
+                        },
+                        {
+                            "name": "zinc-compile-core_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile-core_2.12/1.3.1/zinc-compile-core_2.12-1.3.1.jar"
                         },
                         {
@@ -992,6 +1168,10 @@
                     "version": "2.0.0-RC5-2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "lm-coursier-shaded_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/io/get-coursier/lm-coursier-shaded_2.12/2.0.0-RC5-2/lm-coursier-shaded_2.12-2.0.0-RC5-2.jar"
+                        },
                         {
                             "name": "lm-coursier-shaded_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/io/get-coursier/lm-coursier-shaded_2.12/2.0.0-RC5-2/lm-coursier-shaded_2.12-2.0.0-RC5-2.jar"
@@ -1011,6 +1191,10 @@
                     "artifacts": [
                         {
                             "name": "compiler-interface",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-interface/1.3.1/compiler-interface-1.3.1.jar"
+                        },
+                        {
+                            "name": "compiler-interface",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-interface/1.3.1/compiler-interface-1.3.1.jar"
                         },
                         {
@@ -1026,6 +1210,10 @@
                     "version": "1.0.0",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "ipcsocket",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ipcsocket/ipcsocket/1.0.0/ipcsocket-1.0.0.jar"
+                        },
                         {
                             "name": "ipcsocket",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/ipcsocket/ipcsocket/1.0.0/ipcsocket-1.0.0.jar"
@@ -1045,6 +1233,10 @@
                     "artifacts": [
                         {
                             "name": "shaded-scalajson_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/shaded-scalajson_2.12/1.0.0-M4/shaded-scalajson_2.12-1.0.0-M4.jar"
+                        },
+                        {
+                            "name": "shaded-scalajson_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/shaded-scalajson_2.12/1.0.0-M4/shaded-scalajson_2.12-1.0.0-M4.jar"
                         },
                         {
@@ -1060,6 +1252,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "task-system_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/task-system_2.12/1.3.5/task-system_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "task-system_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/task-system_2.12/1.3.5/task-system_2.12-1.3.5.jar"
@@ -1079,6 +1275,10 @@
                     "artifacts": [
                         {
                             "name": "command_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/command_2.12/1.3.5/command_2.12-1.3.5.jar"
+                        },
+                        {
+                            "name": "command_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/command_2.12/1.3.5/command_2.12-1.3.5.jar"
                         },
                         {
@@ -1094,6 +1294,10 @@
                     "version": "1.1.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "launcher-interface",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/launcher-interface/1.1.3/launcher-interface-1.1.3.jar"
+                        },
                         {
                             "name": "launcher-interface",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/launcher-interface/1.1.3/launcher-interface-1.1.3.jar"
@@ -1113,6 +1317,10 @@
                     "artifacts": [
                         {
                             "name": "scalapb-runtime_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/scalapb/scalapb-runtime_2.12/0.6.0/scalapb-runtime_2.12-0.6.0.jar"
+                        },
+                        {
+                            "name": "scalapb-runtime_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/trueaccord/scalapb/scalapb-runtime_2.12/0.6.0/scalapb-runtime_2.12-0.6.0.jar"
                         },
                         {
@@ -1128,6 +1336,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "actions_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/actions_2.12/1.3.5/actions_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "actions_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/actions_2.12/1.3.5/actions_2.12-1.3.5.jar"
@@ -1147,6 +1359,10 @@
                     "artifacts": [
                         {
                             "name": "util-control_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-control_2.12/1.3.3/util-control_2.12-1.3.3.jar"
+                        },
+                        {
+                            "name": "util-control_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-control_2.12/1.3.3/util-control_2.12-1.3.3.jar"
                         },
                         {
@@ -1162,6 +1378,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "run_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/run_2.12/1.3.5/run_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "run_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/run_2.12/1.3.5/run_2.12-1.3.5.jar"
@@ -1181,6 +1401,10 @@
                     "artifacts": [
                         {
                             "name": "scalacache-core_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-core_2.12/0.20.0/scalacache-core_2.12-0.20.0.jar"
+                        },
+                        {
+                            "name": "scalacache-core_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/github/cb372/scalacache-core_2.12/0.20.0/scalacache-core_2.12-0.20.0.jar"
                         },
                         {
@@ -1196,6 +1420,10 @@
                     "version": "1.3.1",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "zinc-apiinfo_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-apiinfo_2.12/1.3.1/zinc-apiinfo_2.12-1.3.1.jar"
+                        },
                         {
                             "name": "zinc-apiinfo_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-apiinfo_2.12/1.3.1/zinc-apiinfo_2.12-1.3.1.jar"
@@ -1215,6 +1443,10 @@
                     "artifacts": [
                         {
                             "name": "protocol_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/protocol_2.12/1.3.5/protocol_2.12-1.3.5.jar"
+                        },
+                        {
+                            "name": "protocol_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/protocol_2.12/1.3.5/protocol_2.12-1.3.5.jar"
                         },
                         {
@@ -1230,6 +1462,10 @@
                     "version": "1.3.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "util-position_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-position_2.12/1.3.3/util-position_2.12-1.3.3.jar"
+                        },
                         {
                             "name": "util-position_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-position_2.12/1.3.3/util-position_2.12-1.3.3.jar"
@@ -1249,6 +1485,10 @@
                     "artifacts": [
                         {
                             "name": "sjson-new-core_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-core_2.12/0.8.3/sjson-new-core_2.12-0.8.3.jar"
+                        },
+                        {
+                            "name": "sjson-new-core_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-core_2.12/0.8.3/sjson-new-core_2.12-0.8.3.jar"
                         },
                         {
@@ -1264,6 +1504,10 @@
                     "version": "1.3.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "config",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.3/config-1.3.3.jar"
+                        },
                         {
                             "name": "config",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/typesafe/config/1.3.3/config-1.3.3.jar"
@@ -1283,6 +1527,10 @@
                     "artifacts": [
                         {
                             "name": "librarymanagement-core_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-core_2.12/1.3.1/librarymanagement-core_2.12-1.3.1.jar"
+                        },
+                        {
+                            "name": "librarymanagement-core_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-core_2.12/1.3.1/librarymanagement-core_2.12-1.3.1.jar"
                         },
                         {
@@ -1298,6 +1546,10 @@
                     "version": "1.3.5",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "zinc-lm-integration_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-lm-integration_2.12/1.3.5/zinc-lm-integration_2.12-1.3.5.jar"
+                        },
                         {
                             "name": "zinc-lm-integration_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-lm-integration_2.12/1.3.5/zinc-lm-integration_2.12-1.3.5.jar"
@@ -1317,6 +1569,10 @@
                     "artifacts": [
                         {
                             "name": "scripted-plugin_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-plugin_2.12/1.3.5/scripted-plugin_2.12-1.3.5.jar"
+                        },
+                        {
+                            "name": "scripted-plugin_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/scripted-plugin_2.12/1.3.5/scripted-plugin_2.12-1.3.5.jar"
                         },
                         {
@@ -1332,6 +1588,10 @@
                     "version": "0.5.0",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "sbinary_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbinary_2.12/0.5.0/sbinary_2.12-0.5.0.jar"
+                        },
                         {
                             "name": "sbinary_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/sbinary_2.12/0.5.0/sbinary_2.12-0.5.0.jar"
@@ -1351,6 +1611,10 @@
                     "artifacts": [
                         {
                             "name": "okhttp-urlconnection",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp-urlconnection/3.7.0/okhttp-urlconnection-3.7.0.jar"
+                        },
+                        {
+                            "name": "okhttp-urlconnection",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okhttp3/okhttp-urlconnection/3.7.0/okhttp-urlconnection-3.7.0.jar"
                         },
                         {
@@ -1366,6 +1630,10 @@
                     "version": "1.3.1",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "zinc-classpath_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classpath_2.12/1.3.1/zinc-classpath_2.12-1.3.1.jar"
+                        },
                         {
                             "name": "zinc-classpath_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classpath_2.12/1.3.1/zinc-classpath_2.12-1.3.1.jar"
@@ -1385,6 +1653,10 @@
                     "artifacts": [
                         {
                             "name": "main_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main_2.12/1.3.5/main_2.12-1.3.5.jar"
+                        },
+                        {
+                            "name": "main_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/main_2.12/1.3.5/main_2.12-1.3.5.jar"
                         },
                         {
@@ -1400,6 +1672,10 @@
                     "version": "2.11.2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "log4j-api",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.11.2/log4j-api-2.11.2.jar"
+                        },
                         {
                             "name": "log4j-api",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.11.2/log4j-api-2.11.2.jar"
@@ -1419,6 +1695,10 @@
                     "artifacts": [
                         {
                             "name": "compiler-bridge_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-bridge_2.12/1.3.1/compiler-bridge_2.12-1.3.1.jar"
+                        },
+                        {
+                            "name": "compiler-bridge_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/compiler-bridge_2.12/1.3.1/compiler-bridge_2.12-1.3.1.jar"
                         },
                         {
@@ -1434,6 +1714,10 @@
                     "version": "1.17.2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "okio",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okio/okio/1.17.2/okio-1.17.2.jar"
+                        },
                         {
                             "name": "okio",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/squareup/okio/okio/1.17.2/okio-1.17.2.jar"
@@ -1453,6 +1737,10 @@
                     "artifacts": [
                         {
                             "name": "util-interface",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-interface/1.3.3/util-interface-1.3.3.jar"
+                        },
+                        {
+                            "name": "util-interface",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-interface/1.3.3/util-interface-1.3.3.jar"
                         },
                         {
@@ -1468,6 +1756,10 @@
                     "version": "2.11.2",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "log4j-core",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.11.2/log4j-core-2.11.2.jar"
+                        },
                         {
                             "name": "log4j-core",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.11.2/log4j-core-2.11.2.jar"
@@ -1487,6 +1779,10 @@
                     "artifacts": [
                         {
                             "name": "util-logging_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-logging_2.12/1.3.3/util-logging_2.12-1.3.3.jar"
+                        },
+                        {
+                            "name": "util-logging_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-logging_2.12/1.3.3/util-logging_2.12-1.3.3.jar"
                         },
                         {
@@ -1502,6 +1798,10 @@
                     "version": "1.3.1",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "zinc-classfile_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classfile_2.12/1.3.1/zinc-classfile_2.12-1.3.1.jar"
+                        },
                         {
                             "name": "zinc-classfile_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-classfile_2.12/1.3.1/zinc-classfile_2.12-1.3.1.jar"
@@ -1521,6 +1821,10 @@
                     "artifacts": [
                         {
                             "name": "util-tracking_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-tracking_2.12/1.3.3/util-tracking_2.12-1.3.3.jar"
+                        },
+                        {
+                            "name": "util-tracking_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/util-tracking_2.12/1.3.3/util-tracking_2.12-1.3.3.jar"
                         },
                         {
@@ -1536,6 +1840,10 @@
                     "version": "0.8.3",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "sjson-new-murmurhash_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-murmurhash_2.12/0.8.3/sjson-new-murmurhash_2.12-0.8.3.jar"
+                        },
                         {
                             "name": "sjson-new-murmurhash_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/com/eed3si9n/sjson-new-murmurhash_2.12/0.8.3/sjson-new-murmurhash_2.12-0.8.3.jar"
@@ -1555,6 +1863,10 @@
                     "artifacts": [
                         {
                             "name": "logic_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/logic_2.12/1.3.5/logic_2.12-1.3.5.jar"
+                        },
+                        {
+                            "name": "logic_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/logic_2.12/1.3.5/logic_2.12-1.3.5.jar"
                         },
                         {
@@ -1570,6 +1882,10 @@
                     "version": "1.3.1",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "zinc-compile_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile_2.12/1.3.1/zinc-compile_2.12-1.3.1.jar"
+                        },
                         {
                             "name": "zinc-compile_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/zinc-compile_2.12/1.3.1/zinc-compile_2.12-1.3.1.jar"
@@ -1589,6 +1905,10 @@
                     "artifacts": [
                         {
                             "name": "scala-library",
+                            "path": "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-library.jar"
+                        },
+                        {
+                            "name": "scala-library",
                             "path": "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-library.jar"
                         },
                         {
@@ -1604,6 +1924,10 @@
                     "version": "0.1",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "template-resolver",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/template-resolver/0.1/template-resolver-0.1.jar"
+                        },
                         {
                             "name": "template-resolver",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/template-resolver/0.1/template-resolver-0.1.jar"
@@ -1623,6 +1947,10 @@
                     "artifacts": [
                         {
                             "name": "completion_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/completion_2.12/1.3.5/completion_2.12-1.3.5.jar"
+                        },
+                        {
+                            "name": "completion_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/completion_2.12/1.3.5/completion_2.12-1.3.5.jar"
                         },
                         {
@@ -1638,6 +1966,10 @@
                     "version": "1.3.1",
                     "configurations": "default",
                     "artifacts": [
+                        {
+                            "name": "librarymanagement-ivy_2.12",
+                            "path": "/Users/sam_hession/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-ivy_2.12/1.3.1/librarymanagement-ivy_2.12-1.3.1.jar"
+                        },
                         {
                             "name": "librarymanagement-ivy_2.12",
                             "path": "/Users/jonathon_herbert/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-sbt/librarymanagement-ivy_2.12/1.3.1/librarymanagement-ivy_2.12-1.3.1.jar"
@@ -1657,6 +1989,10 @@
                     "artifacts": [
                         {
                             "name": "scala-library",
+                            "path": "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-library.jar"
+                        },
+                        {
+                            "name": "scala-library",
                             "path": "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-library.jar"
                         },
                         {
@@ -1672,6 +2008,10 @@
                     "version": "2.12.10",
                     "configurations": "optional",
                     "artifacts": [
+                        {
+                            "name": "scala-compiler",
+                            "path": "/Users/sam_hession/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar"
+                        },
                         {
                             "name": "scala-compiler",
                             "path": "/Users/jonathon_herbert/.sbt/boot/scala-2.12.10/lib/scala-compiler.jar"

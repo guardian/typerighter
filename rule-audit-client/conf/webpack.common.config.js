@@ -17,7 +17,7 @@ module.exports = {
   output: {
     filename: "rule-audit-app.js",
     // We drop the final bundle into play's assets folder.
-    path: path.resolve(__dirname, '../../public/javascript'),
+    path: path.resolve(__dirname, '../../checker/public/javascript'),
   },
   module: {
     rules: [
