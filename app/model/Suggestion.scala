@@ -1,9 +1,6 @@
 package model
 
 import play.api.libs.json.{Json, Reads, Writes}
-import com.scalatsi.TypescriptType._
-import com.scalatsi.TSIType
-import com.scalatsi.TSType
 import com.scalatsi._
 import com.scalatsi.DefaultTSTypes._
 
@@ -29,7 +26,7 @@ object TextSuggestion {
     ) ++ Json.writes[TextSuggestion].writes(suggestion)
   }
 
-  implicit val toTS: TSIType[TextSuggestion] = TSType.fromCaseClass[TextSuggestion]
+  implicit val toTS = TSType.fromCaseClass[TextSuggestion]
 }
 
 case class TextSuggestion(text: String) extends Suggestion {

@@ -31,18 +31,11 @@ object BaseRule {
     case r: RegexRule => RegexRule.writes.writes(r)
     case r: LTRule => LTRule.writes.writes(r)
   }
-
-  implicit val tsRegex: TSType[Regex] = TSType.sameAs[Regex, String]
-  implicit val tsPattern: TSType[Pattern] = TSType.alias("Pattern", TSString)
-  implicit val tsBaseRule = TSType.fromSealed[BaseRule]
 }
 
 object RegexRule {
   implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
   implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
-
-  implicit val tsRegex: TSType[Regex] = TSType.sameAs[Regex, String]
-  implicit val toTS = TSType.fromCaseClass[RegexRule]
 }
 
 case class RegexRule(
@@ -130,7 +123,4 @@ object LTRule {
 
   implicit val writes: Writes[LTRule] = Json.writes[LTRule]
   implicit val reads: Reads[LTRule] = Json.reads[LTRule]
-
-  implicit val tsPattern: TSType[Pattern] = TSType.alias("Pattern", TSString)
-  implicit val tsLTRule: TSType[LTRule] = TSType.fromCaseClass[LTRule]
 }

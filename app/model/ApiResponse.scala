@@ -1,10 +1,8 @@
 package model
 
 import play.api.libs.json._
-import com.scalatsi._
-import com.scalatsi.DefaultTSTypes._
-import com.scalatsi.dsl._
-import com.scalatsi.TypescriptType.TSAny
+import com.scalatsi.TSType
+import com.scalatsi.TypescriptType
 
 /**
   * A 'status' field should included with each API response.
@@ -34,46 +32,40 @@ object ApiResponse {
   }
 }
 
-// /**
-//   * The Typerighter API response when all work is complete for the current document.
-//   *
-//   * Used for the streaming endpoint.
-//   */
-// case class ApiWorkComplete()
+/**
+  * The Typerighter API response when all work is complete for the current document.
+  *
+  * Used for the streaming endpoint.
+  */
+case class ApiWorkComplete()
 
-// object ApiWorkComplete {
-//   private val envelope = Map(
-//     "type" -> "VALIDATOR_WORK_COMPLETE",
-//     "status" -> ApiResponseStatus.OK
-//   )
+object ApiWorkComplete {
+  private val envelope = Map(
+    "type" -> "VALIDATOR_WORK_COMPLETE",
+    "status" -> ApiResponseStatus.OK
+  )
 
-//   implicit val writes = new Writes[ApiWorkComplete] {
-//     def writes(model: ApiWorkComplete) = Json.toJsObject(envelope)
-//   }
+  implicit val writes = new Writes[ApiWorkComplete] {
+    def writes(model: ApiWorkComplete) = Json.toJsObject(envelope)
+  }
+}
 
-//   // implicit val tsWrites =
-//   //   TSType.fromCaseClass[ApiWorkComplete] ++ envelope.asInstanceOf[Map[String, TypescriptType]].toSeq
-// }
+/**
+  * The Typerighter API response when an error has occurred.
+  */
+case class ApiError(message: String, id: Option[String] = None)
 
-// /**
-//   * The Typerighter API response when an error has occurred.
-//   */
-// case class ApiError(message: String, id: Option[String] = None)
+object ApiError {
+  private val envelope = Map(
+    "type" -> "VALIDATOR_ERROR",
+    "status" -> ApiResponseStatus.ERROR
+  )
 
-// object ApiError {
-//   private val envelope = Map(
-//     "type" -> "VALIDATOR_ERROR",
-//     "status" -> ApiResponseStatus.ERROR
-//   )
-
-//   implicit val writes = new Writes[ApiError] {
-//     def writes(response: ApiError) = Json.obj(
-//       "status" -> ApiResponseStatus.ERROR,
-//       "message" -> response.message
-//     ) ++ Json.toJsObject(envelope)
-//   }
-
-//   // implicit val tsWrites =
-//   //   TSType.fromCaseClass[ApiError] ++ envelope.asInstanceOf[Map[String, TypescriptType]].toSeq
-// }
+  implicit val writes = new Writes[ApiError] {
+    def writes(response: ApiError) = Json.obj(
+      "status" -> ApiResponseStatus.ERROR,
+      "message" -> response.message
+    ) ++ Json.toJsObject(envelope)
+  }
+}
 
