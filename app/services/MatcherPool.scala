@@ -241,9 +241,13 @@ class MatcherPool(
         .check(MatcherRequest(blocksWithSkippedRangesRemoved))
         .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
 
-      val taskName = s"MatcherPool.runMatchersForJob (type: ${matcher.getType}, categories: ${matcher.getCategories.map(_.name).mkString(", ")})"
+      val taskName = s"MatcherPool.runMatchersForJob"
+      val taskMarkers = Markers.appendEntries(Map(
+        "matcherType" -> matcher.getType,
+        "categories" -> matcher.getCategories.map(_.name).mkString(", ")
+      ).asJava)
       val onSlowLog = (durationMs: Long) => maybeCloudWatchClient.foreach(_.putMetric(Metrics.MatcherPoolJobDurationMs, durationMs.toInt))
-      Timer.timeAsync(taskName, slowLogThresholdMs = checkSlowLogDuration.toMillis, onSlowLog = onSlowLog) {
+      Timer.timeAsync(taskName, taskMarkers, checkSlowLogDuration.toMillis, onSlowLog) {
         futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       }
     }
