@@ -15,7 +15,7 @@ lazy val root = (project in file(".")).enablePlugins(
   ScalaTsiPlugin
 ).settings(
   // Generate interfaces for the Typescript API client library
-  typescriptGenerationImports := Seq("model.ModelTSTypes._", "model._"),
+  typescriptGenerationImports := Seq("model.TSTypes._", "model._"),
   typescriptOutputFile := baseDirectory.value / "packages/typerighter-client/src/types/api.ts",
   typescriptExports := Seq("ApiRequest", "ApiResponse")
 )

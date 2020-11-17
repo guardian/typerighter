@@ -11,10 +11,6 @@ import play.api.libs.json.Reads._
 import scala.util.matching.Regex
 import scala.collection.JavaConverters._
 
-import com.scalatsi._
-import com.scalatsi.TypescriptType._
-import com.scalatsi.DefaultTSTypes._
-
 /**
   * A rule to match text against.
   */
