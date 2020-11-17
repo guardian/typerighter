@@ -40,8 +40,10 @@ buildInfoKeys := {
   )
 }
 
-resolvers += "Spring IO" at "https://repo.spring.io/plugins-release/"
 resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms"
+// Used to resolve xgboost-predictor, which is no longer available
+// at spring.io without auth.
+resolvers += "komiya-atsushi Bintray" at "https://dl.bintray.com/komiya-atsushi/maven"
 
 val languageToolVersion = "4.3"
 val awsSdkVersion = "1.11.571"
@@ -72,7 +74,8 @@ libraryDependencies ++= Seq(
   "com.gu" %% "content-api-client-aws" % "0.5",
   "com.gu" %% "content-api-client-default" % capiClientVersion,
   "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
-  "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test
+  "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
+  "biz.k11i" % "xgboost-predictor" % "0.3.1"
 )
 
 libraryDependencies ++= Seq(
