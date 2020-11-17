@@ -15,6 +15,7 @@ val capiClientVersion = "16.0"
 val circeVersion = "0.12.3"
 
 val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+  packageName := "typerighter-checker",
   javaOptions in Universal ++= Seq(
     s"-Dpidfile.path=/dev/null",
     "-J-XX:MaxRAMFraction=2",
@@ -24,7 +25,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
     "-J-XX:+PrintGCDateStamps",
     s"-J-Dlogs.home=/var/log/${packageName.value}",
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
-    "-Dconfig.file=/etc/gu/typerighter.conf"
+    "-Dconfig.file=/etc/gu/typerighter-checker.conf"
   ),
   buildInfoPackage := "typerighter",
   buildInfoKeys := {
@@ -80,7 +81,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
 val root = (project in file(".")).dependsOn(checker).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
-  (packageBin in Debian in checker).value  -> s"${(name in checker).value}/${(name in checker).value}.deb",
+  (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "typerighter.cfn.yaml" -> "cloudformation/typerighter.cfn.yaml"
 )
