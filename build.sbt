@@ -11,12 +11,13 @@ lazy val root = (project in file(".")).enablePlugins(
   JDebPackaging,
   SystemdPlugin,
   GatlingPlugin,
-  BuildInfoPlugin
+  BuildInfoPlugin,
+  ScalaTsiPlugin
 ).settings(
   // Generate interfaces for the Typescript API client library
+  typescriptGenerationImports := Seq("model.ModelTSTypes._", "model._"),
   typescriptOutputFile := baseDirectory.value / "packages/typerighter-client/src/types/api.ts",
-  typescriptClassesToGenerateFor := Seq("ApiRequest", "ApiResponse"),
-  typescriptGenerationImports := Seq("model._")
+  typescriptExports := Seq("ApiRequest", "ApiResponse")
 )
 
 riffRaffArtifactResources := Seq(
