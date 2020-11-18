@@ -3,7 +3,7 @@ stacks:
 regions:
 - eu-west-1
 deployments:
-  typerighter:
+  typerighter-checker:
     type: autoscaling
     parameters:
       bucket: composer-dist
