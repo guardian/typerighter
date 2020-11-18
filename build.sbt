@@ -41,19 +41,16 @@ buildInfoKeys := {
 }
 
 resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms"
-// Used to resolve xgboost-predictor, which is no longer available
-// at spring.io without auth.
-resolvers += "komiya-atsushi Bintray" at "https://dl.bintray.com/komiya-atsushi/maven"
 
-val languageToolVersion = "4.3"
+val languageToolVersion = "5.1"
 val awsSdkVersion = "1.11.571"
-val capiModelsVersion = "15.8"
-val capiClientVersion = "16.0"
-val circeVersion = "0.12.3"
+val capiModelsVersion = "15.9.4"
+val capiClientVersion = "17.2"
+val circeVersion = "0.13.0"
 
 libraryDependencies ++= Seq(
   ws,
-  "com.gu" %% "simple-configuration-ssm" % "1.5.0",
+  "com.gu" %% "simple-configuration-ssm" % "1.5.2",
   "org.languagetool" % "languagetool-core" % languageToolVersion,
   "org.languagetool" % "language-en" % languageToolVersion,
   "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
@@ -66,16 +63,14 @@ libraryDependencies ++= Seq(
   "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
   "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
   "com.gu" % "kinesis-logback-appender" % "1.4.4",
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
   "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
   "org.webjars" % "bootstrap" % "4.3.1",
   "com.gu" %% "content-api-models-scala" % capiModelsVersion,
   "com.gu" %% "content-api-models-json" % capiModelsVersion,
-  "com.gu" %% "content-api-client-aws" % "0.5",
   "com.gu" %% "content-api-client-default" % capiClientVersion,
-  "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
-  "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
-  "biz.k11i" % "xgboost-predictor" % "0.3.1"
+  "com.gu" %% "pan-domain-auth-verification" % "1.0.4",
+  "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test
 )
 
 libraryDependencies ++= Seq(
@@ -84,7 +79,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser"
 ).map(_ % circeVersion)
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.13.3"
 
 scalacOptions := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
