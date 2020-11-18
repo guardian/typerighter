@@ -78,7 +78,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
   libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
 )
 
-val root = (project in file(".")).dependsOn(checker).enablePlugins(RiffRaffArtifact)
+val root = (project in file(".")).aggregate(checker).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
   (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",
