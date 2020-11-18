@@ -78,7 +78,39 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
   libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
 )
 
-val root = (project in file(".")).aggregate(checker).enablePlugins(RiffRaffArtifact)
+val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+  packageName := "typerighter-rule-manager",
+  javaOptions in Universal ++= Seq(
+    s"-Dpidfile.path=/dev/null",
+    "-J-XX:MaxRAMFraction=2",
+    "-J-XX:InitialRAMFraction=2",
+    "-J-XX:MaxMetaspaceSize=300m",
+    "-J-XX:+PrintGCDetails",
+    "-J-XX:+PrintGCDateStamps",
+    s"-J-Dlogs.home=/var/log/${packageName.value}",
+    s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
+    "-Dconfig.file=/etc/gu/typerighter-checker.conf"
+  ),
+  buildInfoPackage := "typerighter",
+  buildInfoKeys := {
+    lazy val buildInfo = BuildInfo(baseDirectory.value)
+    Seq[BuildInfoKey](
+      BuildInfoKey.constant("buildNumber", buildInfo.buildIdentifier),
+      // so this next one is constant to avoid it always recompiling on dev machines.
+      // we only really care about build time on teamcity, when a constant based on when
+      // it was loaded is just fine
+      BuildInfoKey.constant("buildTime", System.currentTimeMillis),
+      BuildInfoKey.constant("gitCommitId", buildInfo.revision)
+    )
+  },
+  libraryDependencies ++= Seq(
+    ws,
+    guice,
+    "net.logstash.logback" % "logstash-logback-encoder" % "6.0"
+  )
+)
+
+val root = (project in file(".")).aggregate(checker, ruleManager).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
   (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",
