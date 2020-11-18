@@ -25,7 +25,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
     "-J-XX:+PrintGCDateStamps",
     s"-J-Dlogs.home=/var/log/${packageName.value}",
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
-    "-Dconfig.file=/etc/gu/typerighter-checker.conf"
+    s"-Dconfig.file=/etc/gu/${packageName.value}.conf"
   ),
   buildInfoPackage := "typerighter",
   buildInfoKeys := {
@@ -89,7 +89,7 @@ val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, Bui
     "-J-XX:+PrintGCDateStamps",
     s"-J-Dlogs.home=/var/log/${packageName.value}",
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
-    "-Dconfig.file=/etc/gu/typerighter-checker.conf"
+    s"-Dconfig.file=/etc/gu/${packageName.value}.conf"
   ),
   buildInfoPackage := "typerighter",
   buildInfoKeys := {
@@ -114,6 +114,7 @@ val root = (project in file(".")).aggregate(checker, ruleManager).enablePlugins(
 
 riffRaffArtifactResources := Seq(
   (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",
+  (packageBin in Debian in ruleManager).value  -> s"${(packageName in ruleManager).value}/${(packageName in ruleManager).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "typerighter.cfn.yaml" -> "cloudformation/typerighter.cfn.yaml"
 )
