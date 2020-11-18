@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 class BaseRuleTest extends AsyncFlatSpec with Matchers {
   behavior of "RegexRule"
 
-  it should "transform suggestions if the regex in question is not case sensitive" in {
+  it should "transform suggestions if the regex in question is not case sensitive, preserving case when suggestions match case-insensitively" in {
     val rule = RegexRule(
       id = "test-rule",
       description = "test-description",
@@ -16,6 +16,20 @@ class BaseRuleTest extends AsyncFlatSpec with Matchers {
     )
 
     val ruleMatch = rule.toMatch(0, 8, TextBlock("id", "Medieval", 0, 8))
+
+    ruleMatch.suggestions shouldBe List(TextSuggestion("Medieval"))
+  }
+
+  it should "transform suggestions if the regex in question is not case sensitive, preserving case when suggestions do not match, but the first character matches case-insensitively, to work around sentence starts" in {
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = "(?i)\\bmedia?eval"r,
+      suggestions = List(TextSuggestion("medieval"))
+    )
+
+    val ruleMatch = rule.toMatch(0, 8, TextBlock("id", "Mediaval", 0, 8))
 
     ruleMatch.suggestions shouldBe List(TextSuggestion("Medieval"))
   }

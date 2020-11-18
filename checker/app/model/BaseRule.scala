@@ -76,11 +76,21 @@ case class RegexRule(
     * excepting case, preserve the original casing.
     */
   private def transformSuggestions(suggestions: List[TextSuggestion], matchedText: String): List[Suggestion] = if (isCaseInsensitive) {
-    suggestions.map { suggestion =>
-      println(suggestion, isCaseInsensitive, suggestion.text.toLowerCase() == matchedText.toLowerCase(), matchedText)
-      if (suggestion.text.toLowerCase() == matchedText.toLowerCase()) {
+    suggestions.map {
+      case suggestion if suggestion.text.toLowerCase() == matchedText.toLowerCase() => {
         suggestion.copy(text = matchedText)
-      } else suggestion
+      }
+      // A kludge to get around start-of-sentence casing. If the suggestion doesn't
+      // match the whole matchedText, but does match the first character, preserve that
+      // casing in the suggestion. This is to ensure that e.g. a case-insensitive suggestion
+      // to replace 'end of sentence. [Mediavel]' with 'medieval' does not incorrectly replace
+      // the uppercase 'M'.
+      //
+      // These sorts of rules are better off as dictionary matches, which we hope to add soon.
+      case suggestion if suggestion.text.charAt(0).toLower == matchedText.charAt(0).toLower => {
+        suggestion.copy(text = matchedText.charAt(0) + suggestion.text.slice(1, suggestion.text.length))
+      }
+      case suggestion => suggestion
     }
   } else suggestions
 }
