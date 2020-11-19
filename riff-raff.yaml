@@ -9,12 +9,6 @@ deployments:
       bucket: composer-dist
     dependencies:
     - cloudformation
-  typerighter-rule-manager:
-    type: autoscaling
-    parameters:
-      bucket: composer-dist
-    dependencies:
-    - cloudformation
   cloudformation:
     type: cloud-formation
     app: typerighter
