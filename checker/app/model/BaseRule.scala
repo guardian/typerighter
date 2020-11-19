@@ -53,6 +53,9 @@ case class RegexRule(
   def toMatch(start: Int, end: Int, block: TextBlock): RuleMatch = {
     val matchedText = block.text.substring(start, end)
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, start, end)
+    val transformedSuggestions = suggestions.map(preserveMatchCase(_, matchedText))
+    val transformedReplacement = replacement.map(replacement => preserveMatchCase(replacement.replaceAllIn(regex, matchedText), matchedText))
+
     RuleMatch(
       rule = this,
       fromPos = start + block.from,
@@ -62,8 +65,8 @@ case class RegexRule(
       matchedText = matchedText,
       message = description,
       shortMessage = Some(description),
-      suggestions = preserveMatchCase(suggestions, matchedText),
-      replacement = replacement.map(_.replaceAllIn(regex, matchedText)),
+      suggestions = transformedSuggestions,
+      replacement = transformedReplacement,
       markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
       matcherType = RegexMatcher.getType
@@ -74,24 +77,22 @@ case class RegexRule(
     * If the regex is case-insensitive, and the suggestion is identical
     * excepting case, preserve the original casing.
     */
-  private def preserveMatchCase(suggestions: List[TextSuggestion], matchedText: String): List[Suggestion] = if (isCaseInsensitive) {
-    suggestions.map {
-      case suggestion if suggestion.text.toLowerCase() == matchedText.toLowerCase() => {
-        suggestion.copy(text = matchedText)
-      }
-      // A kludge to get around start-of-sentence casing. If the suggestion doesn't
-      // match the whole matchedText, but does match the first character, preserve that
-      // casing in the suggestion. This is to ensure that e.g. a case-insensitive suggestion
-      // to replace 'end of sentence. [Mediavel]' with 'medieval' does not incorrectly replace
-      // the uppercase 'M'.
-      //
-      // These sorts of rules are better off as dictionary matches, which we hope to add soon.
-      case suggestion if suggestion.text.charAt(0).toLower == matchedText.charAt(0).toLower => {
-        suggestion.copy(text = matchedText.charAt(0) + suggestion.text.slice(1, suggestion.text.length))
-      }
-      case suggestion => suggestion
+  private def preserveMatchCase(suggestion: Suggestion, matchedText: String): Suggestion = suggestion match {
+    case suggestion if !isCaseInsensitive => suggestion
+    case TextSuggestion(text) if isCaseInsensitive && text.toLowerCase() == matchedText.toLowerCase() => {
+      TextSuggestion(matchedText)
     }
-  } else suggestions
+    // A kludge to get around start-of-sentence casing. If the suggestion doesn't
+    // match the whole matchedText, but does match the first character, preserve that
+    // casing in the suggestion. This is to ensure that e.g. a case-insensitive suggestion
+    // to replace 'end of sentence. [Mediavel]' with 'medieval' does not incorrectly replace
+    // the uppercase 'M'.
+    //
+    // These sorts of rules are better off as dictionary matches, which we hope to add soon.
+    case TextSuggestion(text) if isCaseInsensitive && text.charAt(0).toLower == matchedText.charAt(0).toLower => {
+      TextSuggestion(text = matchedText.charAt(0) + text.slice(1, text.length))
+    }
+  }
 }
 
 /**
