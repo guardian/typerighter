@@ -55,6 +55,7 @@ case class RegexRule(
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, start, end)
     val transformedSuggestions = suggestions.map(preserveMatchCase(_, matchedText))
     val transformedReplacement = replacement.map(replacement => preserveMatchCase(replacement.replaceAllIn(regex, matchedText), matchedText))
+    val markAsCorrect = transformedReplacement.map(_.text).getOrElse("") == block.text.substring(start, end)
 
     RuleMatch(
       rule = this,
@@ -67,7 +68,7 @@ case class RegexRule(
       shortMessage = Some(description),
       suggestions = transformedSuggestions,
       replacement = transformedReplacement,
-      markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
+      markAsCorrect = markAsCorrect,
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
       matcherType = RegexMatcher.getType
     )
