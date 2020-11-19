@@ -21,4 +21,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
   def index() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
   }
+
+  def healthcheck() = Action { implicit request: Request[AnyContent] =>
+    Ok("""{ "healthy" : "true" }""")
+  }
 }
