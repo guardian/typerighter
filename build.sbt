@@ -14,8 +14,7 @@ val capiModelsVersion = "15.8"
 val capiClientVersion = "16.0"
 val circeVersion = "0.12.3"
 
-val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
-  packageName := "typerighter-checker",
+val commonSettings = Seq(
   javaOptions in Universal ++= Seq(
     s"-Dpidfile.path=/dev/null",
     "-J-XX:MaxRAMFraction=2",
@@ -39,6 +38,14 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
+  libraryDependencies ++= Seq(
+    "net.logstash.logback" % "logstash-logback-encoder" % "6.0"
+  )
+)
+
+val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+  packageName := "typerighter-checker",
+  commonSettings,
   resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   // Used to resolve xgboost-predictor, which is no longer available
   // at spring.io without auth.
@@ -80,29 +87,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
 
 val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
   packageName := "typerighter-rule-manager",
-  javaOptions in Universal ++= Seq(
-    s"-Dpidfile.path=/dev/null",
-    "-J-XX:MaxRAMFraction=2",
-    "-J-XX:InitialRAMFraction=2",
-    "-J-XX:MaxMetaspaceSize=300m",
-    "-J-XX:+PrintGCDetails",
-    "-J-XX:+PrintGCDateStamps",
-    s"-J-Dlogs.home=/var/log/${packageName.value}",
-    s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
-    s"-Dconfig.file=/etc/gu/${packageName.value}.conf"
-  ),
-  buildInfoPackage := "typerighter",
-  buildInfoKeys := {
-    lazy val buildInfo = BuildInfo(baseDirectory.value)
-    Seq[BuildInfoKey](
-      BuildInfoKey.constant("buildNumber", buildInfo.buildIdentifier),
-      // so this next one is constant to avoid it always recompiling on dev machines.
-      // we only really care about build time on teamcity, when a constant based on when
-      // it was loaded is just fine
-      BuildInfoKey.constant("buildTime", System.currentTimeMillis),
-      BuildInfoKey.constant("gitCommitId", buildInfo.revision)
-    )
-  },
+  commonSettings,
   libraryDependencies ++= Seq(
     ws,
     guice,
