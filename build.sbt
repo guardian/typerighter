@@ -45,6 +45,7 @@ val commonSettings = Seq(
 
 val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
   packageName := "typerighter-checker",
+  PlayKeys.devSettings += "play.server.http.port" -> "9100",
   commonSettings,
   resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   // Used to resolve xgboost-predictor, which is no longer available
@@ -87,6 +88,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
 
 val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
   packageName := "typerighter-rule-manager",
+  PlayKeys.devSettings += "play.server.http.port" -> "9101",
   commonSettings,
   libraryDependencies ++= Seq(
     ws,

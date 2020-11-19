@@ -1,5 +1,8 @@
 name: api.typerighter
 mappings:
   - prefix: api.typerighter
-    port: 9000
+    port: 9100
+    path:
+  - prefix: typerighter
+    port: 9101
     path:
