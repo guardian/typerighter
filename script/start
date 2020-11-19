@@ -23,5 +23,5 @@ done
 if [[ "$IS_DEBUG" = true ]] ; then
   sbt -jvm-debug 5005 run
 else
-  sbt run
+  sbt "checker / run"
 fi
