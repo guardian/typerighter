@@ -62,7 +62,7 @@ case class RegexRule(
       matchedText = matchedText,
       message = description,
       shortMessage = Some(description),
-      suggestions = transformSuggestions(suggestions, matchedText),
+      suggestions = preserveMatchCase(suggestions, matchedText),
       replacement = replacement.map(_.replaceAllIn(regex, matchedText)),
       markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
@@ -71,11 +71,10 @@ case class RegexRule(
   }
 
   /**
-    *
     * If the regex is case-insensitive, and the suggestion is identical
     * excepting case, preserve the original casing.
     */
-  private def transformSuggestions(suggestions: List[TextSuggestion], matchedText: String): List[Suggestion] = if (isCaseInsensitive) {
+  private def preserveMatchCase(suggestions: List[TextSuggestion], matchedText: String): List[Suggestion] = if (isCaseInsensitive) {
     suggestions.map {
       case suggestion if suggestion.text.toLowerCase() == matchedText.toLowerCase() => {
         suggestion.copy(text = matchedText)
