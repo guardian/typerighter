@@ -1,14 +1,11 @@
 package matchers
 
-import java.util.regex.Pattern
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
-import scala.util.matching.Regex
-import model.{RegexRule, RuleMatch}
+import model.{RegexRule, RuleMatch, Category}
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion, RuleMatchHelpers}
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext
 
 object RegexMatcher extends MatcherCompanion {
   def getType() = "regex"
