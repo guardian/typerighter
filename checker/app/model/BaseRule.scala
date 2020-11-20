@@ -55,6 +55,7 @@ case class RegexRule(
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, start, end)
     val transformedSuggestions = suggestions.map(preserveMatchCase(_, matchedText))
     val transformedReplacement = replacement.map(replacement => preserveMatchCase(replacement.replaceAllIn(regex, matchedText), matchedText))
+    val markAsCorrect = transformedReplacement.map(_.text).getOrElse("") == block.text.substring(start, end)
 
     RuleMatch(
       rule = this,
@@ -67,7 +68,7 @@ case class RegexRule(
       shortMessage = Some(description),
       suggestions = transformedSuggestions,
       replacement = transformedReplacement,
-      markAsCorrect = replacement.map(_.text).getOrElse("") == block.text.substring(start, end),
+      markAsCorrect = markAsCorrect,
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
       matcherType = RegexMatcher.getType
     )
@@ -78,7 +79,6 @@ case class RegexRule(
     * excepting case, preserve the original casing.
     */
   private def preserveMatchCase(suggestion: Suggestion, matchedText: String): Suggestion = suggestion match {
-    case suggestion if !isCaseInsensitive => suggestion
     case TextSuggestion(text) if isCaseInsensitive && text.toLowerCase() == matchedText.toLowerCase() => {
       TextSuggestion(matchedText)
     }
@@ -92,6 +92,7 @@ case class RegexRule(
     case TextSuggestion(text) if isCaseInsensitive && text.charAt(0).toLower == matchedText.charAt(0).toLower => {
       TextSuggestion(text = matchedText.charAt(0) + text.slice(1, text.length))
     }
+    case suggestion => suggestion
   }
 }
 

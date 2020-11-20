@@ -22,6 +22,22 @@ class BaseRuleTest extends AsyncFlatSpec with Matchers {
     ruleMatch.suggestions shouldBe List(TextSuggestion("Medieval"))
   }
 
+  it should "transform suggestions if the regex in question is not case sensitive, correctly reporting when suggestions and the matchedText match" in {
+    val suggestion = TextSuggestion("medieval")
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = "(?i)\\bmedia?eval"r,
+      suggestions = List(suggestion),
+      replacement = Some(suggestion)
+    )
+
+    val ruleMatch = rule.toMatch(0, 8, TextBlock("id", "Medieval", 0, 8))
+
+    ruleMatch.markAsCorrect shouldBe true
+  }
+
   it should "transform suggestions if the regex in question is not case sensitive, preserving case when suggestions do not match, but the first character matches case-insensitively, to work around sentence starts" in {
     val suggestion = TextSuggestion("medieval")
     val rule = RegexRule(
@@ -52,5 +68,21 @@ class BaseRuleTest extends AsyncFlatSpec with Matchers {
     val ruleMatch = rule.toMatch(0, 7, TextBlock("id", "Medieval", 0, 8))
 
     ruleMatch.suggestions shouldBe List(TextSuggestion("medieval"))
+  }
+
+  it should "handle replacement failures gracefully" in {
+    val suggestion = TextSuggestion("Man Booker")
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = "(?i)\b(Man)? ?Booker prize"r,
+      suggestions = List(suggestion),
+      replacement = Some(suggestion)
+    )
+
+    val ruleMatch = rule.toMatch(0, 11, TextBlock("id", " Man Booker prize", 0, 18))
+
+    ruleMatch.replacement shouldBe Some(TextSuggestion(" Man Booker"))
   }
 }
