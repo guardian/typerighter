@@ -14,8 +14,7 @@ val capiModelsVersion = "15.8"
 val capiClientVersion = "16.0"
 val circeVersion = "0.12.3"
 
-val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
-  packageName := "typerighter-checker",
+val commonSettings = Seq(
   javaOptions in Universal ++= Seq(
     s"-Dpidfile.path=/dev/null",
     "-J-XX:MaxRAMFraction=2",
@@ -25,7 +24,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
     "-J-XX:+PrintGCDateStamps",
     s"-J-Dlogs.home=/var/log/${packageName.value}",
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
-    "-Dconfig.file=/etc/gu/typerighter-checker.conf"
+    s"-Dconfig.file=/etc/gu/${packageName.value}.conf"
   ),
   buildInfoPackage := "typerighter",
   buildInfoKeys := {
@@ -39,6 +38,15 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
+  libraryDependencies ++= Seq(
+    "net.logstash.logback" % "logstash-logback-encoder" % "6.0"
+  )
+)
+
+val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+  packageName := "typerighter-checker",
+  PlayKeys.devSettings += "play.server.http.port" -> "9100",
+  commonSettings,
   resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   // Used to resolve xgboost-predictor, which is no longer available
   // at spring.io without auth.
@@ -78,10 +86,22 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
   libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
 )
 
-val root = (project in file(".")).aggregate(checker).enablePlugins(RiffRaffArtifact)
+val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+  packageName := "typerighter-rule-manager",
+  PlayKeys.devSettings += "play.server.http.port" -> "9101",
+  commonSettings,
+  libraryDependencies ++= Seq(
+    ws,
+    guice,
+    "net.logstash.logback" % "logstash-logback-encoder" % "6.0"
+  )
+)
+
+val root = (project in file(".")).aggregate(checker, ruleManager).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
   (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",
+  (packageBin in Debian in ruleManager).value  -> s"${(packageName in ruleManager).value}/${(packageName in ruleManager).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "typerighter.cfn.yaml" -> "cloudformation/typerighter.cfn.yaml"
 )
