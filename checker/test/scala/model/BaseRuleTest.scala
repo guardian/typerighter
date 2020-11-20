@@ -69,4 +69,20 @@ class BaseRuleTest extends AsyncFlatSpec with Matchers {
 
     ruleMatch.suggestions shouldBe List(TextSuggestion("medieval"))
   }
+
+  it should "handle replacement failures gracefully" in {
+    val suggestion = TextSuggestion("Man Booker")
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = "(?i)\b(Man)? ?Booker prize"r,
+      suggestions = List(suggestion),
+      replacement = Some(suggestion)
+    )
+
+    val ruleMatch = rule.toMatch(0, 11, TextBlock("id", " Man Booker prize", 0, 18))
+
+    ruleMatch.replacement shouldBe Some(TextSuggestion(" Man Booker"))
+  }
 }

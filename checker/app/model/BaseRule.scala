@@ -79,7 +79,6 @@ case class RegexRule(
     * excepting case, preserve the original casing.
     */
   private def preserveMatchCase(suggestion: Suggestion, matchedText: String): Suggestion = suggestion match {
-    case suggestion if !isCaseInsensitive => suggestion
     case TextSuggestion(text) if isCaseInsensitive && text.toLowerCase() == matchedText.toLowerCase() => {
       TextSuggestion(matchedText)
     }
@@ -93,6 +92,7 @@ case class RegexRule(
     case TextSuggestion(text) if isCaseInsensitive && text.charAt(0).toLower == matchedText.charAt(0).toLower => {
       TextSuggestion(text = matchedText.charAt(0) + text.slice(1, text.length))
     }
+    case suggestion => suggestion
   }
 }
 
