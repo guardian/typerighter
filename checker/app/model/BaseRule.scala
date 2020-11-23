@@ -52,11 +52,12 @@ case class RegexRule(
   def toMatch(start: Int, end: Int, block: TextBlock, isStartOfSentence: Boolean = false): RuleMatch = {
     val matchedText = block.text.substring(start, end)
     val transformedReplacement = replacement.map { r =>
-      val replacementWithSubstitions = r.replaceAllIn(regex, matchedText)
-      maybePreserveMatchCase(isStartOfSentence, replacementWithSubstitions, matchedText)
+      r
+        .replaceAllIn(regex, matchedText)
+        .maybePreserveMatchCase(isStartOfSentence, matchedText)
     }
-
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, start, end)
+
     RuleMatch(
       rule = this,
       fromPos = start + block.from,
@@ -72,25 +73,6 @@ case class RegexRule(
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
       matcherType = RegexMatcher.getType
     )
-  }
-
-  /**
-    * If the first character of the suggestion is identical to the first character
-    * of the matched text case, preserve the original casing. Used when our match covers
-    * the start of a sentence to ensure we don't accidentally lowercase sentence starts.
-    */
-  private def maybePreserveMatchCase(isStartOfSentence: Boolean, suggestion: Suggestion, matchedText: String): Suggestion = suggestion match {
-    // A kludge to get around start-of-sentence casing. If the suggestion doesn't
-    // match the whole matchedText, but does match the first character, preserve that
-    // casing in the suggestion. This is to ensure that e.g. a case-insensitive suggestion
-    // to replace e.g. 'end of sentence. [Mediavel]' with 'medieval' does not incorrectly replace
-    // the uppercase 'M'.
-    //
-    // These sorts of rules are better off as dictionary matches, which we hope to add soon.
-    case TextSuggestion(text) if isStartOfSentence => {
-      TextSuggestion(text = matchedText.charAt(0).toUpper + text.slice(1, text.length))
-    }
-    case suggestion => suggestion
   }
 }
 
