@@ -7,6 +7,8 @@ import com.softwaremill.diffx.scalatest.DiffMatcher._
 
 import services.MatcherRequest
 import utils.Text
+import scala.util.matching.Regex
+import scala.concurrent.Future
 
 class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   def createRules(textsToMatch: List[String]) = {
@@ -43,6 +45,19 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     markAsCorrect = markAsCorrect
   )
 
+  def checkTextWithRegex(regex: Regex, replacement: String, text: String): Future[List[RuleMatch]] = {
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = regex,
+      replacement = Some(TextSuggestion(replacement))
+    )
+
+    val validator = new RegexMatcher(List(rule))
+
+    validator.check(MatcherRequest(getBlocks(text)))
+  }
 
   "check" should "report single matches in short text" in {
     val sampleText = "example text is here"
@@ -205,6 +220,53 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       val expectedReplacement = Some("nine-month-long")
       val expectedMatch = getMatch("nine month long", 2, 17, "A ", " sabbatical", rule, expectedReplacement)
       matches(0) should matchTo(expectedMatch)
+    }
+  }
+
+  behavior of "capitalisations"
+
+  it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – preserve current case" in {
+    val eventuallyMatches = checkTextWithRegex(
+      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      "cafe",
+      "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val firstMatch = matches(0)
+      firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
+      firstMatch.markAsCorrect shouldBe true
+    }
+  }
+
+  it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – cap up sentence start" in {
+    val eventuallyMatches = checkTextWithRegex(
+      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      "cafe",
+      "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val firstMatch = matches(0)
+      firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
+      firstMatch.markAsCorrect shouldBe false
+    }
+  }
+
+  it should "should not apply capitalisations when the match does not include the start of the word" in {
+    val eventuallyMatches = checkTextWithRegex(
+      "(?i)af(e|é|è|ë|ê)"r,
+      "afe",
+      "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val firstMatch = matches(0)
+      firstMatch.replacement shouldBe Some(TextSuggestion("afe"))
+      firstMatch.markAsCorrect shouldBe true
     }
   }
 }
