@@ -54,7 +54,7 @@ case class RegexRule(
     val transformedReplacement = replacement.map { r =>
       r
         .replaceAllIn(regex, matchedText)
-        .maybePreserveMatchCase(isStartOfSentence)
+        .ensureCorrectCase(isStartOfSentence)
     }
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, start, end)
 

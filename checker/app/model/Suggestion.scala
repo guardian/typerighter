@@ -15,18 +15,9 @@ sealed trait Suggestion {
   val text: String
 
   /**
-    * If the first character of the suggestion is identical to the first character
-    * of the matched text case, preserve the original casing. Used when our match covers
-    * the start of a sentence to ensure we don't accidentally lowercase sentence starts.
+    * If our suggestion is at the start of a sentence, cap up the first letter.
     */
-  def maybePreserveMatchCase(isStartOfSentence: Boolean): Suggestion = this match {
-    // A kludge to get around start-of-sentence casing. If the suggestion doesn't
-    // match the whole matchedText, but does match the first character, preserve that
-    // casing in the suggestion. This is to ensure that e.g. a case-insensitive suggestion
-    // to replace e.g. 'end of sentence. [Mediavel]' with 'medieval' does not incorrectly replace
-    // the uppercase 'M'.
-    //
-    // These sorts of rules are better off as dictionary matches, which we hope to add soon.
+  def ensureCorrectCase(isStartOfSentence: Boolean): Suggestion = this match {
     case TextSuggestion(text) if isStartOfSentence => {
       TextSuggestion(text = text.charAt(0).toUpper + text.slice(1, text.length))
     }
