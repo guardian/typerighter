@@ -27,7 +27,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   def getBlocks(text: String) = List(TextBlock("text-block-id", text, 0, text.length))
 
-  def getMatch(text: String, fromPos: Int, toPos: Int, before: String, after: String, rule: RegexRule = exampleRule, replacement: Option[String] = None) = RuleMatch(
+  def getMatch(text: String, fromPos: Int, toPos: Int, before: String, after: String, rule: RegexRule = exampleRule, replacement: Option[String] = None, markAsCorrect: Boolean = false) = RuleMatch(
     rule = rule,
     fromPos = fromPos,
     toPos = toPos,
@@ -39,7 +39,8 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     suggestions = rule.suggestions,
     replacement = replacement.map(TextSuggestion(_)),
     matchContext = Text.getMatchTextSnippet(before, text, after),
-    matcherType = RegexMatcher.getType()
+    matcherType = RegexMatcher.getType(),
+    markAsCorrect = markAsCorrect
   )
 
 
@@ -138,6 +139,50 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       val expectedReplacement = Some("teapot")
       val expectedMatch = getMatch("tea pot", 13, 20, "I'm a little ", "", rule, expectedReplacement)
       matches(0) should matchTo(expectedMatch)
+      matches(0).markAsCorrect shouldBe false
+    }
+  }
+
+  "check" should "apply substitutions when computing `markAsCorrect`" in {
+    val rule = RegexRule(
+      id = s"example-rule",
+      category = Category("new-category", "New Category"),
+      description = s"Example rule",
+      replacement = Some(TextSuggestion("tea$1")),
+      regex = "\\btea-? ?(shop|bag|leaf|leaves|pot)".r
+    )
+
+    val validator = new RegexMatcher(List(rule))
+    val eventuallyMatches = validator.check(
+      MatcherRequest(getBlocks("I'm a little teapot"))
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val expectedReplacement = Some("teapot")
+      val expectedMatch = getMatch("teapot", 13, 19, "I'm a little ", "", rule, expectedReplacement, markAsCorrect = true)
+      matches(0) should matchTo(expectedMatch)
+    }
+  }
+
+  "check" should "apply substitutions when computing `markAsCorrect` - real world case" in {
+    val rule = RegexRule(
+      id = s"example-rule",
+      category = Category("new-category", "New Category"),
+      description = s"Example rule",
+      replacement = Some(TextSuggestion("Booker prize")),
+      regex = "(?i)\\b(Man)? ?Booker prize".r
+    )
+
+    val validator = new RegexMatcher(List(rule))
+    val eventuallyMatches = validator.check(
+      MatcherRequest(getBlocks("Somebody has won the Booker prize for their first novel"))
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      matches(0).replacement shouldBe Some(TextSuggestion(" Booker prize"))
+      matches(0).markAsCorrect shouldBe true
     }
   }
 
