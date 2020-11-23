@@ -83,14 +83,13 @@ case class RegexRule(
     // A kludge to get around start-of-sentence casing. If the suggestion doesn't
     // match the whole matchedText, but does match the first character, preserve that
     // casing in the suggestion. This is to ensure that e.g. a case-insensitive suggestion
-    // to replace 'end of sentence. [Mediavel]' with 'medieval' does not incorrectly replace
+    // to replace e.g. 'end of sentence. [Mediavel]' with 'medieval' does not incorrectly replace
     // the uppercase 'M'.
     //
     // These sorts of rules are better off as dictionary matches, which we hope to add soon.
-    case TextSuggestion(text)
-      if isStartOfSentence && text.charAt(0).toLower == matchedText.charAt(0).toLower => {
-        TextSuggestion(text = matchedText.charAt(0) + text.slice(1, text.length))
-      }
+    case TextSuggestion(text) if isStartOfSentence => {
+      TextSuggestion(text = matchedText.charAt(0).toUpper + text.slice(1, text.length))
+    }
     case suggestion => suggestion
   }
 }
