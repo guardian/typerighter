@@ -207,4 +207,26 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       matches(0) should matchTo(expectedMatch)
     }
   }
+
+   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down" in {
+      val rule = RegexRule(
+        id = "test-rule",
+        description = "test-description",
+        category = Category("test-category", "Test Category"),
+        regex = "(?i)\\bcaf(e|é|è|ë|ê)"r,
+        replacement = Some(TextSuggestion("cafe"))
+      )
+
+      val validator = new RegexMatcher(List(rule))
+      val eventuallyMatches = validator.check(
+        MatcherRequest(getBlocks("Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"))
+      )
+
+      eventuallyMatches.map { matches =>
+        matches.size shouldBe 1
+        val firstMatch = matches(0)
+        firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
+        firstMatch.markAsCorrect shouldBe true
+      }
+   }
 }
