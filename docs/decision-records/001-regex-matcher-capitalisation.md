@@ -1,4 +1,4 @@
-# Regex matcher capitalisation
+# Checker: handling capitalisation in the regex matcher at sentence starts
 
 ## Context
 

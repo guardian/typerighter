@@ -208,47 +208,71 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – preserve current case" in {
-      val rule = RegexRule(
-        id = "test-rule",
-        description = "test-description",
-        category = Category("test-category", "Test Category"),
-        regex = "(?i)\\bcaf(e|é|è|ë|ê)"r,
-        replacement = Some(TextSuggestion("cafe"))
-      )
+  behavior of "capitalisations"
 
-      val validator = new RegexMatcher(List(rule))
-      val eventuallyMatches = validator.check(
-        MatcherRequest(getBlocks("Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"))
-      )
+  it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – preserve current case" in {
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      replacement = Some(TextSuggestion("cafe"))
+    )
 
-      eventuallyMatches.map { matches =>
-        matches.size shouldBe 1
-        val firstMatch = matches(0)
-        firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
-        firstMatch.markAsCorrect shouldBe true
-      }
-   }
+    val validator = new RegexMatcher(List(rule))
+    val eventuallyMatches = validator.check(
+      MatcherRequest(getBlocks("Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"))
+    )
 
-   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – cap up sentence start" in {
-      val rule = RegexRule(
-        id = "test-rule",
-        description = "test-description",
-        category = Category("test-category", "Test Category"),
-        regex = "(?i)\\bcaf(e|é|è|ë|ê)"r,
-        replacement = Some(TextSuggestion("cafe"))
-      )
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val firstMatch = matches(0)
+      firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
+      firstMatch.markAsCorrect shouldBe true
+    }
+  }
 
-      val validator = new RegexMatcher(List(rule))
-      val eventuallyMatches = validator.check(
-        MatcherRequest(getBlocks("Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"))
-      )
+  it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – cap up sentence start" in {
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      replacement = Some(TextSuggestion("cafe"))
+    )
 
-      eventuallyMatches.map { matches =>
-        matches.size shouldBe 1
-        val firstMatch = matches(0)
-        firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
-        firstMatch.markAsCorrect shouldBe false
-      }
-   }
+    val validator = new RegexMatcher(List(rule))
+    val eventuallyMatches = validator.check(
+      MatcherRequest(getBlocks("Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"))
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val firstMatch = matches(0)
+      firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
+      firstMatch.markAsCorrect shouldBe false
+    }
+  }
+
+  it should "should not apply capitalisations when the match does not include the start of the word" in {
+    val rule = RegexRule(
+      id = "test-rule",
+      description = "test-description",
+      category = Category("test-category", "Test Category"),
+      regex = "(?i)af(e|é|è|ë|ê)"r,
+      replacement = Some(TextSuggestion("afe"))
+    )
+
+    val validator = new RegexMatcher(List(rule))
+    val eventuallyMatches = validator.check(
+      MatcherRequest(getBlocks("Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"))
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val firstMatch = matches(0)
+      firstMatch.replacement shouldBe Some(TextSuggestion("afe"))
+      firstMatch.markAsCorrect shouldBe true
+    }
+  }
 }

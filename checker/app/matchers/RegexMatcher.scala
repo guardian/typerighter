@@ -50,12 +50,9 @@ class RegexMatcher(rules: List[RegexRule]) extends Matcher {
     }
   }
 
-  private def doesMatchCoverSentenceStart(sentenceStarts: List[WordInSentence], range: TextRange) = {
+  private def doesMatchCoverSentenceStart(sentenceStarts: List[WordInSentence], range: TextRange): Boolean = {
     sentenceStarts.exists(sentenceStart =>
-      sentenceStart.range.getIntersection(range) match {
-        case Some(_) => true
-        case _ => false
-      }
+      sentenceStart.range.from == range.from
     )
   }
 }
