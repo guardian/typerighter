@@ -16,7 +16,7 @@ Typerighter requires a rule management system to serve rule owners (RO) (those m
 
 -   Adding feedback to rules based on match performance (RU)
 
-See the [trello board](https://trello.com/b/PlsiUqYq/typerighter) for a comprehensive list.
+See the [user stories doc](../user-stories/001-rule-management-service.md) for a comprehensive list.
 
 ## Positions
 ------------
