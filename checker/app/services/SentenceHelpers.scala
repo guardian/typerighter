@@ -16,7 +16,6 @@ case class WordInSentence(sentence: String, word: String, range: TextRange)
   * A service to extract proper names from documents.
   */
 class SentenceHelpers() {
-  println("new sentence annotator")
   val props: Properties = new Properties()
   props.put("annotators", "tokenize, ssplit")
   val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
