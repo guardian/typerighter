@@ -75,7 +75,10 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
     "com.gu" %% "content-api-client-default" % capiClientVersion,
     "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
     "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
-    "biz.k11i" % "xgboost-predictor" % "0.3.1"
+    "biz.k11i" % "xgboost-predictor" % "0.3.1",
+    "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
+    "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
+    "edu.stanford.nlp" % "stanford-parser" % "3.4",
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",

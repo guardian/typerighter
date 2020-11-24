@@ -49,10 +49,15 @@ case class RegexRule(
     regex: Regex
 ) extends BaseRule {
 
-  def toMatch(start: Int, end: Int, block: TextBlock): RuleMatch = {
+  def toMatch(start: Int, end: Int, block: TextBlock, isStartOfSentence: Boolean = false): RuleMatch = {
     val matchedText = block.text.substring(start, end)
-    val transformedReplacement = replacement.map(_.replaceAllIn(regex, matchedText))
+    val transformedReplacement = replacement.map { r =>
+      r
+        .replaceAllIn(regex, matchedText)
+        .ensureCorrectCase(isStartOfSentence)
+    }
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, start, end)
+
     RuleMatch(
       rule = this,
       fromPos = start + block.from,
