@@ -3,6 +3,7 @@ package model
 import scala.collection.JavaConverters._
 import net.logstash.logback.marker.Markers
 import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.Writes
 
 case class Check(
   documentId: Option[String],
@@ -21,4 +22,5 @@ case class Check(
 
 object Check {
   implicit val reads: Reads[Check] = Json.reads[Check]
+  implicit val writes: Writes[Check] = Json.writes[Check]
 }

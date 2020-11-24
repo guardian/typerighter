@@ -4,22 +4,37 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
+import play.api.libs.json.Json
+import java.util.UUID
+import model.Check
+import model.TextBlock
 
 class CheckPermutationsSimulation extends Simulation {
-  val httpConf = http.baseUrl("http://localhost:9000")
+  val httpConf = http
+    .baseUrl("http://localhost:9100")
     .contentTypeHeader("application/json")
 
-  val scn = scenario("CheckPermutationsSimulation")
-    .exec(http("checkRequest")
-    .post("/check").body(StringBody(_ =>
-      s"""{
-         |\"text\": \"$getRandomArticle\",
-         |\"id\": \"${java.util.UUID.randomUUID.toString}\"
-         |}""".stripMargin)))
+  val request = http("checkRequest")
+    .post("/check")
+    .body(StringBody(_ => {
+      val articleText = getRandomArticle
+      val check = Check(
+        Some("documentId"),
+        UUID.randomUUID.toString(),
+        None,
+        List(TextBlock("blockId", articleText, 0, articleText.size))
+      )
+      Json.toJson(check).toString
+    }))
 
-  setUp(
-    scn.inject(atOnceUsers(100))
-  ).protocols(httpConf)
+  val scn = scenario("CheckPermutationsSimulation")
+    .exec(request)
+
+  val populatedScenario = scn.inject(
+    atOnceUsers(2)
+  )
+
+  setUp(populatedScenario).protocols(httpConf)
 
   val articleFragments = List("Michel Barnier has warned that the move led by Labour MP Yvette Cooper to block the prime minister from delivering a no-deal Brexit is doomed to fail unless a majority for an alternative agreement is found",
     "The EU’s chief negotiator, in a speech in Brussels, said the “default” for the UK was still crashing out if MPs could not coalesce around a new vision of its future outside the bloc",
