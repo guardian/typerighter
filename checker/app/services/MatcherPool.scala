@@ -68,7 +68,7 @@ class MatcherPool(
   val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
   val futures: Futures,
   val checkSlowLogDuration: FiniteDuration = 5 seconds,
-  val checkTimeoutDuration: FiniteDuration = 10 seconds,
+  val checkTimeoutDuration: FiniteDuration = 30 seconds,
   val maybeCloudWatchClient: Option[CloudWatchClient] = None
 )(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
   type JobProgressMap = Map[String, Int]
