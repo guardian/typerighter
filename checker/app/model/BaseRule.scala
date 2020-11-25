@@ -173,3 +173,18 @@ object LTRule {
   implicit val writes: Writes[LTRule] = Json.writes[LTRule]
   implicit val reads: Reads[LTRule] = Json.reads[LTRule]
 }
+
+object NameRule {
+  implicit val writes: Writes[NameRule] = Json.writes[NameRule]
+  implicit val reads: Reads[NameRule] = Json.reads[NameRule]
+}
+
+case class NameRule(
+    id: String,
+    name: String,
+    category: Category,
+    description: String
+) extends BaseRule {
+  val replacement = None
+  val suggestions: List[Suggestion] = List.empty
+}
