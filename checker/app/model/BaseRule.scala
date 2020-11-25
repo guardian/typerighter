@@ -181,6 +181,11 @@ object NameRule {
 
 sealed trait Pronoun {
   val id: String
+
+  val singularSubject: String
+  val singularObject: String
+  var possessivePronoun: String
+  var possessiveAdjective: String
 }
 
 object Pronoun {
@@ -193,17 +198,43 @@ object Pronoun {
   }
 }
 
+// he, him, his
 case object HE_HIS extends Pronoun {
   val id = "HE_HIS"
+
+  val singularSubject = "he"
+  val singularObject = "him"
+  var possessivePronoun = "his"
+  var possessiveAdjective = "his"
 }
+
+// she, her, hers
 case object SHE_HERS extends Pronoun {
   val id = "SHE_HERS"
+
+  val singularSubject = "she"
+  val singularObject = "her"
+  var possessivePronoun = "her"
+  var possessiveAdjective = "hers"
 }
+
+// they, them, their, theirs
 case object THEY_THEM extends Pronoun {
   val id = "THEY_THEM"
+
+  val singularSubject = "they"
+  val singularObject = "them"
+  var possessivePronoun = "their"
+  var possessiveAdjective = "theirs"
 }
+
 case object UNKNOWN extends Pronoun {
   val id = "UNKNOWN"
+
+  val singularSubject = "unknown"
+  val singularObject = "unknown"
+  var possessivePronoun = "unknown"
+  var possessiveAdjective = "unknown"
 }
 
 case class NameRule(
@@ -216,4 +247,5 @@ case class NameRule(
 ) extends BaseRule {
   val replacement = None
   val suggestions: List[Suggestion] = List.empty
+  val fullName: String = firstName + " " + lastName
 }
