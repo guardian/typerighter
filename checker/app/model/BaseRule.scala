@@ -179,9 +179,38 @@ object NameRule {
   implicit val reads: Reads[NameRule] = Json.reads[NameRule]
 }
 
+sealed trait Pronoun {
+  val id: String
+}
+
+object Pronoun {
+  implicit val writes: Writes[Pronoun] = (pronoun: Pronoun) => JsString(pronoun.id)
+  implicit val reads: Reads[Pronoun] = (JsPath).read[String].map {
+    case "HE_HIS" => HE_HIS
+    case "SHE_HERS" => SHE_HERS
+    case "THEY_THEM" => THEY_THEM
+    case _ => UNKNOWN
+  }
+}
+
+case object HE_HIS extends Pronoun {
+  val id = "HE_HIS"
+}
+case object SHE_HERS extends Pronoun {
+  val id = "SHE_HERS"
+}
+case object THEY_THEM extends Pronoun {
+  val id = "THEY_THEM"
+}
+case object UNKNOWN extends Pronoun {
+  val id = "UNKNOWN"
+}
+
 case class NameRule(
     id: String,
-    name: String,
+    firstName: String,
+    lastName: String,
+    pronoun: Pronoun,
     category: Category,
     description: String
 ) extends BaseRule {
