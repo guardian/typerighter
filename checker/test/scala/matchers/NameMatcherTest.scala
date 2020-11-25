@@ -31,9 +31,10 @@ class NameMatcherTest extends AsyncFlatSpec with Matchers {
   it should "run a check against an invalid block and correctly match against invalid pronouns" in {
     val samSmithRule = NameRule("SAM_SMITH_SINGER", "Sam", "Smith", THEY_THEM, exampleCategory, "Sam Smith is a singer")
     val nameMatcher = new NameMatcher(List.empty)
-    val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectSentence))
+    val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectArticle))
+    val matches2 = nameMatcher.check(MatcherRequest(incorrectSentence))
 
-    eventuallyMatches.map { matches =>
+    matches2.map { matches =>
       matches.size shouldBe(1)
     }
   }
