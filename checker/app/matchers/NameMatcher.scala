@@ -125,7 +125,7 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
           "",
           "",
           m.text,
-          s"Name ${rule.fullName} uses ${rule.pronoun}. ${m.text} ($incorrectPronoun) found instead.",
+          s"${rule.fullName} uses the pronouns ${rule.pronoun}. ${m.text} ($incorrectPronoun) found instead.",
           replacement = replacement,
           matchContext = "",
           matcherType = NameMatcher.getType()

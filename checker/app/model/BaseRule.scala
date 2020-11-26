@@ -255,6 +255,8 @@ case object HE_HIS extends Pronoun {
       case _       => PronounType.Unknown
     }
   }
+
+  override def toString: String = "he/him/his"
 }
 
 // she, her, hers
@@ -274,6 +276,8 @@ case object SHE_HERS extends Pronoun {
       case _       => PronounType.Unknown
     }
   }
+
+  override def toString: String = "she/her/hers"
 }
 
 // they, them, their, theirs
@@ -294,6 +298,8 @@ case object THEY_THEM extends Pronoun {
       case _        => PronounType.Unknown
     }
   }
+
+  override def toString: String = "they/them/their/theirs"
 }
 
 case object UNKNOWN extends Pronoun {
@@ -307,6 +313,8 @@ case object UNKNOWN extends Pronoun {
   def getPronounType(text: String, pronounGroup: PronounGroup): PronounType = PronounType.Unknown
 
   override def getValueByPronounType(pronounType: PronounType): Option[String] = None
+
+  override def toString: String = "unknown"
 }
 
 case class NameRule(
