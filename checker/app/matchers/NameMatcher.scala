@@ -2,7 +2,7 @@ package matchers
 
 import java.util.Properties
 
-import model.{NameRule, Pronoun, RuleMatch, TextRange, TextSuggestion}
+import model.{NameRule, Pronoun, PronounGroup, RuleMatch, TextRange, TextSuggestion}
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion, RuleMatchHelpers}
 
@@ -15,6 +15,7 @@ import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation
 import edu.stanford.nlp.util.CoreMap
+import model.PronounGroup.{PronounGroup, Unknown}
 
 import scala.collection.JavaConverters._
 
@@ -112,7 +113,7 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
       mentions.filter(m => m.pronomial && !checkPronounIsCorrect(m, rule.pronoun)).map(m => {
 
         val incorrectPronoun = Pronoun.getPronounFromString(m.text)
-        val pronounType = incorrectPronoun.getPronounType(m.text.toLowerCase())
+        val pronounType = incorrectPronoun.getPronounType(m.text.toLowerCase(), m.pronounGroup)
         val suggestedValue = rule.pronoun.getValueByPronounType(pronounType)
 
         val replacement = suggestedValue.map(TextSuggestion(_))
@@ -139,7 +140,16 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
   }
 
   def checkPronounIsCorrect(mention: NameMatcherCorefMention, pronoun: Pronoun): Boolean = {
-    pronoun.stringMatchesPronoun(mention.text)
+    println(s"\t\tText: ${mention.text} Pronoun: ${pronoun}")
+    val correct = pronoun.stringMatchesPronoun(mention.text)
+
+    if (correct) {
+      println("\t\tpronoun is correct")
+    } else {
+      println("\t\tpronoun is not correct")
+    }
+
+    correct
   }
 
   override def toString: String = {
@@ -151,6 +161,8 @@ class NameMatcherCorefMention(mention: CorefChain.CorefMention)(sentences: List[
   val text: String = mention.mentionSpan
   val pronomial: Boolean = mention.mentionType == MentionType.PRONOMINAL
   val (textRange, tags) = getTokenData
+  val pronounGroup = getPronounGroup
+
 
   private def getTokenData: (Option[TextRange], Option[List[String]]) = {
     val sentence = sentences(mention.sentNum - 1)
@@ -159,7 +171,21 @@ class NameMatcherCorefMention(mention: CorefChain.CorefMention)(sentences: List[
 
     mentionTokens match {
       case Nil => (None, None)
-      case mentionTokens => (Some(TextRange(mentionTokens.head.beginPosition(), mentionTokens.last.endPosition())), Some(mentionTokens.map(_.tag)))
+      case mentionTokens => (Some(TextRange(mentionTokens.head.beginPosition() + 1, mentionTokens.last.endPosition() + 1)), Some(mentionTokens.map(_.tag)))
+    }
+  }
+
+  private def getPronounGroup: PronounGroup = {
+    val pronounTags = tags.getOrElse(List.empty).filter(t => List("PRP", "PRP$").contains(t))
+
+    if (pronounTags.length != 1) {
+      PronounGroup.Unknown
+    } else if (pronounTags.head == "PRP") {
+      PronounGroup.Personal
+    } else if (pronounTags.head == "PRP$") {
+      PronounGroup.Possessive
+    } else {
+      PronounGroup.Unknown
     }
   }
 

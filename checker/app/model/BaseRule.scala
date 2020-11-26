@@ -14,6 +14,7 @@ import scala.util.matching.Regex
 import scala.collection.JavaConverters._
 import utils.Text
 import matchers.RegexMatcher
+import model.PronounGroup.PronounGroup
 import model.PronounType.PronounType
 
 /**
@@ -182,6 +183,10 @@ object PronounType extends Enumeration {
   type PronounType = Value
   val SingularSubject, SingularObject, PossessivePronoun, PossessiveAdjective, Unknown = Value
 }
+object PronounGroup extends Enumeration {
+  type PronounGroup = Value
+  val Personal, Possessive, Unknown = Value
+}
 
 sealed trait Pronoun {
   val id: String
@@ -192,20 +197,13 @@ sealed trait Pronoun {
   val possessiveAdjective: String
 
   def stringMatchesPronoun(text: String): Boolean = {
-    println(s"\t\tText: ${text} Pronoun: ${this}")
     val t = text.toLowerCase()
 
-    if (t == this.singularObject || t == this.singularSubject || t == this.possessiveAdjective || t == this.possessivePronoun) {
-      println("\t\tpronoun is correct")
-      true
-    } else {
-      println("\t\tpronoun is not correct")
-      false
-    }
+    (t == this.singularObject || t == this.singularSubject || t == this.possessiveAdjective || t == this.possessivePronoun)
   }
 
   // TODO: Pass the tags into here and use to determine between her and her
-  def getPronounType(text: String): PronounType
+  def getPronounType(text: String, pronounGroup: PronounGroup): PronounType
 
   def getValueByPronounType(pronounType: PronounType): Option[String] = {
     pronounType match {
@@ -225,11 +223,6 @@ object Pronoun {
     case "SHE_HERS" => SHE_HERS
     case "THEY_THEM" => THEY_THEM
     case _ => UNKNOWN
-  }
-
-  def getPronounTypeFromString(text: String): PronounType = {
-    val pronoun = this.getPronounFromString(text)
-    pronoun.getPronounType(text)
   }
 
   def getPronounFromString(text: String): Pronoun = {
@@ -254,7 +247,7 @@ case object HE_HIS extends Pronoun {
   val possessivePronoun = "his"
   val possessiveAdjective = "his"
 
-  def getPronounType(text: String): PronounType = {
+  def getPronounType(text: String, pronounGroup: PronounGroup): PronounType = {
     text match {
       case "he"   => PronounType.SingularSubject
       case "him"   => PronounType.SingularObject
@@ -273,10 +266,10 @@ case object SHE_HERS extends Pronoun {
   val possessivePronoun = "her"
   val possessiveAdjective = "hers"
 
-  def getPronounType(text: String): PronounType = {
+  def getPronounType(text: String, pronounGroup: PronounGroup): PronounType = {
     text match {
       case "she"   => PronounType.SingularSubject
-      case "her"   => PronounType.Unknown
+      case "her"   => if (pronounGroup == PronounGroup.Possessive) PronounType.PossessivePronoun else PronounType.SingularObject
       case "hers"  => PronounType.PossessiveAdjective
       case _       => PronounType.Unknown
     }
@@ -292,7 +285,7 @@ case object THEY_THEM extends Pronoun {
   val possessivePronoun = "their"
   val possessiveAdjective = "theirs"
 
-  def getPronounType(text: String): PronounType = {
+  def getPronounType(text: String, pronounGroup: PronounGroup): PronounType = {
     text match {
       case "they"   => PronounType.SingularSubject
       case "them"   => PronounType.SingularObject
@@ -311,7 +304,7 @@ case object UNKNOWN extends Pronoun {
   val possessivePronoun = "unknown"
   val possessiveAdjective = "unknown"
 
-  def getPronounType(text: String): PronounType = PronounType.Unknown
+  def getPronounType(text: String, pronounGroup: PronounGroup): PronounType = PronounType.Unknown
 
   override def getValueByPronounType(pronounType: PronounType): Option[String] = None
 }
