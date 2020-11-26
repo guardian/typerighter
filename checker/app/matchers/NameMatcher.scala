@@ -18,7 +18,6 @@ import edu.stanford.nlp.util.CoreMap
 
 import scala.collection.JavaConverters._
 
-
 object NameMatcher extends MatcherCompanion {
   def getType() = "name"
 }
@@ -43,6 +42,7 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
 
   override def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     val results = request.blocks.foldLeft(List.empty[RuleMatch])((accBlock, block) => {
+      println(s"\n${block.text}")
       val doc = new Annotation(block.text)
       pipeline.annotate(doc)
 
@@ -90,12 +90,12 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
 
   val subject: String = chain.getRepresentativeMention.mentionSpan
 
-  // Get all mentions in the chain along with their position in the block and whether they are pronounial
+  // Get all mentions in the chain along with their position in the block and whether they are pronomial
   val mentions: Seq[NameMatcherCorefMention] = chain.getMentionsInTextualOrder.asScala.toList.map { mention =>
     new NameMatcherCorefMention(mention)(sentences)
   }
 
-  val chainContainsPronouns: Boolean = mentions.exists(mention => mention.pronounial)
+  val chainContainsPronouns: Boolean = mentions.exists(mention => mention.pronomial)
 
   def check(rule:NameRule): List[RuleMatch] = {
     println(s"\t\tRule: ${rule.fullName}")
@@ -106,38 +106,42 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
       List.empty[RuleMatch]
     } else {
       println(s"\t\tChain refers to name. Checking pronouns.")
-      val matches: List[RuleMatch] = List.empty[RuleMatch]
 
-      mentions.filter(m => m.pronounial).foreach(m => {
-        checkPronounIsCorrect(m, rule.pronoun)
-      })
+      val defaultTextRange = TextRange(0,0)
 
-      matches
+      mentions.filter(m => m.pronomial && !checkPronounIsCorrect(m, rule.pronoun)).map(m => {
+        RuleMatch(
+          rule,
+          m.textRange.getOrElse(defaultTextRange).from,
+          m.textRange.getOrElse(defaultTextRange).to,
+          "",
+          "",
+          m.text,
+          s"Name ${rule.fullName} uses ${rule.pronoun}. ${m.text} found instead.",
+          matchContext = "",
+          matcherType = NameMatcher.getType()
+        )
+      }).toList
     }
   }
 
+  // TODO: It might not be enough just to check the subject as some chains can have multiple references to the name
   def checkChainRefersToName(rule: NameRule): Boolean = {
-    if (subject == rule.firstName || subject == rule.lastName || subject == rule.fullName) {
-      true
-    } else {
-      false
-    }
+    rule.nameListForChecking.contains(subject)
   }
 
   def checkPronounIsCorrect(mention: NameMatcherCorefMention, pronoun: Pronoun): Boolean = {
-    println(s"Text: ${mention.text} Pronoun: ${pronoun}")
-    mention
-    true
+    pronoun.stringMatchesPronoun(mention.text)
   }
 
   override def toString: String = {
-    s"\tID: $id\n\tSubject: $subject\n\tMentions: $mentions\n\tContains Pronouns: $chainContainsPronouns\n"
+    s"\n\tID: $id\n\tSubject: $subject\n\tMentions: $mentions\n\tContains Pronouns: $chainContainsPronouns\n"
   }
 }
 
 class NameMatcherCorefMention(mention: CorefChain.CorefMention)(sentences: List[CoreMap]) {
   val text: String = mention.mentionSpan
-  val pronounial: Boolean = mention.mentionType == MentionType.PRONOMINAL
+  val pronomial: Boolean = mention.mentionType == MentionType.PRONOMINAL
   val (textRange, tags) = getTokenData
 
   private def getTokenData: (Option[TextRange], Option[List[String]]) = {
@@ -152,6 +156,6 @@ class NameMatcherCorefMention(mention: CorefChain.CorefMention)(sentences: List[
   }
 
   override def toString: String = {
-    s"${mention.toString} - Pronounial: $pronounial - Tags: $tags"
+    s"${mention.toString} - Pronomial: $pronomial - Tags: $tags"
   }
 }

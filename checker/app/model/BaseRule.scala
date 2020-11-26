@@ -184,8 +184,21 @@ sealed trait Pronoun {
 
   val singularSubject: String
   val singularObject: String
-  var possessivePronoun: String
-  var possessiveAdjective: String
+  val possessivePronoun: String
+  val possessiveAdjective: String
+
+  def stringMatchesPronoun(text: String): Boolean = {
+    println(s"\t\tText: ${text} Pronoun: ${this}")
+    val t = text.toLowerCase()
+
+    if (t == this.singularObject || t == this.singularSubject || t == this.possessiveAdjective || t == this.possessivePronoun) {
+      println("\t\tpronoun is correct")
+      true
+    } else {
+      println("\t\tpronoun is not correct")
+      false
+    }
+  }
 }
 
 object Pronoun {
@@ -204,8 +217,8 @@ case object HE_HIS extends Pronoun {
 
   val singularSubject = "he"
   val singularObject = "him"
-  var possessivePronoun = "his"
-  var possessiveAdjective = "his"
+  val possessivePronoun = "his"
+  val possessiveAdjective = "his"
 }
 
 // she, her, hers
@@ -214,8 +227,8 @@ case object SHE_HERS extends Pronoun {
 
   val singularSubject = "she"
   val singularObject = "her"
-  var possessivePronoun = "her"
-  var possessiveAdjective = "hers"
+  val possessivePronoun = "her"
+  val possessiveAdjective = "hers"
 }
 
 // they, them, their, theirs
@@ -224,8 +237,8 @@ case object THEY_THEM extends Pronoun {
 
   val singularSubject = "they"
   val singularObject = "them"
-  var possessivePronoun = "their"
-  var possessiveAdjective = "theirs"
+  val possessivePronoun = "their"
+  val possessiveAdjective = "theirs"
 }
 
 case object UNKNOWN extends Pronoun {
@@ -233,8 +246,8 @@ case object UNKNOWN extends Pronoun {
 
   val singularSubject = "unknown"
   val singularObject = "unknown"
-  var possessivePronoun = "unknown"
-  var possessiveAdjective = "unknown"
+  val possessivePronoun = "unknown"
+  val possessiveAdjective = "unknown"
 }
 
 case class NameRule(
@@ -248,4 +261,28 @@ case class NameRule(
   val replacement = None
   val suggestions: List[Suggestion] = List.empty
   val fullName: String = firstName + " " + lastName
+
+  val nameListForChecking: List[String] = getNameListForChecking()
+
+  // TODO: This could probably be done more intelligently, maybe with a regex?
+  private def getNameListForChecking(): List[String] = {
+    List(
+      firstName,
+      lastName,
+      fullName,
+      addPossessiveApostrophe(firstName),
+      addPossessiveApostrophe(lastName),
+      addPossessiveApostrophe(fullName),
+    )
+  }
+
+  // TODO: The space added here is a hack to cope with the fact that mention in the chain has a space in between the
+  //       name and 's
+  private def addPossessiveApostrophe(name: String): String = {
+    if (name.endsWith("s")) {
+      s"$name '"
+    } else {
+      s"$name 's"
+    }
+  }
 }
