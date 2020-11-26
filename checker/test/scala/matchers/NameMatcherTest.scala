@@ -50,7 +50,7 @@ class NameMatcherTest extends AsyncFlatSpec with Matchers {
 
      val m = matches.head
      m.matchedText shouldBe("He")
-     m.replacement shouldBe(Option(TextSuggestion("they")))
+     m.replacement shouldBe(Option(TextSuggestion("They")))
    }
  }
 
@@ -84,7 +84,7 @@ class NameMatcherTest extends AsyncFlatSpec with Matchers {
 
      val m = matches.head
      m.matchedText shouldBe("Her")
-     m.replacement shouldBe(Option(TextSuggestion("his")))
+     m.replacement shouldBe(Option(TextSuggestion("His")))
    }
  }
 

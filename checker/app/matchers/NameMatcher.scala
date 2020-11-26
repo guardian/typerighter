@@ -71,7 +71,6 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
             val matchesToAdd = nameCheckerChain.check(rule).map {
               case ruleMatch if doesMatchCoverSentenceStart(sentenceStarts, TextRange(ruleMatch.fromPos - 1, ruleMatch.toPos - 1)) =>
                 println(ruleMatch, "cover sentence start", sentenceStarts)
-
                 ruleMatch.copy(replacement = ruleMatch.replacement.map {
                   case ts: TextSuggestion => ts.ensureCorrectCase(true)
                   case s => s
