@@ -69,7 +69,7 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
           val matches = rules.foldLeft(List.empty[RuleMatch])((accMatches, rule) => {
 
             val matchesToAdd = nameCheckerChain.check(rule).map {
-              case ruleMatch if doesMatchCoverSentenceStart(sentenceStarts, TextRange(ruleMatch.fromPos - 1, ruleMatch.toPos - 1)) =>
+              case ruleMatch if doesMatchCoverSentenceStart(sentenceStarts, TextRange(ruleMatch.fromPos, ruleMatch.toPos)) =>
                 println(ruleMatch, "cover sentence start", sentenceStarts)
                 ruleMatch.copy(replacement = ruleMatch.replacement.map {
                   case ts: TextSuggestion => ts.ensureCorrectCase(true)
@@ -79,7 +79,12 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
                 println(ruleMatch, "does not cover", sentenceStarts)
                 ruleMatch
               }
-            }
+            }.map { ruleMatch =>
+                ruleMatch.copy(
+                  fromPos = ruleMatch.fromPos + block.from,
+                  toPos = ruleMatch.toPos + block.from
+                ),
+              }
             RuleMatchHelpers.removeOverlappingRules(accMatches, matchesToAdd) ++ matchesToAdd
           })
 
@@ -195,7 +200,7 @@ class NameMatcherCorefMention(mention: CorefChain.CorefMention)(sentences: List[
 
     mentionTokens match {
       case Nil => (None, None)
-      case mentionTokens => (Some(TextRange(mentionTokens.head.beginPosition() + 1, mentionTokens.last.endPosition() + 1)), Some(mentionTokens.map(_.tag)))
+      case mentionTokens => (Some(TextRange(mentionTokens.head.beginPosition(), mentionTokens.last.endPosition())), Some(mentionTokens.map(_.tag)))
     }
   }
 

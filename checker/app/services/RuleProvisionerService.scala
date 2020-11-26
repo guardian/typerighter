@@ -50,7 +50,10 @@ class RuleProvisionerService(
       }
     }
 
-    val nameRules = List(NameRule("SAM_SMITH_SINGER", "Sam", "Smith", THEY_THEM, Category("example-category", "Example category"), "Sam Smith is a singer"))
+    val nameRules = List(
+      NameRule("SAM_SMITH_SINGER", "Sam", "Smith", THEY_THEM, Category("example-category", "Example category"), "Sam Smith is a singer"),
+      NameRule("JANE_DOE_SINGER", "Jane", "Doe", THEY_THEM, Category("example-category", "Example category"), "Jane Doe is another important name")
+    )
     val nameMatcher = new NameMatcher(nameRules)
     matcherPool.addMatcher(nameMatcher)
 
