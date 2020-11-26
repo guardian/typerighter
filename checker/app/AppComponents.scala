@@ -8,7 +8,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PublicSettings
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{ApiController, AuditController, CapiProxyController, HomeController, RulesController}
-import matchers.RegexMatcher
+import matchers.{LanguageToolFactory, NameMatcher, RegexMatcher}
+import model.{Category, NameRule, THEY_THEM}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
@@ -21,7 +22,6 @@ import router.Routes
 import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
 import utils.Loggable
-import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 
 
@@ -72,6 +72,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
   val defaultFutures = new DefaultFutures(actorSystem)
   val matcherPool = new MatcherPool(futures = defaultFutures, maybeCloudWatchClient = Some(cloudWatchClient))(matcherPoolDispatcher, materializer)
+  matcherPool.addMatcher(new NameMatcher(List(NameRule("SAM_SMITH_SINGER", "Sam", "Smith", THEY_THEM, Category("example-category", "Example category"), "Sam Smith is a singer"))))
 
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)
