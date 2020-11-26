@@ -18,6 +18,8 @@ import edu.stanford.nlp.util.CoreMap
 import model.PronounGroup.{PronounGroup, Unknown}
 
 import scala.collection.JavaConverters._
+import services.SentenceHelpers
+import services.WordInSentence
 
 object NameMatcher extends MatcherCompanion {
   def getType() = "name"
@@ -35,6 +37,7 @@ object NameMatcher extends MatcherCompanion {
   *   Provide a match with correct descriptions etc.
   */
 class NameMatcher(rules: List[NameRule]) extends Matcher {
+  val sentenceHelper = new SentenceHelpers()
   val props = new Properties();
   props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref");
   val pipeline = new StanfordCoreNLP(props);
@@ -42,8 +45,11 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
   def getType() = NameMatcher.getType
 
   override def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val results = request.blocks.foldLeft(List.empty[RuleMatch])((accBlock, block) => {
-      println(s"\n${block.text}")
+    val blocksAndSentenceStarts = request.blocks.map { block =>
+      (block, sentenceHelper.getFirstWordsInSentences(block.text))
+    }
+    val results = blocksAndSentenceStarts.foldLeft(List.empty[RuleMatch]) {
+      case (accBlock, (block, sentenceStarts)) =>
       val doc = new Annotation(block.text)
       pipeline.annotate(doc)
 
@@ -60,9 +66,22 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
         if (nameCheckerChain.chainContainsPronouns) {
           println("\tChecking rules for chain")
           // Loop through our rules and get any matches
-          val matches = rules.foldLeft(List.empty[RuleMatch])((accRule, rule) => {
-            val matches = nameCheckerChain.check(rule)
-            RuleMatchHelpers.removeOverlappingRules(accRule, matches) ++ matches
+          val matches = rules.foldLeft(List.empty[RuleMatch])((accMatches, rule) => {
+
+            val matchesToAdd = nameCheckerChain.check(rule).map {
+              case ruleMatch if doesMatchCoverSentenceStart(sentenceStarts, TextRange(ruleMatch.fromPos - 1, ruleMatch.toPos - 1)) =>
+                println(ruleMatch, "cover sentence start", sentenceStarts)
+
+                ruleMatch.copy(replacement = ruleMatch.replacement.map {
+                  case ts: TextSuggestion => ts.ensureCorrectCase(true)
+                  case s => s
+                })
+              case ruleMatch => {
+                println(ruleMatch, "does not cover", sentenceStarts)
+                ruleMatch
+              }
+            }
+            RuleMatchHelpers.removeOverlappingRules(accMatches, matchesToAdd) ++ matchesToAdd
           })
 
           RuleMatchHelpers.removeOverlappingRules(accChain, matches) ++ matches
@@ -74,7 +93,7 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
       })
 
       RuleMatchHelpers.removeOverlappingRules(accBlock, matches) ++ matches
-    })
+    }
 
     Future {
       results
@@ -84,6 +103,12 @@ class NameMatcher(rules: List[NameRule]) extends Matcher {
   override def getRules(): List[NameRule] = rules
 
   override def getCategories() = rules.map(_.category).toSet
+
+  private def doesMatchCoverSentenceStart(sentenceStarts: List[WordInSentence], range: TextRange): Boolean = {
+    sentenceStarts.exists(sentenceStart =>
+      sentenceStart.range.from == range.from
+    )
+  }
 }
 
 class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
@@ -98,7 +123,7 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
 
   val chainContainsPronouns: Boolean = mentions.exists(mention => mention.pronomial)
 
-  def check(rule:NameRule): List[RuleMatch] = {
+  def check(rule: NameRule): List[RuleMatch] = {
     println(s"\t\tRule: ${rule.fullName}")
     val chainRefersToName = checkChainRefersToName(rule)
 

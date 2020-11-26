@@ -23,36 +23,38 @@ class NameMatcherTest extends AsyncFlatSpec with Matchers {
 
   val samSmithRule = NameRule("SAM_SMITH_SINGER", "Sam", "Smith", THEY_THEM, exampleCategory, "Sam Smith is a singer")
 
-//  it should "run a check against a valid article and produce no results" in {
-//    val nameMatcher = new NameMatcher(List(samSmithRule))
-//    val eventuallyMatches = nameMatcher.check(MatcherRequest(correctArticle))
-//
-//    eventuallyMatches.map { matches =>
-//      matches.size shouldBe(0)
-//    }
-//  }
-//
-//  it should "run a check against an invalid article and correctly match against invalid pronouns" in {
-//    val nameMatcher = new NameMatcher(List(samSmithRule))
-//    val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectArticle))
-//
-//    eventuallyMatches.map { matches =>
-//      matches.size shouldBe(2)
-//    }
-//  }
+ it should "run a check against a valid article and produce no results" in {
+   val nameMatcher = new NameMatcher(List(samSmithRule))
+   val eventuallyMatches = nameMatcher.check(MatcherRequest(correctArticle))
 
-//  it should "run a check against an invalid sentence and correctly match against invalid pronouns" in {
-//    val nameMatcher = new NameMatcher(List(samSmithRule))
-//    val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectSentence))
-//
-//    eventuallyMatches.map { matches =>
-//      matches.size shouldBe(1)
-//
-//      val m = matches.head
-//      m.matchedText shouldBe("He")
-//      m.replacement shouldBe(Option(TextSuggestion("they")))
-//    }
-//  }
+   eventuallyMatches.map { matches =>
+     matches.size shouldBe(0)
+   }
+ }
+
+ it should "run a check against an invalid article and correctly match against invalid pronouns" in {
+   val nameMatcher = new NameMatcher(List(samSmithRule))
+   val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectArticle))
+
+   eventuallyMatches.map { matches =>
+     matches.size shouldBe(2)
+   }
+ }
+
+ it should "run a check against an invalid sentence and correctly match against invalid pronouns" in {
+   val nameMatcher = new NameMatcher(List(samSmithRule))
+   val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectSentence))
+
+   eventuallyMatches.map { matches =>
+     matches.size shouldBe(1)
+
+     val m = matches.head
+     m.matchedText shouldBe("He")
+     m.replacement shouldBe(Option(TextSuggestion("they")))
+   }
+ }
+
+
 
   it should "run a check against an invalid sentence and give the correct replacement for SHE_HER singularObject " in {
     val rule = NameRule("JANE_DOE", "Jane", "Doe", THEY_THEM, exampleCategory, "")
@@ -70,32 +72,45 @@ class NameMatcherTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-//  it should "run a check against an invalid sentence and give the correct replacement for SHE_HER PossessivePronoun " in {
-//    val rule = NameRule("JOHN_DOE", "John", "Doe", HE_HIS, exampleCategory, "")
-//    val sentence = getBlocks("John Doe is a here. Her favourite umbrella is over there.")
-//
-//    val nameMatcher = new NameMatcher(List(rule))
-//    val eventuallyMatches = nameMatcher.check(MatcherRequest(sentence))
-//
-//    eventuallyMatches.map { matches =>
-//      matches.size shouldBe(1)
-//
-//      val m = matches.head
-//      m.matchedText shouldBe("Her")
-//      m.replacement shouldBe(Option(TextSuggestion("his")))
-//    }
-//  }
+ it should "run a check against an invalid sentence and give the correct replacement for SHE_HER PossessivePronoun " in {
+   val rule = NameRule("JOHN_DOE", "John", "Doe", HE_HIS, exampleCategory, "")
+   val sentence = getBlocks("John Doe is a here. Her favourite umbrella is over there.")
 
-//  it should "run a check against an invalid sentence with the subject second and correctly match against invalid pronouns" in {
-//
-//    val nameMatcher = new NameMatcher(List(samSmithRule))
-//    val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectSentenceSubjectLast))
-//
-//    eventuallyMatches.map { matches =>
-//      matches.size shouldBe(1)
-//
-//      val m = matches.head
-//      m.matchedText shouldBe("his")
-//    }
-//  }
+   val nameMatcher = new NameMatcher(List(rule))
+   val eventuallyMatches = nameMatcher.check(MatcherRequest(sentence))
+
+   eventuallyMatches.map { matches =>
+     matches.size shouldBe(1)
+
+     val m = matches.head
+     m.matchedText shouldBe("Her")
+     m.replacement shouldBe(Option(TextSuggestion("his")))
+   }
+ }
+
+ it should "run a check against an invalid sentence with the subject second and correctly match against invalid pronouns" in {
+
+   val nameMatcher = new NameMatcher(List(samSmithRule))
+   val eventuallyMatches = nameMatcher.check(MatcherRequest(incorrectSentenceSubjectLast))
+
+   eventuallyMatches.map { matches =>
+     matches.size shouldBe(1)
+
+     val m = matches.head
+     m.matchedText shouldBe("his")
+   }
+ }
+
+  it should "run a check against an invalid sentence and cap up the suggestion when it falls at the beginning of a sentence" in {
+   val nameMatcher = new NameMatcher(List(samSmithRule))
+   val eventuallyMatches = nameMatcher.check(MatcherRequest(getBlocks("Sam Smith wrote a song. He went to the shops.")))
+
+   eventuallyMatches.map { matches =>
+     matches.size shouldBe(1)
+
+     val m = matches.head
+     m.matchedText shouldBe("He")
+     m.replacement shouldBe(Option(TextSuggestion("They")))
+   }
+ }
 }

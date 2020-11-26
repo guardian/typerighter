@@ -15,6 +15,9 @@ import model.LTRule
 import model.LTRuleXML
 import utils.CloudWatchClient
 import utils.Metrics
+import model.NameRule
+import matchers.NameMatcher
+import model.THEY_THEM
 
 class RuleProvisionerService(
   bucketRuleManager: BucketRuleManager,
@@ -46,6 +49,10 @@ class RuleProvisionerService(
         if (ltRules.size > 0) addLTMatcherToPool(matcherPool, ltRules) else Nil
       }
     }
+
+    val nameRules = List(NameRule("SAM_SMITH_SINGER", "Sam", "Smith", THEY_THEM, Category("example-category", "Example category"), "Sam Smith is a singer"))
+    val nameMatcher = new NameMatcher(nameRules)
+    matcherPool.addMatcher(nameMatcher)
 
     lastModified = date
     cloudWatchClient.putMetric(Metrics.RulesIngested ,matcherPool.getCurrentRules.size)

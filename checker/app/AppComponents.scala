@@ -63,16 +63,15 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     case _ => "code"
   }
   val typerighterBucket = s"typerighter-${stage}"
- 
+
   val cloudWatchClient = identity match {
     case identity: AwsIdentity => new CloudWatchClient(stage, false)
     case _ : DevIdentity => new CloudWatchClient(stage, true)
-  } 
+  }
 
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
   val defaultFutures = new DefaultFutures(actorSystem)
   val matcherPool = new MatcherPool(futures = defaultFutures, maybeCloudWatchClient = Some(cloudWatchClient))(matcherPoolDispatcher, materializer)
-  matcherPool.addMatcher(new NameMatcher(List(NameRule("SAM_SMITH_SINGER", "Sam", "Smith", THEY_THEM, Category("example-category", "Example category"), "Sam Smith is a singer"))))
 
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)
