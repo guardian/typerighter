@@ -2,7 +2,7 @@ package matchers
 
 import java.util.Properties
 
-import model.{NameRule, Pronoun, RuleMatch, TextRange}
+import model.{NameRule, Pronoun, RuleMatch, TextRange, TextSuggestion}
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion, RuleMatchHelpers}
 
@@ -110,6 +110,13 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
       val defaultTextRange = TextRange(0,0)
 
       mentions.filter(m => m.pronomial && !checkPronounIsCorrect(m, rule.pronoun)).map(m => {
+
+        val incorrectPronoun = Pronoun.getPronounFromString(m.text)
+        val pronounType = incorrectPronoun.getPronounType(m.text.toLowerCase())
+        val suggestedValue = rule.pronoun.getValueByPronounType(pronounType)
+
+        val replacement = suggestedValue.map(TextSuggestion(_))
+
         RuleMatch(
           rule,
           m.textRange.getOrElse(defaultTextRange).from,
@@ -117,7 +124,8 @@ class NameCheckerCorefChain(chain: CorefChain)(sentences: List[CoreMap]) {
           "",
           "",
           m.text,
-          s"Name ${rule.fullName} uses ${rule.pronoun}. ${m.text} found instead.",
+          s"Name ${rule.fullName} uses ${rule.pronoun}. ${m.text} ($incorrectPronoun) found instead.",
+          replacement = replacement,
           matchContext = "",
           matcherType = NameMatcher.getType()
         )

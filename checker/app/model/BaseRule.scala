@@ -3,19 +3,18 @@ package model
 import java.util.{List => JList}
 import java.util.regex.Pattern
 
-import play.api.libs.json.{JsObject, Json, JsPath, JsResult, JsString, JsSuccess, Reads, Writes}
+import play.api.libs.json.{JsObject, JsPath, JsResult, JsString, JsSuccess, Json, Reads, Writes}
 import play.api.libs.json._
 import play.api.libs.json.Reads._
-
 import org.languagetool.Languages
 import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternToken => LTPatternToken}
 import org.languagetool.rules.{Rule => LanguageToolRule}
 
 import scala.util.matching.Regex
 import scala.collection.JavaConverters._
-
 import utils.Text
 import matchers.RegexMatcher
+import model.PronounType.PronounType
 
 /**
   * A rule to match text against.
@@ -179,6 +178,11 @@ object NameRule {
   implicit val reads: Reads[NameRule] = Json.reads[NameRule]
 }
 
+object PronounType extends Enumeration {
+  type PronounType = Value
+  val SingularSubject, SingularObject, PossessivePronoun, PossessiveAdjective, Unknown = Value
+}
+
 sealed trait Pronoun {
   val id: String
 
@@ -199,6 +203,19 @@ sealed trait Pronoun {
       false
     }
   }
+
+  // TODO: Pass the tags into here and use to determine between her and her
+  def getPronounType(text: String): PronounType
+
+  def getValueByPronounType(pronounType: PronounType): Option[String] = {
+    pronounType match {
+      case PronounType.SingularSubject => Some(this.singularSubject)
+      case PronounType.SingularObject => Some(this.singularObject)
+      case PronounType.PossessivePronoun => Some(this.possessivePronoun)
+      case PronounType.PossessiveAdjective => Some(this.possessiveAdjective)
+      case PronounType.Unknown => None
+    }
+  }
 }
 
 object Pronoun {
@@ -208,6 +225,23 @@ object Pronoun {
     case "SHE_HERS" => SHE_HERS
     case "THEY_THEM" => THEY_THEM
     case _ => UNKNOWN
+  }
+
+  def getPronounTypeFromString(text: String): PronounType = {
+    val pronoun = this.getPronounFromString(text)
+    pronoun.getPronounType(text)
+  }
+
+  def getPronounFromString(text: String): Pronoun = {
+    if (HE_HIS.stringMatchesPronoun(text)) {
+      HE_HIS
+    } else if (SHE_HERS.stringMatchesPronoun(text)) {
+      SHE_HERS
+    } else if (THEY_THEM.stringMatchesPronoun(text)) {
+      THEY_THEM
+    } else {
+      UNKNOWN
+    }
   }
 }
 
@@ -219,6 +253,15 @@ case object HE_HIS extends Pronoun {
   val singularObject = "him"
   val possessivePronoun = "his"
   val possessiveAdjective = "his"
+
+  def getPronounType(text: String): PronounType = {
+    text match {
+      case "he"   => PronounType.SingularSubject
+      case "him"   => PronounType.SingularObject
+      case "his"  => PronounType.Unknown
+      case _       => PronounType.Unknown
+    }
+  }
 }
 
 // she, her, hers
@@ -229,6 +272,15 @@ case object SHE_HERS extends Pronoun {
   val singularObject = "her"
   val possessivePronoun = "her"
   val possessiveAdjective = "hers"
+
+  def getPronounType(text: String): PronounType = {
+    text match {
+      case "she"   => PronounType.SingularSubject
+      case "her"   => PronounType.Unknown
+      case "hers"  => PronounType.PossessiveAdjective
+      case _       => PronounType.Unknown
+    }
+  }
 }
 
 // they, them, their, theirs
@@ -239,6 +291,16 @@ case object THEY_THEM extends Pronoun {
   val singularObject = "them"
   val possessivePronoun = "their"
   val possessiveAdjective = "theirs"
+
+  def getPronounType(text: String): PronounType = {
+    text match {
+      case "they"   => PronounType.SingularSubject
+      case "them"   => PronounType.SingularObject
+      case "their"  => PronounType.PossessivePronoun
+      case "theirs" => PronounType.PossessiveAdjective
+      case _        => PronounType.Unknown
+    }
+  }
 }
 
 case object UNKNOWN extends Pronoun {
@@ -248,6 +310,10 @@ case object UNKNOWN extends Pronoun {
   val singularObject = "unknown"
   val possessivePronoun = "unknown"
   val possessiveAdjective = "unknown"
+
+  def getPronounType(text: String): PronounType = PronounType.Unknown
+
+  override def getValueByPronounType(pronounType: PronounType): Option[String] = None
 }
 
 case class NameRule(
@@ -262,19 +328,15 @@ case class NameRule(
   val suggestions: List[Suggestion] = List.empty
   val fullName: String = firstName + " " + lastName
 
-  val nameListForChecking: List[String] = getNameListForChecking()
-
   // TODO: This could probably be done more intelligently, maybe with a regex?
-  private def getNameListForChecking(): List[String] = {
-    List(
-      firstName,
-      lastName,
-      fullName,
-      addPossessiveApostrophe(firstName),
-      addPossessiveApostrophe(lastName),
-      addPossessiveApostrophe(fullName),
-    )
-  }
+  val nameListForChecking: List[String] = List(
+    firstName,
+    lastName,
+    fullName,
+    addPossessiveApostrophe(firstName),
+    addPossessiveApostrophe(lastName),
+    addPossessiveApostrophe(fullName),
+  )
 
   // TODO: The space added here is a hack to cope with the fact that mention in the chain has a space in between the
   //       name and 's
