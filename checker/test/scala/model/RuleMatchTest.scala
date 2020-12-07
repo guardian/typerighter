@@ -1,6 +1,5 @@
 package scala.model
 
-
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -14,7 +13,7 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
       id = "test-rule",
       description = "test-description",
       category = Category("test-category", "Test Category"),
-      regex = "test"r
+      regex = "test" r
     ),
     fromPos = from,
     toPos = to,

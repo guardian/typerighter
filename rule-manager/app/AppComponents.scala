@@ -8,13 +8,16 @@ import play.api.http.JsonHttpErrorHandler
 import play.api.http.DefaultHttpErrorHandler
 import controllers.AssetsComponents
 
-class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with HttpFiltersComponents with AssetsComponents {
-  
+class AppComponents(context: Context)
+    extends BuiltInComponentsFromContext(context)
+    with HttpFiltersComponents
+    with AssetsComponents {
+
   val homeController = new HomeController(controllerComponents)
-  
+
   lazy val router = new Routes(
-      httpErrorHandler,
-      homeController,
-      assets
+    httpErrorHandler,
+    homeController,
+    assets
   )
 }

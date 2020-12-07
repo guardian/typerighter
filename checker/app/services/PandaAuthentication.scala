@@ -1,13 +1,19 @@
 package services
 
-import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, AuthenticationStatus, User}
+import com.gu.pandomainauth.model.{
+  Authenticated,
+  AuthenticatedUser,
+  AuthenticationStatus,
+  User
+}
 import com.gu.pandomainauth.{PanDomain, PublicKey, PublicSettings}
 import play.api.mvc._
 import utils.Loggable
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserRequest[A](val user: User, request: Request[A]) extends WrappedRequest[A](request)
+class UserRequest[A](val user: User, request: Request[A])
+    extends WrappedRequest[A](request)
 
 trait PandaAuthentication extends BaseControllerHelpers with Loggable {
   def publicSettings: PublicSettings
@@ -28,10 +34,15 @@ trait PandaAuthentication extends BaseControllerHelpers with Loggable {
   }
 
   object ApiAuthAction extends ActionBuilder[UserRequest, AnyContent] {
-    override def parser: BodyParser[AnyContent] = PandaAuthentication.this.controllerComponents.parsers.default
-    override protected def executionContext: ExecutionContext = PandaAuthentication.this.controllerComponents.executionContext
+    override def parser: BodyParser[AnyContent] =
+      PandaAuthentication.this.controllerComponents.parsers.default
+    override protected def executionContext: ExecutionContext =
+      PandaAuthentication.this.controllerComponents.executionContext
 
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
+    override def invokeBlock[A](
+        request: Request[A],
+        block: UserRequest[A] => Future[Result]
+    ): Future[Result] = {
       publicSettings.publicKey match {
         case Some(pk) =>
           request.cookies.get("gutoolsAuth-assym") match {

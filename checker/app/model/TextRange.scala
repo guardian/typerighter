@@ -10,12 +10,12 @@ object TextRange {
 case class TextRange(from: Int, to: Int) {
   def length = to - from
 
-  /**
-    * Map a from and to position through the given removed range.
+  /** Map a from and to position through the given removed range.
     */
   def mapRemovedRange(removedRange: TextRange): TextRange = {
     val charsRemovedBeforeFrom = if (removedRange.from < this.from) {
-      val rangeBetweenRemovedStartAndIncomingStart = TextRange(removedRange.from, this.from)
+      val rangeBetweenRemovedStartAndIncomingStart =
+        TextRange(removedRange.from, this.from)
       rangeBetweenRemovedStartAndIncomingStart
         .getIntersection(removedRange)
         .map(_.length + 1)
@@ -24,7 +24,7 @@ case class TextRange(from: Int, to: Int) {
 
     val charsRemovedBeforeTo = this.getIntersection(removedRange) match {
       case Some(intersection) => charsRemovedBeforeFrom + intersection.length
-      case None => charsRemovedBeforeFrom
+      case None               => charsRemovedBeforeFrom
     }
 
     val newFrom = this.from - charsRemovedBeforeFrom
@@ -33,16 +33,17 @@ case class TextRange(from: Int, to: Int) {
     TextRange(newFrom, newTo)
   }
 
-  /**
-    * Map a from and to position through the given added range.
+  /** Map a from and to position through the given added range.
     */
   def mapAddedRange(addedRange: TextRange): TextRange = {
     // We add one to our lengths here to ensure the to value
     // is placed beyond the last position the range occupies.
-    val charsAddedBeforeFrom = if (addedRange.from <= this.from) { addedRange.length + 1 } else 0
+    val charsAddedBeforeFrom = if (addedRange.from <= this.from) {
+      addedRange.length + 1
+    } else 0
     val charsAddedBeforeTo = this.getIntersection(addedRange) match {
       case Some(intersection) => addedRange.length + 1
-      case None => charsAddedBeforeFrom
+      case None               => charsAddedBeforeFrom
     }
 
     val newFrom = this.from + charsAddedBeforeFrom
@@ -52,7 +53,8 @@ case class TextRange(from: Int, to: Int) {
   }
 
   def getIntersection(rangeB: TextRange): Option[TextRange] = {
-    val range = TextRange(Math.max(this.from, rangeB.from), Math.min(this.to, rangeB.to))
+    val range =
+      TextRange(Math.max(this.from, rangeB.from), Math.min(this.to, rangeB.to))
     if (range.length > 0) Some(range) else None
   }
 }

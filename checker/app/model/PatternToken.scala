@@ -3,15 +3,14 @@ package model
 import org.languagetool.rules.patterns.{PatternToken => LTPatternToken}
 import play.api.libs.json.{Json, Reads, Writes}
 
-/**
-  * The application's representation of a LanguageTool PatternToken, for display purposes only.
+/** The application's representation of a LanguageTool PatternToken, for display purposes only.
   */
 case class PatternToken(
-                       token: String,
-                       caseSensitive: Boolean,
-                       regexp: Boolean,
-                       inflected: Boolean
-                       )
+    token: String,
+    caseSensitive: Boolean,
+    regexp: Boolean,
+    inflected: Boolean
+)
 
 object PatternToken {
   def fromLT(patternToken: LTPatternToken): PatternToken =
@@ -27,7 +26,8 @@ object PatternToken {
       patternToken.token,
       patternToken.caseSensitive,
       patternToken.regexp,
-      patternToken.inflected)
+      patternToken.inflected
+    )
 
   implicit val writes: Writes[PatternToken] = Json.writes[PatternToken]
 

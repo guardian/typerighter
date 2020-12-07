@@ -27,9 +27,20 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   val regexValidator = new RegexMatcher(List(exampleRule))
 
-  def getBlocks(text: String) = List(TextBlock("text-block-id", text, 0, text.length))
+  def getBlocks(text: String) = List(
+    TextBlock("text-block-id", text, 0, text.length)
+  )
 
-  def getMatch(text: String, fromPos: Int, toPos: Int, before: String, after: String, rule: RegexRule = exampleRule, replacement: Option[String] = None, markAsCorrect: Boolean = false) = RuleMatch(
+  def getMatch(
+      text: String,
+      fromPos: Int,
+      toPos: Int,
+      before: String,
+      after: String,
+      rule: RegexRule = exampleRule,
+      replacement: Option[String] = None,
+      markAsCorrect: Boolean = false
+  ) = RuleMatch(
     rule = rule,
     fromPos = fromPos,
     toPos = toPos,
@@ -45,7 +56,11 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     markAsCorrect = markAsCorrect
   )
 
-  def checkTextWithRegex(regex: Regex, replacement: String, text: String): Future[List[RuleMatch]] = {
+  def checkTextWithRegex(
+      regex: Regex,
+      replacement: String,
+      text: String
+  ): Future[List[RuleMatch]] = {
     val rule = RegexRule(
       id = "test-rule",
       description = "test-description",
@@ -66,9 +81,11 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       MatcherRequest(getBlocks(sampleText))
     )
     eventuallyMatches.map { matches =>
-      matches should matchTo(List(
-        getMatch("text", 8, 12, "example ", " is here")
-      ))
+      matches should matchTo(
+        List(
+          getMatch("text", 8, 12, "example ", " is here")
+        )
+      )
     }
   }
 
@@ -102,9 +119,11 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       MatcherRequest(getBlocks(sampleText))
     )
     eventuallyMatches.map { matches =>
-      matches should matchTo(List(
-        getMatch("text", 121, 125, before, after)
-      ))
+      matches should matchTo(
+        List(
+          getMatch("text", 121, 125, before, after)
+        )
+      )
     }
   }
 
@@ -113,11 +132,13 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       MatcherRequest(getBlocks("text text text"))
     )
     eventuallyMatches.map { matches =>
-      matches should matchTo(List(
-        getMatch("text", 0, 4, "", " text text"),
-        getMatch("text", 5, 9, "text ", " text"),
-        getMatch("text", 10, 14, "text text ", "")
-      ))
+      matches should matchTo(
+        List(
+          getMatch("text", 0, 4, "", " text text"),
+          getMatch("text", 5, 9, "text ", " text"),
+          getMatch("text", 10, 14, "text text ", "")
+        )
+      )
     }
   }
 
@@ -129,9 +150,15 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     )
     eventuallyMatches.map { matches =>
       matches.size shouldBe 3
-      matches(0) should matchTo(getMatch("ton", 5, 8, "tone ", " goto", overlapRules(1)))
-      matches(1) should matchTo(getMatch("one", 1, 4, "t", " ton goto", overlapRules(2)))
-      matches(2) should matchTo(getMatch("got", 9, 12, "tone ton ", "o", overlapRules(3)))
+      matches(0) should matchTo(
+        getMatch("ton", 5, 8, "tone ", " goto", overlapRules(1))
+      )
+      matches(1) should matchTo(
+        getMatch("one", 1, 4, "t", " ton goto", overlapRules(2))
+      )
+      matches(2) should matchTo(
+        getMatch("got", 9, 12, "tone ton ", "o", overlapRules(3))
+      )
     }
   }
 
@@ -152,7 +179,15 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     eventuallyMatches.map { matches =>
       matches.size shouldBe 1
       val expectedReplacement = Some("teapot")
-      val expectedMatch = getMatch("tea pot", 13, 20, "I'm a little ", "", rule, expectedReplacement)
+      val expectedMatch = getMatch(
+        "tea pot",
+        13,
+        20,
+        "I'm a little ",
+        "",
+        rule,
+        expectedReplacement
+      )
       matches(0) should matchTo(expectedMatch)
       matches(0).markAsCorrect shouldBe false
     }
@@ -175,7 +210,16 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     eventuallyMatches.map { matches =>
       matches.size shouldBe 1
       val expectedReplacement = Some("teapot")
-      val expectedMatch = getMatch("teapot", 13, 19, "I'm a little ", "", rule, expectedReplacement, markAsCorrect = true)
+      val expectedMatch = getMatch(
+        "teapot",
+        13,
+        19,
+        "I'm a little ",
+        "",
+        rule,
+        expectedReplacement,
+        markAsCorrect = true
+      )
       matches(0) should matchTo(expectedMatch)
     }
   }
@@ -191,7 +235,9 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
     val validator = new RegexMatcher(List(rule))
     val eventuallyMatches = validator.check(
-      MatcherRequest(getBlocks("Somebody has won the Booker prize for their first novel"))
+      MatcherRequest(
+        getBlocks("Somebody has won the Booker prize for their first novel")
+      )
     )
 
     eventuallyMatches.map { matches =>
@@ -201,13 +247,14 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-   "check" should "handle multiple substitions" in {
+  "check" should "handle multiple substitions" in {
     val rule = RegexRule(
       id = s"example-rule",
       category = Category("new-category", "New Category"),
       description = s"Example rule",
       replacement = Some(TextSuggestion("$1-$2-long")),
-      regex = "\\b(one|two|three|four|five|six|seven|eight|nine|\\d)-? (year|day|month|week|mile)-? long".r
+      regex =
+        "\\b(one|two|three|four|five|six|seven|eight|nine|\\d)-? (year|day|month|week|mile)-? long".r
     )
 
     val validator = new RegexMatcher(List(rule))
@@ -218,7 +265,15 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     eventuallyMatches.map { matches =>
       matches.size shouldBe 1
       val expectedReplacement = Some("nine-month-long")
-      val expectedMatch = getMatch("nine month long", 2, 17, "A ", " sabbatical", rule, expectedReplacement)
+      val expectedMatch = getMatch(
+        "nine month long",
+        2,
+        17,
+        "A ",
+        " sabbatical",
+        rule,
+        expectedReplacement
+      )
       matches(0) should matchTo(expectedMatch)
     }
   }
@@ -227,7 +282,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – preserve current case" in {
     val eventuallyMatches = checkTextWithRegex(
-      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      "(?i)\\bcaf(e|é|è|ë|ê)" r,
       "cafe",
       "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
     )
@@ -242,7 +297,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – cap up sentence start" in {
     val eventuallyMatches = checkTextWithRegex(
-      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      "(?i)\\bcaf(e|é|è|ë|ê)" r,
       "cafe",
       "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
     )
@@ -257,7 +312,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   it should "should not apply capitalisations when the match does not include the start of the word" in {
     val eventuallyMatches = checkTextWithRegex(
-      "(?i)af(e|é|è|ë|ê)"r,
+      "(?i)af(e|é|è|ë|ê)" r,
       "afe",
       "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
     )

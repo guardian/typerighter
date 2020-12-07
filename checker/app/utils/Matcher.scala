@@ -16,7 +16,9 @@ trait MatcherCompanion {
 trait Matcher {
   private val id = UUID.randomUUID().toString()
 
-  def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]]
+  def check(request: MatcherRequest)(implicit
+      ec: ExecutionContext
+  ): Future[List[RuleMatch]]
   def getRules(): List[BaseRule]
   def getCategories(): Set[Category]
   def getType(): String

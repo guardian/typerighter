@@ -21,7 +21,8 @@ class TextBlockTest extends AsyncFlatSpec with Matchers {
 
   it should "remove multiple adjacent skipped ranges from the block text" in {
     val skippedRanges = Some(List(TextRange(18, 25), TextRange(26, 32)))
-    val block = TextBlock("id", "Example [noted][noted ]text", 10, 37, skippedRanges)
+    val block =
+      TextBlock("id", "Example [noted][noted ]text", 10, 37, skippedRanges)
     val newBlock = block.removeSkippedRanges
 
     newBlock.text shouldBe "Example text"
@@ -31,7 +32,13 @@ class TextBlockTest extends AsyncFlatSpec with Matchers {
 
   it should "remove multiple non-adjacent skipped ranges from the block text - 1" in {
     val skippedRanges = Some(List(TextRange(18, 25), TextRange(41, 48)))
-    val block = TextBlock("id", "Example [noted ]text with more [noted ]text", 10, 52, skippedRanges)
+    val block = TextBlock(
+      "id",
+      "Example [noted ]text with more [noted ]text",
+      10,
+      52,
+      skippedRanges
+    )
     val newBlock = block.removeSkippedRanges
     newBlock.text shouldBe "Example text with more text"
     newBlock.from shouldBe 10
@@ -55,7 +62,8 @@ class TextBlockTest extends AsyncFlatSpec with Matchers {
 
   it should "not care about order" in {
     val skippedRanges = Some(List(TextRange(24, 31), TextRange(18, 24)))
-    val block = TextBlock("id", "Example [noted][noted ]text", 10, 37, skippedRanges)
+    val block =
+      TextBlock("id", "Example [noted][noted ]text", 10, 37, skippedRanges)
     val newBlock = block.removeSkippedRanges
     newBlock.text shouldBe "Example text"
     newBlock.from shouldBe 10

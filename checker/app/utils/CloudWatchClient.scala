@@ -14,11 +14,13 @@ object Metrics {
 
 class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
 
-  private val cloudWatchClient = if(dryRun) None else Some(AmazonCloudWatchClientBuilder.defaultClient())
+  private val cloudWatchClient =
+    if (dryRun) None else Some(AmazonCloudWatchClientBuilder.defaultClient())
 
   def putMetric(metric: String, value: Int = 1): Unit = {
 
-    val dimension = new Dimension().withName("Stage").withValue(stage.toUpperCase());
+    val dimension =
+      new Dimension().withName("Stage").withValue(stage.toUpperCase());
 
     val datum = new MetricDatum()
       .withMetricName(metric)
@@ -26,14 +28,22 @@ class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
       .withValue(value)
       .withDimensions(dimension)
 
-    val request = new PutMetricDataRequest().withNamespace("Typerighter").withMetricData(datum)
+    val request = new PutMetricDataRequest()
+      .withNamespace("Typerighter")
+      .withMetricData(datum)
 
     try {
       cloudWatchClient.map(_.putMetricData(request))
-      log.info(s"Published $metric metric data with value ${value}. ${if (dryRun) "DRY RUN" else ""}")
+      log.info(
+        s"Published $metric metric data with value ${value}. ${if (dryRun) "DRY RUN"
+        else ""}"
+      )
     } catch {
       case e: Exception =>
-        log.error(s"CloudWatch putMetricData exception message: ${e.getMessage}", e)
+        log.error(
+          s"CloudWatch putMetricData exception message: ${e.getMessage}",
+          e
+        )
     }
   }
 }

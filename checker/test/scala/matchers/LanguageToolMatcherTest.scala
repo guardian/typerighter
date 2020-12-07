@@ -95,7 +95,7 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
       </rule>
   </rulegroup>
   """
-  val exampleRulegroup =  LTRuleXML(
+  val exampleRulegroup = LTRuleXML(
     "EXAMPLE_RULEGROUP",
     exampleRulegroupXml,
     exampleCategory,
@@ -127,13 +127,25 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     // These rule ids map to rule groups, which contain two rules each.
     // This is weird, as we'd assume ids to be unique. We may want to alter
     // this to reflect rule groupings to ensure id uniqueness, for example.
-    instance.getRules().map(_.id) shouldBe List("FEWER_LESS", "FEWER_LESS", "DOES_YOU", "DOES_YOU")
+    instance.getRules().map(_.id) shouldBe List(
+      "FEWER_LESS",
+      "FEWER_LESS",
+      "DOES_YOU",
+      "DOES_YOU"
+    )
   }
 
   "getInstance" should "return an error if a defaultRule we provide is not available" in {
     val ltFactory = new LanguageToolFactory(None)
     val defaultRules = List("NOT_A_THING")
-    val errors = ltFactory.createInstance(Nil, defaultRules).left.getOrElse(fail("Expected a list of errors from unavailable default rules, not a valid instance"))
+    val errors = ltFactory
+      .createInstance(Nil, defaultRules)
+      .left
+      .getOrElse(
+        fail(
+          "Expected a list of errors from unavailable default rules, not a valid instance"
+        )
+      )
     val messages = errors.map(_.getMessage())
     messages.filter(_.contains("rule was not available")).size shouldBe 1
   }
@@ -149,41 +161,73 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     val ltFactory = new LanguageToolFactory(None)
     val exampleRulegroups = List(exampleRulegroup)
     val instance = ltFactory.createInstance(exampleRulegroups).getOrElse(fail)
-    instance.getRules().map(_.id) shouldBe List("EXAMPLE_RULEGROUP", "EXAMPLE_RULEGROUP", "EXAMPLE_RULEGROUP", "EXAMPLE_RULEGROUP")
+    instance.getRules().map(_.id) shouldBe List(
+      "EXAMPLE_RULEGROUP",
+      "EXAMPLE_RULEGROUP",
+      "EXAMPLE_RULEGROUP",
+      "EXAMPLE_RULEGROUP"
+    )
   }
 
   "getInstance" should "report categories both sorts of rules" in {
     val ltFactory = new LanguageToolFactory(None)
     val defaultRules = List("FEWER_LESS", "DOES_YOU")
     val exampleRules = List(exampleRule)
-    val instance = ltFactory.createInstance(exampleRules, defaultRules).getOrElse(fail)
+    val instance =
+      ltFactory.createInstance(exampleRules, defaultRules).getOrElse(fail)
     instance.getCategories().map(_.id) shouldBe Set("GRAMMAR", "EXAMPLE_CAT")
   }
 
   "getInstance" should "handle cases where no novel rules are available" in {
     val ltFactory = new LanguageToolFactory(None)
-    val instance = ltFactory.createInstance(List.empty).getOrElse(fail("Attempted to create an instance with no rules, but got a `Left` instead"))
+    val instance = ltFactory
+      .createInstance(List.empty)
+      .getOrElse(
+        fail(
+          "Attempted to create an instance with no rules, but got a `Left` instead"
+        )
+      )
     instance.getRules().map(_.id) shouldBe List.empty
   }
 
   "getInstance" should "handle cases where the XML is inconsistent, reporting the affect rule(s) correctly" in {
     val ltFactory = new LanguageToolFactory(None)
     val exampleRules = List(exampleBadRule1)
-    val errors = ltFactory.createInstance(exampleRules).left.getOrElse(fail("Expected a list of errors from bad rules, not a valid instance"))
+    val errors = ltFactory
+      .createInstance(exampleRules)
+      .left
+      .getOrElse(
+        fail("Expected a list of errors from bad rules, not a valid instance")
+      )
     val messages = errors.map(_.getMessage())
 
     errors.size shouldBe 1
-    messages.filter(_.contains("""The entity "months" was referenced, but not declared.""")).size shouldBe 1
+    messages
+      .filter(
+        _.contains("""The entity "months" was referenced, but not declared.""")
+      )
+      .size shouldBe 1
   }
 
   "getInstance" should "handle cases where the XML is malformed, reporting the affect rule(s) correctly" in {
     val ltFactory = new LanguageToolFactory(None)
     val exampleRules = List(exampleBadRule2)
-    val errors = ltFactory.createInstance(exampleRules).left.getOrElse(fail("Expected a list of errors from bad rules, not a valid instance"))
+    val errors = ltFactory
+      .createInstance(exampleRules)
+      .left
+      .getOrElse(
+        fail("Expected a list of errors from bad rules, not a valid instance")
+      )
     val messages = errors.map(_.getMessage())
 
     errors.size shouldBe 1
-    messages.filter(_.contains("""The markup in the document following the root element must be well-formed.""")).size shouldBe 1
+    messages
+      .filter(
+        _.contains(
+          """The markup in the document following the root element must be well-formed."""
+        )
+      )
+      .size shouldBe 1
   }
 
   "check" should "apply LanguageTool default rules" in {
@@ -191,11 +235,15 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     val defaultRules = List("FEWER_LESS")
     val instance = ltFactory.createInstance(Nil, defaultRules).getOrElse(fail)
     val rules = instance.getRules()
-    val request = MatcherRequest(List(TextBlock("id-1", "Three or less tests passed!", 0, 29)))
+    val request = MatcherRequest(
+      List(TextBlock("id-1", "Three or less tests passed!", 0, 29))
+    )
 
     val eventuallyMatches = instance.check(request)
 
-    val expectedMatchMessages = List("Did you mean <suggestion>fewer</suggestion>? The noun tests is countable.")
+    val expectedMatchMessages = List(
+      "Did you mean <suggestion>fewer</suggestion>? The noun tests is countable."
+    )
     val expectedMatchCategoryIds = List("GRAMMAR")
     eventuallyMatches map { matches =>
       matches.map(_.message) shouldBe expectedMatchMessages
@@ -207,10 +255,13 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     val ltFactory = new LanguageToolFactory(None)
     val exampleRules = List(exampleRule)
     val instance = ltFactory.createInstance(List(exampleRule)).getOrElse(fail)
-    val request = MatcherRequest(List(TextBlock("id-1", "Three mistakes or less", 0, 29)))
+    val request =
+      MatcherRequest(List(TextBlock("id-1", "Three mistakes or less", 0, 29)))
 
     val eventuallyMatches = instance.check(request)
-    val expectedMatchMessages = List("Did you mean <suggestion>fewer</suggestion>? The noun mistakes is countable.")
+    val expectedMatchMessages = List(
+      "Did you mean <suggestion>fewer</suggestion>? The noun mistakes is countable."
+    )
     eventuallyMatches map { matches =>
       matches.map(_.message) shouldBe expectedMatchMessages
     }

@@ -14,8 +14,7 @@ sealed trait Suggestion {
   val `type`: String
   val text: String
 
-  /**
-    * If our suggestion is at the start of a sentence, cap up the first letter.
+  /** If our suggestion is at the start of a sentence, cap up the first letter.
     */
   def ensureCorrectCase(isStartOfSentence: Boolean): Suggestion = this match {
     case TextSuggestion(text) if isStartOfSentence => {

@@ -2,7 +2,11 @@ package services
 
 import java.util.Properties
 
-import edu.stanford.nlp.ling.CoreAnnotations.{SentencesAnnotation, TextAnnotation, TokensAnnotation}
+import edu.stanford.nlp.ling.CoreAnnotations.{
+  SentencesAnnotation,
+  TextAnnotation,
+  TokensAnnotation
+}
 import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import edu.stanford.nlp.util.CoreMap
@@ -12,8 +16,7 @@ import model.TextRange
 
 case class WordInSentence(sentence: String, word: String, range: TextRange)
 
-/**
-  * A service to extract proper names from documents.
+/** A service to extract proper names from documents.
   */
 class SentenceHelpers() {
   val props: Properties = new Properties()
@@ -24,12 +27,14 @@ class SentenceHelpers() {
     val document: Annotation = new Annotation(text)
     pipeline.annotate(document)
 
-    val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
+    val sentences: List[CoreMap] =
+      document.get(classOf[SentencesAnnotation]).asScala.toList
 
     for {
       sentence: CoreMap <- sentences
     } yield {
-      val firstToken = sentence.get(classOf[TokensAnnotation]).asScala.toList.head
+      val firstToken =
+        sentence.get(classOf[TokensAnnotation]).asScala.toList.head
       val word = firstToken.get(classOf[TextAnnotation])
       WordInSentence(
         sentence.toString,

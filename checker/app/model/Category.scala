@@ -5,8 +5,7 @@ import play.api.libs.json.{Json, Writes, Reads}
 
 case class Category(id: String, name: String)
 
-/**
-  * The application's representation of a LanguageTool Category.
+/** The application's representation of a LanguageTool Category.
   */
 object Category {
   def fromLT(lt: LTCategory): Category = {
@@ -14,7 +13,12 @@ object Category {
   }
 
   def toLT(category: Category): LTCategory = {
-    new LTCategory(new CategoryId(category.id), category.name, LTCategory.Location.EXTERNAL, true)
+    new LTCategory(
+      new CategoryId(category.id),
+      category.name,
+      LTCategory.Location.EXTERNAL,
+      true
+    )
   }
 
   implicit val writes: Writes[Category] = Json.writes[Category]
