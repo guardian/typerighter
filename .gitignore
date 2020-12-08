@@ -10,5 +10,6 @@ node_modules
 .metals
 **/project/metals.sbt
 /public/javascript
+/rule-manager/public/javascript
 /RUNNING_PID
 .DS_Store
