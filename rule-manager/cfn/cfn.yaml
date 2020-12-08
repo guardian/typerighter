@@ -1,0 +1,211 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Typerighter rule-management tool
+Parameters:
+    Stack:
+        Description: 'Stack name'
+        Type: String
+        Default: flexible
+    Stage:
+        Description: Set by RiffRaff on each deploy
+        Type: String
+        AllowedValues:
+        - CODE
+        - PROD
+    Vpc:
+        Description: VpcId of your Virtual Private Cloud (VPC)
+        Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+        Default: /account/vpc/default/id
+    Subnets:
+        Description: 'Subnets to run load balancer within'
+        Type: List<AWS::EC2::Subnet::Id>
+    AMI:
+        Description: AMI ID. Set by RiffRaff on each deploy
+        Type: String
+    DigDevBubble:
+        Description: The CIDR block of the dig dev bubble
+        Type: String
+        Default: 10.249.0.0/18
+
+Mappings:
+  StageVariables:
+    CODE:
+      MaxInstances: 2
+      MinInstances: 1
+      InstanceType: t3.small
+      CloudfrontAliases:
+      - api.typerighter.code.dev-gutools.co.uk
+    PROD:
+      MaxInstances: 6
+      MinInstances: 3
+      InstanceType: t3.small
+      CloudfrontAliases:
+      - api.typerighter.gutools.co.uk
+
+Conditions:
+    IsProd: !Equals [ !Ref Stage, PROD ]
+
+Resources:
+    AppRole:
+        Type: AWS::IAM::Role
+        Properties:
+            Path: "/"
+            ManagedPolicyArns:
+            - Fn::ImportValue: guardian-ec2-for-ssm-GuardianEC2ForSSMPolicy
+            AssumeRolePolicyDocument:
+                Statement:
+                - Effect: Allow
+                Principal:
+                    Service:
+                    - ec2.amazonaws.com
+                Action:
+                - sts:AssumeRole
+
+    # AppPolicy:
+    #     Type: AWS::IAM::Policy
+    #     Properties:
+    #         Roles: 
+    #             - !Ref AppRole
+    #         PolicyName: $stack_name_prefix$-$name$-app
+    #         PolicyDocument:
+    #             Statement:
+    #                 - Effect: Allow
+    #                   Action: ['s3:GetObject']
+    #                   Resource:
+    #                     - arn:aws:s3:::$stack_name_prefix$-dist/*
+
+    InstanceProfile:
+        Type: AWS::IAM::InstanceProfile
+        Properties:
+            Path: "/"
+            Roles:
+            - !Ref AppRole
+
+    PublicElasticLoadBalancer:
+        Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+        Properties:
+            Subnets: !Ref Subnets
+            SecurityGroups:
+            - !Ref LoadBalancerSecurityGroup
+            Scheme: internet-facing
+        Tags:
+        - Key: Stack
+            Value: !Ref Stack
+            PropagateAtLaunch: true
+        - Key: App
+            Value: typerighter-rule-manager
+            PropagateAtLaunch: true
+        - Key: Stage
+            Value: !Ref Stage
+            PropagateAtLaunch: true
+
+    LoadBalancerListener:
+        Type: AWS::ElasticLoadBalancingV2::Listener
+        Properties:
+            DefaultActions:
+            - Type: forward
+                TargetGroupArn:
+                Ref: TargetGroup
+            LoadBalancerArn:
+                Ref: PublicElasticLoadBalancer
+            Certificates:
+            - CertificateArn: !Ref CertificateArn
+            Port: 443
+            Protocol: HTTPS
+
+    TargetGroup:
+        Type: AWS::ElasticLoadBalancingV2::TargetGroup
+        Properties:
+            Port: 9000
+            Protocol: HTTP
+            HealthCheckIntervalSeconds: 10
+            HealthCheckPath: /healthcheck
+            HealthCheckPort: 9000
+            HealthCheckProtocol: HTTP
+            HealthCheckTimeoutSeconds: 5
+            HealthyThresholdCount: 2
+            UnhealthyThresholdCount: 2
+            VpcId: !Ref Vpc
+            TargetGroupAttributes:
+            - Key: deregistration_delay.timeout_seconds
+                Value: '20'
+        DependsOn:
+        - ElasticLoadBalancer
+
+    AutoscalingGroup:
+        Type: AWS::AutoScaling::AutoScalingGroup
+        Properties:
+            AvailabilityZones: !GetAZs
+            VPCZoneIdentifier: !Ref Subnets
+            LaunchConfigurationName: !Ref LaunchConfig
+            MinSize: !FindInMap [ StageVariables, !Ref Stage, MinInstances ]
+            MaxSize: !FindInMap [ StageVariables, !Ref Stage, MaxInstances ]
+            HealthCheckType: ELB
+            HealthCheckGracePeriod: 300
+            Tags:
+            - Key: Stack
+                Value: !Ref Stack
+            - Key: App
+                Value: typerighter-rule-manager
+            - Key: Stage
+                Value: !Ref Stage
+
+
+    LaunchConfig:
+        Type: AWS::AutoScaling::LaunchConfiguration
+        Properties:
+            ImageId: !Ref AMI
+            SecurityGroups:
+                - !Ref ApplicationSecurityGroup
+            InstanceType: !FindInMap [ StageVariables, !Ref Stage, InstanceType ]
+            IamInstanceProfile: !Ref InstanceProfile
+            UserData:
+                Fn::Base64:
+                    !Sub |
+                        #!/bin/bash -ev
+                        mkdir /etc/gu
+
+                        cat > /etc/gu/tags <<'EOF'
+                        Stage=${Stage}
+                        Stack=${Stack}
+                        App=typerighter-checker
+                        EOF
+
+                        aws --quiet --region ${AWS::Region} s3 cp s3://composer-dist/${Stack}/${Stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+                        dpkg -i /tmp/package.deb
+
+
+    LoadBalancerSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Permit incoming HTTPS access on port 443, egress to port 9000
+            VpcId: !Ref VPC
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: 443
+                  ToPort: 443
+                  CidrIp: 0.0.0.0/0
+            SecurityGroupEgress:
+                - IpProtocol: tcp
+                  FromPort: 9000
+                  ToPort: 9000
+                  CidrIp: 0.0.0.0/0
+
+    ApplicationSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: 'SSH and HTTP'
+            VpcId: !Ref VPC
+            SecurityGroupIngress:
+            - IpProtocol: tcp
+                FromPort: 22
+                ToPort: 22
+                CidrIp: !Ref DigDevBubble
+            - IpProtocol: tcp
+                FromPort: 9000
+                ToPort: 9000
+                SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+            SecurityGroupEgress:
+            - IpProtocol: tcp
+                FromPort: 443
+                ToPort: 443
+                CidrIp: 0.0.0.0/0

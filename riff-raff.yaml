@@ -8,8 +8,8 @@ deployments:
     parameters:
       bucket: composer-dist
     dependencies:
-    - cloudformation
-  cloudformation:
+    - checker-cloudformation
+  checker-cloudformation:
     type: cloud-formation
     app: typerighter
     parameters:
@@ -18,4 +18,4 @@ deployments:
         AmigoStage: PROD
         BuiltBy: amigo
       amiEncrypted: true
-      templatePath: typerighter.cfn.yaml
+      templatePath: checker.cfn.yaml
