@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-
 STATUS=$(aws sts get-caller-identity --profile composer 2>&1 || true)
 if [[ ${STATUS} =~ (ExpiredToken) ]]; then
   echo -e "${red}Credentials for the composer profile are expired. Please fetch new credentials and run this again.${plain}"
@@ -10,6 +9,7 @@ elif [[ ${STATUS} =~ ("could not be found") ]]; then
   exit 1
 fi
 
+(cd rule-manager/rule-manager-client && npm i && npm run start)
 
 IS_DEBUG=false
 for arg in "$@"
