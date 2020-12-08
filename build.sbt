@@ -13,6 +13,8 @@ val awsSdkVersion = "1.11.571"
 val capiModelsVersion = "15.8"
 val capiClientVersion = "16.0"
 val circeVersion = "0.12.3"
+val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
+val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 
 val commonSettings = Seq(
   javaOptions in Universal ++= Seq(
@@ -89,14 +91,20 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
   libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
 )
 
-val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin, ScalikejdbcPlugin).settings(
   packageName := "typerighter-rule-manager",
   PlayKeys.devSettings += "play.server.http.port" -> "9101",
   commonSettings,
   libraryDependencies ++= Seq(
     ws,
     guice,
-    "net.logstash.logback" % "logstash-logback-encoder" % "6.0"
+    jdbc,
+    evolutions,
+    "org.postgresql" % "postgresql" % "42.2.5",
+    "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
+    "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
+    "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
+    "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
   )
 )
 
