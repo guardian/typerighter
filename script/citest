@@ -1,8 +1,49 @@
 #!/bin/sh -e
 
-(cd rule-audit-client && npm i && npm run build)
+set -e
 
-(cd rule-manager/rule-manager-client && npm i && npm run build)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR=${DIR}/..
 
+RULE_MANAGEMENT_DIR="$ROOT_DIR/rule-manager"
+MAX_DB_ATTEMPTS=5
 
-sbt clean compile test riffRaffNotifyTeamcity
+function setupTestDeps {
+  docker-compose up -d
+  # Ensure localstack is up, and relevant resources have been created
+  for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)
+  do
+    pg_isready -h localhost -p 5432 --quiet -t 5 && echo "Postgres DB – ready" && break
+    echo "Postgres DB – waiting ($ATTEMPT/$MAX_DB_ATTEMPTS)"
+    sleep 5
+  done
+}
+
+function teardownTestDeps {
+  docker-compose down
+}
+
+function buildClients {
+  (cd rule-manager/rule-manager-client && npm i && npm run build)
+  (cd rule-audit-client && npm i && npm run build)
+}
+
+function buildSbt {
+  sbt clean compile test riffRaffNotifyTeamcity
+}
+
+function setup {
+  setupTestDeps
+  buildClients
+  buildSbt
+  teardownTestDeps
+}
+
+function teardown {
+  teardownTestDeps
+}
+
+trap teardown EXIT
+
+setup
+teardown
