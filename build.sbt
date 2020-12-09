@@ -13,6 +13,8 @@ val awsSdkVersion = "1.11.571"
 val capiModelsVersion = "15.8"
 val capiClientVersion = "16.0"
 val circeVersion = "0.12.3"
+val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
+val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 
 val commonSettings = Seq(
   javaOptions in Universal ++= Seq(
@@ -39,7 +41,10 @@ val commonSettings = Seq(
     )
   },
   libraryDependencies ++= Seq(
-    "net.logstash.logback" % "logstash-logback-encoder" % "6.0"
+    "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
+    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+    "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
+    "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
   )
 )
 
@@ -66,15 +71,12 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
     "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
     "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
     "com.gu" % "kinesis-logback-appender" % "1.4.4",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
     "org.webjars" % "bootstrap" % "4.3.1",
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.5",
     "com.gu" %% "content-api-client-default" % capiClientVersion,
     "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
-    "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
     "biz.k11i" % "xgboost-predictor" % "0.3.1",
     "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
     "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
@@ -89,14 +91,20 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
   libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
 )
 
-val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin, ScalikejdbcPlugin).settings(
   packageName := "typerighter-rule-manager",
   PlayKeys.devSettings += "play.server.http.port" -> "9101",
   commonSettings,
   libraryDependencies ++= Seq(
     ws,
     guice,
-    "net.logstash.logback" % "logstash-logback-encoder" % "6.0"
+    jdbc,
+    evolutions,
+    "org.postgresql" % "postgresql" % "42.2.5",
+    "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
+    "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
+    "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
+    "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
   )
 )
 

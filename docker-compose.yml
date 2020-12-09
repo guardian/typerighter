@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+    postgres:
+        image: postgres:10.7-alpine
+        container_name: typerighter-rule-manager
+        ports:
+            - 5432:5432
+        environment:
+            - POSTGRES_USER=tr-rule-manager-local
+            - POSTGRES_PASSWORD=tr-rule-manager-local
+            - POSTGRES_DB=tr-rule-manager-local
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        healthcheck:
+          test: ["CMD-SHELL", "pg_isready -U postgres"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
+volumes:
+    postgres-data:
+        driver: local

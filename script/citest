@@ -1,8 +1,55 @@
 #!/bin/sh -e
 
-(cd rule-audit-client && npm i && npm run build)
+set -e
 
-(cd rule-manager/rule-manager-client && npm i && npm run build)
+MAX_DB_ATTEMPTS=5
 
+setupTestDeps() {
+  docker-compose up -d
+  # Ensure containers are up
+  for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)
+  do
+    HEALTH_STATUS=$(docker inspect --format "{{json .State.Health }}" $(docker-compose ps -q) | jq .Status)
+    if [ $HEALTH_STATUS = "\"healthy\"" ]
+    then
+      echo "Docker containers – started"
+      break
+    fi
+    if [ $ATTEMPT -eq 5 ]
+    then
+      echo "Docker containers did not initialise in $MAX_DB_ATTEMPTS attempts"
+      exit 1
+    fi
+    echo "Docker containers – waiting, as status=$HEALTH_STATUS (expects \"healthy\") ($ATTEMPT/$MAX_DB_ATTEMPTS)"
+    sleep 5
+  done
+}
 
-sbt clean compile test riffRaffNotifyTeamcity
+teardownTestDeps() {
+  docker-compose down
+}
+
+buildClients() {
+  (cd rule-audit-client && npm i && npm run build)
+  (cd rule-manager/rule-manager-client && npm i && npm run build)
+}
+
+buildSbt() {
+  sbt clean compile test riffRaffNotifyTeamcity
+}
+
+setup() {
+  setupTestDeps
+  buildClients
+  buildSbt
+  teardownTestDeps
+}
+
+teardown() {
+  teardownTestDeps
+}
+
+trap teardown EXIT
+
+setup
+teardown
