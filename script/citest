@@ -6,11 +6,21 @@ MAX_DB_ATTEMPTS=5
 
 setupTestDeps() {
   docker-compose up -d
-  # Ensure localstack is up, and relevant resources have been created
+  # Ensure containers are up
   for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)
   do
-    pg_isready -h localhost -p 5432 --quiet -t 5 && echo "Postgres DB – ready" && break
-    echo "Postgres DB – waiting ($ATTEMPT/$MAX_DB_ATTEMPTS)"
+    HEALTH_STATUS=$(docker inspect --format "{{json .State.Health }}" $(docker-compose ps -q) | jq .Status)
+    if [ $HEALTH_STATUS = "\"healthy\"" ]
+    then
+      echo "Docker containers – started"
+      break
+    fi
+    if [ $ATTEMPT -eq 5 ]
+    then
+      echo "Docker containers did not initialise in $MAX_DB_ATTEMPTS attempts"
+      exit 1
+    fi
+    echo "Docker containers – waiting, as status=$HEALTH_STATUS (expects \"healthy\") ($ATTEMPT/$MAX_DB_ATTEMPTS)"
     sleep 5
   done
 }
