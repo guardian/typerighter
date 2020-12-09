@@ -2,4 +2,7 @@
 
 (cd rule-audit-client && npm i && npm run build)
 
+(cd rule-manager/rule-manager-client && npm i && npm run build)
+
+
 sbt clean compile test riffRaffNotifyTeamcity

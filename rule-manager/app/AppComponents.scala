@@ -11,10 +11,10 @@ import controllers.AssetsComponents
 class AppComponents(context: Context) extends BuiltInComponentsFromContext(context) with HttpFiltersComponents with AssetsComponents {
   
   val homeController = new HomeController(controllerComponents)
-  
+
   lazy val router = new Routes(
-      httpErrorHandler,
-      homeController,
-      assets
+    httpErrorHandler,
+    assets,
+    homeController
   )
 }
