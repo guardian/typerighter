@@ -6,15 +6,14 @@ import play.api.mvc._
 import utils.Loggable
 
 import scala.concurrent.{ExecutionContext, Future}
+import akka.stream.scaladsl.Flow
 
 class UserRequest[A](val user: User, request: Request[A]) extends WrappedRequest[A](request)
 
 trait PandaAuthentication extends BaseControllerHelpers with Loggable {
   def publicSettings: PublicSettings
 
-  def unauthorisedResponse[A](request: Request[A]) = {
-    Future.successful(Unauthorized("Unauthorised"))
-  }
+  val unauthorisedResponse = Future.successful(Left(Unauthorized("Unauthorised")))
 
   def authStatus(cookie: Cookie, publicKey: PublicKey): AuthenticationStatus = {
     PanDomain.authStatus(
@@ -31,29 +30,31 @@ trait PandaAuthentication extends BaseControllerHelpers with Loggable {
     override def parser: BodyParser[AnyContent] = PandaAuthentication.this.controllerComponents.parsers.default
     override protected def executionContext: ExecutionContext = PandaAuthentication.this.controllerComponents.executionContext
 
-    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] = {
-      publicSettings.publicKey match {
-        case Some(pk) =>
-          request.cookies.get("gutoolsAuth-assym") match {
-            case Some(cookie) =>
-              authStatus(cookie, pk) match {
-                case Authenticated(AuthenticatedUser(user, _, _, _, _)) =>
-                  block(new UserRequest(user, request))
+    override def invokeBlock[A](request: Request[A], block: UserRequest[A] => Future[Result]): Future[Result] =
+      invoke(request) { (user, request) =>
+        val userRequest = new UserRequest(user, request)
+        block(userRequest)
+      }.map(_.fold(identity, identity))(executionContext)
 
-                case other =>
-                  log.info(s"Login response $other")
-                  unauthorisedResponse(request)
-              }
-
-            case None =>
-              log.warn("Panda cookie missing")
-              unauthorisedResponse(request)
+    def invoke[Req <: RequestHeader, A, T](request: Req)(block: (User, Req) => Future[T]): Future[Either[Result, T]] =
+      (publicSettings.publicKey, request.cookies.get("gutoolsAuth-assym")) match {
+        case (Some(pk), Some(cookie)) =>
+          authStatus(cookie, pk) match {
+            case Authenticated(AuthenticatedUser(user, _, _, _, _)) =>
+              block(user, request).map(Right(_))(executionContext)
+            case other =>
+              log.info(s"Login response $other")
+              unauthorisedResponse
           }
-
-        case None =>
-          log.error("Panda public key unavailable")
-          unauthorisedResponse(request)
+        case (None, _) =>
+            log.error("Panda public key unavailable")
+            unauthorisedResponse
+        case (_, None) =>
+            log.warn("Panda cookie missing")
+            unauthorisedResponse
       }
-    }
+
+    def toSocket[A, In, Out](request: RequestHeader)(f: (User, RequestHeader) => Flow[In, Out, _]): Future[Either[Result,Flow[In, Out, _]]] =
+      invoke(request)((u, r) => Future.successful(f(u, r)))
   }
 }

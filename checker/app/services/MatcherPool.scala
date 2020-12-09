@@ -9,7 +9,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
-import model.{BaseRule, Category, Check, MatcherResponse, RuleMatch, TextBlock}
+import model.{BaseRule, Category, Check, CheckResult, CheckResponse, RuleMatch, TextBlock}
 import utils.{Matcher, RuleMatchHelpers}
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
@@ -19,6 +19,7 @@ import play.api.Logging
 import utils.Timer
 import utils.CloudWatchClient
 import utils.Metrics
+import akka.NotUsed
 
 case class MatcherRequest(blocks: List[TextBlock])
 
@@ -75,7 +76,6 @@ class MatcherPool(
   type MatcherId = String
   type CategoryId = String
   private val matchers = new ConcurrentHashMap[MatcherId, Matcher]().asScala
-  private val eventBus = new MatcherPoolEventBus()
 
   // This supervision strategy resumes the stream when `mapAsyncUnordered`
   // emits failed futures. Without it, the stream fails when errors occur. See
@@ -85,7 +85,7 @@ class MatcherPool(
   private val queue = Source.queue[MatcherJob](maxQueuedJobs, OverflowStrategy.dropNew)
     .mapAsyncUnordered(maxCurrentJobs)(getMatchesForJob)
     .withAttributes(supervisionStrategy)
-    .to(Sink.fold(Map[String, Int]())(markJobAsComplete))
+    .to(Sink.ignore)
     .run()
 
   def getMaxCurrentValidations: Int = maxCurrentJobs
@@ -95,7 +95,7 @@ class MatcherPool(
     * Check the text with the matchers assigned to the given category ids.
     * If no ids are assigned, use all the currently available matchers.
     */
-  def check(query: Check): Future[(Set[CategoryId], List[RuleMatch])] = {
+  def check(query: Check): Future[CheckResult] = {
     val categoryIds = query.categoryIds match {
       case None => getCurrentCategories.map(_.id)
       case Some(ids) => ids
@@ -112,21 +112,35 @@ class MatcherPool(
 
     val eventuallyResponses = jobs.map(offerJobToQueue)
 
-    Future.sequence(eventuallyResponses).map { matchesPerFuture =>
-      logger.info(s"Matcher pool query complete")(query.toMarker)
-      (categoryIds, matchesPerFuture.flatten)
+    Future.sequence(eventuallyResponses).map { responses =>
+        val (catIds, blocks, matches) = responses.foldLeft((Set.empty[String], List.empty[TextBlock], List.empty[RuleMatch])) {
+          case ((accCatIds, accBlocks, accMatches), (job, matches)) =>
+            (accCatIds ++ job.categoryIds, accBlocks ++ job.blocks, accMatches ++ matches)
+        }
+
+        logger.info(s"Matcher pool query complete")(query.toMarker)
+        CheckResult(catIds, blocks, matches)
     }
   }
 
-  /**
-    * @see MatcherPoolEventBus
-    */
-  def subscribe(subscriber: MatcherPoolSubscriber): Boolean = eventBus.subscribe(subscriber, subscriber.requestId)
+  def checkStream(query: Check): Source[CheckResult, NotUsed] = {
+      val categoryIds = query.categoryIds match {
+        case None => getCurrentCategories.map(_.id)
+        case Some(ids) => ids
+      }
 
-  /**
-    * @see MatcherPoolEventBus
-    */
-  def unsubscribe(subscriber: MatcherPoolSubscriber): Boolean = eventBus.unsubscribe(subscriber, subscriber.requestId)
+      logger.info(s"Validation job with id: ${query.requestId} received. Checking categories: ${categoryIds.mkString(", ")}")
+
+      val jobs = createJobsFromPartialJobs(query.requestId, query.documentId.getOrElse("no-document-id"), checkStrategy(query.blocks, categoryIds))
+      logger.info(s"Created ${jobs.size} jobs")
+
+      val eventualResponses = jobs.map(offerJobToQueue)
+      val responseStream = Source(eventualResponses).mapAsyncUnordered(1)(identity)
+
+      responseStream.map {
+        case (job, matches) => CheckResult(job.categoryIds, job.blocks, matches)
+      }
+    }
 
   /**
     * Add a matcher to the pool of matchers.
@@ -163,7 +177,7 @@ class MatcherPool(
     MatcherJob(requestId, documentId, partialJob.blocks, partialJob.categoryIds, promise, partialJobs.length)
   }
 
-  private def offerJobToQueue(job: MatcherJob): Future[List[RuleMatch]] = {
+  private def offerJobToQueue(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
     logger.info(s"Job has been offered to the queue")(job.toMarker)
 
     queue.offer(job).collect {
@@ -175,11 +189,9 @@ class MatcherPool(
         failJobWith(job, s"Job failed, reason: ${err.getMessage}")
     }
 
-    job.promise.future.map {
-      case result => {
-        logger.info("Job is complete")(job.toMarker)
-        result
-      }
+    job.promise.future.map { result =>
+      logger.info("Job is complete")(job.toMarker)
+      (job, result)
     }
   }
 
@@ -270,38 +282,5 @@ class MatcherPool(
         case (_, matches) => RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
       }
     )
-  }
-
-  private def markJobAsComplete(progressMap: Map[String, Int], result: (MatcherJob, List[RuleMatch])): JobProgressMap = {
-    result match {
-      case (job, matches) =>
-        val newCount = progressMap.get(job.requestId) match {
-          case Some(jobCount) => jobCount - 1
-          case None => job.jobsInValidationSet - 1
-        }
-
-        publishResults(job, matches)
-
-        if (newCount == 0) {
-          publishJobsComplete(job.requestId)
-        }
-
-        progressMap + (job.requestId -> newCount)
-    }
-  }
-
-  private def publishResults(job: MatcherJob, results: List[RuleMatch]): Unit = {
-    eventBus.publish(MatcherPoolResultEvent(
-      job.requestId,
-      MatcherResponse(
-        job.blocks,
-        job.categoryIds,
-        results
-      )
-    ))
-  }
-
-  private def publishJobsComplete(requestId: String): Unit = {
-    eventBus.publish(MatcherPoolJobsCompleteEvent(requestId))
   }
 }

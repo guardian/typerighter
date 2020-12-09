@@ -46,6 +46,20 @@ object Timer extends Logging {
     }
   }
 
+  /**
+    * Log the time that has occurred since the given time, in nanoseconds.
+    *
+    * @param fromTimeInNs
+    * @param taskName the name of the task, which is added to the written log
+    * @param additionalMarkers any additional markers to add to the log entry
+    * @param slowLogThresholdMs pass to log at `warn` level when the operation exceeds the threshold.
+    * @param onSlowLog evaluated when the operation exceeds the slow log threshold
+    */
+  def logTimeSince(fromTimeInNs: Long, taskName: String, additionalMarkers: LogstashMarker = Markers.empty(), slowLogThresholdMs: Long = Long.MaxValue, onSlowLog: Long => Unit = identity) = {
+    val t1 = System.nanoTime()
+    logTime(taskName, fromTimeInNs, t1, additionalMarkers, slowLogThresholdMs, onSlowLog)
+  }
+
   private def logTime(taskName: String, fromInNs: Long, toInNs: Long, additionalMarkers: LogstashMarker, slowLogThresholdMs: Long, onSlowLog: Long => Unit) = {
     val durationInMs = (toInNs - fromInNs) / 1000000
     val markers = Markers.appendEntries((

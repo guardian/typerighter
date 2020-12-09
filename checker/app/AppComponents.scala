@@ -1,5 +1,9 @@
 import java.io.File
 
+import akka.actor.ActorSystem
+import akka.dispatch.MessageDispatcher
+import akka.stream.{ActorMaterializer, ActorMaterializerSettings, Materializer}
+
 import scala.concurrent.Future
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
@@ -10,7 +14,8 @@ import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{ApiController, AuditController, CapiProxyController, HomeController, RulesController}
 import matchers.RegexMatcher
 import play.api.ApplicationLoader.Context
-import play.api.BuiltInComponentsFromContext
+import play.api.libs.concurrent.ActorSystemProvider
+import play.api.{BuiltInComponentsFromContext, Configuration}
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.libs.concurrent.DefaultFutures
@@ -80,7 +85,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val spreadsheetId = configuration.get[String]("typerighter.sheetId")
   val sheetsRuleManager = new SheetsRuleManager(credentials, spreadsheetId, matcherPool, languageToolFactory)
 
-  val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
+  val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)(executionContext, materializer, actorSystem)
   val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, spreadsheetId, ruleProvisioner, publicSettings)
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
