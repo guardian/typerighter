@@ -2,19 +2,13 @@
 
 set -e
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ROOT_DIR=${DIR}/..
-
-RULE_MANAGEMENT_DIR="$ROOT_DIR/rule-manager"
-MAX_DB_ATTEMPTS=5
-
 function setupTestDeps {
   docker-compose up -d
   # Ensure localstack is up, and relevant resources have been created
-  for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)
+  for ATTEMPT in {1..5}
   do
     pg_isready -h localhost -p 5432 --quiet -t 5 && echo "Postgres DB – ready" && break
-    echo "Postgres DB – waiting ($ATTEMPT/$MAX_DB_ATTEMPTS)"
+    echo "Postgres DB – waiting ($ATTEMPT/5)"
     sleep 5
   done
 }
