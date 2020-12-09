@@ -20,7 +20,7 @@ import play.filters.cors.CORSComponents
 import router.Routes
 import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
-import utils.Loggable
+import com.gu.typerighter.lib.{Loggable, ElkLogging}
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 
@@ -63,11 +63,11 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     case _ => "code"
   }
   val typerighterBucket = s"typerighter-${stage}"
- 
+
   val cloudWatchClient = identity match {
     case identity: AwsIdentity => new CloudWatchClient(stage, false)
     case _ : DevIdentity => new CloudWatchClient(stage, true)
-  } 
+  }
 
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
   val defaultFutures = new DefaultFutures(actorSystem)
