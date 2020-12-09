@@ -3,6 +3,7 @@
 set -e
 
 MAX_DB_ATTEMPTS=5
+APP_FOLDER="apps"
 
 setupTestDeps() {
   docker-compose up -d
@@ -30,8 +31,8 @@ teardownTestDeps() {
 }
 
 buildClients() {
-  (cd rule-audit-client && npm i && npm run build)
-  (cd rule-manager/rule-manager-client && npm i && npm run build)
+  (cd $APP_FOLDER/rule-audit-client && npm i && npm run build)
+  (cd $APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
 }
 
 buildSbt() {
