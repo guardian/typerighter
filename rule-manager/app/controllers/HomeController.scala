@@ -18,7 +18,7 @@ class HomeController(val controllerComponents: ControllerComponents, db: RuleMan
 
   def healthcheck() = Action { implicit request: Request[AnyContent] =>
     try {
-      db.testConnection()
+      db.connectionHealthy()
       Ok(Json.obj("healthy" -> true))
     } catch {
       case e: Throwable =>
