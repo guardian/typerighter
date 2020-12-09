@@ -2,38 +2,40 @@
 
 set -e
 
-function setupTestDeps {
+MAX_DB_ATTEMPTS=5
+
+setupTestDeps() {
   docker-compose up -d
   # Ensure localstack is up, and relevant resources have been created
-  for ATTEMPT in {1..5}
+  for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)
   do
     pg_isready -h localhost -p 5432 --quiet -t 5 && echo "Postgres DB – ready" && break
-    echo "Postgres DB – waiting ($ATTEMPT/5)"
+    echo "Postgres DB – waiting ($ATTEMPT/$MAX_DB_ATTEMPTS)"
     sleep 5
   done
 }
 
-function teardownTestDeps {
+teardownTestDeps() {
   docker-compose down
 }
 
-function buildClients {
-  (cd rule-manager/rule-manager-client && npm i && npm run build)
+buildClients() {
   (cd rule-audit-client && npm i && npm run build)
+  (cd rule-manager/rule-manager-client && npm i && npm run build)
 }
 
-function buildSbt {
+buildSbt() {
   sbt clean compile test riffRaffNotifyTeamcity
 }
 
-function setup {
+setup() {
   setupTestDeps
   buildClients
   buildSbt
   teardownTestDeps
 }
 
-function teardown {
+teardown() {
   teardownTestDeps
 }
 

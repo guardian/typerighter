@@ -9,7 +9,7 @@ do
   fi
 done
 
-function checkCredentials {
+checkCredentials() {
   STATUS=$(aws sts get-caller-identity --profile composer 2>&1 || true)
   if [[ ${STATUS} =~ (ExpiredToken) ]]; then
     echo -e "${red}Credentials for the composer profile are expired. Please fetch new credentials and run this again.${plain}"
@@ -20,16 +20,16 @@ function checkCredentials {
   fi
 }
 
-function setupDependencies {
+setupDependencies() {
   docker-compose up -d
   (cd rule-manager/rule-manager-client && npm i && npm run start)
 }
 
-function teardownDependencies {
+teardownDependencies() {
   docker-compose down
 }
 
-function runApp {
+runApp() {
   if [[ "$IS_DEBUG" = true ]] ; then
     sbt -jvm-debug 5005 run
   else
