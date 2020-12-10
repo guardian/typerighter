@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+APP_FOLDER="apps"
+
 IS_DEBUG=false
 for arg in "$@"
 do
@@ -22,7 +24,7 @@ checkCredentials() {
 
 setupDependencies() {
   docker-compose up -d
-  (cd rule-manager/rule-manager-client && npm i && npm run build)
+  (cd $APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
 }
 
 teardownDependencies() {

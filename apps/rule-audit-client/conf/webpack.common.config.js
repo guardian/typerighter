@@ -15,9 +15,9 @@ module.exports = {
     app: "./src/index.tsx"
   },
   output: {
-    filename: "rule-manager-app.js",
+    filename: "rule-audit-app.js",
     // We drop the final bundle into play's assets folder.
-    path: path.resolve(__dirname, '../../public/javascript'),
+    path: path.resolve(__dirname, '../../checker/public/build'),
   },
   module: {
     rules: [

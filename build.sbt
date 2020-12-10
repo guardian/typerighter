@@ -15,6 +15,7 @@ val capiClientVersion = "16.0"
 val circeVersion = "0.12.3"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
+val appsFolder = "apps";
 
 val commonSettings = Seq(
   javaOptions in Universal ++= Seq(
@@ -48,7 +49,7 @@ val commonSettings = Seq(
   )
 )
 
-val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
+val checker = (project in file(s"$appsFolder/checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
   packageName := "typerighter-checker",
   PlayKeys.devSettings += "play.server.http.port" -> "9100",
   commonSettings,
@@ -91,7 +92,7 @@ val checker = (project in file("checker")).enablePlugins(PlayScala, GatlingPlugi
   libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
 )
 
-val ruleManager = (project in file("rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin, ScalikejdbcPlugin).settings(
+val ruleManager = (project in file(s"$appsFolder/rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin, ScalikejdbcPlugin).settings(
   packageName := "typerighter-rule-manager",
   PlayKeys.devSettings += "play.server.http.port" -> "9101",
   commonSettings,
