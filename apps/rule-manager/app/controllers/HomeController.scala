@@ -2,17 +2,25 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-import _root_.db.RuleManagerDB
 import play.api.libs.json.Json
+import play.api.libs.ws.WSClient
 
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
+import com.gu.pandomainauth.PublicSettings
+import com.gu.typerighter.lib.PandaAuthentication
+import com.gu.typerighter.lib.Loggable
 
-class HomeController(val controllerComponents: ControllerComponents, db: RuleManagerDB) extends BaseController with Logging {
+import _root_.db.RuleManagerDB
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 
-  def index() = Action { implicit request: Request[AnyContent] =>
+class HomeController(
+  val controllerComponents: ControllerComponents,
+  val db: RuleManagerDB,
+  override val panDomainSettings: PanDomainAuthSettingsRefresher,
+  override val wsClient: WSClient,
+  override val authDomain: String
+) extends BaseController with Loggable with AppAuthActions {
+
+  def index() = AuthAction { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
   }
 
@@ -22,7 +30,7 @@ class HomeController(val controllerComponents: ControllerComponents, db: RuleMan
       Ok(Json.obj("healthy" -> true))
     } catch {
       case e: Throwable =>
-        logger.error("Healthcheck failed", e)
+        log.error("Healthcheck failed", e)
         InternalServerError(
           Json.obj(
             "healthy" -> false,
@@ -30,5 +38,9 @@ class HomeController(val controllerComponents: ControllerComponents, db: RuleMan
           )
         )
     }
+  }
+
+  def oauthCallback = Action.async { implicit request =>
+    processOAuthCallback()
   }
 }
