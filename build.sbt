@@ -115,6 +115,6 @@ riffRaffArtifactResources := Seq(
   (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",
   (packageBin in Debian in ruleManager).value  -> s"${(packageName in ruleManager).value}/${(packageName in ruleManager).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
-  baseDirectory.value / "checker/cfn/cfn.yaml" -> "cloudformation/checker.cfn.yaml",
-  baseDirectory.value / "rule-manager/cfn/cfn.yaml" -> "cloudformation/rule-manager.cfn.yaml"
+  baseDirectory.value / "apps/checker/cfn/cfn.yaml" -> "cloudformation/checker.cfn.yaml",
+  baseDirectory.value / "apps/rule-manager/cfn/cfn.yaml" -> "cloudformation/rule-manager.cfn.yaml"
 )
