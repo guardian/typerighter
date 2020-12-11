@@ -1,4 +1,4 @@
-import java.io.File
+
 
 import scala.concurrent.Future
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
@@ -23,6 +23,7 @@ import services._
 import com.gu.typerighter.lib.{Loggable, ElkLogging}
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
+import utils.CheckerConfig
 
 
 class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
@@ -35,21 +36,20 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
+  val config = new CheckerConfig(configuration, identity)
+
   // initialise log shipping if we are in AWS
   private val logShipping = Some(identity).collect{ case awsIdentity: AwsIdentity =>
-    val loggingStreamName = configuration.getOptional[String]("typerighter.loggingStreamName")
-    new ElkLogging(awsIdentity, loggingStreamName, creds, applicationLifecycle)
+    new ElkLogging(awsIdentity, config.loggingStreamName, creds, applicationLifecycle)
   }
 
-  val ngramPath: Option[File] = configuration.getOptional[String]("typerighter.ngramPath").map(new File(_))
-  val languageToolFactory = new LanguageToolFactory(ngramPath, true)
+  val languageToolFactory = new LanguageToolFactory(config.ngramPath, true)
 
-
-  val capiApiKey = configuration.get[String]("capi.apiKey")
-  val guardianContentClient = GuardianContentClient(capiApiKey)
+  val guardianContentClient = GuardianContentClient(config.capiApiKey)
   val contentClient = new ContentClient(guardianContentClient)
 
   private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(AppIdentity.region).build()
+
   val settingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
@@ -76,12 +76,10 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)
 
-  val credentials = configuration.get[String]("typerighter.google.credentials")
-  val spreadsheetId = configuration.get[String]("typerighter.sheetId")
-  val sheetsRuleManager = new SheetsRuleManager(credentials, spreadsheetId, matcherPool, languageToolFactory)
+  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId, matcherPool, languageToolFactory)
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
-  val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, spreadsheetId, ruleProvisioner, publicSettings)
+  val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, config.spreadsheetId, ruleProvisioner, publicSettings)
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient, publicSettings)
