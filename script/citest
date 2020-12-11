@@ -5,6 +5,10 @@ set -e
 MAX_DB_ATTEMPTS=5
 APP_FOLDER="apps"
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+
+
 setupTestDeps() {
   docker-compose up -d
   # Ensure containers are up
@@ -30,17 +34,23 @@ teardownTestDeps() {
   docker-compose down
 }
 
+buildCDK() {
+  $DIR/build-cdk
+}
+
 buildClients() {
-  (cd $APP_FOLDER/rule-audit-client && npm i && npm run build)
-  (cd $APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
+  (cd $DIR/../$APP_FOLDER/rule-audit-client && npm i && npm run build)
+  (cd $DIR/../$APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
 }
 
 buildSbt() {
+  cd $DIR/..
   sbt clean compile test riffRaffNotifyTeamcity
 }
 
 setup() {
   setupTestDeps
+  buildCDK
   buildClients
   buildSbt
   teardownTestDeps
