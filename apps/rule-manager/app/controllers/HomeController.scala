@@ -11,14 +11,20 @@ import com.gu.typerighter.lib.Loggable
 
 import _root_.db.RuleManagerDB
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import utils.PermissionsHandler
+import com.gu.permissions.PermissionDefinition
+import utils.RuleManagerConfig
 
 class HomeController(
   val controllerComponents: ControllerComponents,
   val db: RuleManagerDB,
   override val panDomainSettings: PanDomainAuthSettingsRefresher,
   override val wsClient: WSClient,
-  override val authDomain: String
-) extends BaseController with Loggable with AppAuthActions {
+  override val config: RuleManagerConfig
+) extends BaseController
+  with Loggable
+  with AppAuthActions
+  with PermissionsHandler {
 
   def index() = AuthAction { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
@@ -37,6 +43,13 @@ class HomeController(
             "error" -> e.getMessage()
           )
         )
+    }
+  }
+
+  def editPermissionCheck() = AuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case true => Ok("Permission granted")
+      case false => Unauthorized("You don't have permission to edit rules")
     }
   }
 
