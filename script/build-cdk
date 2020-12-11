@@ -3,7 +3,6 @@ set -e
 
 RUN_DIR=$(pwd)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
 
 nvm_available() {
   type -t nvm > /dev/null
@@ -40,5 +39,3 @@ source_nvm() {
     yarn synth
   done
 )
-
-cd $RUN_DIR

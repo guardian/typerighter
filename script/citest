@@ -1,13 +1,11 @@
-#!/bin/sh -e
+#!/usr/bin/env bash
 
 set -e
 
 MAX_DB_ATTEMPTS=5
 APP_FOLDER="apps"
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd $DIR
-
+ROOT_DIR=${DIR}/..
 
 setupTestDeps() {
   docker-compose up -d
@@ -39,13 +37,15 @@ buildCDK() {
 }
 
 buildClients() {
-  (cd $DIR/../$APP_FOLDER/rule-audit-client && npm i && npm run build)
-  (cd $DIR/../$APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
+  (cd $ROOT_DIR/$APP_FOLDER/rule-audit-client && npm i && npm run build)
+  (cd $ROOT_DIR/$APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
 }
 
 buildSbt() {
-  cd $DIR/..
-  sbt clean compile test riffRaffNotifyTeamcity
+  (
+    cd $ROOT_DIR
+    sbt clean compile test riffRaffNotifyTeamcity
+  )
 }
 
 setup() {
