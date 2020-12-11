@@ -36,7 +36,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
-  val config = new CheckerConfig(configuration, identity)
+  val config = new CheckerConfig(configuration, identity, creds)
 
   // initialise log shipping if we are in AWS
   private val logShipping = Some(identity).collect{ case awsIdentity: AwsIdentity =>
