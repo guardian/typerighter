@@ -15,6 +15,7 @@
     "@babel/core": "^7.12.9",
     "@babel/preset-env": "^7.12.7",
     "@babel/preset-react": "^7.12.7",
+    "@emotion/babel-preset-css-prop": "^11.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "babel-loader": "^8.2.2",
@@ -30,6 +31,11 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@emotion/core": "^11.0.0",
+    "@emotion/react": "^11.1.2",
+    "@guardian/src-button": "^2.7.1",
+    "@guardian/src-foundations": "^2.7.1",
+    "emotion-theming": "^11.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
