@@ -1,18 +1,26 @@
-import * as sns from '@aws-cdk/aws-sns';
-import * as subs from '@aws-cdk/aws-sns-subscriptions';
-import * as sqs from '@aws-cdk/aws-sqs';
-import * as cdk from '@aws-cdk/core';
+import {
+  GuStack,
+  GuSubnetListParameter,
+  GuVpcParameter,
+  GuAmiParameter
+} from "@guardian/cdk/lib/constructs/core";
+import { App, StackProps } from '@aws-cdk/core';
 
-export class RuleManager extends cdk.Stack {
-  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
+export class RuleManager extends GuStack {
+  constructor(scope: App, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'CdkQueue', {
-      visibilityTimeout: cdk.Duration.seconds(300)
-    });
-
-    const topic = new sns.Topic(this, 'CdkTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
+    const parameters = {
+      Subnets: new GuSubnetListParameter(this, "Subnets", {
+        description: "The subnets where AMIable instances will run",
+      }),
+      VpcId: new GuVpcParameter(this, "VpcId", {
+        description: "The VPC in which AMIable instances will run",
+        default: "/account/vpc/default/id"
+      }),
+      AMI: new GuAmiParameter(this, "AMI", {
+        description: "AMI to use for instances",
+      }),
+    }
   }
 }

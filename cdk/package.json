@@ -11,19 +11,20 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.77.0",
+    "@aws-cdk/assert": "~1.74.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
-    "aws-cdk": "1.77.0",
+    "aws-cdk": "~1.74.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-sns": "1.77.0",
-    "@aws-cdk/aws-sns-subscriptions": "1.77.0",
-    "@aws-cdk/aws-sqs": "1.77.0",
-    "@aws-cdk/core": "1.77.0"
+    "@aws-cdk/aws-sns": "~1.74.0",
+    "@aws-cdk/aws-sns-subscriptions": "~1.74.0",
+    "@aws-cdk/aws-sqs": "~1.74.0",
+    "@aws-cdk/core": "~1.74.0",
+    "@guardian/cdk": "^0.3.0"
   }
 }
