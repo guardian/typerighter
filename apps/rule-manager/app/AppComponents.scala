@@ -17,16 +17,15 @@ import router.Routes
 import controllers.HomeController
 import db.RuleManagerDB
 import play.api.libs.ws.ahc.AhcWSComponents
+import com.gu.typerighter.lib.CommonConfig
 
 class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with AssetsComponents
   with AhcWSComponents {
-  val dbUrl = configuration.get[String]("db.default.url")
-  val dbUsername = configuration.get[String]("db.default.username")
-  val dbPassword = configuration.get[String]("db.default.password")
-  val db = new RuleManagerDB(dbUrl, dbUsername, dbPassword)
+  val config = new RuleManagerConfig(configuration, identity)
+  val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
 
   private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(AppIdentity.region).build()
   val stageDomain = identity match {
