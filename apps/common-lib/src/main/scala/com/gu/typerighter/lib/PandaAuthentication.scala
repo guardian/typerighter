@@ -1,9 +1,10 @@
-package services
+package com.gu.typerighter.lib
 
 import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, AuthenticationStatus, User}
 import com.gu.pandomainauth.{PanDomain, PublicKey, PublicSettings}
 import play.api.mvc._
-import utils.Loggable
+
+import com.gu.typerighter.lib.Loggable
 
 import scala.concurrent.{ExecutionContext, Future}
 

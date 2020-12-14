@@ -1,4 +1,4 @@
-package utils
+package com.gu.typerighter.lib
 
 import org.slf4j.{Logger, LoggerFactory}
 

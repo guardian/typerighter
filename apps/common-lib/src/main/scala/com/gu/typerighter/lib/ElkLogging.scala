@@ -1,4 +1,4 @@
-package services
+package com.gu.typerighter.lib
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.{AsyncAppender, Logger, LoggerContext}
@@ -13,7 +13,8 @@ import org.slf4j.{LoggerFactory, Logger => SLFLogger}
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.json.{Json => PlayJson}
 import typerighter.BuildInfo
-import utils.Loggable
+
+import com.gu.typerighter.lib
 
 import scala.util.control.NonFatal
 

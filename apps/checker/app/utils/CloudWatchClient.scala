@@ -6,6 +6,8 @@ import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StandardUnit;
 
+import com.gu.typerighter.lib.Loggable
+
 object Metrics {
   val RulesIngested = "RulesIngested"
   val RulesNotFound = "RulesNotFound"
