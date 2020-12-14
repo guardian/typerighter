@@ -33,9 +33,5 @@ source_nvm() {
   # yarn build
   # yarn test
 
-  for file in bin/*; do
-    stackName=$(basename "$file" ".ts")
-    echo $stackName
-    yarn synth
-  done
+  yarn synth
 )

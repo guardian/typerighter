@@ -61,7 +61,7 @@ export class RuleManager extends GuStack {
       artifactBucket: "composer-dist"
     });
 
-    const targetGroup = new GuApplicationTargetGroup(this, "GrafanaInternalTargetGroup", {
+    const targetGroup = new GuApplicationTargetGroup(this, "InternalTargetGroup", {
       vpc: vpc,
       port: 3000,
       protocol: ApplicationProtocol.HTTP,
@@ -94,7 +94,7 @@ export class RuleManager extends GuStack {
       securityGroup: loadBalancerSecurityGroup,
     });
 
-    new GuApplicationListener(this, "GrafanaInternalListener", {
+    new GuApplicationListener(this, "InternalListener", {
       loadBalancer,
       certificates: [{ certificateArn: parameters.TLSCert.valueAsString }],
       defaultAction: ListenerAction.forward([targetGroup]),
