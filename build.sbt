@@ -48,8 +48,8 @@ val commonSettings = Seq(
     "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
     "com.gu" % "kinesis-logback-appender" % "1.4.4",
+    "com.gu" %% "simple-configuration-ssm" % "1.5.0",
     "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
-    "com.gu" %% "simple-configuration-ssm" % "1.5.0"
   )
 )
 
@@ -124,6 +124,7 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
+      "com.gu" %% "pan-domain-auth-play_2-8" % "1.0.4"
     )
   )
 

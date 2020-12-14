@@ -4,8 +4,6 @@ import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, Authenticat
 import com.gu.pandomainauth.{PanDomain, PublicKey, PublicSettings}
 import play.api.mvc._
 
-import com.gu.typerighter.lib.Loggable
-
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserRequest[A](val user: User, request: Request[A]) extends WrappedRequest[A](request)

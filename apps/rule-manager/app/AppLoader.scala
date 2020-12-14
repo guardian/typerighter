@@ -1,5 +1,13 @@
 import play.api.ApplicationLoader.Context
 import play.api._
+import com.gu.AppIdentity
+import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.gu.DevIdentity
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.gu.AwsIdentity
+import com.gu.conf.SSMConfigurationLocation
+import com.gu.conf.ConfigurationLoader
 
 
 class AppLoader extends ApplicationLoader {
@@ -8,6 +16,22 @@ class AppLoader extends ApplicationLoader {
       _.configure(context.environment, context.initialConfiguration, Map.empty)
     }
 
-    new AppComponents(context).application
+    val identity = AppIdentity.whoAmI(defaultAppName = "typerighter-rule-manager")
+
+    val creds: AWSCredentialsProvider = identity match {
+      case _: DevIdentity => new ProfileCredentialsProvider("composer")
+      case _ => DefaultAWSCredentialsProviderChain.getInstance
+    }
+
+    val loadedConfig = ConfigurationLoader.load(identity, creds) {
+      case identity: AwsIdentity => SSMConfigurationLocation.default(identity)
+      case development: DevIdentity => SSMConfigurationLocation(s"/DEV/flexible/${development.app}")
+    }
+
+    new AppComponents(
+      context.copy(initialConfiguration = Configuration(loadedConfig).withFallback(context.initialConfiguration)),
+      identity,
+      creds
+    ).application
   }
 }
