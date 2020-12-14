@@ -4,6 +4,7 @@ import type { App } from "@aws-cdk/core";
 import { Fn } from "@aws-cdk/core";
 import { Duration, RemovalPolicy, SecretValue, Tags } from "@aws-cdk/core";
 import { GuSSMParameter, GuStackProps } from "@guardian/cdk/lib/constructs/core";
+import { StringParameter } from '@aws-cdk/aws-ssm';
 import {
   GuArnParameter,
   GuInstanceTypeParameter,
@@ -30,10 +31,6 @@ export class RuleManagerDB extends GuStack {
       PrivateVpcSubnets: new GuSSMParameter(this, "PrivateVpcSubnets", {
         description: "Subnets to use in VPC for private EC2 instances eg. subnet-abcd1234",
         default: "/account/vpc/default/private.subnets"
-      }),
-      DBMasterUser: new GuSSMParameter(this, "DBMasterUser", {
-        description: "Master user of the database",
-        default: `/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.password`,
       }),
       AccessSecurityGroupID: new GuParameter(this, "AccessSecurityGroupID", {
         description: "Id of the security group from which access to the DB will be allowed",
@@ -90,7 +87,8 @@ export class RuleManagerDB extends GuStack {
         description: "Private subnet for typerighter rule-manager database",
       }),
       credentials: Credentials.fromPassword(
-        parameters.DBMasterUser.valueAsString, 
+        // StringParameter.valueForStringParameter(this,`/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.username`, 1),
+        SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.username`, "1").toString(),
         SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.password`, "1")
       ),
       multiAz: true,

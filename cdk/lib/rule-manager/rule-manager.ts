@@ -21,6 +21,7 @@ import {
   GuApplicationLoadBalancer,
   GuApplicationTargetGroup,
 } from "@guardian/cdk/lib/constructs/loadbalancing";
+import { StringParameter, StringListParameter } from '@aws-cdk/aws-ssm';
 
 // TODO: Can we pass app in as a prop?
 // TODO: Can we do the same for Stage and Stack? How does that work if sometimes they're
@@ -32,14 +33,19 @@ export class RuleManager extends GuStack {
     super(scope, id, props);
 
     const parameters = {
-      VPC: new GuVpcParameter(this, "VPC", {
+      VPC: new GuParameter(this, "VPC", {
+        type: "AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>",
         description: "Virtual Private Cloud to run EC2 instances within",
+        default: "/account/vpc/default/id"
       }),
-      PublicSubnets: new GuSubnetListParameter(this, "PublicSubnets", {
-        description: "Subnets to run load balancer within",
-      }),
-      PrivateSubnets: new GuSubnetListParameter(this, "PrivateSubnets", {
+      // PublicSubnets: new GuSSMParameter(this, "PublicSubnets", {
+      //   description: "Subnets to run load balancer within",
+      //   default: "/account/vpc/default/public.subnets"
+      // }),
+      PrivateSubnets: new GuParameter(this, "PrivateSubnets", {
+        type: "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
         description: "Subnets to run the ASG and instances within",
+        default: "/account/vpc/default/private.subnets"
       }),
       TLSCert: new GuArnParameter(this, "TLSCert", {
         description: "ARN of a TLS certificate to install on the load balancer",
