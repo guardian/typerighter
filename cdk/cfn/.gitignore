@@ -1,0 +1,4 @@
+# We use the folder to store output cloudformation files
+*
+# Except this file
+!.gitignore
