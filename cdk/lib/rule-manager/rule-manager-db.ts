@@ -16,6 +16,7 @@ import {
 } from "@guardian/cdk/lib/constructs/core";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
 import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
+import { Key } from '@aws-cdk/aws-kms';
 
 export class RuleManagerDB extends GuStack {
   constructor(scope: App, id: string, props?: GuStackProps) {
@@ -24,28 +25,32 @@ export class RuleManagerDB extends GuStack {
     const dbPort = 5432;
 
     const parameters = {
-      VpcId: new GuSSMParameter(this, "VpcId", {
-        description: "ID of the VPC onto which to launch the application eg. vpc-1234abcd",
+      VpcId: new GuParameter(this, "VPC", {
+        type: "AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>",
+        description: "Virtual Private Cloud to run EC2 instances within",
         default: "/account/vpc/default/id"
       }),
-      PrivateVpcSubnets: new GuSSMParameter(this, "PrivateVpcSubnets", {
-        description: "Subnets to use in VPC for private EC2 instances eg. subnet-abcd1234",
+      MasterDBUsername: new GuParameter(this, "MasterDBUsername", {
+        description: "Master DB username",
+        default: "typerighter-user",
+        type: "String"
+      }),
+      PrivateVpcSubnets: new GuParameter(this, "PrivateSubnets", {
+        type: "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+        description: "Subnets to run the ASG and instances within",
         default: "/account/vpc/default/private.subnets"
       }),
       AccessSecurityGroupID: new GuParameter(this, "AccessSecurityGroupID", {
         description: "Id of the security group from which access to the DB will be allowed",
         type: "AWS::EC2::SecurityGroup::Id",
-      }),
-      KMSKey: new GuArnParameter(this, "KMSKey", {
-        description: "ARN of the KMS Key to use to encrypt the database",
-      }),
+      })
     };
 
     /* Resources */
 
     const vpc = GuVpc.fromId(this, "vpc", parameters.VpcId.valueAsString);
 
-    const subnets = GuVpc.subnets(this, Fn.split(',', parameters.PrivateVpcSubnets.valueAsString));
+    const subnets = GuVpc.subnets(this, parameters.PrivateVpcSubnets.valueAsList);
 
     const dbSecurityGroup = new GuSecurityGroup(this, "DBSecurityGroup", {
       description: "DB security group servers",
@@ -87,8 +92,7 @@ export class RuleManagerDB extends GuStack {
         description: "Private subnet for typerighter rule-manager database",
       }),
       credentials: Credentials.fromPassword(
-        // StringParameter.valueForStringParameter(this,`/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.username`, 1),
-        SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.username`, "1").toString(),
+        parameters.MasterDBUsername.valueAsString,
         SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.password`, "1")
       ),
       multiAz: true,
