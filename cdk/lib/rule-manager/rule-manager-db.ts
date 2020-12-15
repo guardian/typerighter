@@ -93,7 +93,7 @@ export class RuleManagerDB extends GuStack {
       }),
       credentials: Credentials.fromPassword(
         parameters.MasterDBUsername.valueAsString,
-        SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.master.password`, "1")
+        SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.default.password`, "1")
       ),
       multiAz: true,
       port: dbPort,
