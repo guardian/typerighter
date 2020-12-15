@@ -19,3 +19,30 @@ deployments:
         BuiltBy: amigo
       amiEncrypted: true
       templatePath: checker.cfn.yaml
+  typerighter-rule-manager:
+    type: autoscaling
+    parameters:
+      bucket: composer-dist
+    dependencies:
+    - rule-manager-cloudformation
+    - rule-manager-db-cloudformation
+  rule-manager-cloudformation:
+    type: cloud-formation
+    app: typerighter
+    parameters:
+      amiTags:
+        Recipe: editorial-tools-xenial-java8-ngrams
+        AmigoStage: PROD
+        BuiltBy: amigo
+      amiEncrypted: true
+      templatePath: rule-manager.cfn.yaml
+  rule-manager-db-cloudformation:
+    type: cloud-formation
+    app: typerighter
+    parameters:
+      amiTags:
+        Recipe: editorial-tools-xenial-java8-ngrams
+        AmigoStage: PROD
+        BuiltBy: amigo
+      amiEncrypted: true
+      templatePath: rule-manager-db.cfn.yaml
