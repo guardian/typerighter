@@ -4,5 +4,5 @@ import { RuleManager } from '../lib/rule-manager/rule-manager';
 import { RuleManagerDB } from '../lib/rule-manager/rule-manager-db';
 
 const app = new App();
-new RuleManager(app, 'rule-manager', { app: "rule-manager" });
-new RuleManagerDB(app, 'rule-manager-db', { app: "rule-manager" })
+new RuleManager(app, 'rule-manager', { app: "typerighter-rule-manager" });
+new RuleManagerDB(app, 'rule-manager-db', { app: "typerighter-rule-manager" })
