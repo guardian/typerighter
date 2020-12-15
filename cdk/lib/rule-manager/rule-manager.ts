@@ -73,9 +73,9 @@ export class RuleManager extends GuStack {
       protocol: ApplicationProtocol.HTTP,
       targetType: TargetType.INSTANCE,
       healthCheck: {
-        port: "3000",
+        port: "9000",
         protocol: Protocol.HTTP,
-        path: "/api/health",
+        path: "/healthcheck",
         interval: Duration.minutes(1),
         timeout: Duration.seconds(3),
         healthyThresholdCount: 2,
