@@ -22,6 +22,9 @@ import {
   GuApplicationTargetGroup,
 } from "@guardian/cdk/lib/constructs/loadbalancing";
 import { StringParameter, StringListParameter } from '@aws-cdk/aws-ssm';
+import { GuPolicy } from "@guardian/cdk/lib/constructs/iam";
+import { Effect, PolicyStatement } from "@aws-cdk/aws-iam";
+
 
 // TODO: Can we pass app in as a prop?
 // TODO: Can we do the same for Stage and Stack? How does that work if sometimes they're
@@ -63,8 +66,31 @@ export class RuleManager extends GuStack {
 
     const vpc = GuVpc.fromId(this, "vpc", parameters.VPC.valueAsString);
 
+    const simpleCofnigPolicy = new GuPolicy(this, "simple-config-policy", {
+      policyName: "SimpleConfigPolicy",
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            "autoscaling:DescribeAutoScalingInstances",
+            "autoscaling:DescribeAutoScalingGroups",
+            "ec2:DescribeTags"
+          ],
+          resources: ["*"]
+        }),
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            "ssm:GetParametersByPath"
+          ],
+          resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stage}/${this.stack}/typerighter-rule-manager`]
+        })
+      ]
+    })
+
     const ruleManagerRole = new InstanceRole(this, {
-      artifactBucket: "composer-dist"
+      artifactBucket: "composer-dist",
+      additionalPolicies: [simpleCofnigPolicy]
     });
 
     const targetGroup = new GuApplicationTargetGroup(this, "InternalTargetGroup", {

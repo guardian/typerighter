@@ -41,11 +41,13 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
+  resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   libraryDependencies ++= Seq(
     "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
+    "com.gu" %% "simple-configuration-ssm" % "1.5.0"
   )
 )
 
@@ -53,13 +55,11 @@ val checker = (project in file(s"$appsFolder/checker")).enablePlugins(PlayScala,
   packageName := "typerighter-checker",
   PlayKeys.devSettings += "play.server.http.port" -> "9100",
   commonSettings,
-  resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   // Used to resolve xgboost-predictor, which is no longer available
   // at spring.io without auth.
   resolvers += "komiya-atsushi Bintray" at "https://dl.bintray.com/komiya-atsushi/maven",
   libraryDependencies ++= Seq(
     ws,
-    "com.gu" %% "simple-configuration-ssm" % "1.5.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
     "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
