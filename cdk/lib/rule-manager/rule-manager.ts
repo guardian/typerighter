@@ -114,7 +114,22 @@ export class RuleManager extends GuStack {
       allowAllOutbound: true,
     });
 
-    const userData = `#!/bin/bash -ev`;
+    const userData = `#!/bin/bash -ev
+    mkdir /etc/gu
+
+    cat > /etc/gu/tags <<'EOF'
+    Stage=${this.stage}
+    Stack=${this.stack}
+    App=typerighter-checker
+    EOF
+
+    cat > /etc/gu/typerighter-checker.conf << 'EOF'
+    include "application"
+    typerighter.ngramPath="/opt/ngram-data"
+    EOF
+
+    aws --quiet --region \${AWS::Region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-checker/typerighter-rule-manager.deb /tmp/package.deb
+    dpkg -i /tmp/package.deb`;
 
     // TODO: ASG used to have `AvailabilityZones: !GetAZs ''`
     // TODO: Maybe there's a nicer way of doing the security groups than this
