@@ -19,8 +19,11 @@ const search = css`
   bottom: 0;
 `;
 
+
+// 'space' is currently not working
 const buttonrow = css`
-  margin-top: ${space[5]};
+  /* margin-top: ${space[5]};  */
+  margin-top: 20px;
 `;
 
 const App = () => {
