@@ -91,9 +91,22 @@ export class RuleManager extends GuStack {
       ]
     })
 
+    const pandaAuthPolicy = new GuPolicy(this, "panda-auth-policy", {
+      policyName: "PandaAuthPolicy",
+      statements: [
+        new PolicyStatement({
+          effect: Effect.ALLOW,
+          actions: [
+            "s3:GetObject"
+          ],
+          resources: ["arn:aws:s3:::pan-domain-auth-settings/*public"]
+        })
+      ]
+    })
+
     const ruleManagerRole = new InstanceRole(this, {
       artifactBucket: "composer-dist",
-      additionalPolicies: [simpleCofnigPolicy]
+      additionalPolicies: [simpleCofnigPolicy, pandaAuthPolicy]
     });
 
     const targetGroup = new GuApplicationTargetGroup(this, "InternalTargetGroup", {
