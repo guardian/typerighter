@@ -2,8 +2,10 @@ package controllers
 
 import matchers.{LanguageToolFactory, RegexMatcher}
 import com.gu.pandomainauth.PublicSettings
-import model.{Category, RegexRule}
+import com.gu.typerighter.lib.PandaAuthentication
 import play.api.mvc._
+
+import model.{Category, RegexRule}
 import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
 

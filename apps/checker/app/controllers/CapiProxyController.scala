@@ -4,7 +4,10 @@ import com.gu.contentapi.json.CirceEncoders._
 import io.circe.syntax._
 import play.api.mvc._
 import com.gu.pandomainauth.PublicSettings
-import services.{ContentClient, PandaAuthentication}
+import com.gu.typerighter.lib.PandaAuthentication
+
+import services.ContentClient
+
 
 import scala.concurrent.{ExecutionContext, Future}
 

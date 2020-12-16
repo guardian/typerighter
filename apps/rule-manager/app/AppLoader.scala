@@ -4,6 +4,14 @@ import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import play.api.ApplicationLoader.Context
 import play.api._
+import com.gu.AppIdentity
+import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.gu.DevIdentity
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.gu.AwsIdentity
+import com.gu.conf.SSMConfigurationLocation
+import com.gu.conf.ConfigurationLoader
 
 
 class AppLoader extends ApplicationLoader {
@@ -25,7 +33,9 @@ class AppLoader extends ApplicationLoader {
     }
 
     new AppComponents(
-      context.copy(initialConfiguration = Configuration(loadedConfig).withFallback(context.initialConfiguration))
+      context.copy(initialConfiguration = Configuration(loadedConfig).withFallback(context.initialConfiguration)),
+      identity,
+      creds
     ).application
   }
 }

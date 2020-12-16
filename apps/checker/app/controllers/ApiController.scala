@@ -5,7 +5,8 @@ import com.gu.pandomainauth.PublicSettings
 import model.{Check, MatcherResponse}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import services.{PandaAuthentication, MatcherPool}
+import services.MatcherPool
+import com.gu.typerighter.lib.PandaAuthentication
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.Timer

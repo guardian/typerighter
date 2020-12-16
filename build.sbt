@@ -30,6 +30,7 @@ val commonSettings = Seq(
     s"-Dconfig.file=/etc/gu/${packageName.value}.conf"
   ),
   buildInfoPackage := "typerighter",
+  resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   buildInfoKeys := {
     lazy val buildInfo = BuildInfo(baseDirectory.value)
     Seq[BuildInfoKey](
@@ -47,69 +48,88 @@ val commonSettings = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
-    "com.gu" %% "simple-configuration-ssm" % "1.5.0"
-  )
-)
-
-val checker = (project in file(s"$appsFolder/checker")).enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin).settings(
-  packageName := "typerighter-checker",
-  PlayKeys.devSettings += "play.server.http.port" -> "9100",
-  commonSettings,
-  // Used to resolve xgboost-predictor, which is no longer available
-  // at spring.io without auth.
-  resolvers += "komiya-atsushi Bintray" at "https://dl.bintray.com/komiya-atsushi/maven",
-  libraryDependencies ++= Seq(
-    ws,
-    "org.languagetool" % "languagetool-core" % languageToolVersion,
-    "org.languagetool" % "language-en" % languageToolVersion,
-    "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
-    "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
-    "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
-    "com.amazonaws" % "aws-java-sdk-kinesis" % awsSdkVersion,
-    "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
-    "com.google.api-client" % "google-api-client" % "1.23.0",
-    "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0",
-    "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
-    "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
     "com.gu" % "kinesis-logback-appender" % "1.4.4",
-    "org.webjars" % "bootstrap" % "4.3.1",
-    "com.gu" %% "content-api-models-scala" % capiModelsVersion,
-    "com.gu" %% "content-api-models-json" % capiModelsVersion,
-    "com.gu" %% "content-api-client-aws" % "0.5",
-    "com.gu" %% "content-api-client-default" % capiClientVersion,
+    "com.gu" %% "simple-configuration-ssm" % "1.5.0",
     "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
-    "biz.k11i" % "xgboost-predictor" % "0.3.1",
-    "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
-    "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
-    "edu.stanford.nlp" % "stanford-parser" % "3.4",
-  ),
-  libraryDependencies ++= Seq(
-    "io.circe" %% "circe-core",
-    "io.circe" %% "circe-generic",
-    "io.circe" %% "circe-parser"
-  ).map(_ % circeVersion),
-  libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.0.2" % "test,it",
-  libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
-)
-
-val ruleManager = (project in file(s"$appsFolder/rule-manager")).enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin, ScalikejdbcPlugin).settings(
-  packageName := "typerighter-rule-manager",
-  PlayKeys.devSettings += "play.server.http.port" -> "9101",
-  commonSettings,
-  libraryDependencies ++= Seq(
-    ws,
-    guice,
-    jdbc,
-    evolutions,
-    "org.postgresql" % "postgresql" % "42.2.5",
-    "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
-    "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
-    "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
-    "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
   )
 )
 
-val root = (project in file(".")).aggregate(checker, ruleManager).enablePlugins(RiffRaffArtifact)
+val commonLib = (project in file(s"$appsFolder/common-lib"))
+  .enablePlugins(BuildInfoPlugin)
+  .settings(
+    packageName := "common-lib",
+    commonSettings,
+    libraryDependencies ++= Seq(
+      // @todo – we're repeating ourselves. Can we derive this from the plugin?
+      "com.typesafe.play" %% "play" % "2.8.0",
+      "com.gu" % "kinesis-logback-appender" % "1.4.2"
+    )
+  )
+
+val checker = (project in file(s"$appsFolder/checker"))
+  .dependsOn(commonLib)
+  .enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
+  .settings(
+    packageName := "typerighter-checker",
+    PlayKeys.devSettings += "play.server.http.port" -> "9100",
+    commonSettings,
+    // Used to resolve xgboost-predictor, which is no longer available
+    // at spring.io without auth.
+    resolvers += "komiya-atsushi Bintray" at "https://dl.bintray.com/komiya-atsushi/maven",
+    libraryDependencies ++= Seq(
+      ws,
+      "org.languagetool" % "languagetool-core" % languageToolVersion,
+      "org.languagetool" % "language-en" % languageToolVersion,
+      "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
+      "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
+      "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
+      "com.amazonaws" % "aws-java-sdk-kinesis" % awsSdkVersion,
+      "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
+      "com.google.api-client" % "google-api-client" % "1.23.0",
+      "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0",
+      "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
+      "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
+      "org.webjars" % "bootstrap" % "4.3.1",
+      "com.gu" %% "content-api-models-scala" % capiModelsVersion,
+      "com.gu" %% "content-api-models-json" % capiModelsVersion,
+      "com.gu" %% "content-api-client-aws" % "0.5",
+      "com.gu" %% "content-api-client-default" % capiClientVersion,
+      "biz.k11i" % "xgboost-predictor" % "0.3.1",
+      "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
+      "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
+      "edu.stanford.nlp" % "stanford-parser" % "3.4",
+    ),
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-core",
+      "io.circe" %% "circe-generic",
+      "io.circe" %% "circe-parser"
+    ).map(_ % circeVersion),
+    libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.0.2" % "test,it",
+    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.0.2" % "test,it"
+  )
+
+val ruleManager = (project in file(s"$appsFolder/rule-manager"))
+  .dependsOn(commonLib)
+  .enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin, ScalikejdbcPlugin)
+  .settings(
+    packageName := "typerighter-rule-manager",
+    PlayKeys.devSettings += "play.server.http.port" -> "9101",
+    commonSettings,
+    libraryDependencies ++= Seq(
+      ws,
+      guice,
+      jdbc,
+      evolutions,
+      "org.postgresql" % "postgresql" % "42.2.5",
+      "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
+      "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
+      "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
+      "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
+      "com.gu" %% "pan-domain-auth-play_2-8" % "1.0.4"
+    )
+  )
+
+val root = (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
   (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",

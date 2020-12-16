@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc._
 import com.gu.pandomainauth.PublicSettings
-import services.PandaAuthentication
+import com.gu.typerighter.lib.PandaAuthentication
 import scala.concurrent.ExecutionContext
 
 /**
