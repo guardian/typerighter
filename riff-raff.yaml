@@ -28,7 +28,7 @@ deployments:
     - rule-manager-db-cloudformation
   rule-manager-cloudformation:
     type: cloud-formation
-    app: typerighter
+    app: typerighter-rule-manager
     parameters:
       amiTags:
         Recipe: editorial-tools-xenial-java8-ngrams
@@ -38,7 +38,7 @@ deployments:
       templatePath: rule-manager.cfn.yaml
   rule-manager-db-cloudformation:
     type: cloud-formation
-    app: typerighter
+    app: typerighter-rule-manager-db
     parameters:
       amiTags:
         Recipe: editorial-tools-xenial-java8-ngrams
