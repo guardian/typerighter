@@ -20,10 +20,8 @@ const search = css`
 `;
 
 
-// 'space' is currently not working
 const buttonrow = css`
-  /* margin-top: ${space[5]};  */
-  margin-top: 20px;
+  margin-top: ${space[5]}px; 
 `;
 
 const App = () => {
@@ -71,7 +69,7 @@ const App = () => {
           <Columns collapseBelow="tablet">
             <Column width={1 / 8}>
               <Button
-                priority="primary"
+                priority="secondary"
                 size="default"
                 iconSide="left"
                 hideLabel={false}
@@ -82,7 +80,7 @@ const App = () => {
             </Column>
             <Column width={1 / 8}>
               <Button
-                priority="primary"
+                priority="secondary"
                 size="default"
                 iconSide="left"
                 hideLabel={false}
