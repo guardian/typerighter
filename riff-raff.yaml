@@ -40,9 +40,4 @@ deployments:
     type: cloud-formation
     app: typerighter-rule-manager-db
     parameters:
-      amiTags:
-        Recipe: editorial-tools-xenial-java8-ngrams
-        AmigoStage: PROD
-        BuiltBy: amigo
-      amiEncrypted: true
       templatePath: rule-manager-db.cfn.yaml
