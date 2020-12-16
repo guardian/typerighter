@@ -98,7 +98,7 @@ export class RuleManager extends GuStack {
 
     const targetGroup = new GuApplicationTargetGroup(this, "InternalTargetGroup", {
       vpc: vpc,
-      port: 3000,
+      port: 9000,
       protocol: ApplicationProtocol.HTTP,
       targetType: TargetType.INSTANCE,
       healthCheck: {

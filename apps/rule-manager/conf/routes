@@ -8,4 +8,5 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index
++anyhost
 GET     /healthcheck                controllers.HomeController.healthcheck
