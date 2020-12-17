@@ -8,10 +8,7 @@ import { GuAutoScalingGroup } from "@guardian/cdk/lib/constructs/autoscaling";
 import {
   GuArnParameter,
   GuParameter,
-  GuSSMParameter,
   GuStringParameter,
-  GuSubnetListParameter,
-  GuVpcParameter,
 } from "@guardian/cdk/lib/constructs/core";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
 import { GuStack } from "@guardian/cdk/lib/constructs/core/stack";
@@ -21,16 +18,14 @@ import {
   GuApplicationLoadBalancer,
   GuApplicationTargetGroup,
 } from "@guardian/cdk/lib/constructs/loadbalancing";
-import { StringParameter, StringListParameter } from '@aws-cdk/aws-ssm';
 import { GuPolicy } from "@guardian/cdk/lib/constructs/iam";
 import { Effect, PolicyStatement } from "@aws-cdk/aws-iam";
-
+import { transformToCidrIngress } from "@guardian/cdk/lib/utils";
 
 // TODO: Can we pass app in as a prop?
 // TODO: Can we do the same for Stage and Stack? How does that work if sometimes they're
 //       parameters and other times they're hardcoded
 // TODO: Setup snapshot tests to give us diffs when things change
-// TODO: 
 export class RuleManager extends GuStack {
   constructor(scope: App, id: string, props?: GuStackProps) {
     super(scope, id, props);
@@ -127,11 +122,15 @@ export class RuleManager extends GuStack {
       deregistrationDelay: Duration.seconds(30),
     });
 
-    // TODO: we should be able to remove this, as the consuming code should be able to provide a default
+    const ingressRules = {
+      "Global": "0.0.0.0/0"
+    }
+
     const loadBalancerSecurityGroup = new GuSecurityGroup(this, "LoadBalancerSecurityGroup", {
-      description: "Guardian IP range has access to the load balancer on port 80",
-      vpc: vpc,
-      allowAllOutbound: false
+      description: "Security group to allow internet access to the LB",
+      vpc,
+      allowAllOutbound: false,
+      ingresses: transformToCidrIngress(Object.entries(ingressRules))
     });
 
     const privateSubnets = GuVpc.subnets(this, parameters.PrivateSubnets.valueAsList);
