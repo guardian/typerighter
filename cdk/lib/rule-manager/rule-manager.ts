@@ -41,10 +41,11 @@ export class RuleManager extends GuStack {
         description: "Virtual Private Cloud to run EC2 instances within",
         default: "/account/vpc/default/id"
       }),
-      // PublicSubnets: new GuSSMParameter(this, "PublicSubnets", {
-      //   description: "Subnets to run load balancer within",
-      //   default: "/account/vpc/default/public.subnets"
-      // }),
+      PublicSubnets: new GuParameter(this, "PublicSubnets", {
+        type: "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+        description: "Subnets to run load balancer within",
+        default: "/account/vpc/default/public.subnets"
+      }),
       PrivateSubnets: new GuParameter(this, "PrivateSubnets", {
         type: "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
         description: "Subnets to run the ASG and instances within",
@@ -133,12 +134,13 @@ export class RuleManager extends GuStack {
       allowAllOutbound: false
     });
 
-    const subnets = GuVpc.subnets(this, parameters.PrivateSubnets.valueAsList);
+    const privateSubnets = GuVpc.subnets(this, parameters.PrivateSubnets.valueAsList);
+    const publicSubnets = GuVpc.subnets(this, parameters.PublicSubnets.valueAsList);
 
     const loadBalancer = new GuApplicationLoadBalancer(this, "InternalLoadBalancer", {
       vpc,
       internetFacing: true,
-      vpcSubnets: { subnets },
+      vpcSubnets: { subnets: publicSubnets },
       securityGroup: loadBalancerSecurityGroup,
     });
 
@@ -171,7 +173,7 @@ dpkg -i /tmp/package.deb`;
     // TODO: Maybe there's a nicer way of doing the security groups than this
     new GuAutoScalingGroup(this, "AutoscalingGroup", {
       vpc,
-      vpcSubnets: { subnets },
+      vpcSubnets: { subnets: privateSubnets },
       role: ruleManagerRole,
       imageId: parameters.AMI.valueAsString,
       userData: userData,
