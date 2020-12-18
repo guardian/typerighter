@@ -1,23 +1,14 @@
 import { Port, SecurityGroup, SubnetType } from "@aws-cdk/aws-ec2";
 import { Credentials, DatabaseInstanceEngine, PostgresEngineVersion, StorageType, SubnetGroup } from "@aws-cdk/aws-rds";
 import type { App } from "@aws-cdk/core";
-import { Fn } from "@aws-cdk/core";
 import { Duration, RemovalPolicy, SecretValue, Tags } from "@aws-cdk/core";
-import { GuSSMParameter, GuStackProps } from "@guardian/cdk/lib/constructs/core";
-import { StringParameter } from '@aws-cdk/aws-ssm';
+import { GuStackProps } from "@guardian/cdk/lib/constructs/core";
 import {
-  GuArnParameter,
-  GuInstanceTypeParameter,
   GuParameter,
-  GuStack,
-  GuStringParameter,
-  GuSubnetListParameter,
-  GuVpcParameter,
+  GuStack
 } from "@guardian/cdk/lib/constructs/core";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
 import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
-import { Key } from '@aws-cdk/aws-kms';
-
 export class RuleManagerDB extends GuStack {
   constructor(scope: App, id: string, props?: GuStackProps) {
     super(scope, id, props);
@@ -48,7 +39,7 @@ export class RuleManagerDB extends GuStack {
 
     /* Resources */
 
-    const vpc = GuVpc.fromId(this, "vpc", parameters.VpcId.valueAsString);
+    const vpc = GuVpc.fromId(this, "Vpc", parameters.VpcId.valueAsString);
 
     const subnets = GuVpc.subnets(this, parameters.PrivateVpcSubnets.valueAsList);
 
@@ -60,7 +51,7 @@ export class RuleManagerDB extends GuStack {
     });
     
     dbSecurityGroup.connections.allowFrom(
-      SecurityGroup.fromSecurityGroupId(this, "accessSecurityGroup", parameters.AccessSecurityGroupID.valueAsString),
+      SecurityGroup.fromSecurityGroupId(this, "AccessSecurityGroup", parameters.AccessSecurityGroupID.valueAsString),
       Port.tcp(dbPort)
     );
 

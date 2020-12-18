@@ -1,4 +1,3 @@
-// TODO: How do we want to do imports for both our own components and cdk?
 import { HealthCheck } from "@aws-cdk/aws-autoscaling";
 import { ApplicationProtocol, ListenerAction, Protocol, TargetType } from "@aws-cdk/aws-elasticloadbalancingv2";
 import type { App } from "@aws-cdk/core";
@@ -22,10 +21,6 @@ import { GuPolicy } from "@guardian/cdk/lib/constructs/iam";
 import { Effect, PolicyStatement } from "@aws-cdk/aws-iam";
 import { transformToCidrIngress } from "@guardian/cdk/lib/utils";
 
-// TODO: Can we pass app in as a prop?
-// TODO: Can we do the same for Stage and Stack? How does that work if sometimes they're
-//       parameters and other times they're hardcoded
-// TODO: Setup snapshot tests to give us diffs when things change
 export class RuleManager extends GuStack {
   constructor(scope: App, id: string, props?: GuStackProps) {
     super(scope, id, props);
@@ -62,7 +57,7 @@ export class RuleManager extends GuStack {
 
     const vpc = GuVpc.fromId(this, "vpc", parameters.VPC.valueAsString);
 
-    const simpleCofnigPolicy = new GuPolicy(this, "simple-config-policy", {
+    const simpleCofnigPolicy = new GuPolicy(this, "SimpleConfigPolicy", {
       policyName: "SimpleConfigPolicy",
       statements: [
         new PolicyStatement({
@@ -84,7 +79,7 @@ export class RuleManager extends GuStack {
       ]
     })
 
-    const pandaAuthPolicy = new GuPolicy(this, "panda-auth-policy", {
+    const pandaAuthPolicy = new GuPolicy(this, "PandaAuthPolicy", {
       policyName: "PandaAuthPolicy",
       statements: [
         new PolicyStatement({
@@ -102,7 +97,7 @@ export class RuleManager extends GuStack {
       additionalPolicies: [simpleCofnigPolicy, pandaAuthPolicy]
     });
 
-    const targetGroup = new GuApplicationTargetGroup(this, "InternalTargetGroup", {
+    const targetGroup = new GuApplicationTargetGroup(this, "PublicTargetGroup", {
       vpc: vpc,
       port: 9000,
       protocol: ApplicationProtocol.HTTP,
@@ -133,21 +128,20 @@ export class RuleManager extends GuStack {
     const privateSubnets = GuVpc.subnets(this, parameters.PrivateSubnets.valueAsList);
     const publicSubnets = GuVpc.subnets(this, parameters.PublicSubnets.valueAsList);
 
-    const loadBalancer = new GuApplicationLoadBalancer(this, "InternalLoadBalancer", {
+    const loadBalancer = new GuApplicationLoadBalancer(this, "PublicLoadBalancer", {
       vpc,
       internetFacing: true,
       vpcSubnets: { subnets: publicSubnets },
       securityGroup: loadBalancerSecurityGroup,
     });
 
-    new GuApplicationListener(this, "InternalListener", {
+    new GuApplicationListener(this, "PublicListener", {
       loadBalancer,
       certificates: [{ certificateArn: parameters.TLSCert.valueAsString }],
       defaultAction: ListenerAction.forward([targetGroup]),
       open: false,
     });
 
-    // TODO: we should be able to remove this, as the consuming code should be able to provide a default
     const appSecurityGroup = new GuSecurityGroup(this, "ApplicationSecurityGroup", {
       description: "HTTP",
       vpc,
@@ -164,8 +158,6 @@ EOF
 aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
 dpkg -i /tmp/package.deb`;
 
-    // TODO: ASG used to have `AvailabilityZones: !GetAZs ''`
-    // TODO: Maybe there's a nicer way of doing the security groups than this
     new GuAutoScalingGroup(this, "AutoscalingGroup", {
       vpc,
       vpcSubnets: { subnets: privateSubnets },
