@@ -32,7 +32,7 @@ const App = () => {
       <Container>
         <Columns>
           <Column width={4 / 4}>
-            <h1 css={h1}>Typerigher rule manager</h1>
+            <h1 css={h1}>Typerighter rule manager</h1>
           </Column>
         </Columns>
         <div
