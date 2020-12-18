@@ -36,7 +36,6 @@
     "@guardian/src-foundations": "^2.7.1",
     "@guardian/src-layout": "^2.7.1",
     "@guardian/src-text-input": "^2.7.1",
-    "emotion-theming": "^11.0.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
