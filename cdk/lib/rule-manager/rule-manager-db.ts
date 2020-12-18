@@ -32,7 +32,7 @@ export class RuleManagerDB extends GuStack {
       }),
       MasterDBUsername: new GuParameter(this, "MasterDBUsername", {
         description: "Master DB username",
-        default: "typerighter-user",
+        default: "rule_manager",
         type: "String"
       }),
       PrivateVpcSubnets: new GuParameter(this, "PrivateSubnets", {
@@ -93,7 +93,7 @@ export class RuleManagerDB extends GuStack {
       }),
       credentials: Credentials.fromPassword(
         parameters.MasterDBUsername.valueAsString,
-        SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.default.password`, "1")
+        SecretValue.ssmSecure(`/${this.stage}/${this.stack}/typerighter-rule-manager/db.default.password`, "3")
       ),
       multiAz: true,
       port: dbPort,
