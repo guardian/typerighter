@@ -1,15 +1,12 @@
-# Welcome to your CDK TypeScript project!
+# Typerighter CDK TypeScript project
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`CdkStack`)
-which contains an Amazon SQS queue that is subscribed to an Amazon SNS topic.
+This directry contains the CDK files used to generate the Typerighter infrastrucure. 
+Currently only the Rule-Manager infrastructure is generated in this way.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
 ## Useful commands
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+ * `yarn synth`       synthesizes the CloudFormation template
+ * `yarn build`       Compiles the Typescript to JS
+ * `yarn watch`       Watch for changes and compile

@@ -538,7 +538,7 @@
     "@aws-cdk/core" "1.74.0"
     constructs "^3.2.0"
 
-"@aws-cdk/aws-sns-subscriptions@1.74.0", "@aws-cdk/aws-sns-subscriptions@~1.74.0":
+"@aws-cdk/aws-sns-subscriptions@1.74.0":
   version "1.74.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-sns-subscriptions/-/aws-sns-subscriptions-1.74.0.tgz#6cdad4a409359122e8a410543e33da59d21b54cc"
   integrity sha512-MOuArbCx1nxL5B40RMQzHNnU0SZWkaQfRDTURTQbX4e0OHyq5DnQrtXTu/XyI/MYPBU+ZnC/FXP+hynCatn+nw==
@@ -550,7 +550,7 @@
     "@aws-cdk/core" "1.74.0"
     constructs "^3.2.0"
 
-"@aws-cdk/aws-sns@1.74.0", "@aws-cdk/aws-sns@~1.74.0":
+"@aws-cdk/aws-sns@1.74.0":
   version "1.74.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-sns/-/aws-sns-1.74.0.tgz#c9289b34cb2512010a0b6813f684c93398502bdd"
   integrity sha512-O0HDGvl1WjCTU53auNJKCW5/6vpbVYlj0RwLgGaOOlTeKnfuq53kGvL/t3QdZQlJWxSvkbN61O+rZB7GacXV0g==
@@ -563,7 +563,7 @@
     "@aws-cdk/core" "1.74.0"
     constructs "^3.2.0"
 
-"@aws-cdk/aws-sqs@1.74.0", "@aws-cdk/aws-sqs@~1.74.0":
+"@aws-cdk/aws-sqs@1.74.0":
   version "1.74.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-sqs/-/aws-sqs-1.74.0.tgz#998da5838d4310805432f0cf55fcc7c8f34657e2"
   integrity sha512-qlj7ZapoL9oneLu4wh7DfQDypCo6QFlyGzd3nlmn+C9UbCscBkpSJnmYSGi2m0TVCKbd3tP1EpfdU36LTahYBg==
