@@ -30,8 +30,6 @@ source_nvm() {
   # These options are a workaround for a yarn issue
   # See https://github.com/yarnpkg/yarn/issues/6312
   yarn --network-concurrency 1 --frozen-lockfile
-  # yarn build
-  # yarn test
 
   yarn synth
 )
