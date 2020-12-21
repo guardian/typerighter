@@ -8,8 +8,10 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 
 GET     /                           controllers.HomeController.index
-GET     /healthcheck                controllers.HomeController.healthcheck
 GET     /oauthCallback              controllers.HomeController.oauthCallback
-
 # A temporary endpoint to test permissions
 GET     /editPermissionCheck        controllers.HomeController.editPermissionCheck
+
++anyhost
+GET     /healthcheck                controllers.HomeController.healthcheck
+

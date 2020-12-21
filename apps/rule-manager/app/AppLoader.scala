@@ -1,3 +1,7 @@
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain}
+import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
+import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import play.api.ApplicationLoader.Context
 import play.api._
 import com.gu.AppIdentity

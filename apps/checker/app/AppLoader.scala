@@ -11,7 +11,7 @@ class AppLoader extends ApplicationLoader {
       _.configure(context.environment, context.initialConfiguration, Map.empty)
     }
 
-    val identity = AppIdentity.whoAmI(defaultAppName = "typerighter")
+    val identity = AppIdentity.whoAmI(defaultAppName = "typerighter-checker")
 
     val creds: AWSCredentialsProvider = identity match {
       case _: DevIdentity => new ProfileCredentialsProvider("composer")
