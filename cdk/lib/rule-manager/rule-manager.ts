@@ -17,12 +17,12 @@ import {
   GuApplicationLoadBalancer,
   GuApplicationTargetGroup,
 } from "@guardian/cdk/lib/constructs/loadbalancing";
-import { GuPolicy } from "@guardian/cdk/lib/constructs/iam";
+import { GuGetS3ObjectPolicy, GuPolicy } from "@guardian/cdk/lib/constructs/iam";
 import { Effect, PolicyStatement } from "@aws-cdk/aws-iam";
 import { transformToCidrIngress } from "@guardian/cdk/lib/utils";
 
 export class RuleManager extends GuStack {
-  constructor(scope: App, id: string, props?: GuStackProps) {
+  constructor(scope: App, id: string, props: GuStackProps) {
     super(scope, id, props);
 
     const parameters = {
@@ -57,44 +57,11 @@ export class RuleManager extends GuStack {
 
     const vpc = GuVpc.fromId(this, "vpc", parameters.VPC.valueAsString);
 
-    const simpleCofnigPolicy = new GuPolicy(this, "SimpleConfigPolicy", {
-      policyName: "SimpleConfigPolicy",
-      statements: [
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: [
-            "autoscaling:DescribeAutoScalingInstances",
-            "autoscaling:DescribeAutoScalingGroups",
-            "ec2:DescribeTags"
-          ],
-          resources: ["*"]
-        }),
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: [
-            "ssm:GetParametersByPath"
-          ],
-          resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/${this.stage}/${this.stack}/typerighter-rule-manager`]
-        })
-      ]
-    })
-
-    const pandaAuthPolicy = new GuPolicy(this, "PandaAuthPolicy", {
-      policyName: "PandaAuthPolicy",
-      statements: [
-        new PolicyStatement({
-          effect: Effect.ALLOW,
-          actions: [
-            "s3:GetObject"
-          ],
-          resources: ["arn:aws:s3:::pan-domain-auth-settings/*"]
-        })
-      ]
-    })
+    const pandaAuthPolicy = new GuGetS3ObjectPolicy(this, "PandaAuthPolicy", { bucketName: "pan-domain-auth-settings" });
 
     const ruleManagerRole = new InstanceRole(this, {
-      artifactBucket: "composer-dist",
-      additionalPolicies: [simpleCofnigPolicy, pandaAuthPolicy]
+      bucketName: "composer-dist",
+      additionalPolicies: [pandaAuthPolicy]
     });
 
     const targetGroup = new GuApplicationTargetGroup(this, "PublicTargetGroup", {

@@ -10,7 +10,7 @@ import {
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
 import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
 export class RuleManagerDB extends GuStack {
-  constructor(scope: App, id: string, props?: GuStackProps) {
+  constructor(scope: App, id: string, props: GuStackProps) {
     super(scope, id, props);
 
     const dbPort = 5432;

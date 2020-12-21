@@ -23,6 +23,6 @@
   },
   "dependencies": {
     "@aws-cdk/core": "~1.74.0",
-    "@guardian/cdk": "^0.3.0"
+    "@guardian/cdk": "^0.8.0"
   }
 }
