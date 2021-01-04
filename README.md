@@ -1,5 +1,7 @@
 # Typerighter
 
+<img width="1232" alt="The Typerighter checker service frontend" src="https://user-images.githubusercontent.com/7767575/103550037-353f3200-4ea0-11eb-9ba5-9e4f7ecf2d1f.png">
+
 Typerighter is the server-side part of a service to check a document against a set of user-defined rules. It's designed to work like a spelling or grammar checker.
 
 We use it at the Guardian to check content against our style guide. Max Walker, the subeditor who inspired the creation of Typerighter, has written an introduction [here](https://www.theguardian.com/help/insideguardian/2020/nov/20/introducing-typerighter-making-life-easier-for-journalists-and-stories-better-for-readers).
@@ -8,7 +10,9 @@ To understand our goals for the tool, see the [vision document](./vision.md).
 
 For setup, see [the docs directory](./docs/).
 
-## How it works
+For an example of a Typerighter client (the part that presents the spellcheck-style interface to the user), see [prosemirror-typerighter](https://github.com/guardian/prosemirror-typerighter).
+
+## How it works: an overview
 
 The Typerighter checker service ingests user-defined rules from a `RuleResource`. This is a Google sheet, but the interface could be fulfilled from an arbitrary source.
 
