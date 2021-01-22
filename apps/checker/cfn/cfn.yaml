@@ -50,13 +50,13 @@ Mappings:
     CODE:
       MaxInstances: 2
       MinInstances: 1
-      InstanceType: t3.small
+      InstanceType: t4g.small
       CloudfrontAliases:
       - api.typerighter.code.dev-gutools.co.uk
     PROD:
       MaxInstances: 6
       MinInstances: 3
-      InstanceType: t3.small
+      InstanceType: t4g.small
       CloudfrontAliases:
       - api.typerighter.gutools.co.uk
   StageLookup:
