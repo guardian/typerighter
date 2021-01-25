@@ -131,7 +131,7 @@ dpkg -i /tmp/package.deb`;
       role: ruleManagerRole,
       imageId: parameters.AMI.valueAsString,
       userData: userData,
-      instanceType: "t3.micro",
+      instanceType: "t4g.micro",
       minCapacity: 1,
       maxCapacity: 2,
       healthCheck: HealthCheck.elb({
