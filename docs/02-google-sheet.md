@@ -15,7 +15,11 @@ Note that there are different sheets for different environments.
 
 ## The sheet format
 
-An example rule sheet with a few instances of rules of different types is available [here](https://docs.google.com/spreadsheets/d/1n5xjfVnvRQBMfmjD_VzFX2ye4pLBmL98whdDqsJhtAs). As currently implemented, only the first sheet is read for custom rules, and the sheet named `languagetoolRules` handles enabling rules that are a part of the default LanguageTool corpus.Here's a snippet to give the [gist](https://en.wiktionary.org/wiki/gist), fields with asterisks are mandatory:
+An example rule sheet with a few instances of rules of different types is available [here](https://docs.google.com/spreadsheets/d/1n5xjfVnvRQBMfmjD_VzFX2ye4pLBmL98whdDqsJhtAs).
+
+As currently implemented, only the first sheet is read for custom rules, and the sheet named `languagetoolRules` handles enabling rules that are a part of the default LanguageTool corpus.
+
+Here's a snippet to give the [gist](https://en.wiktionary.org/wiki/gist), fields with asterisks are mandatory:
 
 | Type* | Pattern*   | Replacement | Colour (deprecated) | Category* | Additional data (deprecated) | Description* | Tags | Ignore? | Notes | ID*                     |
 |-------|------------|------------------------------------------------------------|---------------------|---------------------|------------------------------|----------------------------------------|-----------------------------|---------|--------------------------------------------------|--------------------------------------|
