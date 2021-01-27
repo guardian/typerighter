@@ -42,4 +42,6 @@ Here's a snippet to give the [gist](https://en.wiktionary.org/wiki/gist), fields
 | Notes | General notes for rule maintenance, not currently used by the system |
 | ID | An id to uniquely identify the rule within the corpus. |
 
+The contents of the sheet are validated when the rules are re-ingested. To do this, navigate to `<base-url>/rules` on a running Typerighter instance, and click 'refresh'. Any validation errors will appear when the process is complete.
+
 
