@@ -39,7 +39,7 @@ export class RuleManagerDB extends GuStack {
 
     /* Resources */
 
-    const vpc = GuVpc.fromId(this, "Vpc", parameters.VpcId.valueAsString);
+    const vpc = GuVpc.fromId(this, "Vpc", { vpcId: parameters.VpcId.valueAsString });
 
     const subnets = GuVpc.subnets(this, parameters.PrivateVpcSubnets.valueAsList);
 
@@ -49,7 +49,7 @@ export class RuleManagerDB extends GuStack {
       allowAllOutbound: true,
       overrideId: true,
     });
-    
+
     dbSecurityGroup.connections.allowFrom(
       SecurityGroup.fromSecurityGroupId(this, "AccessSecurityGroup", parameters.AccessSecurityGroupID.valueAsString),
       Port.tcp(dbPort)
@@ -63,7 +63,7 @@ export class RuleManagerDB extends GuStack {
       autoMinorVersionUpgrade: true,
       backupRetention: Duration.days(10),
       engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_11_8,
+        version: PostgresEngineVersion.VER_11,
       }),
       instanceType: "t3.micro",
       instanceIdentifier: `typerighter-rule-manager-db-${this.stage}`,
