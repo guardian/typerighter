@@ -2,12 +2,11 @@ import { HealthCheck } from "@aws-cdk/aws-autoscaling";
 import {
   ApplicationProtocol,
   ListenerAction,
-  Protocol,
   TargetType,
 } from "@aws-cdk/aws-elasticloadbalancingv2";
 import type { App } from "@aws-cdk/core";
 import { Duration } from "@aws-cdk/core";
-import { GuAutoScalingGroup, GuUserData } from "@guardian/cdk/lib/constructs/autoscaling";
+import { GuAutoScalingGroup } from "@guardian/cdk/lib/constructs/autoscaling";
 import { GuInstanceRole } from "@guardian/cdk/lib/constructs/iam";
 import {
   GuArnParameter,
