@@ -26,7 +26,7 @@ import {
   GuApplicationTargetGroup,
 } from "@guardian/cdk/lib/constructs/loadbalancing";
 import { GuGetS3ObjectPolicy } from "@guardian/cdk/lib/constructs/iam";
-import { Port } from "@aws-cdk/aws-ec2";
+import { InstanceType, Port } from "@aws-cdk/aws-ec2";
 import { Stage } from "@guardian/cdk/lib/constants";
 
 export class RuleManager extends GuStack {
@@ -141,6 +141,7 @@ dpkg -i /tmp/package.deb`;
       vpcSubnets: { subnets: privateSubnets },
       role: ruleManagerRole,
       userData: userData,
+      instanceType: new InstanceType("t4g.micro"),
       stageDependentProps: {
         [Stage.CODE]: {
           minimumInstances: 1
