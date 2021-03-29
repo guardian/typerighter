@@ -63,7 +63,7 @@ export class RuleManagerDB extends GuStack {
       autoMinorVersionUpgrade: true,
       backupRetention: Duration.days(10),
       engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_11_8,
+        version: PostgresEngineVersion.VER_11,
       }),
       instanceType: "t3.micro",
       instanceIdentifier: `typerighter-rule-manager-db-${this.stage}`,
