@@ -138,6 +138,22 @@ Resources:
           Action:
           - sts:AssumeRole
 
+  DescribeEC2Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: describe-ec2-policy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Resource: "*"
+          Action:
+          - ec2:DescribeTags
+          - ec2:DescribeInstances
+          - autoscaling:DescribeAutoScalingGroups
+          - autoscaling:DescribeAutoScalingInstances
+      Roles:
+      - !Ref AppRole
+
   GetDistributablesPolicy:
     Type: AWS::IAM::Policy
     Properties:
