@@ -142,7 +142,7 @@ Resources:
   DescribeEC2Policy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: describe-ec2-policy
+      PolicyName: DescribeEC2Policy
       PolicyDocument:
         Statement:
         - Effect: Allow
