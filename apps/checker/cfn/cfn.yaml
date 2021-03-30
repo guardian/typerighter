@@ -100,6 +100,7 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       SecurityGroups:
       - !Ref InstanceSecurityGroup
+      - !Ref WazuhSecurityGroup
       BlockDeviceMappings:
       - DeviceName: /dev/sda1
         Ebs:
@@ -137,6 +138,22 @@ Resources:
             - ec2.amazonaws.com
           Action:
           - sts:AssumeRole
+
+  DescribeEC2Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: DescribeEC2Policy
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Resource: "*"
+          Action:
+          - ec2:DescribeTags
+          - ec2:DescribeInstances
+          - autoscaling:DescribeAutoScalingGroups
+          - autoscaling:DescribeAutoScalingInstances
+      Roles:
+      - !Ref AppRole
 
   GetDistributablesPolicy:
     Type: AWS::IAM::Policy
@@ -371,6 +388,17 @@ Resources:
       - IpProtocol: tcp
         FromPort: 443
         ToPort: 443
+        CidrIp: 0.0.0.0/0
+
+  WazuhSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow outbound traffic from wazuh agent to manager
+      VpcId: !Ref Vpc
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 1514
+        ToPort: 1515
         CidrIp: 0.0.0.0/0
 
   Bucket:
