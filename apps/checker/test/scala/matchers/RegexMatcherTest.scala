@@ -255,6 +255,21 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     }
   }
 
+  it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – cap up sentence start within quote" in {
+    val eventuallyMatches = checkTextWithRegex(
+      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      "cafe",
+      "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. \"Cafes\", bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+      val firstMatch = matches(0)
+      firstMatch.replacement shouldBe Some(TextSuggestion("Cafe"))
+      firstMatch.markAsCorrect shouldBe true
+    }
+  }
+
   it should "should not apply capitalisations when the match does not include the start of the word" in {
     val eventuallyMatches = checkTextWithRegex(
       "(?i)af(e|é|è|ë|ê)"r,

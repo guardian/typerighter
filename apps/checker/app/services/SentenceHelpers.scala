@@ -28,13 +28,20 @@ class SentenceHelpers() {
 
     for {
       sentence: CoreMap <- sentences
-    } yield {
-      val firstToken = sentence.get(classOf[TokensAnnotation]).asScala.toList.head
-      val word = firstToken.get(classOf[TextAnnotation])
+      wordInSentence <- maybeGetFirstWordFromSentence(sentence)
+    } yield wordInSentence
+  }
+
+  def maybeGetFirstWordFromSentence(sentence: CoreMap) = {
+    val tokens = sentence.get(classOf[TokensAnnotation]).asScala.toList
+    val maybeFirstValidToken = tokens.find(!_.toString().contains("`"))
+
+    maybeFirstValidToken.map { token =>
+      val word = token.get(classOf[TextAnnotation])
       WordInSentence(
         sentence.toString,
         word,
-        TextRange(firstToken.beginPosition(), firstToken.endPosition())
+        TextRange(token.beginPosition(), token.endPosition())
       )
     }
   }
