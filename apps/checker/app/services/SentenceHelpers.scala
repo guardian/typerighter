@@ -14,7 +14,7 @@ case class WordInSentence(sentence: String, word: String, range: TextRange)
 
 object SentenceHelpers {
   // LSB == Left square bracket, etc.
-  val NON_WORD_TOKENS = List("`", "``", "-LSB-", "-LRB-", "-LCB-")
+  val NON_WORD_TOKENS = List("`", "``", "-", "--", "-LSB-", "-LRB-", "-LCB-")
 }
 
 /**

@@ -26,7 +26,10 @@ class SentenceHelperTest extends AsyncFlatSpec with Matchers {
     ("[", "]"),
     ("(", ")"),
     ("“", "”"),
-    ("‘", "’)")
+    ("‘", "’)"),
+    ("-", ""),
+    ("–", ""),
+    ("—", "")
   ).foreach {
     case (leftNonWordChar, rightNonWordChar) =>
       it should s"ignore non-word tokens when finding sentence starts: $leftNonWordChar $rightNonWordChar" in {
