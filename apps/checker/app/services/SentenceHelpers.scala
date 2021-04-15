@@ -12,6 +12,11 @@ import model.TextRange
 
 case class WordInSentence(sentence: String, word: String, range: TextRange)
 
+object SentenceHelpers {
+  // LSB == Left square bracket, etc.
+  val NON_WORD_TOKENS = List("`", "``", "-LSB-", "-LRB-", "-LCB-")
+}
+
 /**
   * A service to extract proper names from documents.
   */
@@ -34,7 +39,9 @@ class SentenceHelpers() {
 
   def maybeGetFirstWordFromSentence(sentence: CoreMap) = {
     val tokens = sentence.get(classOf[TokensAnnotation]).asScala.toList
-    val maybeFirstValidToken = tokens.find(!_.toString().contains("`"))
+    val maybeFirstValidToken = tokens.find { token =>
+      !SentenceHelpers.NON_WORD_TOKENS.contains(token.toString())
+    }
 
     maybeFirstValidToken.map { token =>
       val word = token.get(classOf[TextAnnotation])
