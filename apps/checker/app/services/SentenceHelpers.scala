@@ -13,8 +13,10 @@ import model.TextRange
 case class WordInSentence(sentence: String, word: String, range: TextRange)
 
 object SentenceHelpers {
-  // LSB == Left square bracket, etc.
-  val NON_WORD_TOKENS = List("`", "``", "-", "--", "-LSB-", "-LRB-", "-LCB-")
+  // These tokens can contain multiple quotes – we only need to detect the presence of one.
+  val NON_WORD_TOKEN_CHARS = List("`", "'", "-")
+  // These tokens are discrete. LSB == Left Square Bracket, etc.
+  val NON_WORD_TOKENS = List("-LSB-", "-LRB-", "-LCB-")
 }
 
 /**
@@ -23,6 +25,7 @@ object SentenceHelpers {
 class SentenceHelpers() {
   val props: Properties = new Properties()
   props.put("annotators", "tokenize, ssplit")
+
   val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
 
   def getFirstWordsInSentences(text: String): List[WordInSentence] = {
@@ -40,7 +43,8 @@ class SentenceHelpers() {
   def maybeGetFirstWordFromSentence(sentence: CoreMap) = {
     val tokens = sentence.get(classOf[TokensAnnotation]).asScala.toList
     val maybeFirstValidToken = tokens.find { token =>
-      !SentenceHelpers.NON_WORD_TOKENS.contains(token.toString())
+      !SentenceHelpers.NON_WORD_TOKENS.contains(token.value()) &&
+      !SentenceHelpers.NON_WORD_TOKEN_CHARS.exists(token.value().contains(_))
     }
 
     maybeFirstValidToken.map { token =>
