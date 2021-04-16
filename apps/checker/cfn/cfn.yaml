@@ -98,6 +98,8 @@ Resources:
       ImageId: !Ref AMI
       InstanceType: !FindInMap [ StageVariables, !Ref Stage, InstanceType ]
       IamInstanceProfile: !Ref InstanceProfile
+      MetadataOptions:
+        HttpTokens: required
       SecurityGroups:
       - !Ref InstanceSecurityGroup
       - !Ref WazuhSecurityGroup
