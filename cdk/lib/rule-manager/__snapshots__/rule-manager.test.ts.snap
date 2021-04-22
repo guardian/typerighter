@@ -89,7 +89,7 @@ Object {
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "12.0.0",
+            "Value": "TEST",
           },
           Object {
             "Key": "Stack",
@@ -170,7 +170,7 @@ Object {
           Object {
             "Key": "gu:cdk:version",
             "PropagateAtLaunch": true,
-            "Value": "12.0.0",
+            "Value": "TEST",
           },
           Object {
             "Key": "Name",
@@ -354,7 +354,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "12.0.0",
+            "Value": "TEST",
           },
           Object {
             "Key": "Stack",
@@ -474,7 +474,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "12.0.0",
+            "Value": "TEST",
           },
           Object {
             "Key": "Stack",
@@ -515,7 +515,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "12.0.0",
+            "Value": "TEST",
           },
           Object {
             "Key": "Stack",
@@ -695,7 +695,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "12.0.0",
+            "Value": "TEST",
           },
           Object {
             "Key": "Stack",
@@ -733,7 +733,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "12.0.0",
+            "Value": "TEST",
           },
           Object {
             "Key": "Stack",
