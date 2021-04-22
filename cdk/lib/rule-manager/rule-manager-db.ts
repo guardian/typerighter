@@ -1,7 +1,7 @@
 import { Port, SecurityGroup, SubnetType } from "@aws-cdk/aws-ec2";
 import { Credentials, DatabaseInstanceEngine, PostgresEngineVersion, StorageType, SubnetGroup } from "@aws-cdk/aws-rds";
 import type { App } from "@aws-cdk/core";
-import { Duration, RemovalPolicy, SecretValue, Tags } from "@aws-cdk/core";
+import { Duration, RemovalPolicy, SecretValue } from "@aws-cdk/core";
 import { GuStackProps } from "@guardian/cdk/lib/constructs/core";
 import {
   GuParameter,
@@ -9,9 +9,17 @@ import {
 } from "@guardian/cdk/lib/constructs/core";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
 import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
+import { AppIdentity } from "@guardian/cdk/lib/constructs/core/identity";
+
 export class RuleManagerDB extends GuStack {
+  private static app: string = "typerighter-rule-manager";
+
   constructor(scope: App, id: string, props: GuStackProps) {
     super(scope, id, props);
+
+    // TODO Remove this - there is a bug in @guardian/cdk where the App tag isn't applied to all relevant resources.
+    //   Add the tag ourselves for now.
+    AppIdentity.taggedConstruct({ app: RuleManagerDB.app }, this);
 
     const dbPort = 5432;
 
@@ -44,10 +52,10 @@ export class RuleManagerDB extends GuStack {
     const subnets = GuVpc.subnets(this, parameters.PrivateVpcSubnets.valueAsList);
 
     const dbSecurityGroup = new GuSecurityGroup(this, "DBSecurityGroup", {
+      app: RuleManagerDB.app,
       description: "DB security group servers",
       vpc,
-      allowAllOutbound: true,
-      overrideId: true,
+      allowAllOutbound: true
     });
 
     dbSecurityGroup.connections.allowFrom(
@@ -56,6 +64,7 @@ export class RuleManagerDB extends GuStack {
     );
 
     const dbInstance = new GuDatabaseInstance(this, "RuleManagerRDS", {
+      app: RuleManagerDB.app,
       vpc,
       vpcSubnets: { subnetType: SubnetType.PRIVATE },
       allocatedStorage: 50,

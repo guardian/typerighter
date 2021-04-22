@@ -5,10 +5,8 @@ import { RuleManagerDB } from "../lib/rule-manager/rule-manager-db";
 
 const app = new App();
 new RuleManager(app, "rule-manager", {
-  app: "typerighter-rule-manager",
   stack: "flexible",
 });
 new RuleManagerDB(app, "rule-manager-db", {
-  app: "typerighter-rule-manager",
   stack: "flexible",
 });

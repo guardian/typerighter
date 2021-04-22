@@ -25,13 +25,20 @@ import {
   GuApplicationLoadBalancer,
   GuApplicationTargetGroup,
 } from "@guardian/cdk/lib/constructs/loadbalancing";
-import { GuGetS3ObjectPolicy } from "@guardian/cdk/lib/constructs/iam";
+import { GuGetS3ObjectsPolicy } from "@guardian/cdk/lib/constructs/iam";
 import { InstanceType, Port } from "@aws-cdk/aws-ec2";
 import { Stage } from "@guardian/cdk/lib/constants";
+import { AppIdentity } from "@guardian/cdk/lib/constructs/core/identity";
 
 export class RuleManager extends GuStack {
+  private static app: string = "typerighter-rule-manager";
+
   constructor(scope: App, id: string, props: GuStackProps) {
     super(scope, id, props);
+
+    // TODO Remove this - there is a bug in @guardian/cdk where the App tag isn't applied to all relevant resources.
+    //   Add the tag ourselves for now.
+    AppIdentity.taggedConstruct({ app: RuleManager.app }, this);
 
     const parameters = {
       VPC: new GuParameter(this, "VPC", {
@@ -63,11 +70,12 @@ export class RuleManager extends GuStack {
 
     const vpc = GuVpc.fromId(this, "vpc", { vpcId: parameters.VPC.valueAsString } );
 
-    const pandaAuthPolicy = new GuGetS3ObjectPolicy(this, "PandaAuthPolicy", {
+    const pandaAuthPolicy = new GuGetS3ObjectsPolicy(this, "PandaAuthPolicy", {
       bucketName: "pan-domain-auth-settings",
     });
 
-    const ruleManagerRole = new GuInstanceRole(this, "RuleManagerRole", {
+    const ruleManagerRole = new GuInstanceRole(this, {
+      app: RuleManager.app,
       additionalPolicies: [pandaAuthPolicy],
     });
 
@@ -75,6 +83,7 @@ export class RuleManager extends GuStack {
       this,
       "PublicTargetGroup",
       {
+        app: RuleManager.app,
         vpc: vpc,
         port: 9000,
         protocol: ApplicationProtocol.HTTP,
@@ -96,18 +105,20 @@ export class RuleManager extends GuStack {
       this,
       "PublicLoadBalancer",
       {
+        app: RuleManager.app,
         vpc,
         internetFacing: true,
         vpcSubnets: { subnets: publicSubnets },
         securityGroup: new GuPublicInternetAccessSecurityGroup(
           this,
           "LoadBalancerSecurityGroup",
-          { allowAllOutbound: false, vpc }
+          { app: RuleManager.app, allowAllOutbound: false, vpc }
         ),
       }
     );
 
     new GuApplicationListener(this, "PublicListener", {
+      app: RuleManager.app,
       loadBalancer,
       certificates: [{ certificateArn: parameters.TLSCert.valueAsString }],
       defaultAction: ListenerAction.forward([targetGroup]),
@@ -118,6 +129,7 @@ export class RuleManager extends GuStack {
       this,
       "ApplicationSecurityGroup",
       {
+        app: RuleManager.app,
         description: "HTTP",
         vpc,
         allowAllOutbound: true,
@@ -137,6 +149,7 @@ aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${thi
 dpkg -i /tmp/package.deb`;
 
     new GuAutoScalingGroup(this, "AutoscalingGroup", {
+      app: RuleManager.app,
       vpc,
       vpcSubnets: { subnets: privateSubnets },
       role: ruleManagerRole,

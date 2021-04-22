@@ -15,8 +15,8 @@ Object {
     },
   },
   "Parameters": Object {
-    "AMI": Object {
-      "Description": "AMI ID",
+    "AMITyperighterrulemanager": Object {
+      "Description": "Amazon Machine Image ID for the app typerighter-rule-manager. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
     },
     "ClusterName": Object {
@@ -66,7 +66,7 @@ Object {
     },
   },
   "Resources": Object {
-    "ApplicationSecurityGroup3903A0DC": Object {
+    "ApplicationSecurityGroupTyperighterrulemanagerB7623A9C": Object {
       "Properties": Object {
         "GroupDescription": "HTTP",
         "SecurityGroupEgress": Array [
@@ -89,7 +89,7 @@ Object {
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Stack",
@@ -108,20 +108,20 @@ Object {
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
-    "ApplicationSecurityGroupfromrulemanagerLoadBalancerSecurityGroup0693FB7E9000782854DA": Object {
+    "ApplicationSecurityGroupTyperighterrulemanagerfromrulemanagerLoadBalancerSecurityGroupTyperighterrulemanager5EF9EDFC90001600B5E1": Object {
       "Properties": Object {
         "Description": "Port 9000 LB to fleet",
         "FromPort": 9000,
         "GroupId": Object {
           "Fn::GetAtt": Array [
-            "ApplicationSecurityGroup3903A0DC",
+            "ApplicationSecurityGroupTyperighterrulemanagerB7623A9C",
             "GroupId",
           ],
         },
         "IpProtocol": "tcp",
         "SourceSecurityGroupId": Object {
           "Fn::GetAtt": Array [
-            "LoadBalancerSecurityGroup3036A0FC",
+            "LoadBalancerSecurityGroupTyperighterrulemanager8C3589BD",
             "GroupId",
           ],
         },
@@ -129,12 +129,12 @@ Object {
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
-    "AutoscalingGroupASG25987EFB": Object {
+    "AutoscalingGroupTyperighterrulemanagerASGD10ACAA6": Object {
       "Properties": Object {
         "HealthCheckGracePeriod": 300,
         "HealthCheckType": "ELB",
         "LaunchConfigurationName": Object {
-          "Ref": "AutoscalingGroupLaunchConfigEBD75746",
+          "Ref": "AutoscalingGroupTyperighterrulemanagerLaunchConfig7E2EBD16",
         },
         "MaxSize": Object {
           "Fn::FindInMap": Array [
@@ -170,12 +170,12 @@ Object {
           Object {
             "Key": "gu:cdk:version",
             "PropagateAtLaunch": true,
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Name",
             "PropagateAtLaunch": true,
-            "Value": "rule-manager/AutoscalingGroup",
+            "Value": "rule-manager/AutoscalingGroupTyperighterrulemanager",
           },
           Object {
             "Key": "Stack",
@@ -192,7 +192,7 @@ Object {
         ],
         "TargetGroupARNs": Array [
           Object {
-            "Ref": "PublicTargetGroup4BB97343",
+            "Ref": "PublicTargetGroupTyperighterrulemanager247ECD9A",
           },
         ],
         "VPCZoneIdentifier": Object {
@@ -201,39 +201,39 @@ Object {
       },
       "Type": "AWS::AutoScaling::AutoScalingGroup",
     },
-    "AutoscalingGroupInstanceProfile010878FF": Object {
+    "AutoscalingGroupTyperighterrulemanagerInstanceProfileE976A2DF": Object {
       "Properties": Object {
         "Roles": Array [
           Object {
-            "Ref": "RuleManagerRole",
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
           },
         ],
       },
       "Type": "AWS::IAM::InstanceProfile",
     },
-    "AutoscalingGroupLaunchConfigEBD75746": Object {
+    "AutoscalingGroupTyperighterrulemanagerLaunchConfig7E2EBD16": Object {
       "DependsOn": Array [
-        "RuleManagerRole",
+        "InstanceRoleTyperighterrulemanagerC4CF9347",
       ],
       "Properties": Object {
         "AssociatePublicIpAddress": false,
         "IamInstanceProfile": Object {
-          "Ref": "AutoscalingGroupInstanceProfile010878FF",
+          "Ref": "AutoscalingGroupTyperighterrulemanagerInstanceProfileE976A2DF",
         },
         "ImageId": Object {
-          "Ref": "AMI",
+          "Ref": "AMITyperighterrulemanager",
         },
         "InstanceType": "t4g.micro",
         "SecurityGroups": Array [
           Object {
             "Fn::GetAtt": Array [
-              "GuHttpsEgressSecurityGroupF63CDA96",
+              "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
               "GroupId",
             ],
           },
           Object {
             "Fn::GetAtt": Array [
-              "ApplicationSecurityGroup3903A0DC",
+              "ApplicationSecurityGroupTyperighterrulemanagerB7623A9C",
               "GroupId",
             ],
           },
@@ -287,13 +287,13 @@ dpkg -i /tmp/package.deb",
         "PolicyName": "describe-ec2-policy",
         "Roles": Array [
           Object {
-            "Ref": "RuleManagerRole",
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
     },
-    "GetDistributablePolicyC6B4A871": Object {
+    "GetDistributablePolicyTyperighterrulemanagerBAFF784F": Object {
       "Properties": Object {
         "PolicyDocument": Object {
           "Statement": Array [
@@ -320,22 +320,22 @@ dpkg -i /tmp/package.deb",
           ],
           "Version": "2012-10-17",
         },
-        "PolicyName": "GetDistributablePolicyC6B4A871",
+        "PolicyName": "GetDistributablePolicyTyperighterrulemanagerBAFF784F",
         "Roles": Array [
           Object {
-            "Ref": "RuleManagerRole",
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
     },
-    "GuHttpsEgressSecurityGroupF63CDA96": Object {
+    "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62": Object {
       "Properties": Object {
-        "GroupDescription": "Allow all outbound traffic on port 443",
+        "GroupDescription": "Allow all outbound HTTPS traffic",
         "SecurityGroupEgress": Array [
           Object {
             "CidrIp": "0.0.0.0/0",
-            "Description": "from 0.0.0.0/0:443",
+            "Description": "Allow all outbound HTTPS traffic",
             "FromPort": 443,
             "IpProtocol": "tcp",
             "ToPort": 443,
@@ -354,7 +354,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Stack",
@@ -373,20 +373,20 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
-    "GuHttpsEgressSecurityGroupfromrulemanagerLoadBalancerSecurityGroup0693FB7E9000532EBAF0": Object {
+    "GuHttpsEgressSecurityGroupTyperighterrulemanagerfromrulemanagerLoadBalancerSecurityGroupTyperighterrulemanager5EF9EDFC900076DA885B": Object {
       "Properties": Object {
         "Description": "Load balancer to target",
         "FromPort": 9000,
         "GroupId": Object {
           "Fn::GetAtt": Array [
-            "GuHttpsEgressSecurityGroupF63CDA96",
+            "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
             "GroupId",
           ],
         },
         "IpProtocol": "tcp",
         "SourceSecurityGroupId": Object {
           "Fn::GetAtt": Array [
-            "LoadBalancerSecurityGroup3036A0FC",
+            "LoadBalancerSecurityGroupTyperighterrulemanager8C3589BD",
             "GroupId",
           ],
         },
@@ -430,284 +430,13 @@ dpkg -i /tmp/package.deb",
         "PolicyName": "GuLogShippingPolicy981BFE5A",
         "Roles": Array [
           Object {
-            "Ref": "RuleManagerRole",
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
           },
         ],
       },
       "Type": "AWS::IAM::Policy",
     },
-    "LoadBalancerSecurityGroup3036A0FC": Object {
-      "Properties": Object {
-        "GroupDescription": "Allows internet access on 443",
-        "SecurityGroupIngress": Array [
-          Object {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "GLOBAL_ACCESS",
-            "FromPort": 443,
-            "IpProtocol": "tcp",
-            "ToPort": 443,
-          },
-        ],
-        "Tags": Array [
-          Object {
-            "Key": "App",
-            "Value": "typerighter-rule-manager",
-          },
-          Object {
-            "Key": "ElasticSearchCluster",
-            "Value": Object {
-              "Ref": "ClusterName",
-            },
-          },
-          Object {
-            "Key": "gu:cdk:version",
-            "Value": "0.39.2",
-          },
-          Object {
-            "Key": "Stack",
-            "Value": "flexible",
-          },
-          Object {
-            "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
-          },
-        ],
-        "VpcId": Object {
-          "Ref": "VPC",
-        },
-      },
-      "Type": "AWS::EC2::SecurityGroup",
-    },
-    "LoadBalancerSecurityGrouptorulemanagerApplicationSecurityGroupC33492BD900062D3FDE5": Object {
-      "Properties": Object {
-        "Description": "Port 9000 LB to fleet",
-        "DestinationSecurityGroupId": Object {
-          "Fn::GetAtt": Array [
-            "ApplicationSecurityGroup3903A0DC",
-            "GroupId",
-          ],
-        },
-        "FromPort": 9000,
-        "GroupId": Object {
-          "Fn::GetAtt": Array [
-            "LoadBalancerSecurityGroup3036A0FC",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 9000,
-      },
-      "Type": "AWS::EC2::SecurityGroupEgress",
-    },
-    "LoadBalancerSecurityGrouptorulemanagerGuHttpsEgressSecurityGroup3739534E9000D1488ABA": Object {
-      "Properties": Object {
-        "Description": "Load balancer to target",
-        "DestinationSecurityGroupId": Object {
-          "Fn::GetAtt": Array [
-            "GuHttpsEgressSecurityGroupF63CDA96",
-            "GroupId",
-          ],
-        },
-        "FromPort": 9000,
-        "GroupId": Object {
-          "Fn::GetAtt": Array [
-            "LoadBalancerSecurityGroup3036A0FC",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 9000,
-      },
-      "Type": "AWS::EC2::SecurityGroupEgress",
-    },
-    "PandaAuthPolicy4E029301": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "s3:GetObject",
-              "Effect": "Allow",
-              "Resource": "arn:aws:s3:::pan-domain-auth-settings/*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "PandaAuthPolicy4E029301",
-        "Roles": Array [
-          Object {
-            "Ref": "RuleManagerRole",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "ParameterStoreRead9D2F4FAB": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "ssm:GetParametersByPath",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:ssm:",
-                    Object {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
-                    Object {
-                      "Ref": "AWS::AccountId",
-                    },
-                    ":parameter/",
-                    Object {
-                      "Ref": "Stage",
-                    },
-                    "/flexible/typerighter-rule-manager",
-                  ],
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "parameter-store-read-policy",
-        "Roles": Array [
-          Object {
-            "Ref": "RuleManagerRole",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "PublicListener4F0719E4": Object {
-      "Properties": Object {
-        "Certificates": Array [
-          Object {
-            "CertificateArn": Object {
-              "Ref": "TLSCert",
-            },
-          },
-        ],
-        "DefaultActions": Array [
-          Object {
-            "TargetGroupArn": Object {
-              "Ref": "PublicTargetGroup4BB97343",
-            },
-            "Type": "forward",
-          },
-        ],
-        "LoadBalancerArn": Object {
-          "Ref": "PublicLoadBalancer5116A438",
-        },
-        "Port": 443,
-        "Protocol": "HTTPS",
-      },
-      "Type": "AWS::ElasticLoadBalancingV2::Listener",
-    },
-    "PublicLoadBalancer5116A438": Object {
-      "Properties": Object {
-        "LoadBalancerAttributes": Array [
-          Object {
-            "Key": "deletion_protection.enabled",
-            "Value": "true",
-          },
-        ],
-        "Scheme": "internet-facing",
-        "SecurityGroups": Array [
-          Object {
-            "Fn::GetAtt": Array [
-              "LoadBalancerSecurityGroup3036A0FC",
-              "GroupId",
-            ],
-          },
-        ],
-        "Subnets": Object {
-          "Ref": "PublicSubnets",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "App",
-            "Value": "typerighter-rule-manager",
-          },
-          Object {
-            "Key": "ElasticSearchCluster",
-            "Value": Object {
-              "Ref": "ClusterName",
-            },
-          },
-          Object {
-            "Key": "gu:cdk:version",
-            "Value": "0.39.2",
-          },
-          Object {
-            "Key": "Stack",
-            "Value": "flexible",
-          },
-          Object {
-            "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
-          },
-        ],
-      },
-      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
-    },
-    "PublicTargetGroup4BB97343": Object {
-      "Properties": Object {
-        "HealthCheckIntervalSeconds": 30,
-        "HealthCheckPath": "/healthcheck",
-        "HealthCheckPort": "9000",
-        "HealthCheckProtocol": "HTTP",
-        "HealthCheckTimeoutSeconds": 10,
-        "HealthyThresholdCount": 2,
-        "Port": 9000,
-        "Protocol": "HTTP",
-        "Tags": Array [
-          Object {
-            "Key": "App",
-            "Value": "typerighter-rule-manager",
-          },
-          Object {
-            "Key": "ElasticSearchCluster",
-            "Value": Object {
-              "Ref": "ClusterName",
-            },
-          },
-          Object {
-            "Key": "gu:cdk:version",
-            "Value": "0.39.2",
-          },
-          Object {
-            "Key": "Stack",
-            "Value": "flexible",
-          },
-          Object {
-            "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
-          },
-        ],
-        "TargetGroupAttributes": Array [
-          Object {
-            "Key": "deregistration_delay.timeout_seconds",
-            "Value": "30",
-          },
-        ],
-        "TargetType": "instance",
-        "UnhealthyThresholdCount": 5,
-        "VpcId": Object {
-          "Ref": "VPC",
-        },
-      },
-      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-    },
-    "RuleManagerRole": Object {
+    "InstanceRoleTyperighterrulemanagerC4CF9347": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
           "Statement": Array [
@@ -745,7 +474,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Stack",
@@ -760,6 +489,276 @@ dpkg -i /tmp/package.deb",
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "LoadBalancerSecurityGroupTyperighterrulemanager8C3589BD": Object {
+      "Properties": Object {
+        "GroupDescription": "Allow all inbound traffic via HTTPS",
+        "SecurityGroupIngress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all inbound traffic via HTTPS",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "ElasticSearchCluster",
+            "Value": Object {
+              "Ref": "ClusterName",
+            },
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "12.0.0",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VPC",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "LoadBalancerSecurityGroupTyperighterrulemanagertorulemanagerApplicationSecurityGroupTyperighterrulemanager04218BF390006D822E1A": Object {
+      "Properties": Object {
+        "Description": "Port 9000 LB to fleet",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "ApplicationSecurityGroupTyperighterrulemanagerB7623A9C",
+            "GroupId",
+          ],
+        },
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerSecurityGroupTyperighterrulemanager8C3589BD",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "LoadBalancerSecurityGroupTyperighterrulemanagertorulemanagerGuHttpsEgressSecurityGroupTyperighterrulemanagerCD72451690003661B6EF": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+            "GroupId",
+          ],
+        },
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerSecurityGroupTyperighterrulemanager8C3589BD",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "PandaAuthPolicy4E029301": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": "arn:aws:s3:::pan-domain-auth-settings/*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "PandaAuthPolicy4E029301",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ParameterStoreReadTyperighterrulemanager4551E15C": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/",
+                    Object {
+                      "Ref": "Stage",
+                    },
+                    "/flexible/typerighter-rule-manager",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "parameter-store-read-policy",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "PublicListenerTyperighterrulemanager7E22B9E7": Object {
+      "Properties": Object {
+        "Certificates": Array [
+          Object {
+            "CertificateArn": Object {
+              "Ref": "TLSCert",
+            },
+          },
+        ],
+        "DefaultActions": Array [
+          Object {
+            "TargetGroupArn": Object {
+              "Ref": "PublicTargetGroupTyperighterrulemanager247ECD9A",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": Object {
+          "Ref": "PublicLoadBalancerTyperighterrulemanager69AA33ED",
+        },
+        "Port": 443,
+        "Protocol": "HTTPS",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "PublicLoadBalancerTyperighterrulemanager69AA33ED": Object {
+      "Properties": Object {
+        "LoadBalancerAttributes": Array [
+          Object {
+            "Key": "deletion_protection.enabled",
+            "Value": "true",
+          },
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "LoadBalancerSecurityGroupTyperighterrulemanager8C3589BD",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": Object {
+          "Ref": "PublicSubnets",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "ElasticSearchCluster",
+            "Value": Object {
+              "Ref": "ClusterName",
+            },
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "12.0.0",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "PublicTargetGroupTyperighterrulemanager247ECD9A": Object {
+      "Properties": Object {
+        "HealthCheckIntervalSeconds": 30,
+        "HealthCheckPath": "/healthcheck",
+        "HealthCheckProtocol": "HTTP",
+        "HealthCheckTimeoutSeconds": 10,
+        "HealthyThresholdCount": 2,
+        "Port": 9000,
+        "Protocol": "HTTP",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "ElasticSearchCluster",
+            "Value": Object {
+              "Ref": "ClusterName",
+            },
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "12.0.0",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "TargetGroupAttributes": Array [
+          Object {
+            "Key": "deregistration_delay.timeout_seconds",
+            "Value": "30",
+          },
+        ],
+        "TargetType": "instance",
+        "UnhealthyThresholdCount": 5,
+        "VpcId": Object {
+          "Ref": "VPC",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
     },
     "SSMRunCommandPolicy244E1613": Object {
       "Properties": Object {
@@ -791,7 +790,7 @@ dpkg -i /tmp/package.deb",
         "PolicyName": "ssm-run-command-policy",
         "Roles": Array [
           Object {
-            "Ref": "RuleManagerRole",
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
           },
         ],
       },

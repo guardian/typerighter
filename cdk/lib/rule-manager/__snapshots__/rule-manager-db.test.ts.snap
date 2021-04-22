@@ -33,7 +33,7 @@ Object {
     },
   },
   "Resources": Object {
-    "DBSecurityGroup": Object {
+    "DBSecurityGroupTyperighterrulemanagerE0229216": Object {
       "Properties": Object {
         "GroupDescription": "DB security group servers",
         "SecurityGroupEgress": Array [
@@ -50,7 +50,7 @@ Object {
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Stack",
@@ -69,13 +69,13 @@ Object {
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
-    "DBSecurityGroupfromrulemanagerdbAccessSecurityGroup1C2D2DCD5432C3E322DD": Object {
+    "DBSecurityGroupTyperighterrulemanagerfromrulemanagerdbAccessSecurityGroup1C2D2DCD54324F4F6461": Object {
       "Properties": Object {
         "Description": "from rulemanagerdbAccessSecurityGroup1C2D2DCD:5432",
         "FromPort": 5432,
         "GroupId": Object {
           "Fn::GetAtt": Array [
-            "DBSecurityGroup",
+            "DBSecurityGroupTyperighterrulemanagerE0229216",
             "GroupId",
           ],
         },
@@ -100,7 +100,7 @@ Object {
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Stack",
@@ -174,7 +174,7 @@ Object {
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Stack",
@@ -190,7 +190,7 @@ Object {
         "VPCSecurityGroups": Array [
           Object {
             "Fn::GetAtt": Array [
-              "DBSecurityGroup",
+              "DBSecurityGroupTyperighterrulemanagerE0229216",
               "GroupId",
             ],
           },
@@ -220,7 +220,7 @@ Object {
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "12.0.0",
           },
           Object {
             "Key": "Stack",
