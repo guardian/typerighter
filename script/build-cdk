@@ -31,5 +31,6 @@ source_nvm() {
   # See https://github.com/yarnpkg/yarn/issues/6312
   yarn --network-concurrency 1 --frozen-lockfile
 
+  yarn test
   yarn synth
 )
