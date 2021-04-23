@@ -7,7 +7,6 @@ describe("The rule manager stack", () => {
     it("matches the snapshot", () => {
         const app = new App();
         const stack = new RuleManager(app, "rule-manager", {
-            app: "typerighter-rule-manager",
             stack: "flexible",
         });
 

@@ -35,6 +35,7 @@ deployments:
         AmigoStage: PROD
         BuiltBy: amigo
       amiEncrypted: true
+      amiParameter: AMITyperighterrulemanager
       templatePath: rule-manager.cfn.yaml
   rule-manager-db-cloudformation:
     type: cloud-formation
