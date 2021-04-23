@@ -1076,10 +1076,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@guardian/cdk@^12.0.0":
-  version "12.0.0"
-  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-12.0.0.tgz#0ad7b8b21455c13cf3fa7c013c075eca57ac5318"
-  integrity sha512-0nCNBtHq9yZ3D+9b6D43imRtP/JSErgRYWbzBjdoDyrYAVdHRtsmhqi1ubsagULwiB0hN02cSIf6WJ2TX3/CYA==
+"@guardian/cdk@^13.1.0":
+  version "13.1.0"
+  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-13.1.0.tgz#60d15c795acc95398295c77cc941dcbf2c4db913"
+  integrity sha512-LZ4PwVXFmRicAnA4yUw6qv6gg1RdKBKRizWClsrem36QO9KMlKzadBlaNvW9eFaG3jJSumKwB4Nj0fi+NFOEBg==
   dependencies:
     "@aws-cdk/assert" "1.98.0"
     "@aws-cdk/aws-apigateway" "1.98.0"

@@ -233,13 +233,13 @@ Object {
           },
           Object {
             "Fn::GetAtt": Array [
-              "ApplicationSecurityGroupTyperighterrulemanagerB7623A9C",
+              "WazuhSecurityGroup",
               "GroupId",
             ],
           },
           Object {
             "Fn::GetAtt": Array [
-              "WazuhSecurityGroup",
+              "ApplicationSecurityGroupTyperighterrulemanagerB7623A9C",
               "GroupId",
             ],
           },

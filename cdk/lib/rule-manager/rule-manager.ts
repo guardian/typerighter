@@ -168,7 +168,7 @@ dpkg -i /tmp/package.deb`;
         grace: Duration.minutes(5),
       }),
       targetGroup,
-      additionalSecurityGroups: [appSecurityGroup, GuWazuhAccess.getInstance(this, vpc)],
+      additionalSecurityGroups: [appSecurityGroup],
       associatePublicIpAddress: false,
     });
   }
