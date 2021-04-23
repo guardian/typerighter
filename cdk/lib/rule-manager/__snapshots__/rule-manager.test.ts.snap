@@ -237,6 +237,12 @@ Object {
               "GroupId",
             ],
           },
+          Object {
+            "Fn::GetAtt": Array [
+              "WazuhSecurityGroup",
+              "GroupId",
+            ],
+          },
         ],
         "UserData": Object {
           "Fn::Base64": Object {
@@ -795,6 +801,57 @@ dpkg -i /tmp/package.deb",
         ],
       },
       "Type": "AWS::IAM::Policy",
+    },
+    "WazuhSecurityGroup": Object {
+      "Properties": Object {
+        "GroupDescription": "Allow outbound traffic from wazuh agent to manager",
+        "SecurityGroupEgress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Wazuh event logging",
+            "FromPort": 1514,
+            "IpProtocol": "tcp",
+            "ToPort": 1514,
+          },
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Wazuh agent registration",
+            "FromPort": 1515,
+            "IpProtocol": "tcp",
+            "ToPort": 1515,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "ElasticSearchCluster",
+            "Value": Object {
+              "Ref": "ClusterName",
+            },
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VPC",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
     },
   },
 }

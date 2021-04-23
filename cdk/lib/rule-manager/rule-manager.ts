@@ -19,6 +19,7 @@ import {
   GuPublicInternetAccessSecurityGroup,
   GuSecurityGroup,
   GuVpc,
+  GuWazuhAccess,
 } from "@guardian/cdk/lib/constructs/ec2";
 import {
   GuApplicationListener,
@@ -167,7 +168,7 @@ dpkg -i /tmp/package.deb`;
         grace: Duration.minutes(5),
       }),
       targetGroup,
-      additionalSecurityGroups: [appSecurityGroup],
+      additionalSecurityGroups: [appSecurityGroup, GuWazuhAccess.getInstance(this, vpc)],
       associatePublicIpAddress: false,
     });
   }
