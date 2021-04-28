@@ -1,10 +1,10 @@
 import com.gu.riffraff.artifact.BuildInfo
 
 name := """typerighter"""
-ThisBuild / organization := "com.gu"
-ThisBuild / scalaVersion := "2.12.10"
-ThisBuild / version := "1.0-SNAPSHOT"
-ThisBuild / scalacOptions := Seq(
+organization in ThisBuild := "com.gu"
+scalaVersion in ThisBuild := "2.12.10"
+version in ThisBuild := "1.0-SNAPSHOT"
+scalacOptions in ThisBuild := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
 
@@ -20,7 +20,7 @@ val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps";
 
 val commonSettings = Seq(
-  Universal / javaOptions ++= Seq(
+  javaOptions in Universal ++= Seq(
     s"-Dpidfile.path=/dev/null",
     "-J-XX:MaxRAMFraction=2",
     "-J-XX:InitialRAMFraction=2",
@@ -133,8 +133,8 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
 val root = (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
-  (checker / Debian / packageBin).value  -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
-  (ruleManager / Debian / packageBin).value  -> s"${(checker / packageName).value}/${(ruleManager / packageName).value}.deb",
+  (packageBin in Debian in checker).value  -> s"${(packageName in checker).value}/${(packageName in checker).value}.deb",
+  (packageBin in Debian in ruleManager).value  -> s"${(packageName in ruleManager).value}/${(packageName in ruleManager).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "apps/checker/cfn/cfn.yaml" -> "checker-cloudformation/checker.cfn.yaml",
   baseDirectory.value / "cdk/cfn/rule-manager.cfn.yaml" -> "rule-manager-cloudformation/rule-manager.cfn.yaml",
