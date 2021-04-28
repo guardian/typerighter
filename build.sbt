@@ -10,6 +10,7 @@ scalacOptions in ThisBuild := Seq(
 
 val languageToolVersion = "5.3"
 val awsSdkVersion = "1.11.999"
+// AWS SDK V2 was initially added for simple-configuration, which requires it >v1.5.4.
 val awsSdkVersion2 = "2.16.48"
 val capiModelsVersion = "15.8"
 val capiClientVersion = "16.0"
