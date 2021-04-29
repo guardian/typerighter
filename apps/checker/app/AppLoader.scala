@@ -1,15 +1,9 @@
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
 import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain}
-import software.amazon.awssdk.auth.credentials.{
-  AwsCredentialsProvider => AwsCredentialsProviderV2,
-  ProfileCredentialsProvider => ProfileCredentialsProviderV2,
-  DefaultCredentialsProvider => DefaultCredentialsProviderV2
-}
 import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import play.api.ApplicationLoader.Context
 import play.api._
-
 
 class AppLoader extends ApplicationLoader {
   def load(context: Context): Application = {
@@ -24,12 +18,7 @@ class AppLoader extends ApplicationLoader {
       case _ => DefaultAWSCredentialsProviderChain.getInstance
     }
 
-    val credsV2: AwsCredentialsProviderV2 = identity match {
-      case _: DevIdentity => ProfileCredentialsProviderV2.create("composer")
-      case _ => DefaultCredentialsProviderV2.create()
-    }
-
-    val loadedConfig = ConfigurationLoader.load(identity, credsV2) {
+    val loadedConfig = ConfigurationLoader.load(identity, creds) {
       case identity: AwsIdentity => SSMConfigurationLocation.default(identity)
       case development: DevIdentity => SSMConfigurationLocation(s"/DEV/flexible/${development.app}")
     }
