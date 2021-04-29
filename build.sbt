@@ -8,7 +8,7 @@ scalacOptions in ThisBuild := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
 
-val languageToolVersion = "4.3"
+val languageToolVersion = "5.3"
 val awsSdkVersion = "1.11.999"
 val capiModelsVersion = "15.8"
 val capiClientVersion = "16.0"
@@ -30,7 +30,6 @@ val commonSettings = Seq(
     s"-Dconfig.file=/etc/gu/${packageName.value}.conf"
   ),
   buildInfoPackage := "typerighter",
-  resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   buildInfoKeys := {
     lazy val buildInfo = BuildInfo(baseDirectory.value)
     Seq[BuildInfoKey](
@@ -42,15 +41,17 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
-  resolvers += "Guardian Platform Bintray" at "https://dl.bintray.com/guardian/platforms",
   libraryDependencies ++= Seq(
     "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
     "com.gu" % "kinesis-logback-appender" % "1.4.4",
-    "com.gu" %% "simple-configuration-ssm" % "1.5.0",
+    "com.gu" %% "simple-configuration-ssm" % "1.5.6",
     "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
+  ),
+  dependencyOverrides ++= Seq(
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.5.1",
   )
 )
 
@@ -73,9 +74,6 @@ val checker = (project in file(s"$appsFolder/checker"))
     packageName := "typerighter-checker",
     PlayKeys.devSettings += "play.server.http.port" -> "9100",
     commonSettings,
-    // Used to resolve xgboost-predictor, which is no longer available
-    // at spring.io without auth.
-    resolvers += "komiya-atsushi Bintray" at "https://dl.bintray.com/komiya-atsushi/maven",
     libraryDependencies ++= Seq(
       ws,
       "org.languagetool" % "languagetool-core" % languageToolVersion,
@@ -94,7 +92,6 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.5",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "biz.k11i" % "xgboost-predictor" % "0.3.1",
       "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
       "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
       "edu.stanford.nlp" % "stanford-parser" % "3.4",
