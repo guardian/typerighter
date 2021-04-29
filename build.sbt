@@ -10,8 +10,6 @@ scalacOptions in ThisBuild := Seq(
 
 val languageToolVersion = "5.3"
 val awsSdkVersion = "1.11.999"
-// AWS SDK V2 was initially added for simple-configuration, which requires it >v1.5.4.
-val awsSdkVersion2 = "2.16.48"
 val capiModelsVersion = "15.8"
 val capiClientVersion = "16.0"
 val circeVersion = "0.12.3"
@@ -49,7 +47,7 @@ val commonSettings = Seq(
     "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
     "com.gu" % "kinesis-logback-appender" % "1.4.4",
-    "com.gu" %% "simple-configuration-ssm" % "1.5.5",
+    "com.gu" %% "simple-configuration-ssm" % "1.5.6",
     "com.gu" %% "pan-domain-auth-verification" % "0.9.1",
   ),
   dependencyOverrides ++= Seq(
@@ -80,7 +78,6 @@ val checker = (project in file(s"$appsFolder/checker"))
       ws,
       "org.languagetool" % "languagetool-core" % languageToolVersion,
       "org.languagetool" % "language-en" % languageToolVersion,
-      "software.amazon.awssdk" % "ssm" % awsSdkVersion2,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
