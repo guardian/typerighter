@@ -1,0 +1,9 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "libxmljs": "^0.19.7"
+  }
+}
