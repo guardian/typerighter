@@ -14,7 +14,7 @@ deployments:
     app: typerighter
     parameters:
       amiTags:
-        Recipe: editorial-tools-xenial-java8-ngrams-ARM
+        Recipe: editorial-tools-bionic-java8-ngrams-ARM
         AmigoStage: PROD
         BuiltBy: amigo
       amiEncrypted: true
@@ -31,7 +31,7 @@ deployments:
     app: typerighter-rule-manager
     parameters:
       amiTags:
-        Recipe: editorial-tools-xenial-java8-ngrams-ARM
+        Recipe: editorial-tools-bionic-java8-ngrams-ARM
         AmigoStage: PROD
         BuiltBy: amigo
       amiEncrypted: true
