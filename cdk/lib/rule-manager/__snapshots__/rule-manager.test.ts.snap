@@ -244,12 +244,6 @@ Object {
               "",
               Array [
                 "#!/bin/bash -ev
-mkdir /etc/gu
-
-cat > /etc/gu/typerighter-rule-manager.conf <<-'EOF'
-    include \\"application\\"
-EOF
-
 aws --quiet --region ",
                 Object {
                   "Ref": "AWS::Region",

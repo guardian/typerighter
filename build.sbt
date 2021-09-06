@@ -26,8 +26,7 @@ val commonSettings = Seq(
     "-J-XX:+PrintGCDetails",
     "-J-XX:+PrintGCDateStamps",
     s"-J-Dlogs.home=/var/log/${packageName.value}",
-    s"-J-Xloggc:/var/log/${packageName.value}/gc.log",
-    s"-Dconfig.file=/etc/gu/${packageName.value}.conf"
+    s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
   ),
   buildInfoPackage := "typerighter",
   buildInfoKeys := {
@@ -71,6 +70,7 @@ val checker = (project in file(s"$appsFolder/checker"))
   .dependsOn(commonLib)
   .enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
   .settings(
+    javaOptions in Universal += s"-Dconfig.file=/etc/gu/${packageName.value}.conf",
     packageName := "typerighter-checker",
     PlayKeys.devSettings += "play.server.http.port" -> "9100",
     commonSettings,
