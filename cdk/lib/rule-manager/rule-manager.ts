@@ -8,7 +8,7 @@ export class RuleManager extends GuStack {
   constructor(scope: App, id: string, props: GuStackProps) {
     super(scope, id, props);
 
-    const app = new GuPlayApp(this, {
+    new GuPlayApp(this, {
       app: "typerighter",
       userData: `#!/bin/bash -ev
       aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
