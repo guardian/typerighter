@@ -52,14 +52,7 @@ export class RuleManager extends GuStack {
       TLSCert: new GuArnParameter(this, "TLSCert", {
         description: "ARN of a TLS certificate to install on the load balancer",
       }),
-      ClusterName: new GuStringParameter(this, "ClusterName", {
-        description:
-          "The value of the ElasticSearchCluster tag that this instance should join",
-        default: "elk",
-      }),
     };
-
-    this.addTag("ElasticSearchCluster", parameters.ClusterName.valueAsString);
 
     const vpc = GuVpc.fromId(this, "vpc", { vpcId: parameters.VPC.valueAsString } );
 
