@@ -9,10 +9,10 @@ export class RuleManager extends GuStack {
     super(scope, id, props);
 
     new GuPlayApp(this, {
-      app: "typerighter",
+      app: "typerighter-rule-manager",
       userData: `#!/bin/bash -ev
-      aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
-      dpkg -i /tmp/package.deb`,
+        aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+        dpkg -i /tmp/package.deb`,
       access: {
         scope: AccessScope.PUBLIC,
       },
