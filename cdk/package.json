@@ -9,7 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "synth": "cdk synth rule-manager > ./cfn/rule-manager.cfn.yaml && cdk synth rule-manager-db > ./cfn/rule-manager-db.cfn.yaml"
+    "synth": "cdk synth"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.120.0",
@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "@aws-cdk/core": "1.120.0",
-    "@guardian/cdk": "24.0.0"
+    "@guardian/cdk": "24.0.1"
   }
 }
