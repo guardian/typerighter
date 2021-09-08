@@ -1085,10 +1085,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@guardian/cdk@24.0.0":
-  version "24.0.0"
-  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-24.0.0.tgz#c0f07854ebd75fc422dabcfcf0847a8dd5f6b029"
-  integrity sha512-UE8fjn3rC//FQy9josmXrL+obPKIOj87xKbJIbRP68vub/9t4ttx2aQe2r3MS2s6g8BpvqoTkvx2xvbo4VcTaA==
+"@guardian/cdk@24.0.1":
+  version "24.0.1"
+  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-24.0.1.tgz#07f87ee1e5cd7c7782db2e328234e0badad5f78b"
+  integrity sha512-AXku8PTRXbB4G1PJcTIXd3/OMnX9vIcaKBXmWjQN6z85lW7kTz8jswQqnqKsXzRHuIS0lL9nPSZ/ESKQ7LnHJQ==
   dependencies:
     "@aws-cdk/assert" "1.120.0"
     "@aws-cdk/aws-apigateway" "1.120.0"
@@ -1105,7 +1105,7 @@
     "@aws-cdk/aws-rds" "1.120.0"
     "@aws-cdk/aws-s3" "1.120.0"
     "@aws-cdk/core" "1.120.0"
-    aws-sdk "^2.976.0"
+    aws-sdk "^2.980.0"
     chalk "^4.1.2"
     execa "^5.1.1"
     git-url-parse "^11.5.0"
@@ -1669,10 +1669,25 @@ aws-cdk@1.120.0:
     yaml "1.10.2"
     yargs "^16.2.0"
 
-aws-sdk@^2.848.0, aws-sdk@^2.976.0:
+aws-sdk@^2.848.0:
   version "2.983.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.983.0.tgz#4c6d98d802b2cf159acbc105979b892b427b5fb3"
   integrity sha512-i4QMJt5hEYzhoDzmbo0v+aAuHQPXM6ah15GBKObbxwYxmzK9wjMG+FH3DiWZZHdFsf3C+p1zDg4rIr63jmOeBw==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
+aws-sdk@^2.980.0:
+  version "2.984.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.984.0.tgz#fee0e73d63826a413cc7053c5daeb518d3261561"
+  integrity sha512-wFwNKhlO03V7UnpIge2qT/gYOMvGUlmVuFgF2gQRIkt6lWYvnf8/QDTCKZLhGBpC8/mml10m0CM3khMNwU1KVQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
