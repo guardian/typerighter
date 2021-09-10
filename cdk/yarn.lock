@@ -1085,10 +1085,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@guardian/cdk@24.0.1":
-  version "24.0.1"
-  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-24.0.1.tgz#07f87ee1e5cd7c7782db2e328234e0badad5f78b"
-  integrity sha512-AXku8PTRXbB4G1PJcTIXd3/OMnX9vIcaKBXmWjQN6z85lW7kTz8jswQqnqKsXzRHuIS0lL9nPSZ/ESKQ7LnHJQ==
+"@guardian/cdk@^24.1.0":
+  version "24.1.0"
+  resolved "https://registry.yarnpkg.com/@guardian/cdk/-/cdk-24.1.0.tgz#25e178370c4d2744aca928c342c9120f4d2187c3"
+  integrity sha512-xL9ORFUBjnRrwuwxln+ie9d2G7ICh58K/a1C5n3ICr/urpjkstxqyHZicKZisfnxajYrORjYf6/c20K3lhqz8Q==
   dependencies:
     "@aws-cdk/assert" "1.120.0"
     "@aws-cdk/aws-apigateway" "1.120.0"
@@ -1105,10 +1105,10 @@
     "@aws-cdk/aws-rds" "1.120.0"
     "@aws-cdk/aws-s3" "1.120.0"
     "@aws-cdk/core" "1.120.0"
-    aws-sdk "^2.980.0"
+    aws-sdk "^2.984.0"
     chalk "^4.1.2"
     execa "^5.1.1"
-    git-url-parse "^11.5.0"
+    git-url-parse "^11.6.0"
     read-pkg-up "7.0.1"
     yargs "^17.1.1"
 
@@ -1684,10 +1684,10 @@ aws-sdk@^2.848.0:
     uuid "3.3.2"
     xml2js "0.4.19"
 
-aws-sdk@^2.980.0:
-  version "2.984.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.984.0.tgz#fee0e73d63826a413cc7053c5daeb518d3261561"
-  integrity sha512-wFwNKhlO03V7UnpIge2qT/gYOMvGUlmVuFgF2gQRIkt6lWYvnf8/QDTCKZLhGBpC8/mml10m0CM3khMNwU1KVQ==
+aws-sdk@^2.984.0:
+  version "2.990.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.990.0.tgz#7ff0bbc5fe487b02feb831e192bc6610b3272424"
+  integrity sha512-VeXibY45QqI8vuT2YOK3PyV3ZvXQUUY6Lz8XZjuKW4JDVgU1PK6OY8w9QccOEwE2Y0dlM/K05cgvRWeJH8AeLg==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2488,7 +2488,7 @@ git-up@^4.0.0:
     is-ssh "^1.3.0"
     parse-url "^6.0.0"
 
-git-url-parse@^11.5.0:
+git-url-parse@^11.6.0:
   version "11.6.0"
   resolved "https://registry.yarnpkg.com/git-url-parse/-/git-url-parse-11.6.0.tgz#c634b8de7faa66498a2b88932df31702c67df605"
   integrity sha512-WWUxvJs5HsyHL6L08wOusa/IXYtMuCAhrMmnTjQPpBU0TTHyDhnOATNH3xNQz7YOQUsqIIPTGr4xiVti1Hsk5g==

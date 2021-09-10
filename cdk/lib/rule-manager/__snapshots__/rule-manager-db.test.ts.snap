@@ -33,7 +33,7 @@ Object {
     },
   },
   "Resources": Object {
-    "DBSecurityGroup": Object {
+    "DBSecurityGroupRulemanagerdb3E93B6BD": Object {
       "Properties": Object {
         "GroupDescription": "DB security group servers",
         "SecurityGroupEgress": Array [
@@ -46,11 +46,15 @@ Object {
         "Tags": Array [
           Object {
             "Key": "App",
-            "Value": "typerighter-rule-manager",
+            "Value": "rule-manager-db",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
           },
           Object {
             "Key": "Stack",
@@ -69,13 +73,13 @@ Object {
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
-    "DBSecurityGroupfromrulemanagerdbAccessSecurityGroup1C2D2DCD5432C3E322DD": Object {
+    "DBSecurityGroupRulemanagerdbfromrulemanagerdbAccessSecurityGroup1C2D2DCD5432F746BBF3": Object {
       "Properties": Object {
         "Description": "from rulemanagerdbAccessSecurityGroup1C2D2DCD:5432",
         "FromPort": 5432,
         "GroupId": Object {
           "Fn::GetAtt": Array [
-            "DBSecurityGroup",
+            "DBSecurityGroupRulemanagerdb3E93B6BD",
             "GroupId",
           ],
         },
@@ -95,12 +99,12 @@ Object {
         },
         "Tags": Array [
           Object {
-            "Key": "App",
-            "Value": "typerighter-rule-manager",
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
           },
           Object {
-            "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
           },
           Object {
             "Key": "Stack",
@@ -170,11 +174,15 @@ Object {
         "Tags": Array [
           Object {
             "Key": "App",
-            "Value": "typerighter-rule-manager",
+            "Value": "rule-manager-db",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
           },
           Object {
             "Key": "Stack",
@@ -190,7 +198,7 @@ Object {
         "VPCSecurityGroups": Array [
           Object {
             "Fn::GetAtt": Array [
-              "DBSecurityGroup",
+              "DBSecurityGroupRulemanagerdb3E93B6BD",
               "GroupId",
             ],
           },
@@ -216,11 +224,15 @@ Object {
         "Tags": Array [
           Object {
             "Key": "App",
-            "Value": "typerighter-rule-manager",
+            "Value": "rule-manager-db",
           },
           Object {
             "Key": "gu:cdk:version",
-            "Value": "0.39.2",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
           },
           Object {
             "Key": "Stack",
