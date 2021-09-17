@@ -1,0 +1,1757 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The typerighter stack matches the snapshot 1`] = `
+Object {
+  "Mappings": Object {
+    "LowercaseStageLookup": Object {
+      "lowercase": Object {
+        "CODE": "code",
+        "PROD": "prod",
+      },
+    },
+    "stagemapping": Object {
+      "CODE": Object {
+        "domainName": "api.typerighter.code.dev-gutools.co.uk",
+        "maxInstances": 2,
+        "minInstances": 1,
+      },
+      "PROD": Object {
+        "domainName": "api.typerighter.gutools.co.uk",
+        "maxInstances": 6,
+        "minInstances": 3,
+      },
+    },
+  },
+  "Outputs": Object {
+    "LoadBalancerTyperightercheckerDnsName": Object {
+      "Description": "DNS entry for LoadBalancerTyperighterchecker",
+      "Value": Object {
+        "Fn::GetAtt": Array [
+          "LoadBalancerTyperighterchecker8B160CE2",
+          "DNSName",
+        ],
+      },
+    },
+    "LoadBalancerTyperighterrulemanagerDnsName": Object {
+      "Description": "DNS entry for LoadBalancerTyperighterrulemanager",
+      "Value": Object {
+        "Fn::GetAtt": Array [
+          "LoadBalancerTyperighterrulemanager088CCBBF",
+          "DNSName",
+        ],
+      },
+    },
+  },
+  "Parameters": Object {
+    "AMITyperighterchecker": Object {
+      "Description": "Amazon Machine Image ID for the app typerighter-checker. Use this in conjunction with AMIgo to keep AMIs up to date.",
+      "Type": "AWS::EC2::Image::Id",
+    },
+    "AMITyperighterrulemanager": Object {
+      "Description": "Amazon Machine Image ID for the app typerighter-rule-manager. Use this in conjunction with AMIgo to keep AMIs up to date.",
+      "Type": "AWS::EC2::Image::Id",
+    },
+    "DistributionBucketName": Object {
+      "Default": "/account/services/artifact.bucket",
+      "Description": "SSM parameter containing the S3 bucket name holding distribution artifacts",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "InstanceTypeTyperighterchecker": Object {
+      "Default": "t3.small",
+      "Description": "EC2 Instance Type for the app typerighter-checker",
+      "Type": "String",
+    },
+    "InstanceTypeTyperighterrulemanager": Object {
+      "Default": "t3.small",
+      "Description": "EC2 Instance Type for the app typerighter-rule-manager",
+      "Type": "String",
+    },
+    "LoggingStreamName": Object {
+      "Default": "/account/services/logging.stream.name",
+      "Description": "SSM parameter containing the Name (not ARN) on the kinesis stream",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+    "MasterDBUsername": Object {
+      "Default": "rule_manager",
+      "Description": "Master DB username",
+      "Type": "String",
+    },
+    "PrivateSubnets": Object {
+      "Default": "/account/vpc/primary/subnets/private",
+      "Description": "A list of private subnets",
+      "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+    },
+    "Stage": Object {
+      "AllowedValues": Array [
+        "CODE",
+        "PROD",
+      ],
+      "Default": "CODE",
+      "Description": "Stage name",
+      "Type": "String",
+    },
+    "VpcId": Object {
+      "Default": "/account/vpc/primary/id",
+      "Description": "Virtual Private Cloud to run EC2 instances within",
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>",
+    },
+    "typerightercheckerPrivateSubnets": Object {
+      "Default": "/account/vpc/primary/subnets/private",
+      "Description": "A list of private subnets",
+      "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+    },
+    "typerightercheckerPublicSubnets": Object {
+      "Default": "/account/vpc/primary/subnets/public",
+      "Description": "A list of public subnets",
+      "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+    },
+    "typerighterrulemanagerPrivateSubnets": Object {
+      "Default": "/account/vpc/primary/subnets/private",
+      "Description": "A list of private subnets",
+      "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+    },
+    "typerighterrulemanagerPublicSubnets": Object {
+      "Default": "/account/vpc/primary/subnets/public",
+      "Description": "A list of public subnets",
+      "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
+    },
+  },
+  "Resources": Object {
+    "AutoScalingGroupTyperightercheckerASG10DD2261": Object {
+      "Properties": Object {
+        "HealthCheckGracePeriod": 120,
+        "HealthCheckType": "ELB",
+        "LaunchConfigurationName": Object {
+          "Ref": "AutoScalingGroupTyperightercheckerLaunchConfig64056387",
+        },
+        "MaxSize": Object {
+          "Fn::FindInMap": Array [
+            "stagemapping",
+            Object {
+              "Ref": "Stage",
+            },
+            "maxInstances",
+          ],
+        },
+        "MinSize": Object {
+          "Fn::FindInMap": Array [
+            "stagemapping",
+            Object {
+              "Ref": "Stage",
+            },
+            "minInstances",
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "PropagateAtLaunch": true,
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:pattern-name",
+            "PropagateAtLaunch": true,
+            "Value": "GuPlayApp",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "PropagateAtLaunch": true,
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "PropagateAtLaunch": true,
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Name",
+            "PropagateAtLaunch": true,
+            "Value": "typerighter/AutoScalingGroupTyperighterchecker",
+          },
+          Object {
+            "Key": "Stack",
+            "PropagateAtLaunch": true,
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "PropagateAtLaunch": true,
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "TargetGroupARNs": Array [
+          Object {
+            "Ref": "TargetGroupTyperighterchecker7E7859CF",
+          },
+        ],
+        "VPCZoneIdentifier": Object {
+          "Ref": "typerightercheckerPrivateSubnets",
+        },
+      },
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+    },
+    "AutoScalingGroupTyperightercheckerInstanceProfile062719D8": Object {
+      "Properties": Object {
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "AutoScalingGroupTyperightercheckerLaunchConfig64056387": Object {
+      "DependsOn": Array [
+        "InstanceRoleTyperightercheckerEA6224AC",
+      ],
+      "Properties": Object {
+        "IamInstanceProfile": Object {
+          "Ref": "AutoScalingGroupTyperightercheckerInstanceProfile062719D8",
+        },
+        "ImageId": Object {
+          "Ref": "AMITyperighterchecker",
+        },
+        "InstanceType": Object {
+          "Ref": "InstanceTypeTyperighterchecker",
+        },
+        "SecurityGroups": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C",
+              "GroupId",
+            ],
+          },
+          Object {
+            "Fn::GetAtt": Array [
+              "WazuhSecurityGroup",
+              "GroupId",
+            ],
+          },
+        ],
+        "UserData": Object {
+          "Fn::Base64": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "#!/bin/bash -ev
+mkdir /etc/gu
+
+cat > /etc/gu/tags << 'EOF'
+Stage=",
+                Object {
+                  "Ref": "Stage",
+                },
+                "
+Stack=flexible
+App=typerighter-checker
+EOF
+
+cat > /etc/gu/typerighter-checker.conf << 'EOF'
+include \\"application\\"
+typerighter.ngramPath=\\"/opt/ngram-data\\"
+EOF
+
+aws --quiet --region ",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                " s3 cp s3://composer-dist/flexible/",
+                Object {
+                  "Ref": "Stage",
+                },
+                "/typerighter-checker/typerighter-checker.deb /tmp/package.deb
+dpkg -i /tmp/package.deb",
+              ],
+            ],
+          },
+        },
+      },
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+    },
+    "AutoScalingGroupTyperighterrulemanagerASG7B90BF61": Object {
+      "Properties": Object {
+        "HealthCheckGracePeriod": 120,
+        "HealthCheckType": "ELB",
+        "LaunchConfigurationName": Object {
+          "Ref": "AutoScalingGroupTyperighterrulemanagerLaunchConfig5311DECE",
+        },
+        "MaxSize": Object {
+          "Fn::FindInMap": Array [
+            "stagemapping",
+            Object {
+              "Ref": "Stage",
+            },
+            "maxInstances",
+          ],
+        },
+        "MinSize": Object {
+          "Fn::FindInMap": Array [
+            "stagemapping",
+            Object {
+              "Ref": "Stage",
+            },
+            "minInstances",
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "PropagateAtLaunch": true,
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:pattern-name",
+            "PropagateAtLaunch": true,
+            "Value": "GuPlayApp",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "PropagateAtLaunch": true,
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "PropagateAtLaunch": true,
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Name",
+            "PropagateAtLaunch": true,
+            "Value": "typerighter/AutoScalingGroupTyperighterrulemanager",
+          },
+          Object {
+            "Key": "Stack",
+            "PropagateAtLaunch": true,
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "PropagateAtLaunch": true,
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "TargetGroupARNs": Array [
+          Object {
+            "Ref": "TargetGroupTyperighterrulemanager5D2DA3B8",
+          },
+        ],
+        "VPCZoneIdentifier": Object {
+          "Ref": "typerighterrulemanagerPrivateSubnets",
+        },
+      },
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+    },
+    "AutoScalingGroupTyperighterrulemanagerInstanceProfile4E294BC2": Object {
+      "Properties": Object {
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "AutoScalingGroupTyperighterrulemanagerLaunchConfig5311DECE": Object {
+      "DependsOn": Array [
+        "InstanceRoleTyperighterrulemanagerC4CF9347",
+      ],
+      "Properties": Object {
+        "IamInstanceProfile": Object {
+          "Ref": "AutoScalingGroupTyperighterrulemanagerInstanceProfile4E294BC2",
+        },
+        "ImageId": Object {
+          "Ref": "AMITyperighterrulemanager",
+        },
+        "InstanceType": Object {
+          "Ref": "InstanceTypeTyperighterrulemanager",
+        },
+        "SecurityGroups": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+              "GroupId",
+            ],
+          },
+          Object {
+            "Fn::GetAtt": Array [
+              "WazuhSecurityGroup",
+              "GroupId",
+            ],
+          },
+        ],
+        "UserData": Object {
+          "Fn::Base64": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "#!/bin/bash -ev
+        aws --quiet --region ",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+                " s3 cp s3://composer-dist/flexible/",
+                Object {
+                  "Ref": "Stage",
+                },
+                "/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+        dpkg -i /tmp/package.deb",
+              ],
+            ],
+          },
+        },
+      },
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+    },
+    "CertificateTyperighterchecker335D464A": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "DomainName": Object {
+          "Fn::FindInMap": Array [
+            "stagemapping",
+            Object {
+              "Ref": "Stage",
+            },
+            "domainName",
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "ValidationMethod": "DNS",
+      },
+      "Type": "AWS::CertificateManager::Certificate",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "CertificateTyperighterrulemanager994D3BCE": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "DomainName": Object {
+          "Fn::FindInMap": Array [
+            "stagemapping",
+            Object {
+              "Ref": "Stage",
+            },
+            "domainName",
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "ValidationMethod": "DNS",
+      },
+      "Type": "AWS::CertificateManager::Certificate",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "DBSecurityGroupTyperighterrulemanagerE0229216": Object {
+      "Properties": Object {
+        "GroupDescription": "Allow traffic from EC2 instances to DB",
+        "SecurityGroupEgress": Array [
+          Object {
+            "CidrIp": "255.255.255.255/32",
+            "Description": "Disallow all traffic",
+            "FromPort": 252,
+            "IpProtocol": "icmp",
+            "ToPort": 86,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "DBSecurityGroupTyperighterrulemanagerfromtyperighterGuHttpsEgressSecurityGroupTyperighterrulemanagerCA981E9E5432D4DEAF98": Object {
+      "Properties": Object {
+        "Description": "Allow connection from EC2 instances to DB",
+        "FromPort": 5432,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "DBSecurityGroupTyperighterrulemanagerE0229216",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "DBSubnetGroup": Object {
+      "Properties": Object {
+        "DBSubnetGroupDescription": "Subnet for typerighter rule-manager database",
+        "SubnetIds": Object {
+          "Ref": "PrivateSubnets",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::RDS::DBSubnetGroup",
+    },
+    "DescribeEC2PolicyFF5F9295": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "autoscaling:DescribeAutoScalingInstances",
+                "autoscaling:DescribeAutoScalingGroups",
+                "ec2:DescribeTags",
+                "ec2:DescribeInstances",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "describe-ec2-policy",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "GetDistributablePolicyTyperighterchecker445A87C9": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:s3:::",
+                    Object {
+                      "Ref": "DistributionBucketName",
+                    },
+                    "/flexible/",
+                    Object {
+                      "Ref": "Stage",
+                    },
+                    "/typerighter-checker/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "GetDistributablePolicyTyperighterchecker445A87C9",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "GetDistributablePolicyTyperighterrulemanagerBAFF784F": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:s3:::",
+                    Object {
+                      "Ref": "DistributionBucketName",
+                    },
+                    "/flexible/",
+                    Object {
+                      "Ref": "Stage",
+                    },
+                    "/typerighter-rule-manager/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "GetDistributablePolicyTyperighterrulemanagerBAFF784F",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C": Object {
+      "Properties": Object {
+        "GroupDescription": "Allow all outbound HTTPS traffic",
+        "SecurityGroupEgress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound HTTPS traffic",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "GuHttpsEgressSecurityGroupTyperightercheckerfromtyperighterLoadBalancerTyperightercheckerSecurityGroup6083F06D9000ABA04AA0": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperightercheckerSecurityGroup35C23EF5",
+            "GroupId",
+          ],
+        },
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62": Object {
+      "Properties": Object {
+        "GroupDescription": "Allow all outbound HTTPS traffic",
+        "SecurityGroupEgress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound HTTPS traffic",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "GuHttpsEgressSecurityGroupTyperighterrulemanagerfromtyperighterLoadBalancerTyperighterrulemanagerSecurityGroupCB1A584E90002DD508E0": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7",
+            "GroupId",
+          ],
+        },
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "GuHttpsEgressSecurityGroupTyperighterrulemanagertotyperighterDBSecurityGroupTyperighterrulemanager6085BB9A54322207D96A": Object {
+      "Properties": Object {
+        "Description": "Allow connection from EC2 instances to DB",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "DBSecurityGroupTyperighterrulemanagerE0229216",
+            "GroupId",
+          ],
+        },
+        "FromPort": 5432,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "GuLogShippingPolicy981BFE5A": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "kinesis:Describe*",
+                "kinesis:Put*",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:kinesis:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":stream/",
+                    Object {
+                      "Ref": "LoggingStreamName",
+                    },
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "GuLogShippingPolicy981BFE5A",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "GuPutCloudwatchMetricsPolicyC5BCE402": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "cloudwatch:PutMetricData",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "GuPutCloudwatchMetricsPolicyC5BCE402",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "InstanceRoleTyperightercheckerEA6224AC": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "ec2.",
+                      Object {
+                        "Ref": "AWS::URLSuffix",
+                      },
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Path": "/",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "InstanceRoleTyperighterrulemanagerC4CF9347": Object {
+      "Properties": Object {
+        "AssumeRolePolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": Object {
+                "Service": Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      "ec2.",
+                      Object {
+                        "Ref": "AWS::URLSuffix",
+                      },
+                    ],
+                  ],
+                },
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Path": "/",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "ListenerTyperighterchecker1700E874": Object {
+      "Properties": Object {
+        "Certificates": Array [
+          Object {
+            "CertificateArn": Object {
+              "Ref": "CertificateTyperighterchecker335D464A",
+            },
+          },
+        ],
+        "DefaultActions": Array [
+          Object {
+            "TargetGroupArn": Object {
+              "Ref": "TargetGroupTyperighterchecker7E7859CF",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": Object {
+          "Ref": "LoadBalancerTyperighterchecker8B160CE2",
+        },
+        "Port": 443,
+        "Protocol": "HTTPS",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "ListenerTyperighterrulemanagerC0F0EE62": Object {
+      "Properties": Object {
+        "Certificates": Array [
+          Object {
+            "CertificateArn": Object {
+              "Ref": "CertificateTyperighterrulemanager994D3BCE",
+            },
+          },
+        ],
+        "DefaultActions": Array [
+          Object {
+            "TargetGroupArn": Object {
+              "Ref": "TargetGroupTyperighterrulemanager5D2DA3B8",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": Object {
+          "Ref": "LoadBalancerTyperighterrulemanager088CCBBF",
+        },
+        "Port": 443,
+        "Protocol": "HTTPS",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "LoadBalancerTyperighterchecker8B160CE2": Object {
+      "Properties": Object {
+        "LoadBalancerAttributes": Array [
+          Object {
+            "Key": "deletion_protection.enabled",
+            "Value": "true",
+          },
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "LoadBalancerTyperightercheckerSecurityGroup35C23EF5",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": Object {
+          "Ref": "typerightercheckerPublicSubnets",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "LoadBalancerTyperightercheckerSecurityGroup35C23EF5": Object {
+      "Properties": Object {
+        "GroupDescription": "Automatically created Security Group for ELB typerighterLoadBalancerTyperighterchecker410072D0",
+        "SecurityGroupIngress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 443",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "LoadBalancerTyperightercheckerSecurityGrouptotyperighterGuHttpsEgressSecurityGroupTyperightercheckerE1FE725890008BE3EB99": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C",
+            "GroupId",
+          ],
+        },
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperightercheckerSecurityGroup35C23EF5",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "LoadBalancerTyperighterrulemanager088CCBBF": Object {
+      "Properties": Object {
+        "LoadBalancerAttributes": Array [
+          Object {
+            "Key": "deletion_protection.enabled",
+            "Value": "true",
+          },
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": Object {
+          "Ref": "typerighterrulemanagerPublicSubnets",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7": Object {
+      "Properties": Object {
+        "GroupDescription": "Automatically created Security Group for ELB typerighterLoadBalancerTyperighterrulemanager83A799C9",
+        "SecurityGroupIngress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 443",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "LoadBalancerTyperighterrulemanagerSecurityGrouptotyperighterGuHttpsEgressSecurityGroupTyperighterrulemanagerCA981E9E900057E9DB49": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+            "GroupId",
+          ],
+        },
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "PandaAuthPolicy4E029301": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": "arn:aws:s3:::pan-domain-auth-settings/*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "PandaAuthPolicy4E029301",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ParameterStoreReadTyperighterchecker6F76A0F7": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/",
+                    Object {
+                      "Ref": "Stage",
+                    },
+                    "/flexible/typerighter-checker",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "parameter-store-read-policy",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "ParameterStoreReadTyperighterrulemanager4551E15C": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/",
+                    Object {
+                      "Ref": "Stage",
+                    },
+                    "/flexible/typerighter-rule-manager",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "parameter-store-read-policy",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "RuleBucketPolicy9F205E18": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:s3:::typerighter-",
+                    Object {
+                      "Fn::FindInMap": Array [
+                        "LowercaseStageLookup",
+                        "lowercase",
+                        Object {
+                          "Ref": "Stage",
+                        },
+                      ],
+                    },
+                    "/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "RuleBucketPolicy9F205E18",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "RuleManagerRDSEBF20BD9": Object {
+      "DeletionPolicy": "Snapshot",
+      "Properties": Object {
+        "AllocatedStorage": "50",
+        "AllowMajorVersionUpgrade": true,
+        "AutoMinorVersionUpgrade": true,
+        "BackupRetentionPeriod": 10,
+        "CopyTagsToSnapshot": true,
+        "DBInstanceClass": "db.t3.micro",
+        "DBInstanceIdentifier": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "typerighter-rule-manager-store-",
+              Object {
+                "Ref": "Stage",
+              },
+            ],
+          ],
+        },
+        "DBParameterGroupName": Object {
+          "Ref": "RuleManagerRDSRDSParameterGroupE6969C6C",
+        },
+        "DBSubnetGroupName": Object {
+          "Ref": "DBSubnetGroup",
+        },
+        "DeletionProtection": true,
+        "Engine": "postgres",
+        "EngineVersion": "11.12",
+        "MasterUserPassword": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "{{resolve:ssm-secure:/",
+              Object {
+                "Ref": "Stage",
+              },
+              "/flexible/typerighter-rule-manager/db.default.password:1}}",
+            ],
+          ],
+        },
+        "MasterUsername": Object {
+          "Ref": "MasterDBUsername",
+        },
+        "MultiAZ": true,
+        "Port": "5432",
+        "PreferredBackupWindow": "02:00-02:30",
+        "PreferredMaintenanceWindow": "Mon:06:30-Mon:07:00",
+        "PubliclyAccessible": false,
+        "StorageEncrypted": true,
+        "StorageType": "gp2",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "rule-manager-db",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VPCSecurityGroups": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "DBSecurityGroupTyperighterrulemanagerE0229216",
+              "GroupId",
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::RDS::DBInstance",
+      "UpdateReplacePolicy": "Snapshot",
+    },
+    "RuleManagerRDSRDSParameterGroupE6969C6C": Object {
+      "Properties": Object {
+        "Description": "Parameter group for postgres11",
+        "Family": "postgres11",
+        "Parameters": Object {
+          "checkpoint_completion_target": "0.9",
+          "effective_cache_size": "393216",
+          "maintenance_work_mem": "245760",
+          "max_connections": "100",
+          "random_page_cost": "1.1",
+          "shared_buffers": "131072",
+          "synchronous_commit": "off",
+          "work_mem": "38912",
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "rule-manager-db",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::RDS::DBParameterGroup",
+    },
+    "SSMRunCommandPolicy244E1613": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "ec2messages:AcknowledgeMessage",
+                "ec2messages:DeleteMessage",
+                "ec2messages:FailMessage",
+                "ec2messages:GetEndpoint",
+                "ec2messages:GetMessages",
+                "ec2messages:SendReply",
+                "ssm:UpdateInstanceInformation",
+                "ssm:ListInstanceAssociations",
+                "ssm:DescribeInstanceProperties",
+                "ssm:DescribeDocumentParameters",
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ssm-run-command-policy",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "TargetGroupTyperighterchecker7E7859CF": Object {
+      "Properties": Object {
+        "HealthCheckIntervalSeconds": 10,
+        "HealthCheckPath": "/healthcheck",
+        "HealthCheckProtocol": "HTTP",
+        "HealthCheckTimeoutSeconds": 5,
+        "HealthyThresholdCount": 5,
+        "Port": 9000,
+        "Protocol": "HTTP",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "TargetGroupAttributes": Array [
+          Object {
+            "Key": "deregistration_delay.timeout_seconds",
+            "Value": "30",
+          },
+        ],
+        "TargetType": "instance",
+        "UnhealthyThresholdCount": 2,
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "TargetGroupTyperighterrulemanager5D2DA3B8": Object {
+      "Properties": Object {
+        "HealthCheckIntervalSeconds": 10,
+        "HealthCheckPath": "/healthcheck",
+        "HealthCheckProtocol": "HTTP",
+        "HealthCheckTimeoutSeconds": 5,
+        "HealthyThresholdCount": 5,
+        "Port": 9000,
+        "Protocol": "HTTP",
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "TargetGroupAttributes": Array [
+          Object {
+            "Key": "deregistration_delay.timeout_seconds",
+            "Value": "30",
+          },
+        ],
+        "TargetType": "instance",
+        "UnhealthyThresholdCount": 2,
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "WazuhSecurityGroup": Object {
+      "Properties": Object {
+        "GroupDescription": "Allow outbound traffic from wazuh agent to manager",
+        "SecurityGroupEgress": Array [
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Wazuh event logging",
+            "FromPort": 1514,
+            "IpProtocol": "tcp",
+            "ToPort": 1514,
+          },
+          Object {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Wazuh agent registration",
+            "FromPort": 1515,
+            "IpProtocol": "tcp",
+            "ToPort": 1515,
+          },
+        ],
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+        "VpcId": Object {
+          "Ref": "VpcId",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "ruleprovisioneralarm77B679CD": Object {
+      "Properties": Object {
+        "AlarmDescription": "There was a problem getting rules for Typerighter. Rules might not be present, or might be out of date.",
+        "AlarmName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "Typerighter - ",
+              Object {
+                "Ref": "Stage",
+              },
+              " - rule provisioner issue",
+            ],
+          ],
+        },
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 3,
+        "MetricName": "RulesNotFound",
+        "Namespace": "Typerighter",
+        "Period": 60,
+        "Statistic": "Sum",
+        "Threshold": 0,
+        "TreatMissingData": "notBreaching",
+      },
+      "Type": "AWS::CloudWatch::Alarm",
+    },
+  },
+}
+`;
