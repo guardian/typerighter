@@ -51,6 +51,12 @@ Object {
       "Description": "Amazon Machine Image ID for the app typerighter-rule-manager. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
     },
+    "CheckerCertificateParam": Object {
+      "AllowedPattern": "arn:aws:[a-z0-9]*:[a-z0-9\\\\-]*:[0-9]{12}:.*",
+      "ConstraintDescription": "Must be a valid ARN, eg: arn:partition:service:region:account-id:resource-id",
+      "Description": "The ARN of the certificate for the checker service Cloudfront distribution",
+      "Type": "String",
+    },
     "DistributionBucketName": Object {
       "Default": "/account/services/artifact.bucket",
       "Description": "SSM parameter containing the S3 bucket name holding distribution artifacts",
@@ -1726,6 +1732,45 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
+    "cloudfrontbucket301B6697": Object {
+      "DeletionPolicy": "Retain",
+      "Properties": Object {
+        "LifecycleConfiguration": Object {
+          "Rules": Array [
+            Object {
+              "ExpirationInDays": 90,
+              "Status": "Enabled",
+            },
+          ],
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::S3::Bucket",
+      "UpdateReplacePolicy": "Retain",
+    },
     "ruleprovisioneralarm77B679CD": Object {
       "Properties": Object {
         "AlarmDescription": "There was a problem getting rules for Typerighter. Rules might not be present, or might be out of date.",
@@ -1751,6 +1796,95 @@ dpkg -i /tmp/package.deb",
         "TreatMissingData": "notBreaching",
       },
       "Type": "AWS::CloudWatch::Alarm",
+    },
+    "typerightercloudfront0384F783": Object {
+      "Properties": Object {
+        "DistributionConfig": Object {
+          "Aliases": Array [
+            Object {
+              "Fn::GetAtt": Array [
+                "LoadBalancerTyperighterchecker8B160CE2",
+                "DNSName",
+              ],
+            },
+          ],
+          "DefaultCacheBehavior": Object {
+            "AllowedMethods": Array [
+              "GET",
+              "HEAD",
+              "OPTIONS",
+              "PUT",
+              "PATCH",
+              "POST",
+              "DELETE",
+            ],
+            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "Compress": true,
+            "TargetOriginId": "typerightertyperightercloudfrontOrigin1DFFB56FA",
+            "ViewerProtocolPolicy": "allow-all",
+          },
+          "Enabled": true,
+          "HttpVersion": "http2",
+          "IPV6Enabled": true,
+          "Logging": Object {
+            "Bucket": Object {
+              "Fn::GetAtt": Array [
+                "cloudfrontbucket301B6697",
+                "RegionalDomainName",
+              ],
+            },
+          },
+          "Origins": Array [
+            Object {
+              "CustomOriginConfig": Object {
+                "OriginProtocolPolicy": "https-only",
+                "OriginSSLProtocols": Array [
+                  "TLSv1.2",
+                ],
+              },
+              "DomainName": Object {
+                "Fn::GetAtt": Array [
+                  "LoadBalancerTyperighterchecker8B160CE2",
+                  "DNSName",
+                ],
+              },
+              "Id": "typerightertyperightercloudfrontOrigin1DFFB56FA",
+            },
+          ],
+          "ViewerCertificate": Object {
+            "AcmCertificateArn": Object {
+              "Ref": "CheckerCertificateParam",
+            },
+            "MinimumProtocolVersion": "TLSv1.2_2019",
+            "SslSupportMethod": "sni-only",
+          },
+        },
+        "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-checker",
+          },
+          Object {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          Object {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          Object {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          Object {
+            "Key": "Stage",
+            "Value": Object {
+              "Ref": "Stage",
+            },
+          },
+        ],
+      },
+      "Type": "AWS::CloudFront::Distribution",
     },
   },
 }

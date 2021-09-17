@@ -7,6 +7,8 @@ import {
   SecretValue,
   Token,
 } from "@aws-cdk/core";
+import {Certificate } from '@aws-cdk/aws-certificatemanager';
+
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
 import { GuStack } from "@guardian/cdk/lib/constructs/core/stack";
 import { AccessScope, GuPlayApp } from "@guardian/cdk";
@@ -14,8 +16,8 @@ import {
   GuGetS3ObjectsPolicy,
   GuPutCloudwatchMetricsPolicy,
 } from "@guardian/cdk/lib/constructs/iam";
-import { GuSecurityGroup, GuVpc, SubnetType as GuSubnetType } from "@guardian/cdk/lib/constructs/ec2";
-import { Peer, Port, SubnetType } from "@aws-cdk/aws-ec2";
+import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
+import { Port, SubnetType } from "@aws-cdk/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
@@ -37,11 +39,22 @@ import {
   StorageType,
   SubnetGroup,
 } from "@aws-cdk/aws-rds";
-import { GuParameter } from "@guardian/cdk/lib/constructs/core";
+import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
 
 export class Typerighter extends GuStack {
   constructor(scope: App, id: string, props: GuStackProps) {
     super(scope, id, props);
+
+    const parameters = {
+      MasterDBUsername: new GuParameter(this, "MasterDBUsername", {
+        description: "Master DB username",
+        default: "rule_manager",
+        type: "String",
+      }),
+      CheckerCertificate: new GuArnParameter(this, "CheckerCloudfrontCertificate", {
+        description: "The ARN of the certificate for the checker service Cloudfront distribution",
+      }),
+    };
 
     const pandaAuthPolicy = new GuGetS3ObjectsPolicy(this, "PandaAuthPolicy", {
       bucketName: "pan-domain-auth-settings",
@@ -135,26 +148,26 @@ dpkg -i /tmp/package.deb`,
     //   bucketName: typerighterBucketName,
     // });
 
-    // @todo – add this when the certificate is created.
-    // const cloudfrontBucket = new GuS3Bucket(this, "cloudfront-bucket", {
-    //   lifecycleRules: [
-    //     {
-    //       expiration: Duration.days(90),
-    //     },
-    //   ],
-    // });
+    const cloudfrontBucket = new GuS3Bucket(this, "cloudfront-bucket", {
+      lifecycleRules: [
+        {
+          expiration: Duration.days(90),
+        },
+      ],
+    });
 
-    // const cloudFront = new Distribution(this, "typerighter-cloudfront", {
-    //   defaultBehavior: {
-    //     origin: new LoadBalancerV2Origin(checkerApp.loadBalancer, {
-    //       protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
-    //     }),
-    //     allowedMethods: AllowedMethods.ALLOW_ALL,
-    //   },
-    //   logBucket: cloudfrontBucket,
-    //   certificate: checkerApp.certificate,
-    //   domainNames: [checkerApp.loadBalancer.loadBalancerDnsName],
-    // });
+    const checkerCertificate = Certificate.fromCertificateArn(this, 'CheckerCertificate', parameters.CheckerCertificate.valueAsString)
+
+    const checkerCloudFrontDistro = new Distribution(this, "typerighter-cloudfront", {
+      defaultBehavior: {
+        origin: new LoadBalancerV2Origin(checkerApp.loadBalancer, {
+          protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+        }),
+        allowedMethods: AllowedMethods.ALLOW_ALL,
+      },
+      logBucket: cloudfrontBucket,
+      certificate: checkerCertificate
+    });
 
     const ruleMetric = new Metric({
       metricName: "RulesNotFound",
@@ -177,14 +190,6 @@ dpkg -i /tmp/package.deb`,
     // Database
 
     const dbAppName = "rule-manager-db";
-
-    const parameters = {
-      MasterDBUsername: new GuParameter(this, "MasterDBUsername", {
-        description: "Master DB username",
-        default: "rule_manager",
-        type: "String",
-      }),
-    };
 
     const dbAccessSecurityGroup = new GuSecurityGroup(this, "DBSecurityGroup", {
       app: ruleManagerAppName,
