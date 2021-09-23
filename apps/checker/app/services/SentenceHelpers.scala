@@ -43,8 +43,13 @@ class SentenceHelpers() {
   def maybeGetFirstWordFromSentence(sentence: CoreMap) = {
     val tokens = sentence.get(classOf[TokensAnnotation]).asScala.toList
     val maybeFirstValidToken = tokens.find { token =>
-      !SentenceHelpers.NON_WORD_TOKENS.contains(token.value()) &&
-      !SentenceHelpers.NON_WORD_TOKEN_CHARS.exists(token.value().contains(_))
+      val tokenDoesNotContainNonWordToken = !SentenceHelpers.NON_WORD_TOKENS.contains(token.value())
+      val tokenWithNonWordCharsRemoved = SentenceHelpers.NON_WORD_TOKEN_CHARS.foldLeft(token.value()) {
+        (remainingToken, nonWordChar) => remainingToken.replace(nonWordChar, "")
+      }
+      val tokenContainsWordCharacters = tokenWithNonWordCharsRemoved.size > 0
+
+      tokenDoesNotContainNonWordToken && tokenContainsWordCharacters
     }
 
     maybeFirstValidToken.map { token =>
