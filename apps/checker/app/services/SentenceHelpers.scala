@@ -14,9 +14,9 @@ case class WordInSentence(sentence: String, word: String, range: TextRange)
 
 object SentenceHelpers {
   // These tokens can contain multiple quotes – we only need to detect the presence of one.
-  val NON_WORD_TOKEN_CHARS = List("`", "'", "-")
+  val NON_WORD_TOKEN_CHARS = Set('`', '\'', '-')
   // These tokens are discrete. LSB == Left Square Bracket, etc.
-  val NON_WORD_TOKENS = List("-LSB-", "-LRB-", "-LCB-")
+  val NON_WORD_TOKENS = Set("-LSB-", "-LRB-", "-LCB-")
 }
 
 /**
@@ -43,8 +43,7 @@ class SentenceHelpers() {
   def maybeGetFirstWordFromSentence(sentence: CoreMap) = {
     val tokens = sentence.get(classOf[TokensAnnotation]).asScala.toList
     val maybeFirstValidToken = tokens.find { token =>
-      !SentenceHelpers.NON_WORD_TOKENS.contains(token.value()) &&
-      !SentenceHelpers.NON_WORD_TOKEN_CHARS.exists(token.value().contains(_))
+      tokenDoesNotContainNonWordToken(token) && tokenContainsWordCharacters(token)
     }
 
     maybeFirstValidToken.map { token =>
@@ -55,5 +54,15 @@ class SentenceHelpers() {
         TextRange(token.beginPosition(), token.endPosition())
       )
     }
+  }
+
+  private def tokenDoesNotContainNonWordToken(token: CoreLabel) =
+    !SentenceHelpers.NON_WORD_TOKENS.contains(token.value)
+
+  private def tokenContainsWordCharacters(token: CoreLabel) = {
+    val tokenWithNonWordCharsRemoved = token.value.filterNot(
+      SentenceHelpers.NON_WORD_TOKEN_CHARS.contains
+    )
+    tokenWithNonWordCharsRemoved.size > 0
   }
 }
