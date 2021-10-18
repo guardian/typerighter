@@ -2,14 +2,15 @@ import {
   App,
   CfnMapping,
   Duration,
-  Fn,
   RemovalPolicy,
   SecretValue,
-  Token,
 } from "@aws-cdk/core";
-import {Certificate } from '@aws-cdk/aws-certificatemanager';
-
+import { Certificate } from "@aws-cdk/aws-certificatemanager";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
+import {
+  GuDnsRecordSet,
+  RecordType,
+} from "@guardian/cdk/lib/constructs/dns/dns-records";
 import { GuStack } from "@guardian/cdk/lib/constructs/core/stack";
 import { AccessScope, GuPlayApp } from "@guardian/cdk";
 import {
@@ -17,10 +18,15 @@ import {
   GuPutCloudwatchMetricsPolicy,
 } from "@guardian/cdk/lib/constructs/iam";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
-import { Port, SubnetType } from "@aws-cdk/aws-ec2";
+import { InstanceType, Port, SubnetType } from "@aws-cdk/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
+  CacheCookieBehavior,
+  CachedMethods,
+  CacheHeaderBehavior,
+  CachePolicy,
+  CacheQueryStringBehavior,
   Distribution,
   OriginProtocolPolicy,
 } from "@aws-cdk/aws-cloudfront";
@@ -51,20 +57,38 @@ export class Typerighter extends GuStack {
         default: "rule_manager",
         type: "String",
       }),
-      CheckerCertificate: new GuArnParameter(this, "CheckerCloudfrontCertificate", {
-        description: "The ARN of the certificate for the checker service Cloudfront distribution",
-      }),
+      CheckerCertificate: new GuArnParameter(
+        this,
+        "CheckerCloudfrontCertificate",
+        {
+          description:
+            "The ARN of the certificate for the checker service Cloudfront distribution",
+        }
+      ),
     };
 
     const pandaAuthPolicy = new GuGetS3ObjectsPolicy(this, "PandaAuthPolicy", {
       bucketName: "pan-domain-auth-settings",
     });
 
+    const checkerDomainCODE = "checker.typerighter.code.dev-gutools.co.uk";
+    const checkerDomainPROD = "checker.typerighter.gutools.co.uk";
+    const managerDomainCODE = "manager.typerighter.code.dev-gutools.co.uk";
+    const managerDomainPROD = "manager.typerighter.gutools.co.uk";
+
     const stageLookup = new CfnMapping(this, "LowercaseStageLookup", {
       mapping: {
         lowercase: {
           PROD: "prod",
           CODE: "code",
+        },
+        checkerDomain: {
+          PROD: checkerDomainPROD ,
+          CODE: checkerDomainCODE,
+        },
+        managerDomain: {
+          PROD: managerDomainPROD,
+          CODE: managerDomainCODE,
         },
       },
     });
@@ -82,6 +106,7 @@ export class Typerighter extends GuStack {
 
     const ruleManagerApp = new GuPlayApp(this, {
       app: ruleManagerAppName,
+      instanceType: new InstanceType("t4g.micro"),
       userData: `#!/bin/bash -ev
         aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
         dpkg -i /tmp/package.deb`,
@@ -89,8 +114,8 @@ export class Typerighter extends GuStack {
         scope: AccessScope.PUBLIC,
       },
       certificateProps: {
-        CODE: { domainName: "typerighter.code.dev-gutools.co.uk" },
-        PROD: { domainName: "typerighter.gutools.co.uk" },
+        CODE: { domainName: managerDomainCODE },
+        PROD: { domainName: managerDomainPROD },
       },
       monitoringConfiguration: {
         noMonitoring: true,
@@ -100,12 +125,20 @@ export class Typerighter extends GuStack {
       },
     });
 
+    const ruleManagerDnsRecord = new GuDnsRecordSet(this, "manager-dns-records", {
+      name: stageLookup.findInMap("managerDomain", this.stage),
+      recordType: RecordType.CNAME,
+      resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
+      ttl: Duration.minutes(60)
+    });
+
     // Checker app
 
     const checkerAppName = "typerighter-checker";
 
     const checkerApp = new GuPlayApp(this, {
       app: checkerAppName,
+      instanceType: new InstanceType("t4g.small"),
       userData: `#!/bin/bash -ev
 mkdir /etc/gu
 
@@ -126,8 +159,8 @@ dpkg -i /tmp/package.deb`,
         scope: AccessScope.PUBLIC,
       },
       certificateProps: {
-        CODE: { domainName: "api.typerighter.code.dev-gutools.co.uk" },
-        PROD: { domainName: "api.typerighter.gutools.co.uk" },
+        CODE: { domainName: checkerDomainCODE },
+        PROD: { domainName: checkerDomainPROD },
       },
       monitoringConfiguration: {
         noMonitoring: true,
@@ -156,23 +189,44 @@ dpkg -i /tmp/package.deb`,
       ],
     });
 
-    const checkerCertificate = Certificate.fromCertificateArn(this, 'CheckerCertificate', parameters.CheckerCertificate.valueAsString)
+    const checkerCertificate = Certificate.fromCertificateArn(
+      this,
+      "CheckerCertificate",
+      parameters.CheckerCertificate.valueAsString
+    );
 
-    const checkerCloudFrontDistro = new Distribution(this, "typerighter-cloudfront", {
-      defaultBehavior: {
-        origin: new LoadBalancerV2Origin(checkerApp.loadBalancer, {
-          protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
-        }),
-        allowedMethods: AllowedMethods.ALLOW_ALL,
-      },
-      logBucket: cloudfrontBucket,
-      certificate: checkerCertificate
+    const checkerCloudFrontDistro = new Distribution(
+      this,
+      "typerighter-cloudfront",
+      {
+        defaultBehavior: {
+          origin: new LoadBalancerV2Origin(checkerApp.loadBalancer, {
+            protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+          }),
+          allowedMethods: AllowedMethods.ALLOW_ALL,
+          cachePolicy: new CachePolicy(this, "checker-cloudfront-cache-policy", {
+            cookieBehavior: CacheCookieBehavior.all(),
+            headerBehavior: CacheHeaderBehavior.allowList("Host"),
+            queryStringBehavior: CacheQueryStringBehavior.all()
+          })
+        },
+        domainNames: [stageLookup.findInMap("checkerDomain", this.stage)],
+        logBucket: cloudfrontBucket,
+        certificate: checkerCertificate,
+      }
+    );
+
+    const checkerDnsRecord = new GuDnsRecordSet(this, "checker-dns-records", {
+      name: stageLookup.findInMap("checkerDomain", this.stage),
+      recordType: RecordType.CNAME,
+      resourceRecords: [checkerCloudFrontDistro.domainName],
+      ttl: Duration.minutes(60)
     });
 
     const ruleMetric = new Metric({
       metricName: "RulesNotFound",
       namespace: "Typerighter",
-      period: Duration.seconds(60),
+      period: Duration.minutes(60),
       statistic: "Sum",
     });
 
