@@ -23,7 +23,6 @@ import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
   CacheCookieBehavior,
-  CachedMethods,
   CacheHeaderBehavior,
   CachePolicy,
   CacheQueryStringBehavior,
@@ -261,26 +260,16 @@ dpkg -i /tmp/package.deb`,
     const ruleDB = new GuDatabaseInstance(this, "RuleManagerRDS", {
       app: dbAppName,
       vpc: ruleManagerApp.vpc,
-      vpcSubnets: { subnetType: SubnetType.PRIVATE },
+      vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_NAT },
       allocatedStorage: 50,
       allowMajorVersionUpgrade: true,
       autoMinorVersionUpgrade: true,
       backupRetention: Duration.days(10),
       engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_11_12,
+        version: PostgresEngineVersion.VER_13_3,
       }),
       instanceType: "t3.micro",
       instanceIdentifier: `typerighter-rule-manager-store-${this.stage}`,
-      parameters: {
-        max_connections: "100",
-        maintenance_work_mem: "245760",
-        work_mem: "38912",
-        checkpoint_completion_target: "0.9",
-        shared_buffers: "131072",
-        synchronous_commit: "off",
-        effective_cache_size: "393216",
-        random_page_cost: "1.1",
-      },
       subnetGroup: new SubnetGroup(this, "DBSubnetGroup", {
         vpc: ruleManagerApp.vpc,
         vpcSubnets: {
