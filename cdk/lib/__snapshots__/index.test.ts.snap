@@ -4,19 +4,39 @@ exports[`The typerighter stack matches the snapshot 1`] = `
 Object {
   "Mappings": Object {
     "LowercaseStageLookup": Object {
+      "checkerDomain": Object {
+        "CODE": "checker.typerighter.code.dev-gutools.co.uk",
+        "PROD": "checker.typerighter.gutools.co.uk",
+      },
       "lowercase": Object {
         "CODE": "code",
         "PROD": "prod",
       },
+      "managerDomain": Object {
+        "CODE": "manager.typerighter.code.dev-gutools.co.uk",
+        "PROD": "manager.typerighter.gutools.co.uk",
+      },
     },
-    "stagemapping": Object {
+    "typerighterchecker": Object {
       "CODE": Object {
-        "domainName": "api.typerighter.code.dev-gutools.co.uk",
+        "domainName": "checker.typerighter.code.dev-gutools.co.uk",
         "maxInstances": 2,
         "minInstances": 1,
       },
       "PROD": Object {
-        "domainName": "api.typerighter.gutools.co.uk",
+        "domainName": "checker.typerighter.gutools.co.uk",
+        "maxInstances": 6,
+        "minInstances": 3,
+      },
+    },
+    "typerighterrulemanager": Object {
+      "CODE": Object {
+        "domainName": "manager.typerighter.code.dev-gutools.co.uk",
+        "maxInstances": 2,
+        "minInstances": 1,
+      },
+      "PROD": Object {
+        "domainName": "manager.typerighter.gutools.co.uk",
         "maxInstances": 6,
         "minInstances": 3,
       },
@@ -51,7 +71,7 @@ Object {
       "Description": "Amazon Machine Image ID for the app typerighter-rule-manager. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
     },
-    "CheckerCertificateParam": Object {
+    "CheckerCloudfrontCertificate": Object {
       "AllowedPattern": "arn:aws:[a-z0-9]*:[a-z0-9\\\\-]*:[0-9]{12}:.*",
       "ConstraintDescription": "Must be a valid ARN, eg: arn:partition:service:region:account-id:resource-id",
       "Description": "The ARN of the certificate for the checker service Cloudfront distribution",
@@ -61,16 +81,6 @@ Object {
       "Default": "/account/services/artifact.bucket",
       "Description": "SSM parameter containing the S3 bucket name holding distribution artifacts",
       "Type": "AWS::SSM::Parameter::Value<String>",
-    },
-    "InstanceTypeTyperighterchecker": Object {
-      "Default": "t3.small",
-      "Description": "EC2 Instance Type for the app typerighter-checker",
-      "Type": "String",
-    },
-    "InstanceTypeTyperighterrulemanager": Object {
-      "Default": "t3.small",
-      "Description": "EC2 Instance Type for the app typerighter-rule-manager",
-      "Type": "String",
     },
     "LoggingStreamName": Object {
       "Default": "/account/services/logging.stream.name",
@@ -132,7 +142,7 @@ Object {
         },
         "MaxSize": Object {
           "Fn::FindInMap": Array [
-            "stagemapping",
+            "typerighterchecker",
             Object {
               "Ref": "Stage",
             },
@@ -141,7 +151,7 @@ Object {
         },
         "MinSize": Object {
           "Fn::FindInMap": Array [
-            "stagemapping",
+            "typerighterchecker",
             Object {
               "Ref": "Stage",
             },
@@ -219,9 +229,7 @@ Object {
         "ImageId": Object {
           "Ref": "AMITyperighterchecker",
         },
-        "InstanceType": Object {
-          "Ref": "InstanceTypeTyperighterchecker",
-        },
+        "InstanceType": "t4g.small",
         "SecurityGroups": Array [
           Object {
             "Fn::GetAtt": Array [
@@ -285,7 +293,7 @@ dpkg -i /tmp/package.deb",
         },
         "MaxSize": Object {
           "Fn::FindInMap": Array [
-            "stagemapping",
+            "typerighterrulemanager",
             Object {
               "Ref": "Stage",
             },
@@ -294,7 +302,7 @@ dpkg -i /tmp/package.deb",
         },
         "MinSize": Object {
           "Fn::FindInMap": Array [
-            "stagemapping",
+            "typerighterrulemanager",
             Object {
               "Ref": "Stage",
             },
@@ -372,9 +380,7 @@ dpkg -i /tmp/package.deb",
         "ImageId": Object {
           "Ref": "AMITyperighterrulemanager",
         },
-        "InstanceType": Object {
-          "Ref": "InstanceTypeTyperighterrulemanager",
-        },
+        "InstanceType": "t4g.micro",
         "SecurityGroups": Array [
           Object {
             "Fn::GetAtt": Array [
@@ -417,7 +423,7 @@ dpkg -i /tmp/package.deb",
       "Properties": Object {
         "DomainName": Object {
           "Fn::FindInMap": Array [
-            "stagemapping",
+            "typerighterchecker",
             Object {
               "Ref": "Stage",
             },
@@ -458,7 +464,7 @@ dpkg -i /tmp/package.deb",
       "Properties": Object {
         "DomainName": Object {
           "Fn::FindInMap": Array [
-            "stagemapping",
+            "typerighterrulemanager",
             Object {
               "Ref": "Stage",
             },
@@ -564,10 +570,6 @@ dpkg -i /tmp/package.deb",
           "Ref": "PrivateSubnets",
         },
         "Tags": Array [
-          Object {
-            "Key": "App",
-            "Value": "typerighter-checker",
-          },
           Object {
             "Key": "gu:cdk:version",
             "Value": "TEST",
@@ -1422,7 +1424,7 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::IAM::Policy",
     },
-    "RuleManagerRDSEBF20BD9": Object {
+    "RuleManagerRDSRulemanagerdb67FB0AF4": Object {
       "DeletionPolicy": "Snapshot",
       "Properties": Object {
         "AllocatedStorage": "50",
@@ -1442,15 +1444,12 @@ dpkg -i /tmp/package.deb",
             ],
           ],
         },
-        "DBParameterGroupName": Object {
-          "Ref": "RuleManagerRDSRDSParameterGroupE6969C6C",
-        },
         "DBSubnetGroupName": Object {
           "Ref": "DBSubnetGroup",
         },
         "DeletionProtection": true,
         "Engine": "postgres",
-        "EngineVersion": "11.12",
+        "EngineVersion": "13.3",
         "MasterUserPassword": Object {
           "Fn::Join": Array [
             "",
@@ -1508,47 +1507,6 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::RDS::DBInstance",
       "UpdateReplacePolicy": "Snapshot",
-    },
-    "RuleManagerRDSRDSParameterGroupE6969C6C": Object {
-      "Properties": Object {
-        "Description": "Parameter group for postgres11",
-        "Family": "postgres11",
-        "Parameters": Object {
-          "checkpoint_completion_target": "0.9",
-          "effective_cache_size": "393216",
-          "maintenance_work_mem": "245760",
-          "max_connections": "100",
-          "random_page_cost": "1.1",
-          "shared_buffers": "131072",
-          "synchronous_commit": "off",
-          "work_mem": "38912",
-        },
-        "Tags": Array [
-          Object {
-            "Key": "App",
-            "Value": "rule-manager-db",
-          },
-          Object {
-            "Key": "gu:cdk:version",
-            "Value": "TEST",
-          },
-          Object {
-            "Key": "gu:repo",
-            "Value": "guardian/typerighter",
-          },
-          Object {
-            "Key": "Stack",
-            "Value": "flexible",
-          },
-          Object {
-            "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
-          },
-        ],
-      },
-      "Type": "AWS::RDS::DBParameterGroup",
     },
     "SSMRunCommandPolicy244E1613": Object {
       "Properties": Object {
@@ -1627,6 +1585,10 @@ dpkg -i /tmp/package.deb",
             "Key": "deregistration_delay.timeout_seconds",
             "Value": "30",
           },
+          Object {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
         ],
         "TargetType": "instance",
         "UnhealthyThresholdCount": 2,
@@ -1674,6 +1636,10 @@ dpkg -i /tmp/package.deb",
             "Key": "deregistration_delay.timeout_seconds",
             "Value": "30",
           },
+          Object {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
         ],
         "TargetType": "instance",
         "UnhealthyThresholdCount": 2,
@@ -1704,10 +1670,6 @@ dpkg -i /tmp/package.deb",
         ],
         "Tags": Array [
           Object {
-            "Key": "App",
-            "Value": "typerighter-checker",
-          },
-          Object {
             "Key": "gu:cdk:version",
             "Value": "TEST",
           },
@@ -1732,6 +1694,70 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
+    "checkercloudfrontcachepolicyC5791389": Object {
+      "Properties": Object {
+        "CachePolicyConfig": Object {
+          "DefaultTTL": 86400,
+          "MaxTTL": 31536000,
+          "MinTTL": 0,
+          "Name": Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "typerightercheckercloudfrontcachepolicy3CCBDF42-",
+                Object {
+                  "Ref": "AWS::Region",
+                },
+              ],
+            ],
+          },
+          "ParametersInCacheKeyAndForwardedToOrigin": Object {
+            "CookiesConfig": Object {
+              "CookieBehavior": "all",
+            },
+            "EnableAcceptEncodingBrotli": false,
+            "EnableAcceptEncodingGzip": false,
+            "HeadersConfig": Object {
+              "HeaderBehavior": "whitelist",
+              "Headers": Array [
+                "Host",
+              ],
+            },
+            "QueryStringsConfig": Object {
+              "QueryStringBehavior": "all",
+            },
+          },
+        },
+      },
+      "Type": "AWS::CloudFront::CachePolicy",
+    },
+    "checkerdnsrecords": Object {
+      "Properties": Object {
+        "Name": Object {
+          "Fn::FindInMap": Array [
+            "LowercaseStageLookup",
+            "checkerDomain",
+            Object {
+              "Ref": "Stage",
+            },
+          ],
+        },
+        "RecordType": "CNAME",
+        "ResourceRecords": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "typerightercloudfront0384F783",
+              "DomainName",
+            ],
+          },
+        ],
+        "Stage": Object {
+          "Ref": "Stage",
+        },
+        "TTL": 3600,
+      },
+      "Type": "Guardian::DNS::RecordSet",
+    },
     "cloudfrontbucket301B6697": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
@@ -1744,10 +1770,6 @@ dpkg -i /tmp/package.deb",
           ],
         },
         "Tags": Array [
-          Object {
-            "Key": "App",
-            "Value": "typerighter-checker",
-          },
           Object {
             "Key": "gu:cdk:version",
             "Value": "TEST",
@@ -1771,6 +1793,33 @@ dpkg -i /tmp/package.deb",
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
     },
+    "managerdnsrecords": Object {
+      "Properties": Object {
+        "Name": Object {
+          "Fn::FindInMap": Array [
+            "LowercaseStageLookup",
+            "managerDomain",
+            Object {
+              "Ref": "Stage",
+            },
+          ],
+        },
+        "RecordType": "CNAME",
+        "ResourceRecords": Array [
+          Object {
+            "Fn::GetAtt": Array [
+              "LoadBalancerTyperighterrulemanager088CCBBF",
+              "DNSName",
+            ],
+          },
+        ],
+        "Stage": Object {
+          "Ref": "Stage",
+        },
+        "TTL": 3600,
+      },
+      "Type": "Guardian::DNS::RecordSet",
+    },
     "ruleprovisioneralarm77B679CD": Object {
       "Properties": Object {
         "AlarmDescription": "There was a problem getting rules for Typerighter. Rules might not be present, or might be out of date.",
@@ -1790,7 +1839,7 @@ dpkg -i /tmp/package.deb",
         "EvaluationPeriods": 3,
         "MetricName": "RulesNotFound",
         "Namespace": "Typerighter",
-        "Period": 60,
+        "Period": 3600,
         "Statistic": "Sum",
         "Threshold": 0,
         "TreatMissingData": "notBreaching",
@@ -1802,9 +1851,12 @@ dpkg -i /tmp/package.deb",
         "DistributionConfig": Object {
           "Aliases": Array [
             Object {
-              "Fn::GetAtt": Array [
-                "LoadBalancerTyperighterchecker8B160CE2",
-                "DNSName",
+              "Fn::FindInMap": Array [
+                "LowercaseStageLookup",
+                "checkerDomain",
+                Object {
+                  "Ref": "Stage",
+                },
               ],
             },
           ],
@@ -1818,7 +1870,9 @@ dpkg -i /tmp/package.deb",
               "POST",
               "DELETE",
             ],
-            "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+            "CachePolicyId": Object {
+              "Ref": "checkercloudfrontcachepolicyC5791389",
+            },
             "Compress": true,
             "TargetOriginId": "typerightertyperightercloudfrontOrigin1DFFB56FA",
             "ViewerProtocolPolicy": "allow-all",
@@ -1853,17 +1907,13 @@ dpkg -i /tmp/package.deb",
           ],
           "ViewerCertificate": Object {
             "AcmCertificateArn": Object {
-              "Ref": "CheckerCertificateParam",
+              "Ref": "CheckerCloudfrontCertificate",
             },
             "MinimumProtocolVersion": "TLSv1.2_2019",
             "SslSupportMethod": "sni-only",
           },
         },
         "Tags": Array [
-          Object {
-            "Key": "App",
-            "Value": "typerighter-checker",
-          },
           Object {
             "Key": "gu:cdk:version",
             "Value": "TEST",
