@@ -8,36 +8,23 @@ deployments:
     parameters:
       bucket: composer-dist
     dependencies:
-    - checker-cloudformation
-  checker-cloudformation:
-    type: cloud-formation
-    app: typerighter
-    parameters:
-      amiTags:
-        Recipe: editorial-tools-bionic-java8-ngrams-ARM
-        AmigoStage: PROD
-        BuiltBy: amigo
-      amiEncrypted: true
-      templatePath: checker.cfn.yaml
+    - typerighter-cloudformation
   typerighter-rule-manager:
     type: autoscaling
     parameters:
       bucket: composer-dist
     dependencies:
-    - rule-manager-cloudformation
-    - rule-manager-db-cloudformation
-  rule-manager-cloudformation:
+    - typerighter-cloudformation
+  typerighter-cloudformation:
     type: cloud-formation
     app: typerighter-rule-manager
     parameters:
-      amiTags:
-        Recipe: editorial-tools-bionic-java8-ngrams-ARM
-        AmigoStage: PROD
-        BuiltBy: amigo
+      amiParametersToTags:
+        AMITyperighterchecker:
+          Recipe: editorial-tools-bionic-java8-ngrams-ARM
+          BuiltBy: amigo
+        AMITyperighterrulemanager:
+          Recipe: editorial-tools-bionic-java8-ngrams-ARM
+          BuiltBy: amigo
       amiEncrypted: true
-      templatePath: rule-manager.cfn.yaml
-  rule-manager-db-cloudformation:
-    type: cloud-formation
-    app: typerighter-rule-manager-db
-    parameters:
-      templatePath: rule-manager-db.cfn.yaml
+      templatePath: cdk/cdk.out/typerighter.template.json
