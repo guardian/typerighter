@@ -17,8 +17,10 @@ deployments:
     - typerighter-cloudformation
   typerighter-cloudformation:
     type: cloud-formation
-    app: typerighter-rule-manager
     parameters:
+      cloudFormationStackByTags: false
+      cloudFormationStackName: typerighter
+      prependStackToCloudFormationStackName: false
       amiParametersToTags:
         AMITyperighterchecker:
           Recipe: editorial-tools-bionic-java8-ngrams-ARM
@@ -27,4 +29,4 @@ deployments:
           Recipe: editorial-tools-bionic-java8-ngrams-ARM
           BuiltBy: amigo
       amiEncrypted: true
-      templatePath: cdk/cdk.out/typerighter.template.json
+      templatePath: typerighter.template.json
