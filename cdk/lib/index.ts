@@ -205,7 +205,12 @@ dpkg -i /tmp/package.deb`,
           allowedMethods: AllowedMethods.ALLOW_ALL,
           cachePolicy: new CachePolicy(this, "checker-cloudfront-cache-policy", {
             cookieBehavior: CacheCookieBehavior.all(),
-            headerBehavior: CacheHeaderBehavior.allowList("Host"),
+            headerBehavior: CacheHeaderBehavior.allowList(
+              "Host",
+              "Origin",
+              "Access-Control-Request-Headers",
+              "Access-Control-Request-Method"
+            ),
             queryStringBehavior: CacheQueryStringBehavior.all()
           })
         },

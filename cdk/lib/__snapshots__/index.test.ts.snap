@@ -1721,6 +1721,9 @@ dpkg -i /tmp/package.deb",
               "HeaderBehavior": "whitelist",
               "Headers": Array [
                 "Host",
+                "Origin",
+                "Access-Control-Request-Headers",
+                "Access-Control-Request-Method",
               ],
             },
             "QueryStringsConfig": Object {
