@@ -144,7 +144,7 @@ Object {
         },
         "DeletionProtection": true,
         "Engine": "postgres",
-        "EngineVersion": "11",
+        "EngineVersion": "13.3",
         "MasterUserPassword": Object {
           "Fn::Join": Array [
             "",
@@ -201,8 +201,8 @@ Object {
     },
     "RuleManagerRDSRDSParameterGroupE6969C6C": Object {
       "Properties": Object {
-        "Description": "Parameter group for postgres11",
-        "Family": "postgres11",
+        "Description": "Parameter group for postgres13",
+        "Family": "postgres13",
         "Parameters": Object {
           "checkpoint_completion_target": "0.9",
           "effective_cache_size": "393216",
