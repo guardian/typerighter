@@ -61,7 +61,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     commonSettings,
     libraryDependencies ++= Seq(
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.8.8",
+      "com.typesafe.play" %% "play" % "2.8.11",
       "com.gu" % "kinesis-logback-appender" % "1.4.2"
     )
   )
