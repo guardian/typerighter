@@ -3,6 +3,7 @@ set -e
 
 RUN_DIR=$(pwd)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR=${DIR}/..
 
 source $DIR/set-node-version
 
@@ -12,7 +13,7 @@ source $DIR/set-node-version
   nvm install
   nvm use
 
-  cd $DIR/../cdk
+  cd $ROOT_DIR/cdk
 
   npm install -g yarn
 
