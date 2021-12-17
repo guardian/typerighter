@@ -2,6 +2,8 @@
 
 set -e
 
+nvm install
+
 MAX_DB_ATTEMPTS=5
 APP_FOLDER="apps"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
