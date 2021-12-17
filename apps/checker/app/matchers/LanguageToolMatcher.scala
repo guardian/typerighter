@@ -5,7 +5,7 @@ import java.io.File
 import model.{LTRule, LTRuleXML, RuleMatch}
 import org.languagetool._
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
-import org.languagetool.rules.{CategoryId, Rule => LanguageToolRule}
+import org.languagetool.rules.{Rule => LanguageToolRule}
 import play.api.Logging
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion}
@@ -14,9 +14,8 @@ import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 import model.Category
 import org.languagetool.rules.patterns.PatternRuleLoader
-import org.languagetool.rules.patterns.PatternRule
 import org.languagetool.rules.patterns.AbstractPatternRule
-import scala.xml.{XML, MetaData, Attribute, Null, Text}
+import scala.xml.{XML, Attribute, Null, Text}
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
@@ -41,7 +40,7 @@ class LanguageToolFactory(
     }
 
     // Disable all default rules ...
-    val allRuleIds = instance.getAllRules().asScala.map(_.getId())
+    val allRuleIds = instance.getAllRules.asScala.map(_.getId())
     allRuleIds.foreach(ruleId => instance.disableRule(ruleId))
     // ... apart from those we'd explicitly like
     val errors = defaultRuleIds.foldLeft(List.empty[Throwable])((acc, ruleId) =>
@@ -72,7 +71,7 @@ class LanguageToolFactory(
       case Success(rules) => rules.map { rule =>
         val ruleTry = Try {
           instance.addRule(rule)
-          instance.enableRule(rule.getId())
+          instance.enableRule(rule.getId)
         }
         ruleTry.transform(s => Success(s), e => Failure(annotateExceptionWithRuleId(e, rule.getId)))
       }
@@ -82,7 +81,7 @@ class LanguageToolFactory(
     maybeRuleErrors.flatMap {
       case Success(_) => None
       case Failure(e) => {
-        logger.error(e.getMessage(), e)
+        logger.error(e.getMessage, e)
         Some(e)
       }
     } match {
@@ -138,11 +137,11 @@ class LanguageToolFactory(
   }
 
   private def annotateExceptionWithRuleId(e: Throwable, ruleId: String, additionalMessage: String = "") =
-    new Exception(s"Error applying LanguageTool rule `${ruleId}`: ${e.getMessage} ${if (additionalMessage.size > 0) additionalMessage else ""}".trim, e)
+    new Exception(s"Error applying LanguageTool rule `${ruleId}`: ${e.getMessage} ${if (additionalMessage.nonEmpty) additionalMessage else ""}".trim, e)
 }
 
 object LanguageToolMatcher extends MatcherCompanion {
-  def getType = "languageTool"
+  def getType() = "languageTool"
 }
 
 /**
@@ -150,18 +149,18 @@ object LanguageToolMatcher extends MatcherCompanion {
   */
 class LanguageToolMatcher(instance: JLanguageTool) extends Matcher {
 
-  def getType = LanguageToolMatcher.getType
+  def getType() = LanguageToolMatcher.getType()
 
-  def getCategories = instance
-    .getAllActiveRules()
+  def getCategories() = instance
+    .getAllActiveRules
     .asScala
     .toList
-    .map { rule => Category.fromLT(rule.getCategory()) }
+    .map { rule => Category.fromLT(rule.getCategory) }
     .toSet
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = Future {
     request.blocks.flatMap { block =>
-      instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block, getType)).toList.map { ruleMatch =>
+      instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block, getType())).toList.map { ruleMatch =>
         ruleMatch.copy(
           fromPos = ruleMatch.fromPos + block.from,
           toPos = ruleMatch.toPos + block.from
@@ -170,7 +169,7 @@ class LanguageToolMatcher(instance: JLanguageTool) extends Matcher {
     }
   }
 
-  def getRules: List[LTRule] = {
+  def getRules(): List[LTRule] = {
     instance.getAllActiveRules.asScala.toList.flatMap {
       case rule: LanguageToolRule => Some(LTRule.fromLT(rule))
       case _ => None
