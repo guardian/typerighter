@@ -4,26 +4,15 @@ set -e
 RUN_DIR=$(pwd)
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-nvm_available() {
-  type -t nvm > /dev/null
-}
-
-source_nvm() {
-  if ! nvm_available; then
-    [ -e "/usr/local/opt/nvm/nvm.sh" ] && source /usr/local/opt/nvm/nvm.sh
-  fi
-  if ! nvm_available; then
-    [ -e "$HOME/.nvm/nvm.sh" ] && source $HOME/.nvm/nvm.sh
-  fi
-}
+source $DIR/set-node-version
 
 (
-  cd $DIR/../cdk
-
   # select a version of node
   source_nvm
   nvm install
   nvm use
+
+  cd $DIR/../cdk
 
   npm install -g yarn
 

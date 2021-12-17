@@ -37,6 +37,13 @@ buildCDK() {
 }
 
 buildClients() {
+  source $DIR/set-node-version
+
+  # select a version of node
+  source_nvm
+  nvm install
+  nvm use
+
   (cd $ROOT_DIR/$APP_FOLDER/rule-audit-client && npm i && npm run build)
   (cd $ROOT_DIR/$APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
 }
