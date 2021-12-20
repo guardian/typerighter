@@ -1,3 +1,5 @@
+#!/bin/false
+
 nvm_available() {
   type -t nvm > /dev/null
 }
