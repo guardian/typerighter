@@ -1,11 +1,9 @@
 package controllers
 
-import matchers.{LanguageToolFactory, RegexMatcher}
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import play.api.mvc._
 
-import model.{Category, RegexRule}
 import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
 
@@ -24,7 +22,7 @@ class RulesController(
   val publicSettings: PublicSettings
 )(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
-    sheetsRuleManager.getRules flatMap { ruleResource =>
+    sheetsRuleManager.getRules().flatMap { ruleResource =>
       val maybeRules = bucketRuleManager.putRules(ruleResource).flatMap { _ =>
         bucketRuleManager.getRulesLastModified.map { lastModified =>
           (ruleResource, lastModified)

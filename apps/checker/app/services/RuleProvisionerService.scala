@@ -60,7 +60,7 @@ class RuleProvisionerService(
     * Update our matcherPool rules from the S3 bucket.
     */
   def updateRulesFromBucket(): Unit = {
-    bucketRuleManager.getRules.map {
+    bucketRuleManager.getRules().map {
       case (ruleResource, date) => {
         updateRules(ruleResource, date)
       }
@@ -73,7 +73,7 @@ class RuleProvisionerService(
     */
   def maybeUpdateRulesFromBucket(): Unit = {
     bucketRuleManager.getRulesLastModified match {
-      case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket
+      case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket()
       case Right(_) => logger.info("No rule update needed")
       case Left(error) => {
         logger.error("Could not get last modified from S3")
@@ -82,7 +82,7 @@ class RuleProvisionerService(
     }
   }
 
-  override def run(): Unit = maybeUpdateRulesFromBucket
+  override def run(): Unit = maybeUpdateRulesFromBucket()
 
   def scheduleUpdateRules(scheduler: Scheduler): Unit = {
     scheduler.scheduleWithFixedDelay(0.seconds, 1.minute)(this)

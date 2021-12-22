@@ -19,7 +19,7 @@ sealed trait Suggestion {
     */
   def ensureCorrectCase(isStartOfSentence: Boolean): Suggestion = this match {
     case TextSuggestion(text) if isStartOfSentence => {
-      TextSuggestion(text = text.charAt(0).toUpper + text.slice(1, text.length))
+      TextSuggestion(text = s"${text.charAt(0).toUpper}${text.slice(1, text.length)}")
     }
     case suggestion => suggestion
   }

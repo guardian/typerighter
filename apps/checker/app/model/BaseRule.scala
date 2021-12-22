@@ -2,18 +2,14 @@ package model
 
 import java.util.{List => JList}
 import java.util.regex.Pattern
-
-import play.api.libs.json.{JsObject, Json, JsPath, JsResult, JsString, JsSuccess, Reads, Writes}
-import play.api.libs.json._
+import play.api.libs.json.{JsPath, JsString, Json, Reads, Writes}
 import play.api.libs.json.Reads._
-
 import org.languagetool.Languages
 import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternToken => LTPatternToken}
 import org.languagetool.rules.{Rule => LanguageToolRule}
 
 import scala.util.matching.Regex
 import scala.jdk.CollectionConverters._
-
 import utils.Text
 import matchers.RegexMatcher
 
@@ -71,7 +67,7 @@ case class RegexRule(
       replacement = transformedReplacement,
       markAsCorrect = transformedReplacement.map(_.text).getOrElse("") == block.text.substring(start, end),
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
-      matcherType = RegexMatcher.getType
+      matcherType = RegexMatcher.getType()
     )
   }
 }
@@ -140,7 +136,7 @@ object LTRule {
   }
 
   def toLT(rule: LTRule): LanguageToolRule = {
-    val patternTokens: JList[LTPatternToken] = seqAsJavaList(rule.patternTokens.getOrElse(List[PatternToken]()).map(PatternToken.toLT))
+    val patternTokens: JList[LTPatternToken] = rule.patternTokens.getOrElse(List[PatternToken]()).map(PatternToken.toLT).asJava
     val language = Languages.getLanguageForShortCode(rule.languageShortcode.getOrElse("en-GB"))
     val message = rule.suggestions match {
       case Nil => rule.message
