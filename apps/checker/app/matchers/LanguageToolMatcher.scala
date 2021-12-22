@@ -10,7 +10,7 @@ import play.api.Logging
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.{ExecutionContext, Future}
 import model.Category
 import org.languagetool.rules.patterns.PatternRuleLoader

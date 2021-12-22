@@ -1,6 +1,6 @@
 package model
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import net.logstash.logback.marker.Markers
 import play.api.libs.json.{Json, Reads}
 

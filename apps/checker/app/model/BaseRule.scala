@@ -12,7 +12,7 @@ import org.languagetool.rules.patterns.{PatternRule => LTPatternRule, PatternTok
 import org.languagetool.rules.{Rule => LanguageToolRule}
 
 import scala.util.matching.Regex
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import utils.Text
 import matchers.RegexMatcher

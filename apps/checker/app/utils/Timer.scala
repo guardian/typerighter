@@ -1,6 +1,6 @@
 package utils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import play.api.Logging
 import net.logstash.logback.marker.Markers
 import scala.concurrent.Future

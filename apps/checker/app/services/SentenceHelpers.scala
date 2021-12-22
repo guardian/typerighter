@@ -7,7 +7,7 @@ import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import edu.stanford.nlp.util.CoreMap
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import model.TextRange
 
 case class WordInSentence(sentence: String, word: String, range: TextRange)
