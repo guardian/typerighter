@@ -1,6 +1,6 @@
 package controllers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.gu.pandomainauth.PublicSettings
 import model.{Check, MatcherResponse}
 import play.api.libs.json.{JsValue, Json}

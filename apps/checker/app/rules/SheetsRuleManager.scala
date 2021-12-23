@@ -9,7 +9,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 import model.{Category, RegexRule, TextSuggestion}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import model.{LTRule, BaseRule, RuleResource}

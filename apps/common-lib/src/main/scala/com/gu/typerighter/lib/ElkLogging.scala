@@ -82,7 +82,7 @@ class ElkLogging(identity: AwsIdentity,
 
   private def getRootLogger = LoggerFactory.getLogger(SLFLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger]
 
-  def init() {
+  def init(): Unit = {
     if (maybeLoggingStreamName.isEmpty) log.info("Not configuring log shipping as stream not configured")
 
     val bufferSize = 1000

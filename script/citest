@@ -8,6 +8,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 ROOT_DIR=${DIR}/..
 
 setupTestDeps() {
+  source $DIR/set-node-version
+
+  # select a version of node
+  source_nvm
+  nvm install
+  nvm use
+
   docker-compose up -d
   # Ensure containers are up
   for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)

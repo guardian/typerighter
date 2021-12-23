@@ -1,18 +1,18 @@
 package services
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import model._
-import org.scalatest._
 import org.scalatest.time.SpanSugar._
 import com.softwaremill.diffx.scalatest.DiffMatcher._
+import org.scalatest.flatspec.AsyncFlatSpec
+import org.scalatest.matchers.should.Matchers
 import utils.Matcher
 
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.Failure
 import scala.util.Success
 import play.api.libs.concurrent.DefaultFutures
+
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.Future
 
@@ -26,12 +26,12 @@ class MockMatcher(id: Int) extends Matcher {
   private var maybeResponse: Option[Either[String, List[RuleMatch]]] = None
   var maybeRequest: Option[MatcherRequest] = None
 
-  def getType = s"mock-matcher-$id"
-  def getCategories = Set(Category(s"mock-category-$id", "Mock category"))
-  def getRules = List.empty
+  def getType() = s"mock-matcher-$id"
+  def getCategories() = Set(Category(s"mock-category-$id", "Mock category"))
+  def getRules() = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
-    val promise = Promise[List[RuleMatch]]
+    val promise = Promise[List[RuleMatch]]()
     val future = promise.future
     currentWork = Some(promise)
     maybeRequest = Some(request)
@@ -62,9 +62,9 @@ class MockMatcher(id: Int) extends Matcher {
 }
 
 class MockMatcherThatThrows(e: Throwable) extends Matcher {
-  def getType = s"mock-matcher-that-throws"
-  def getCategories = Set(Category(s"mock-category-that-throws", "Mock category"))
-  def getRules = List.empty
+  def getType() = s"mock-matcher-that-throws"
+  def getCategories() = Set(Category(s"mock-category-that-throws", "Mock category"))
+  def getRules() = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
     Future {
@@ -74,10 +74,9 @@ class MockMatcherThatThrows(e: Throwable) extends Matcher {
 }
 
 class MatcherPoolTest extends AsyncFlatSpec with Matchers {
-  def timeLimit = 1 second
+  def timeLimit() = 1 second
   private implicit val ec = ExecutionContext.global
   private implicit val system = ActorSystem()
-  private implicit val materializer = ActorMaterializer()
 
   private def getResponseRule(id: Int = 0) = RegexRule(
     id = "test-rule",
@@ -158,7 +157,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   it should "remove all matchers" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
-    pool.removeAllMatchers
+    pool.removeAllMatchers()
     pool.getCurrentCategories should be(Set.empty)
   }
 
@@ -201,7 +200,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers, 1, 1, MatcherPool.blockLevelCheckStrategy)
     val futureResult = pool.check(checkWithManyBlocks)
     futureResult transformWith {
-      case Success(_) => fail
+      case Success(_) => fail()
       case Failure(e) => e.getMessage should include ("full")
     }
   }
@@ -216,7 +215,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futureResult = pool.check(getCheck(text = "Example text"))
 
     futureResult transformWith {
-      case Success(_) => fail
+      case Success(_) => fail()
       case Failure(e) => e.getMessage shouldBe errorMessage
     }
   }
@@ -227,7 +226,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(List(matcher))
     val futureResult = pool.check(getCheck(text = "Example text"))
     futureResult transformWith {
-      case Success(_) => fail
+      case Success(_) => fail()
       case Failure(e) => e.getMessage shouldBe errorMessage
     }
   }
@@ -242,7 +241,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
     // Run an initial check, that fails
     val eventualResult = futureResult transformWith {
-      case Success(_) => fail
+      case Success(_) => fail()
       case Failure(e) => e.getMessage shouldBe errorMessage
     }
 
@@ -309,7 +308,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck("Example text", Some(Set("category-id-does-not-exist"))))
     futureResult.transformWith {
-      case Success(_) => fail
+      case Success(_) => fail()
       case Failure(e) => e.getMessage should include("category-id-does-not-exist")
     }
   }
@@ -319,7 +318,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers, checkTimeoutDuration = 500 milliseconds)
     val futureResult = pool.check(getCheck(text = "Example text"))
     futureResult.transformWith {
-      case Success(_) => fail
+      case Success(_) => fail()
       case Failure(e) => {
         e.getMessage should include("Timeout")
         e.getMessage should include("500 milliseconds")

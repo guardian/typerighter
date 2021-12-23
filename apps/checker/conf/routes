@@ -5,17 +5,17 @@
 
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-GET     /                           controllers.HomeController.index
-GET     /healthcheck                controllers.HomeController.healthcheck
+GET     /                           controllers.HomeController.index()
+GET     /healthcheck                controllers.HomeController.healthcheck()
 
-POST    /refresh                    controllers.RulesController.refresh
-GET     /rules                      controllers.RulesController.rules
+POST    /refresh                    controllers.RulesController.refresh()
+GET     /rules                      controllers.RulesController.rules()
 
-GET     /audit                      controllers.AuditController.index
+GET     /audit                      controllers.AuditController.index()
 
 + nocsrf
-POST    /check                      controllers.ApiController.check
-GET     /categories                 controllers.ApiController.getCurrentCategories
+POST    /check                      controllers.ApiController.check()
+GET     /categories                 controllers.ApiController.getCurrentCategories()
 GET     /capi/search                controllers.CapiProxyController.searchContent(query: String, tags: Option[List[String]], sections: Option[List[String]], page: Option[Int])
 GET     /capi/tags/:query           controllers.CapiProxyController.searchTags(query)
 GET     /capi/sections/:query       controllers.CapiProxyController.searchSections(query)

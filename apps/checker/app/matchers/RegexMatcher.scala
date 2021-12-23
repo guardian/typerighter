@@ -22,7 +22,7 @@ object RegexMatcher extends MatcherCompanion {
 class RegexMatcher(rules: List[RegexRule]) extends Matcher {
   val sentenceHelper = new SentenceHelpers()
 
-  def getType() = RegexMatcher.getType
+  def getType() = RegexMatcher.getType()
 
   override def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     Future {

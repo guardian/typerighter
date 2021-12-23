@@ -1,11 +1,10 @@
 package services
 
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeoutException
 
 import net.logstash.logback.marker.Markers
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
@@ -132,7 +131,7 @@ class MatcherPool(
     * Add a matcher to the pool of matchers.
     */
   def addMatcher(matcher: Matcher): Option[Matcher] = {
-    logger.info(s"New instance of matcher available of type: ${matcher.getType} for categories: ${matcher.getCategories().map(_.id)}")
+    logger.info(s"New instance of matcher available of type: ${matcher.getType()} for categories: ${matcher.getCategories().map(_.id)}")
     matchers.put(matcher.getId(), matcher)
   }
 
@@ -145,21 +144,21 @@ class MatcherPool(
   }
 
   def removeAllMatchers(): Unit = {
-    matchers.clear
+    matchers.clear()
   }
 
   def getCurrentMatchers: List[Matcher] =
     matchers.values.toList
 
   def getCurrentCategories: Set[Category] =
-    matchers.values.flatMap { _.getCategories }.toSet
+    matchers.values.flatMap { _.getCategories() }.toSet
 
   def getCurrentRules: List[BaseRule] = {
-    matchers.values.flatMap { matcher => matcher.getRules }.toList
+    matchers.values.flatMap { matcher => matcher.getRules() }.toList
   }
 
   private def createJobsFromPartialJobs(requestId: String, documentId: String, partialJobs: List[PartialMatcherJob]) = partialJobs.map { partialJob =>
-    val promise = Promise[List[RuleMatch]]
+    val promise = Promise[List[RuleMatch]]()
     MatcherJob(requestId, documentId, partialJob.blocks, partialJob.categoryIds, promise, partialJobs.length)
   }
 
@@ -175,11 +174,9 @@ class MatcherPool(
         failJobWith(job, s"Job failed, reason: ${err.getMessage}")
     }
 
-    job.promise.future.map {
-      case result => {
-        logger.info("Job is complete")(job.toMarker)
-        result
-      }
+    job.promise.future.map { result =>
+      logger.info("Job is complete")(job.toMarker)
+      result
     }
   }
 
@@ -220,7 +217,7 @@ class MatcherPool(
     val availableCategories = matchersToCheck.flatMap(_.getCategories().map(_.id)).toSet
     val missingCategoryIds = job.categoryIds.diff(availableCategories)
 
-    if (missingCategoryIds.size != 0) {
+    if (missingCategoryIds.nonEmpty) {
       val message = s"Could not run job: no matcher for category for id(s): ${missingCategoryIds.mkString(", ")}"
       val exception = new IllegalStateException(message)
       logger.error(message)(job.toMarker)
@@ -235,7 +232,7 @@ class MatcherPool(
 
   private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
-      val blocksWithSkippedRangesRemoved = blocks.map(_.removeSkippedRanges)
+      val blocksWithSkippedRangesRemoved = blocks.map(_.removeSkippedRanges())
 
       val eventuallyCheck = matcher
         .check(MatcherRequest(blocksWithSkippedRangesRemoved))
@@ -243,8 +240,8 @@ class MatcherPool(
 
       val taskName = s"MatcherPool.runMatchersForJob"
       val taskMarkers = Markers.appendEntries(Map(
-        "matcherType" -> matcher.getType,
-        "categories" -> matcher.getCategories.map(_.name).mkString(", ")
+        "matcherType" -> matcher.getType(),
+        "categories" -> matcher.getCategories().map(_.name).mkString(", ")
       ).asJava)
       val onSlowLog = (durationMs: Long) => maybeCloudWatchClient.foreach(_.putMetric(Metrics.MatcherPoolJobDurationMs, durationMs.toInt))
       Timer.timeAsync(taskName, taskMarkers, checkSlowLogDuration.toMillis, onSlowLog) {
