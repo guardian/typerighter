@@ -73,7 +73,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val defaultFutures = new DefaultFutures(actorSystem)
   val matcherPool = new MatcherPool(futures = defaultFutures, maybeCloudWatchClient = Some(cloudWatchClient))(matcherPoolDispatcher, materializer)
 
-  val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket)
+  val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket, stage)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)
 
   val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId, matcherPool, languageToolFactory)
