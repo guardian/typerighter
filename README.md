@@ -34,3 +34,9 @@ Google credentials are fetched from SSM using AWS Credentials or Instance Role.
 The [prosemirror-typerighter](https://github.com/guardian/prosemirror-typerighter) plugin provides an integration for the [Prosemirror](https://prosemirror.net) rich text editor.
 
 If you'd like to provide your own integration, this service will function as a standalone REST platform, but you'll need to use [pan-domain-authentication](https://github.com/guardian/pan-domain-authentication) to provide a valid auth cookie with your requests.
+
+## Upgrading LanguageTool
+
+LanguageTool has default rules that we use, and as we upgrade LT, these could change underneath us.
+
+There's a script to see if rules have changed as a result of an upgrade in ./script/js/compare-rule-xml.js.
