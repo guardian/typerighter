@@ -75,21 +75,13 @@ export class Typerighter extends GuStack {
     const managerDomainCODE = "manager.typerighter.code.dev-gutools.co.uk";
     const managerDomainPROD = "manager.typerighter.gutools.co.uk";
 
-    const stageLookup = new CfnMapping(this, "LowercaseStageLookup", {
-      mapping: {
-        lowercase: {
-          PROD: "prod",
-          CODE: "code",
-        },
-        checkerDomain: {
-          PROD: checkerDomainPROD ,
-          CODE: checkerDomainCODE,
-        },
-        managerDomain: {
-          PROD: managerDomainPROD,
-          CODE: managerDomainCODE,
-        },
-      },
+    const lowercaseStage = this.withStageDependentValue({
+      app: "typerighter",
+      variableName: "lowercase",
+      stageValues: {
+        PROD: "prod",
+        CODE: "code",
+      }
     });
 
     const typerighterBucketName = `typerighter-${stageLookup.findInMap(
@@ -102,6 +94,15 @@ export class Typerighter extends GuStack {
     // Rule manager app
 
     const ruleManagerAppName = "typerighter-rule-manager";
+
+    const ruleManagerDomain = this.withStageDependentValue({
+      app: ruleManagerAppName,
+      variableName: "ruleManagerDomain",
+      stageValues: {
+        PROD: managerDomainPROD,
+        CODE: managerDomainCODE,
+      }
+    });
 
     const ruleManagerApp = new GuPlayApp(this, {
       app: ruleManagerAppName,
@@ -125,7 +126,7 @@ export class Typerighter extends GuStack {
     });
 
     const ruleManagerDnsRecord = new GuDnsRecordSet(this, "manager-dns-records", {
-      name: stageLookup.findInMap("managerDomain", this.stage),
+      name: ruleManagerDomain,
       recordType: RecordType.CNAME,
       resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
       ttl: Duration.minutes(60)
@@ -134,6 +135,15 @@ export class Typerighter extends GuStack {
     // Checker app
 
     const checkerAppName = "typerighter-checker";
+
+    const checkerDomain = this.withStageDependentValue({
+      app: checkerAppName,
+      variableName: "ruleManagerDomain",
+      stageValues: {
+        PROD: checkerDomainPROD ,
+        CODE: checkerDomainCODE,
+      },
+    });
 
     const checkerApp = new GuPlayApp(this, {
       app: checkerAppName,
@@ -168,17 +178,12 @@ dpkg -i /tmp/package.deb`,
         additionalPolicies: [
           pandaAuthPolicy,
           new GuGetS3ObjectsPolicy(this, "RuleBucketPolicy", {
-            bucketName: typerighterBucketName,
+            bucketName: `${typerighterBucketName}/*`,
           }),
           new GuPutCloudwatchMetricsPolicy(this),
         ],
       },
     });
-
-    // @todo – add this when the old stack is gone.
-    // const typerighterBucket = new GuS3Bucket(this, "rules-bucket", {
-    //   bucketName: typerighterBucketName,
-    // });
 
     const cloudfrontBucket = new GuS3Bucket(this, "cloudfront-bucket", {
       lifecycleRules: [
@@ -214,14 +219,14 @@ dpkg -i /tmp/package.deb`,
             queryStringBehavior: CacheQueryStringBehavior.all()
           })
         },
-        domainNames: [stageLookup.findInMap("checkerDomain", this.stage)],
+        domainNames: [checkerDomain],
         logBucket: cloudfrontBucket,
         certificate: checkerCertificate,
       }
     );
 
     const checkerDnsRecord = new GuDnsRecordSet(this, "checker-dns-records", {
-      name: stageLookup.findInMap("checkerDomain", this.stage),
+      name: checkerDomain,
       recordType: RecordType.CNAME,
       resourceRecords: [checkerCloudFrontDistro.domainName],
       ttl: Duration.minutes(60)
