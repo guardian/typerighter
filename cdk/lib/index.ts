@@ -142,10 +142,6 @@ export class Typerighter extends GuStack {
       },
     });
 
-    const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {
-      bucketName: typerighterBucketName,
-    });
-
     const checkerApp = new GuPlayApp(this, {
       app: checkerAppName,
       instanceType: new InstanceType("t4g.small"),
@@ -178,11 +174,16 @@ dpkg -i /tmp/package.deb`,
       roleConfiguration: {
         additionalPolicies: [
           pandaAuthPolicy,
-          new GuGetS3ObjectsPolicy(this, "RuleBucketPolicy", typerighterBucket),
           new GuPutCloudwatchMetricsPolicy(this),
         ],
       },
     });
+
+
+    const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {
+      bucketName: typerighterBucketName,
+    });
+    typerighterBucket.grantReadWrite(checkerApp.autoScalingGroup);
 
     const cloudfrontBucket = new GuS3Bucket(this, "cloudfront-bucket", {
       lifecycleRules: [
