@@ -9,7 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "synth": "cdk synth"
+    "synth": "cdk synth --path-metadata false --version-reporting false"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.132",
