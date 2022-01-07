@@ -50,17 +50,24 @@
 const fs = require("fs");
 const libxmljs = require("libxmljs");
 
-const [_, __, filePath1, filePath2, ruleStr] = process.argv;
+const [_, __, filePath1, filePath2, ruleFilePath] = process.argv;
 
-if (!filePath1 || !filePath2 || !ruleStr) {
+if (!filePath1 || !filePath2 || !ruleFilePath) {
   console.error(
-    "Incorrect arguments. Usage: node compare-rule-xml.js file-1.xml file2.xml RULE_1[,RULE_2,..].\nThe script received: ",
-    { filePath1, filePath2, ruleStr }
+    "Incorrect arguments. Usage: node compare-rule-xml.js file-1.xml file2.xml rules.txt. \nrules.txt should be a line-separated list of rules, e.g: \n\nNO_SPACE_CLOSING_QUOTE\nCURRENCY_SPACE\n..etc\n\nThe script received: ",
+    { filePath1, filePath2, ruleStr: ruleFilePath }
   );
   process.exit(1);
 }
 
-const ruleIds = ruleStr.split(",");
+const getRuleIds = (filePath) => {
+  try {
+    return fs.readFileSync(filePath, "utf-8").split("\n");
+  } catch (e) {
+    console.error(`Error reading ${filePath}: ${e.message}`);
+    process.exit(1);
+  }
+};
 
 const getFileStrFromPath = (filePath) => {
   try {
@@ -100,6 +107,8 @@ const getRuleNodeFromDoc = (doc, ruleId) => {
 };
 
 const docs = [filePath1, filePath2].map(getFileStrFromPath).map(getXMLFromFile);
+
+const ruleIds = getRuleIds(ruleFilePath);
 
 ruleIds.map((ruleId) => {
   console.log(`Checking ${ruleId} ...`);
