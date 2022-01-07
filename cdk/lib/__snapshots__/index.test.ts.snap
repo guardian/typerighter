@@ -3,27 +3,23 @@
 exports[`The typerighter stack matches the snapshot 1`] = `
 Object {
   "Mappings": Object {
-    "LowercaseStageLookup": Object {
-      "checkerDomain": Object {
-        "CODE": "checker.typerighter.code.dev-gutools.co.uk",
-        "PROD": "checker.typerighter.gutools.co.uk",
+    "typerighter": Object {
+      "CODE": Object {
+        "lowercase": "code",
       },
-      "lowercase": Object {
-        "CODE": "code",
-        "PROD": "prod",
-      },
-      "managerDomain": Object {
-        "CODE": "manager.typerighter.code.dev-gutools.co.uk",
-        "PROD": "manager.typerighter.gutools.co.uk",
+      "PROD": Object {
+        "lowercase": "prod",
       },
     },
     "typerighterchecker": Object {
       "CODE": Object {
+        "checkerDomain": "checker.typerighter.code.dev-gutools.co.uk",
         "domainName": "checker.typerighter.code.dev-gutools.co.uk",
         "maxInstances": 2,
         "minInstances": 1,
       },
       "PROD": Object {
+        "checkerDomain": "checker.typerighter.gutools.co.uk",
         "domainName": "checker.typerighter.gutools.co.uk",
         "maxInstances": 6,
         "minInstances": 3,
@@ -34,11 +30,13 @@ Object {
         "domainName": "manager.typerighter.code.dev-gutools.co.uk",
         "maxInstances": 2,
         "minInstances": 1,
+        "ruleManagerDomain": "manager.typerighter.code.dev-gutools.co.uk",
       },
       "PROD": Object {
         "domainName": "manager.typerighter.gutools.co.uk",
         "maxInstances": 6,
         "minInstances": 3,
+        "ruleManagerDomain": "manager.typerighter.gutools.co.uk",
       },
     },
   },
@@ -1393,24 +1391,7 @@ dpkg -i /tmp/package.deb",
             Object {
               "Action": "s3:GetObject",
               "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:s3:::typerighter-",
-                    Object {
-                      "Fn::FindInMap": Array [
-                        "LowercaseStageLookup",
-                        "lowercase",
-                        Object {
-                          "Ref": "Stage",
-                        },
-                      ],
-                    },
-                    "/*",
-                  ],
-                ],
-              },
+              "Resource": "arn:aws:s3:::typerighter/*/*",
             },
           ],
           "Version": "2012-10-17",
@@ -1738,11 +1719,11 @@ dpkg -i /tmp/package.deb",
       "Properties": Object {
         "Name": Object {
           "Fn::FindInMap": Array [
-            "LowercaseStageLookup",
-            "checkerDomain",
+            "typerighterchecker",
             Object {
               "Ref": "Stage",
             },
+            "checkerDomain",
           ],
         },
         "RecordType": "CNAME",
@@ -1800,11 +1781,11 @@ dpkg -i /tmp/package.deb",
       "Properties": Object {
         "Name": Object {
           "Fn::FindInMap": Array [
-            "LowercaseStageLookup",
-            "managerDomain",
+            "typerighterrulemanager",
             Object {
               "Ref": "Stage",
             },
+            "ruleManagerDomain",
           ],
         },
         "RecordType": "CNAME",
@@ -1855,11 +1836,11 @@ dpkg -i /tmp/package.deb",
           "Aliases": Array [
             Object {
               "Fn::FindInMap": Array [
-                "LowercaseStageLookup",
-                "checkerDomain",
+                "typerighterchecker",
                 Object {
                   "Ref": "Stage",
                 },
+                "checkerDomain",
               ],
             },
           ],

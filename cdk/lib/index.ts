@@ -135,7 +135,7 @@ export class Typerighter extends GuStack {
 
     const checkerDomain = this.withStageDependentValue({
       app: checkerAppName,
-      variableName: "ruleManagerDomain",
+      variableName: "checkerDomain",
       stageValues: {
         PROD: checkerDomainPROD ,
         CODE: checkerDomainCODE,
