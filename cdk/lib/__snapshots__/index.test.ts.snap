@@ -218,6 +218,7 @@ Object {
     },
     "AutoScalingGroupTyperightercheckerLaunchConfig64056387": Object {
       "DependsOn": Array [
+        "InstanceRoleTyperightercheckerDefaultPolicyAC356146",
         "InstanceRoleTyperightercheckerEA6224AC",
       ],
       "Properties": Object {
@@ -904,6 +905,55 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::IAM::Policy",
     },
+    "InstanceRoleTyperightercheckerDefaultPolicyAC356146": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject*",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "typerighterbucket95BD4E00",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "typerighterbucket95BD4E00",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "InstanceRoleTyperightercheckerDefaultPolicyAC356146",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "InstanceRoleTyperightercheckerEA6224AC": Object {
       "Properties": Object {
         "AssumeRolePolicyDocument": Object {
@@ -1379,38 +1429,6 @@ dpkg -i /tmp/package.deb",
         "Roles": Array [
           Object {
             "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
-    },
-    "RuleBucketPolicy9F205E18": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": "s3:GetObject",
-              "Effect": "Allow",
-              "Resource": Object {
-                "Fn::Join": Array [
-                  "",
-                  Array [
-                    "arn:aws:s3:::",
-                    Object {
-                      "Ref": "typerighterbucket95BD4E00",
-                    },
-                    "/*",
-                  ],
-                ],
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "RuleBucketPolicy9F205E18",
-        "Roles": Array [
-          Object {
-            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
           },
         ],
       },
