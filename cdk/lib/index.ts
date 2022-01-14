@@ -84,7 +84,7 @@ export class Typerighter extends GuStack {
       }
     });
 
-    const typerighterBucketName = 'typerighter';
+    const typerighterBucketName = `typerighter-${lowercaseStage}`;
 
     const dbPort = 5432;
 

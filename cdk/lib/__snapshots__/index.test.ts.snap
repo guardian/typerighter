@@ -1862,7 +1862,23 @@ dpkg -i /tmp/package.deb",
     "typerighterbucket95BD4E00": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
-        "BucketName": "typerighter",
+        "BucketName": Object {
+          "Fn::Join": Array [
+            "",
+            Array [
+              "typerighter-",
+              Object {
+                "Fn::FindInMap": Array [
+                  "typerighter",
+                  Object {
+                    "Ref": "Stage",
+                  },
+                  "lowercase",
+                ],
+              },
+            ],
+          ],
+        },
         "Tags": Array [
           Object {
             "Key": "gu:cdk:version",

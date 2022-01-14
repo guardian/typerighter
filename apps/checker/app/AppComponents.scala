@@ -62,7 +62,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
     case identity: AwsIdentity => identity.stage.toLowerCase
     case _ => "code"
   }
-  val typerighterBucket = s"typerighter"
+  val typerighterBucket = s"typerighter-${stage}"
 
   val cloudWatchClient = identity match {
     case identity: AwsIdentity => new CloudWatchClient(stage, false)
