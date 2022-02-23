@@ -86,7 +86,7 @@ export class Typerighter extends GuStack {
       },
     });
 
-    const typerighterBucketName = `typerighter-${lowercaseStage}`;
+    const typerighterBucketName = `typerighter-app-${lowercaseStage}`;
 
     const dbPort = 5432;
 
@@ -259,7 +259,7 @@ dpkg -i /tmp/package.deb`,
     });
 
     const ruleProvisionerAlarm = new Alarm(this, "rule-provisioner-alarm", {
-      alarmName: `Typerighter - ${this.stage} - rule provisioner issue`,
+      alarmName: `Typerighter - ${this.stage} - issue provisioning rules`,
       alarmDescription:
         "There was a problem getting rules for Typerighter. Rules might not be present, or might be out of date.",
       threshold: 0,

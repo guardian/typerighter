@@ -1908,7 +1908,7 @@ dpkg -i /tmp/package.deb",
               Object {
                 "Ref": "Stage",
               },
-              " - rule provisioner issue",
+              " - issue provisioning rules",
             ],
           ],
         },
@@ -1930,7 +1930,7 @@ dpkg -i /tmp/package.deb",
           "Fn::Join": Array [
             "",
             Array [
-              "typerighter-",
+              "typerighter-app-",
               Object {
                 "Fn::FindInMap": Array [
                   "typerighter",
