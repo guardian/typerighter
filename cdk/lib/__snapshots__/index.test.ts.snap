@@ -922,7 +922,7 @@ dpkg -i /tmp/package.deb",
               "Resource": Array [
                 Object {
                   "Fn::GetAtt": Array [
-                    "typerighterbucket95BD4E00",
+                    "typerighterbucketTyperighterrulemanager54EC2AB2",
                     "Arn",
                   ],
                 },
@@ -932,7 +932,7 @@ dpkg -i /tmp/package.deb",
                     Array [
                       Object {
                         "Fn::GetAtt": Array [
-                          "typerighterbucket95BD4E00",
+                          "typerighterbucketTyperighterrulemanager54EC2AB2",
                           "Arn",
                         ],
                       },
@@ -1382,6 +1382,33 @@ dpkg -i /tmp/package.deb",
                 ],
               },
             },
+            Object {
+              "Action": Array [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/",
+                    Object {
+                      "Ref": "Stage",
+                    },
+                    "/flexible/typerighter-checker/*",
+                  ],
+                ],
+              },
+            },
           ],
           "Version": "2012-10-17",
         },
@@ -1418,6 +1445,33 @@ dpkg -i /tmp/package.deb",
                       "Ref": "Stage",
                     },
                     "/flexible/typerighter-rule-manager",
+                  ],
+                ],
+              },
+            },
+            Object {
+              "Action": Array [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": Object {
+                "Fn::Join": Array [
+                  "",
+                  Array [
+                    "arn:aws:ssm:",
+                    Object {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    Object {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/",
+                    Object {
+                      "Ref": "Stage",
+                    },
+                    "/flexible/typerighter-rule-manager/*",
                   ],
                 ],
               },
@@ -1771,7 +1825,7 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "Guardian::DNS::RecordSet",
     },
-    "cloudfrontbucket301B6697": Object {
+    "cloudfrontbucketTyperighterrulemanagerD085D5AD": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
         "LifecycleConfiguration": Object {
@@ -1782,7 +1836,17 @@ dpkg -i /tmp/package.deb",
             },
           ],
         },
+        "PublicAccessBlockConfiguration": Object {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
         "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
           Object {
             "Key": "gu:cdk:version",
             "Value": "TEST",
@@ -1859,7 +1923,7 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::CloudWatch::Alarm",
     },
-    "typerighterbucket95BD4E00": Object {
+    "typerighterbucketTyperighterrulemanager54EC2AB2": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
         "BucketName": Object {
@@ -1879,7 +1943,17 @@ dpkg -i /tmp/package.deb",
             ],
           ],
         },
+        "PublicAccessBlockConfiguration": Object {
+          "BlockPublicAcls": true,
+          "BlockPublicPolicy": true,
+          "IgnorePublicAcls": true,
+          "RestrictPublicBuckets": true,
+        },
         "Tags": Array [
+          Object {
+            "Key": "App",
+            "Value": "typerighter-rule-manager",
+          },
           Object {
             "Key": "gu:cdk:version",
             "Value": "TEST",
@@ -1940,7 +2014,7 @@ dpkg -i /tmp/package.deb",
           "Logging": Object {
             "Bucket": Object {
               "Fn::GetAtt": Array [
-                "cloudfrontbucket301B6697",
+                "cloudfrontbucketTyperighterrulemanagerD085D5AD",
                 "RegionalDomainName",
               ],
             },

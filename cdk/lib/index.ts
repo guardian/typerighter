@@ -12,7 +12,7 @@ import {
   RecordType,
 } from "@guardian/cdk/lib/constructs/dns/dns-records";
 import { GuStack } from "@guardian/cdk/lib/constructs/core/stack";
-import { AccessScope, GuPlayApp } from "@guardian/cdk";
+import { GuPlayApp } from "@guardian/cdk";
 import {
   GuGetS3ObjectsPolicy,
   GuPutCloudwatchMetricsPolicy,
@@ -45,6 +45,8 @@ import {
   SubnetGroup,
 } from "@aws-cdk/aws-rds";
 import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
+import { AccessScope } from "@guardian/cdk/lib/constants/access";
+import { Stage } from "@guardian/cdk/lib/constants";
 
 export class Typerighter extends GuStack {
   constructor(scope: App, id: string, props: GuStackProps) {
@@ -81,7 +83,7 @@ export class Typerighter extends GuStack {
       stageValues: {
         PROD: "prod",
         CODE: "code",
-      }
+      },
     });
 
     const typerighterBucketName = `typerighter-${lowercaseStage}`;
@@ -98,7 +100,7 @@ export class Typerighter extends GuStack {
       stageValues: {
         PROD: managerDomainPROD,
         CODE: managerDomainCODE,
-      }
+      },
     });
 
     const ruleManagerApp = new GuPlayApp(this, {
@@ -120,14 +122,22 @@ export class Typerighter extends GuStack {
       roleConfiguration: {
         additionalPolicies: [pandaAuthPolicy],
       },
+      scaling: {
+        [Stage.CODE]: { minimumInstances: 1 },
+        [Stage.PROD]: { minimumInstances: 3 },
+      },
     });
 
-    const ruleManagerDnsRecord = new GuDnsRecordSet(this, "manager-dns-records", {
-      name: ruleManagerDomain,
-      recordType: RecordType.CNAME,
-      resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
-      ttl: Duration.minutes(60)
-    });
+    const ruleManagerDnsRecord = new GuDnsRecordSet(
+      this,
+      "manager-dns-records",
+      {
+        name: ruleManagerDomain,
+        recordType: RecordType.CNAME,
+        resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
+        ttl: Duration.minutes(60),
+      }
+    );
 
     // Checker app
 
@@ -137,7 +147,7 @@ export class Typerighter extends GuStack {
       app: checkerAppName,
       variableName: "checkerDomain",
       stageValues: {
-        PROD: checkerDomainPROD ,
+        PROD: checkerDomainPROD,
         CODE: checkerDomainCODE,
       },
     });
@@ -177,15 +187,20 @@ dpkg -i /tmp/package.deb`,
           new GuPutCloudwatchMetricsPolicy(this),
         ],
       },
+      scaling: {
+        [Stage.CODE]: { minimumInstances: 1 },
+        [Stage.PROD]: { minimumInstances: 3 },
+      },
     });
-
 
     const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {
       bucketName: typerighterBucketName,
+      app: ruleManagerAppName
     });
     typerighterBucket.grantReadWrite(checkerApp.autoScalingGroup);
 
     const cloudfrontBucket = new GuS3Bucket(this, "cloudfront-bucket", {
+      app: ruleManagerAppName,
       lifecycleRules: [
         {
           expiration: Duration.days(90),
@@ -208,16 +223,20 @@ dpkg -i /tmp/package.deb`,
             protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
           }),
           allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: new CachePolicy(this, "checker-cloudfront-cache-policy", {
-            cookieBehavior: CacheCookieBehavior.all(),
-            headerBehavior: CacheHeaderBehavior.allowList(
-              "Host",
-              "Origin",
-              "Access-Control-Request-Headers",
-              "Access-Control-Request-Method"
-            ),
-            queryStringBehavior: CacheQueryStringBehavior.all()
-          })
+          cachePolicy: new CachePolicy(
+            this,
+            "checker-cloudfront-cache-policy",
+            {
+              cookieBehavior: CacheCookieBehavior.all(),
+              headerBehavior: CacheHeaderBehavior.allowList(
+                "Host",
+                "Origin",
+                "Access-Control-Request-Headers",
+                "Access-Control-Request-Method"
+              ),
+              queryStringBehavior: CacheQueryStringBehavior.all(),
+            }
+          ),
         },
         domainNames: [checkerDomain],
         logBucket: cloudfrontBucket,
@@ -229,7 +248,7 @@ dpkg -i /tmp/package.deb`,
       name: checkerDomain,
       recordType: RecordType.CNAME,
       resourceRecords: [checkerCloudFrontDistro.domainName],
-      ttl: Duration.minutes(60)
+      ttl: Duration.minutes(60),
     });
 
     const ruleMetric = new Metric({
