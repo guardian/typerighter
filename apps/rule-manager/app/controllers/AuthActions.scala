@@ -23,5 +23,5 @@ trait AppAuthActions extends AuthActions with Loggable {
     */
   override def cacheValidation = false
 
-  override def authCallbackUrl: String = s"https://typerighter.${config.stageDomain}/oauthCallback"
+  override def authCallbackUrl: String = s"https://manager.typerighter.${config.stageDomain}/oauthCallback"
 }

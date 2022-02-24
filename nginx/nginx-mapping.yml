@@ -1,8 +1,8 @@
-name: api.typerighter
+name: typerighter
 mappings:
-  - prefix: api.typerighter
+  - prefix: checker.typerighter
     port: 9100
     path:
-  - prefix: typerighter
+  - prefix: manager.typerighter
     port: 9101
     path:

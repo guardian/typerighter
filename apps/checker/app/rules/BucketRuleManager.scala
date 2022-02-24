@@ -14,8 +14,8 @@ import model.{RegexRule, RuleResource}
 import play.api.Logging
 import com.amazonaws.services.s3.model.PutObjectResult
 
-class BucketRuleManager(s3: AmazonS3, bucketName: String) extends Logging {
-    private val RULES_KEY = "rules/typerighter-rules.json"
+class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
+    private val RULES_KEY = s"${stage}/rules/typerighter-rules.json"
 
     def putRules(ruleResource: RuleResource): Either[Exception, Unit] = {
         val ruleJson = Json.toJson(ruleResource)
