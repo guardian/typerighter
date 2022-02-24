@@ -227,6 +227,7 @@ dpkg -i /tmp/package.deb`,
             this,
             "checker-cloudfront-cache-policy",
             {
+              cachePolicyName: `checker-cloudfront-cache-policy-${this.stage}`,
               cookieBehavior: CacheCookieBehavior.all(),
               headerBehavior: CacheHeaderBehavior.allowList(
                 "Host",

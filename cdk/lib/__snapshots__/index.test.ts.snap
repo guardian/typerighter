@@ -1768,9 +1768,9 @@ dpkg -i /tmp/package.deb",
             "Fn::Join": Array [
               "",
               Array [
-                "typerightercheckercloudfrontcachepolicy3CCBDF42-",
+                "checker-cloudfront-cache-policy-",
                 Object {
-                  "Ref": "AWS::Region",
+                  "Ref": "Stage",
                 },
               ],
             ],
