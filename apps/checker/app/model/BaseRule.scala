@@ -51,6 +51,7 @@ case class RegexRule(
       r
         .replaceAllIn(regex, matchedText)
         .ensureCorrectCase(isStartOfSentence)
+        .pleaseCorrectlyTransliterateZelenskyy
     }
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, start, end)
 

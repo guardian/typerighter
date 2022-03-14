@@ -23,6 +23,11 @@ sealed trait Suggestion {
     }
     case suggestion => suggestion
   }
+
+  def pleaseCorrectlyTransliterateZelenskyy(): this match {
+    case TextSuggestion("Zelenskiy") => TextSuggestion("Zelenskyy")
+    case suggestion => suggestion
+  }
 }
 
 object TextSuggestion {
