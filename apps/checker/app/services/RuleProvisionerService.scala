@@ -31,6 +31,8 @@ class RuleProvisionerService(
 
     val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
 
+    addHunspellMatcherToPool()
+
     val addedRulesErrors = ruleResource.rules.groupBy(_.category).toList.flatMap {
       case (_, rules) => {
         val regexRules = rules.collect { case r: RegexRule => r }
@@ -99,5 +101,13 @@ class RuleProvisionerService(
         errors
       }
     }
+  }
+
+  private def addHunspellMatcherToPool() = {
+    val category = Category("dictionary", "Dictionary")
+    val hunspellMatcher = new HunspellMatcher(category, "apps/checker/conf/resources/hunspell/example")
+    matcherPool.addMatcher(hunspellMatcher)
+
+    ()
   }
 }
