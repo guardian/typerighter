@@ -51,7 +51,7 @@ val commonSettings = Seq(
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
-  )
+  ),
 )
 
 val commonLib = (project in file(s"$appsFolder/common-lib"))

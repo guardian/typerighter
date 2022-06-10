@@ -29,6 +29,18 @@ object BaseRule {
   implicit val reads: Reads[BaseRule] = Json.reads[BaseRule]
 }
 
+case class HunspellRule(
+                 id: String,
+                 category: Category,
+                 description: String,
+                 suggestions: List[TextSuggestion],
+                 replacement: Option[TextSuggestion]) extends BaseRule
+
+object HunspellRule {
+  implicit val writes: Writes[HunspellRule] = Json.writes[HunspellRule]
+  implicit val reads: Reads[HunspellRule] = Json.reads[HunspellRule]
+}
+
 object RegexRule {
   implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
   implicit val regexReads: Reads[Regex] = (JsPath).read[String].map(new Regex(_))

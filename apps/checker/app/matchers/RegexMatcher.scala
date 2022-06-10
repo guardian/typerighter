@@ -1,6 +1,6 @@
 package matchers
 
-import model.{RegexRule, RuleMatch, Category}
+import model.{RegexRule, RuleMatch}
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion, RuleMatchHelpers}
 
