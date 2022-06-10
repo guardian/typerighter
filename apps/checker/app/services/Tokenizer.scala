@@ -1,12 +1,11 @@
 package services
 
-import java.util.Properties
-
 import edu.stanford.nlp.ling.CoreAnnotations.{SentencesAnnotation, TextAnnotation, TokensAnnotation}
 import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import edu.stanford.nlp.util.CoreMap
 
+import java.util.Properties
 import scala.collection.JavaConverters._
 
 case class NameResult(from: Int, to: Int, text: String)

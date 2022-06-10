@@ -1,16 +1,14 @@
 package services
 
 import java.util.Date
-
 import akka.actor.Scheduler
-import matchers.RegexMatcher
+import matchers.{HunspellMatcher, LanguageToolFactory, RegexMatcher}
 import play.api.Logging
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import model.{RegexRule, BaseRule, Category, RuleResource}
+import model.{BaseRule, Category, RegexRule, RuleResource}
 import rules.BucketRuleManager
-import matchers.LanguageToolFactory
 import model.LTRule
 import model.LTRuleXML
 import utils.CloudWatchClient
