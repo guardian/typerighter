@@ -30,6 +30,20 @@ class HunspellMatcherTest extends AsyncFlatSpec with Matchers {
     }
   }
 
+  "check" should "not match for non-word character sequences that we intentionally ignore" in {
+    val nonWordExamples = List(
+      "an.example@address.com",
+      "@AndrewSparrow"
+    )
+
+    val eventuallyMatches = hunspellMatcher.check(
+      MatcherRequest(nonWordExamples.map(getBlocks(_)).flatten)
+    )
+    eventuallyMatches.map { matches =>
+      matches shouldEqual Nil
+    }
+  }
+
   "check" should "fuzzy match known words with suggestions" in {
     val text = "Example text with John Simth"
     val blocks = getBlocks(text)
@@ -51,8 +65,8 @@ class HunspellMatcherTest extends AsyncFlatSpec with Matchers {
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        hunspellMatcher.getRuleMatch("Jerry", 2, 7, List(TextSuggestion("Jerzy")), blocks.head),
-        hunspellMatcher.getRuleMatch("Brzeczek", 8, 16, List(TextSuggestion("Brzęczek")), blocks.head),
+        hunspellMatcher.getRuleMatch("Jerry", 0, 5, List(TextSuggestion("Jerzy")), blocks.head),
+        hunspellMatcher.getRuleMatch("Brzeczek", 6, 14, List(TextSuggestion("Brzęczek")), blocks.head),
       ))
     }
   }

@@ -8,7 +8,7 @@ class TokenizerTest extends AsyncFlatSpec with Matchers {
 
   val tokenizer = new Tokenizer()
 
-  behavior of "getFirstWordsInSentences"
+  behavior of "tokenize"
 
   it should "tokenize words" in {
     val sentence = "An example sentence"
