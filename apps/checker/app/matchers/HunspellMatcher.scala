@@ -41,13 +41,10 @@ class HunspellMatcher(category: Category, pathToDictionary: String) extends Matc
     val words = tokenizer.tokenize(block.text)
 
     words.flatMap {
-      case (word, from, to) =>
-        if (dictionary.misspelled(word)) {
-          val suggestions = dictionary.suggest(word).asScala.toList.map(TextSuggestion(_))
-          Some(getRuleMatch(word, from, to, suggestions, block))
-        } else {
-          None
-        }
+      case (word, from, to) if (shouldSpellcheckWord(word) && dictionary.misspelled(word)) =>
+        val suggestions = dictionary.suggest(word).asScala.toList.map(TextSuggestion(_))
+        Some(getRuleMatch(word, from, to, suggestions, block))
+      case _ => None
     }
   }
 
@@ -71,4 +68,12 @@ class HunspellMatcher(category: Category, pathToDictionary: String) extends Matc
       matcherType = this.getType()
     )
   }
+
+  // https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
+  private val emailRegex = """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"""
+  private val twitterHandleRegex = """@.*"""
+
+  private val doNotCheckList = List(emailRegex, twitterHandleRegex)
+
+  private def shouldSpellcheckWord(word: String): Boolean = !doNotCheckList.exists(word.matches)
 }

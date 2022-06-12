@@ -33,7 +33,7 @@ class Tokenizer() {
         .asScala
         .toList
         .foldLeft(List.empty[WordToken])((acc, token) =>
-          extractValidWorkToken(token) match {
+          extractValidWordToken(token) match {
             case Some((word, from, to)) if (word.matches(".*['’].*")) =>
               val (prevWord, prevFrom, prevTo) = acc.last
               acc.dropRight(1) :+ (prevWord + word, prevFrom, to)
@@ -45,7 +45,7 @@ class Tokenizer() {
     }.flatten
   }
 
-  def extractValidWorkToken(token: CoreLabel) = {
+  def extractValidWordToken(token: CoreLabel) = {
     val word = token.get(classOf[TextAnnotation])
 
     if (TokenHelpers.containsWordCharacters(token) && TokenHelpers.doesNotContainNonWordToken(token)) {
