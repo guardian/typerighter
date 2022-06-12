@@ -10,8 +10,8 @@ import scala.collection.JavaConverters._
 
 object HunspellMatcher {
   val hunspellMessage = "This word may be misspelled"
-  val hunspellRule = HunspellRule(
-    "hunspell-rule",
+  val hunspellRule = (word: String) => HunspellRule(
+    s"hunspell-rule-${word}",
     Category("spelling", "Spelling"),
     hunspellMessage,
     Nil,
@@ -39,23 +39,24 @@ class HunspellMatcher(category: Category, pathToDictionary: String) extends Matc
 
   def checkText(block: TextBlock): List[RuleMatch] = {
     val words = tokenizer.tokenize(block.text)
+
     words.flatMap {
       case (word, from, to) =>
         if (dictionary.misspelled(word)) {
           val suggestions = dictionary.suggest(word).asScala.toList.map(TextSuggestion(_))
-          Some(getRuleMatch(word, from + block.from, to + block.from, suggestions, block.text))
+          Some(getRuleMatch(word, from, to, suggestions, block))
         } else {
           None
         }
     }
   }
 
-  def getRuleMatch(word: String, from: Int, to: Int, suggestions: List[TextSuggestion], text: String): RuleMatch = {
-    val (precedingText, subsequentText) = Text.getSurroundingText(text, from, to)
+  def getRuleMatch(word: String, from: Int, to: Int, suggestions: List[TextSuggestion], block: TextBlock): RuleMatch = {
+    val (precedingText, subsequentText) = Text.getSurroundingText(block.text, from, to)
     RuleMatch(
-      rule = HunspellMatcher.hunspellRule,
-      fromPos = from,
-      toPos = to,
+      rule = HunspellMatcher.hunspellRule(word),
+      fromPos = from + block.from,
+      toPos = to + block.from,
       precedingText = precedingText,
       subsequentText = subsequentText,
       matchedText = word,
