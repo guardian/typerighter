@@ -21,66 +21,80 @@ class HunspellMatcherTest extends AsyncFlatSpec with Matchers {
     }
   }
 
+  "check" should "not match for punctuation" in {
+    val eventuallyMatches = hunspellMatcher.check(
+      MatcherRequest(getBlocks("Example text, with John Smith."))
+    )
+    eventuallyMatches.map { matches =>
+      matches shouldEqual Nil
+    }
+  }
+
   "check" should "fuzzy match known words with suggestions" in {
     val text = "Example text with John Simth"
+    val blocks = getBlocks(text)
     val eventuallyMatches = hunspellMatcher.check(
-      MatcherRequest(getBlocks(text))
+      MatcherRequest(blocks)
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        hunspellMatcher.getRuleMatch("Simth", 23, 28, List(TextSuggestion("Smith")), text),
+        hunspellMatcher.getRuleMatch("Simth", 23, 28, List(TextSuggestion("Smith")), blocks.head),
       ))
     }
   }
 
   "check" should "produce correct ranges for blocks" in {
     val text = "Jerry Brzeczek"
+    val blocks = getBlocks(text, 2)
     val eventuallyMatches = hunspellMatcher.check(
-      MatcherRequest(getBlocks(text, 2))
+      MatcherRequest(blocks)
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        hunspellMatcher.getRuleMatch("Jerry", 2, 7, List(TextSuggestion("Jerzy")), text),
-        hunspellMatcher.getRuleMatch("Brzeczek", 8, 16, List(TextSuggestion("Brzęczek")), text),
+        hunspellMatcher.getRuleMatch("Jerry", 2, 7, List(TextSuggestion("Jerzy")), blocks.head),
+        hunspellMatcher.getRuleMatch("Brzeczek", 8, 16, List(TextSuggestion("Brzęczek")), blocks.head),
       ))
     }
   }
 
   "check" should "report multiple matches" in {
     val text = "Example unknown with John Simth"
+    val blocks = getBlocks(text)
     val eventuallyMatches = hunspellMatcher.check(
-      MatcherRequest(getBlocks(text))
+      MatcherRequest(blocks)
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        hunspellMatcher.getRuleMatch("unknown", 8, 15, Nil, text),
-        hunspellMatcher.getRuleMatch("Simth", 26, 31, List(TextSuggestion("Smith")), text),
+        hunspellMatcher.getRuleMatch("unknown", 8, 15, Nil, blocks.head),
+        hunspellMatcher.getRuleMatch("Simth", 26, 31, List(TextSuggestion("Smith")), blocks.head),
       ))
     }
   }
 
   "check" should "correctly handle pluralisation" in {
     val text = "Example word with John Smiths"
+    val blocks = getBlocks(text)
     val eventuallyMatches = hunspellMatcher.check(
-      MatcherRequest(getBlocks(text))
+      MatcherRequest(blocks)
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
         hunspellMatcher.getRuleMatch("Smiths", 23, 29, List(
           TextSuggestion("Smith"),
-          TextSuggestion("Smith's")), text),
+          TextSuggestion("Smith's")), blocks.head),
       ))
     }
   }
 
   "check" should "report unknown words" in {
     val text = "Example text with unknown word"
+    val blocks = getBlocks(text)
     val eventuallyMatches = hunspellMatcher.check(
-      MatcherRequest(getBlocks(text))
+      MatcherRequest(blocks)
     )
     eventuallyMatches.map { matches =>
       matches should matchTo(List(
-        hunspellMatcher.getRuleMatch("unknown", 18, 25, Nil, text)
+        hunspellMatcher.getRuleMatch("unknown", 18, 25, Nil, blocks.head)
       ))
     }
   }
