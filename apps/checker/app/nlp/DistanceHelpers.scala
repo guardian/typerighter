@@ -10,7 +10,7 @@ object DistanceHelpers {
    */
   lazy val jaroWinkler = new JaroWinkler
 
-  def findSimilarNames(candidateName: String, names: Set[String], distanceThreshold: Double = 0.3): List[String] = {
+  def findSimilarNames(candidateName: String, names: Set[String], distanceThreshold: Double = 0.2): List[String] = {
     val namesAndScores = names.foldLeft(Set.empty[(Double, String)]) {
       case (acc, name) => {
         jaroWinkler.distance(candidateName, name) match {

@@ -2,7 +2,7 @@ package services
 
 import java.util.Date
 import akka.actor.Scheduler
-import matchers.{HunspellMatcher, LanguageToolFactory, RegexMatcher}
+import matchers.{DictionaryMatcher, LanguageToolFactory, RegexMatcher}
 import play.api.Logging
 
 import scala.concurrent.ExecutionContext
