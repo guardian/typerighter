@@ -48,6 +48,7 @@ val commonSettings = Seq(
     "com.gu" % "kinesis-logback-appender" % "2.1.0",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.0",
+    "info.debatty" % "java-string-similarity" % "0.10"
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
