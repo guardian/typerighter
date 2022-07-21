@@ -1,16 +1,11 @@
-
-
-import scala.concurrent.Future
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, InstanceProfileCredentialsProvider}
+import com.amazonaws.auth.{AWSCredentialsProvider}
 import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PublicSettings
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{ApiController, AuditController, CapiProxyController, HomeController, RulesController}
-import matchers.RegexMatcher
 import play.api.ApplicationLoader.Context
-import play.api.BuiltInComponentsFromContext
+import play.api.{BuiltInComponentsFromContext}
 import play.api.http.{DefaultHttpErrorHandler, JsonHttpErrorHandler, PreferredMediaTypeHttpErrorHandler}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.libs.concurrent.DefaultFutures
@@ -78,7 +73,7 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
 
   val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId, matcherPool, languageToolFactory)
 
-  val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
+  val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)(executionContext)
   val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, config.spreadsheetId, ruleProvisioner, publicSettings)
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
