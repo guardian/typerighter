@@ -1,8 +1,7 @@
 package controllers
 
-import scala.jdk.CollectionConverters._
 import com.gu.pandomainauth.PublicSettings
-import model.{Check, MatcherResponse}
+import model.Check
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.MatcherPool
@@ -10,7 +9,6 @@ import com.gu.typerighter.lib.PandaAuthentication
 
 import scala.concurrent.{ExecutionContext, Future}
 import utils.Timer
-import net.logstash.logback.marker.Markers
 
 /**
   * The controller that handles API requests.
@@ -20,37 +18,34 @@ class ApiController(
   matcherPool: MatcherPool,
   val publicSettings: PublicSettings
 )(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
-
   def check: Action[JsValue] = ApiAuthAction.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
-        val checkMarkers = check.toMarker
-        val userMarkers = Markers.appendEntries(Map("userEmail" -> request.user.email).asJava)
-        checkMarkers.add(userMarkers)
-
-        val eventuallyMatches = Timer.timeAsync("ApiController.check", checkMarkers) {
+        val eventuallyResult = Timer.timeAsync("ApiController.check", check.toMarker(request.user)) {
           matcherPool.check(check)
         }
 
-        eventuallyMatches.map {
-          case (categoryIds, matches) => {
-            val response = MatcherResponse(
-              matches = matches,
-              blocks = check.blocks,
-              categoryIds = categoryIds
-            )
-            Ok(Json.toJson(response))
-          }
+        eventuallyResult.map { result =>
+          Ok(Json.toJson(result))
         } recover {
-        case e: Exception =>
-          InternalServerError(Json.obj("error" -> e.getMessage))
-      }
-      case Left(error) =>
-        Future.successful(BadRequest(s"Invalid request: $error"))
+          case e: Exception => InternalServerError(Json.obj("error" -> e.getMessage))
+        }
+      case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
+    }
+  }
+
+  def checkStream = ApiAuthAction[JsValue](parse.json) { request =>
+    request.body.validate[Check].asEither match {
+      case Right(check) =>
+        val resultStream = matcherPool.checkStream(check).map(result => {
+          Json.toJson(result).toString() + 31.toChar
+        })
+        Ok.chunked(resultStream).as("application/json-seq")
+      case Left(error) => BadRequest(s"Invalid request: $error")
     }
   }
 
   def getCurrentCategories: Action[AnyContent] = ApiAuthAction {
-      Ok(Json.toJson(matcherPool.getCurrentCategories))
+    Ok(Json.toJson(matcherPool.getCurrentCategories))
   }
 }

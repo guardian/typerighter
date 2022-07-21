@@ -8,7 +8,7 @@ import scala.jdk.CollectionConverters._
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
-import model.{BaseRule, Category, Check, CheckResult, CheckResponse, RuleMatch, TextBlock}
+import model.{BaseRule, Category, Check, CheckResult, RuleMatch, TextBlock}
 import utils.{Matcher, RuleMatchHelpers}
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._

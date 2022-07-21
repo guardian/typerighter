@@ -2,7 +2,7 @@ package model
 
 import scala.jdk.CollectionConverters._
 import net.logstash.logback.marker.Markers
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.{Json, Reads, Writes}
 import net.logstash.logback.marker.LogstashMarker
 import com.gu.pandomainauth.model.User
 
@@ -29,6 +29,10 @@ case class Check(
     checkMarkers.add(userMarkers)
     checkMarkers
   }
+}
+
+object CheckResult {
+  implicit val writes: Writes[CheckResult] = Json.writes[CheckResult]
 }
 
 case class CheckResult(categoryIds: Set[String], blocks: List[TextBlock], matches: List[RuleMatch])

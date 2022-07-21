@@ -2,7 +2,8 @@ name: typerighter
 mappings:
   - prefix: checker.typerighter
     port: 9100
-    path:
+    path: /
+    websocket: /ws
   - prefix: manager.typerighter
     port: 9101
     path:
