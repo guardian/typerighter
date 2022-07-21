@@ -1,6 +1,7 @@
 package services
 
 import akka.actor.ActorSystem
+import akka.stream.scaladsl.Sink
 import model._
 import org.scalatest.time.SpanSugar._
 import com.softwaremill.diffx.scalatest.DiffMatcher._
@@ -137,6 +138,12 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     List(TextBlock(blockId, text, 0, text.length, Some(skippedRanges)))
   )
 
+  val checkWithManyBlocks = Check(
+    Some("example-document"),
+    setId,
+    None,
+    (0 to 100).toList.map { id => TextBlock(id.toString, "Example text", 0, 12) });
+
   behavior of "getCurrentCategories"
 
   it should "report current categories" in {
@@ -169,9 +176,9 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
-    futureResult.map { case (categoryIds, matches) =>
-      matches shouldBe responses
-      categoryIds should matchTo(Set(getCategory(0).id))
+    futureResult.map { result =>
+      result.matches shouldBe responses
+      result.categoryIds should matchTo(Set(getCategory(0).id))
     }
   }
 
@@ -182,8 +189,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck(text = "Example text"))
 
-    futureResult.map { case (categoryIds, matches) =>
-      matches.length shouldBe 24
+    futureResult.map { result =>
+      result.matches.length shouldBe 24
     }
   }
 
@@ -192,11 +199,6 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers.foreach { _.completeWith(responses) }
 
     // This check should produce a job for each block, filling the queue.
-    val checkWithManyBlocks = Check(
-      Some("example-document"),
-      setId,
-      None,
-      (0 to 100).toList.map { id => TextBlock(id.toString, "Example text", 0, 12) });
     val pool = getPool(matchers, 1, 1, MatcherPool.blockLevelCheckStrategy)
     val futureResult = pool.check(checkWithManyBlocks)
     futureResult transformWith {
@@ -269,10 +271,10 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futureResult = pool.check(getCheck(text = "Example text"))
     val expectedCategories = Set(getCategory(0).id, getCategory(1).id)
 
-    futureResult.map { case (categoryIds, matches) =>
-      matches.contains(firstMatch.head) shouldBe true
-      matches.contains(secondMatch.head) shouldBe true
-      categoryIds should matchTo(expectedCategories)
+    futureResult.map { result =>
+      result.matches.contains(firstMatch.head) shouldBe true
+      result.matches.contains(secondMatch.head) shouldBe true
+      result.categoryIds should matchTo(expectedCategories)
     }
   }
 
@@ -284,8 +286,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futureResult = pool.check(getCheck(text = "Example text"))
     val expectedCategories = Set(getCategory(0).id)
 
-    futureResult.map { case (categoryIds, matches) =>
-      categoryIds shouldBe expectedCategories
+    futureResult.map { result =>
+      result.categoryIds shouldBe expectedCategories
     }
   }
 
@@ -297,9 +299,9 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val secondMatch = getResponses(List((0, 5, "test-response-2")), 1)
     matchers(0).completeWith(firstMatch)
     matchers(1).completeWith(secondMatch)
-    futureResult.map { case (categoryIds, matches) =>
-      matches.size should matchTo(1)
-      matches should matchTo(secondMatch)
+    futureResult.map { result =>
+      result.matches.size should matchTo(1)
+      result.matches should matchTo(secondMatch)
     }
   }
 
@@ -367,9 +369,55 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     )
     val futureResult = pool.check(check)
 
-    futureResult.map { case (categoryIds, matches) =>
-      val matchRanges = matches.map { matches => (matches.fromPos, matches.toPos) }
+    futureResult.map { result =>
+      val matchRanges = result.matches.map { matches => (matches.fromPos, matches.toPos) }
       matchRanges shouldBe List((1, 1), (5, 5))
+    }
+  }
+
+  behavior of "checkStream"
+
+  it should "complete queued jobs" in {
+    val matchers = getMatchers(24)
+    matchers.foreach { _.completeWith(responses) }
+
+    val pool = getPool(matchers)
+    val futureResult = pool.checkStream(getCheck(text = "Example text")).runWith(Sink.seq)
+
+
+    futureResult.map { result =>
+      result.length shouldBe 24
+    }
+  }
+
+  it should "reject work that exceeds its buffer size" in {
+    val matchers = getMatchers(1)
+    matchers.foreach { _.completeWith(responses) }
+
+    // This check should produce a job for each block, filling the queue.
+    val pool = getPool(matchers, 1, 1, MatcherPool.blockLevelCheckStrategy)
+    val futureResult = pool.checkStream(checkWithManyBlocks).runWith(Sink.seq)
+
+    futureResult transformWith {
+      case Success(result) =>
+        println(result)
+        fail()
+      case Failure(e) => e.getMessage should include ("full")
+    }
+  }
+
+  it should "handle validation failures" in {
+    val errorMessage = "Something went wrong"
+    val matchers = getMatchers(2)
+    matchers(0).completeWith(responses)
+    matchers(1).failWith(errorMessage)
+
+    val pool = getPool(matchers)
+    val futureResult = pool.checkStream(getCheck(text = "Example text")).runWith(Sink.seq)
+
+    futureResult transformWith {
+      case Success(_) => fail()
+      case Failure(e) => e.getMessage shouldBe errorMessage
     }
   }
 }
