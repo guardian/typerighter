@@ -92,14 +92,14 @@ class MatcherPool(
     * If no ids are assigned, use all the currently available matchers.
     */
   def check(query: Check): Future[CheckResult] = {
-    val categoryIds = getCategoryIds(query)
+    val categoryIds = getApplicableCategories(query)
 
-    logger.info(s"Matcher pool query received")(query.toMarker)
+    logCheckBegin(query)
 
     val partialJobs = checkStrategy(query.blocks, categoryIds)
     val jobs = createJobsFromPartialJobs(
       query.requestId,
-      query.documentId.getOrElse("no-document-id"),
+      query.documentId,
       partialJobs
     )
 
@@ -110,18 +110,18 @@ class MatcherPool(
           case ((accCatIds, accBlocks, accMatches), (job, matches)) =>
             (accCatIds ++ job.categoryIds, accBlocks ++ job.blocks, accMatches ++ matches)
         }
+        logCheckComplete(query)
 
-        logger.info(s"Matcher pool query complete")(query.toMarker)
         CheckResult(catIds, blocks, matches)
     }
   }
 
   def checkStream(query: Check): Source[CheckResult, NotUsed] = {
-      val categoryIds = getCategoryIds(query)
+      val categoryIds = getApplicableCategories(query)
 
-      logger.info(s"Validation job with id: ${query.requestId} received. Checking categories: ${categoryIds.mkString(", ")}")
+      logCheckBegin(query)
 
-      val jobs = createJobsFromPartialJobs(query.requestId, query.documentId.getOrElse("no-document-id"), checkStrategy(query.blocks, categoryIds))
+      val jobs = createJobsFromPartialJobs(query.requestId, query.documentId, checkStrategy(query.blocks, categoryIds))
       val totalJobCount = jobs.size
       val jobsCompleted = new AtomicInteger(0)
 
@@ -130,13 +130,14 @@ class MatcherPool(
       logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")
 
       val eventualResponses = jobs.map(offerJobToQueue)
-      val responseStream = Source(eventualResponses).mapAsyncUnordered(1)(identity)
 
-      responseStream.map {
-        case (job, matches) =>
+      Source(eventualResponses)
+        .mapAsyncUnordered(1)(identity)
+        .map { case (job, matches) => {
           jobsCompleted.incrementAndGet()
-          CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete))
-      }
+          CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete)) }
+        }
+        .alsoTo(Sink.onComplete { _ => logCheckComplete(query) })
     }
 
   def getCategoryIds(query: Check): Set[MatcherId] = {
@@ -176,9 +177,9 @@ class MatcherPool(
     matchers.values.flatMap { matcher => matcher.getRules() }.toList
   }
 
-  private def createJobsFromPartialJobs(requestId: String, documentId: String, partialJobs: List[PartialMatcherJob]) = partialJobs.map { partialJob =>
+  private def createJobsFromPartialJobs(requestId: String, documentId: Option[String], partialJobs: List[PartialMatcherJob]) = partialJobs.map { partialJob =>
     val promise = Promise[List[RuleMatch]]()
-    MatcherJob(requestId, documentId, partialJob.blocks, partialJob.categoryIds, promise, partialJobs.length)
+    MatcherJob(requestId, documentId.getOrElse("no-document-id"), partialJob.blocks, partialJob.categoryIds, promise, partialJobs.length)
   }
 
   private def offerJobToQueue(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
@@ -286,5 +287,17 @@ class MatcherPool(
         case (_, matches) => RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
       }
     )
+  }
+
+  private def logCheckBegin(query: Check) = logger.info(s"Matcher pool query complete")(query.toMarker)
+  private def logCheckComplete(query: Check) = logger.info(s"Matcher pool query complete")(query.toMarker)
+
+  /**
+    * Get the categories to apply to this check. If no categories are supplied,
+    * default to all available categories.
+    */
+  private def getApplicableCategories(query: Check) = query.categoryIds match {
+    case None => getCurrentCategories.map(_.id)
+    case Some(ids) => ids
   }
 }

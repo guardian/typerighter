@@ -10,6 +10,9 @@ object Check {
   implicit val reads: Reads[Check] = Json.reads[Check]
 }
 
+/**
+  * Everything Typerighter needs to perform a check against the given blocks.
+  */
 case class Check(
   documentId: Option[String],
   requestId: String,
@@ -31,6 +34,9 @@ case class Check(
   }
 }
 
+/**
+  * A single result produced by a check. Checks can produce many CheckResults.
+  */
 object CheckResult {
   implicit val writes: Writes[CheckResult] = Json.writes[CheckResult]
 }
