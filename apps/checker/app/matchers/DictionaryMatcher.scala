@@ -23,7 +23,11 @@ object DictionaryMatcher {
 }
 
 /**
-  * A matcher for corpus-based
+  * A dictionary matcher.
+  *
+  * Uses entity recognition to discover names and match them against known names.
+  *
+  * Relies on a Hunspell dictionary for everything else.
   */
 class DictionaryMatcher(category: Category, pathToDictionary: String, names: Set[String] = Set.empty) extends Matcher {
   val tokenizer = new Tokenizer()
@@ -56,7 +60,7 @@ class DictionaryMatcher(category: Category, pathToDictionary: String, names: Set
     (nameMatches ++ hunspellMatches).sortBy(_.fromPos)
   }
 
-  def getRuleMatch(word: String, from: Int, to: Int, suggestions: List[TextSuggestion], block: TextBlock): RuleMatch = {
+  def getRuleMatch(word: String, from: Int, to: Int, suggestions: List[TextSuggestion], block: TextBlock, markAsCorrect: Boolean = false): RuleMatch = {
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, from, to)
     RuleMatch(
       rule = DictionaryMatcher.hunspellRule(word),
@@ -73,7 +77,8 @@ class DictionaryMatcher(category: Category, pathToDictionary: String, names: Set
         case _ => suggestions.tail
       },
       matchContext = Text.getMatchTextSnippet(precedingText, word, subsequentText),
-      matcherType = this.getType()
+      matcherType = this.getType(),
+      markAsCorrect = markAsCorrect
     )
   }
 
@@ -97,7 +102,7 @@ class DictionaryMatcher(category: Category, pathToDictionary: String, names: Set
   private def getMatchesForNameEntities(nameEntities: List[NameEntity], names: Set[String], block: TextBlock): List[RuleMatch] =
     nameEntities.foldLeft(List.empty[RuleMatch])((matches, nameEntity) => {
       if (names.contains(nameEntity.text)) {
-        matches :+ getRuleMatch(nameEntity.text, nameEntity.from, nameEntity.to, Nil, block)
+        matches :+ getRuleMatch(nameEntity.text, nameEntity.from, nameEntity.to, Nil, block, true)
       } else {
         val suggestedNames = DistanceHelpers
           .findSimilarNames(nameEntity.text, names)
@@ -111,7 +116,8 @@ class DictionaryMatcher(category: Category, pathToDictionary: String, names: Set
           TextSuggestion(s"${nameEntity.text.dropRight(1)}'s") +: suggestedNames
         } else suggestedNames
 
-        matches :+ getRuleMatch(nameEntity.text, nameEntity.from, nameEntity.to, suggestions, block)
+        if (suggestions.length > 0) matches :+ getRuleMatch(nameEntity.text, nameEntity.from, nameEntity.to, suggestions, block)
+        else matches
       }
     })
 }

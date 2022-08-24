@@ -1,12 +1,13 @@
 package matchers
 
-import java.io.File
+import languagetool.CollinsSpellerRule
 
+import java.io.File
 import model.{LTRule, LTRuleXML, RuleMatch}
 import org.languagetool._
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 import org.languagetool.rules.{Rule => LanguageToolRule}
-import play.api.Logging
+import play.api.{Logging}
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion}
 
@@ -15,7 +16,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import model.Category
 import org.languagetool.rules.patterns.PatternRuleLoader
 import org.languagetool.rules.patterns.AbstractPatternRule
-import scala.xml.{XML, Attribute, Null, Text}
+
+import scala.xml.{Attribute, Null, Text, XML}
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
@@ -26,39 +28,32 @@ import java.io.ByteArrayInputStream
 class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) extends Logging {
+  val language: Language = Languages.getLanguageForShortCode("en-GB")
 
   def createInstance(ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): Either[List[Throwable], Matcher] = {
-    val language: Language = Languages.getLanguageForShortCode("en")
-    val cache: ResultCache = new ResultCache(10000)
-    val userConfig: UserConfig = new UserConfig()
+    val maybeInstance = createInstanceWithDefaultRules(defaultRuleIds)
 
-    val instance = new JLanguageTool(language, cache, userConfig)
-
-    maybeLanguageModelDir.foreach { languageModel =>
-      SuggestionsOrdererConfig.setNgramsPath(languageModel.toString)
-      if (useLanguageModelRules) instance.activateLanguageModelRules(languageModel)
-    }
-
-    // Disable all default rules ...
-    val allRuleIds = instance.getAllRules.asScala.map(_.getId())
-    allRuleIds.foreach(ruleId => instance.disableRule(ruleId))
-    // ... apart from those we'd explicitly like
-    val errors = defaultRuleIds.foldLeft(List.empty[Throwable])((acc, ruleId) =>
-      if (allRuleIds.contains(ruleId)) {
-        instance.enableRule(ruleId)
-        acc
-      } else new Exception(s"Attempted to enable a default rule with id ${ruleId}, but the rule was not available on the instance") :: acc
-    )
-
-    errors match {
-      // Add custom rules
-      case Nil => applyXMLRules(instance, ruleXMLs) map { _ =>
+    maybeInstance.flatMap { instance =>
+      applyXMLRules(instance, ruleXMLs) map { _ =>
         val matcher = new LanguageToolMatcher(instance)
         logger.info(s"Added ${ruleXMLs.size} rules and enabled ${defaultRuleIds.size} default rules for matcher instance with id: ${matcher.getId()}")
         matcher
       }
-      // Fail fast
-      case e => Left(e)
+    }
+  }
+
+  def createSpellingInstance() = {
+    createInstanceWithDefaultRules(List.empty).map { instance =>
+      val collinsRule = new CollinsSpellerRule(
+        "apps/checker/conf/resources/dict/collins.dict",
+        "apps/checker/conf/resources/dict/spelling.txt",
+        language
+      )
+
+      instance.addRule(collinsRule)
+      instance.enableRule(collinsRule.getId())
+
+      new LanguageToolMatcher(instance)
     }
   }
 
@@ -92,13 +87,42 @@ class LanguageToolFactory(
 
   private def getLTRulesFromXML(rules: List[LTRuleXML]): Try[List[AbstractPatternRule]] = rules match {
     case Nil => Success(Nil)
-    case r => {
+    case _ => {
       val loader = new PatternRuleLoader()
       getXMLStreamFromLTRules(rules) flatMap {
         xmlStream => {
           Try(loader.getRules(xmlStream, "languagetool-generated-xml").asScala.toList)
         }
       }
+    }
+  }
+
+  private def createInstanceWithDefaultRules(defaultRuleIds: List[String]) = {
+    val cache: ResultCache = new ResultCache(10000)
+    val userConfig: UserConfig = new UserConfig()
+
+    val instance = new JLanguageTool(language, cache, userConfig)
+
+    maybeLanguageModelDir.foreach { languageModel =>
+      SuggestionsOrdererConfig.setNgramsPath(languageModel.toString)
+      if (useLanguageModelRules) instance.activateLanguageModelRules(languageModel)
+    }
+
+    // Disable all default rules ...
+    val allRuleIds = instance.getAllRules.asScala.map(_.getId())
+    allRuleIds.foreach(ruleId => instance.disableRule(ruleId))
+
+    // ... apart from those we'd explicitly like
+    val errors = defaultRuleIds.foldLeft(List.empty[Throwable])((acc, ruleId) =>
+      if (allRuleIds.contains(ruleId)) {
+        instance.enableRule(ruleId)
+        acc
+      } else new Exception(s"Attempted to enable a default rule with id ${ruleId}, but the rule was not available on the instance") :: acc
+    )
+
+    errors match {
+      case Nil => Right(instance)
+      case e => Left(e)
     }
   }
 

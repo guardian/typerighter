@@ -25,6 +25,7 @@ val commonSettings = Seq(
     "-J-XX:MaxMetaspaceSize=300m",
     "-J-XX:+PrintGCDetails",
     "-J-XX:+PrintGCDateStamps",
+    "-J-Xmx2G",
     s"-J-Dlogs.home=/var/log/${packageName.value}",
     s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
   ),

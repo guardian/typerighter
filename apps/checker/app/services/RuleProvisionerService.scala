@@ -29,26 +29,30 @@ class RuleProvisionerService(
   def updateRules(ruleResource: RuleResource, date: Date): Either[List[Throwable], Unit] = {
     matcherPool.removeAllMatchers()
 
-    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
-
-    val addedRulesErrors = ruleResource.rules.groupBy(_.category).toList.flatMap {
-      case (_, rules) => {
-        val regexRules = rules.collect { case r: RegexRule => r }
-        val ltRules = rules.collect { case r: LTRuleXML => r }
-
-        if (regexRules.size > 0) {
-          val regexMatcher = new RegexMatcher(regexRules)
-          matcherPool.addMatcher(regexMatcher)
-        }
-
-        if (ltRules.size > 0) addLTMatcherToPool(matcherPool, ltRules) else Nil
-      }
-    }
+//    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
+//
+//    val addedRulesErrors = ruleResource.rules.groupBy(_.category).toList.flatMap {
+//      case (_, rules) => {
+//        val regexRules = rules.collect { case r: RegexRule => r }
+//        val ltRules = rules.collect { case r: LTRuleXML => r }
+//
+//        if (regexRules.size > 0) {
+//          val regexMatcher = new RegexMatcher(regexRules)
+//          matcherPool.addMatcher(regexMatcher)
+//        }
+//
+//        if (ltRules.size > 0) addLTMatcherToPool(matcherPool, ltRules) else Nil
+//      }
+//    }
 
     lastModified = date
-    cloudWatchClient.putMetric(Metrics.RulesIngested ,matcherPool.getCurrentRules.size)
+    cloudWatchClient.putMetric(Metrics.RulesIngested, matcherPool.getCurrentRules.size)
 
-    defaultRulesErrors ++ addedRulesErrors match {
+
+    // languageToolFactory.createSpellingInstance().map(matcherPool.addMatcher)
+    matcherPool.addMatcher(new DictionaryMatcher(Category("DICTIONARY","Collins Dictionary"), "apps/checker/conf/resources/hunspell/example"))
+
+    List.empty match {
       case Nil => Right(())
       case e => Left(e)
     }

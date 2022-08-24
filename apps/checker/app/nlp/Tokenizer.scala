@@ -34,8 +34,8 @@ class Tokenizer() {
         .toList
         .foldLeft(List.empty[WordToken])((acc, token) =>
           extractValidWordToken(token) match {
-            case Some((word, from, to)) if (word.matches(".*['’].*")) =>
-              val (prevWord, prevFrom, prevTo) = acc.last
+            case Some((word, _, to)) if (word.matches(".*['’].*")) =>
+              val (prevWord, prevFrom, _) = acc.last
               acc.dropRight(1) :+ (prevWord + word, prevFrom, to)
             case Some(wordToken) =>
               acc :+ wordToken
