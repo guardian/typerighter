@@ -1513,7 +1513,7 @@ dpkg -i /tmp/package.deb",
         },
         "DeletionProtection": true,
         "Engine": "postgres",
-        "EngineVersion": "13.3",
+        "EngineVersion": "13",
         "MasterUserPassword": Object {
           "Fn::Join": Array [
             "",
