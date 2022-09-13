@@ -296,7 +296,7 @@ dpkg -i /tmp/package.deb`,
       autoMinorVersionUpgrade: true,
       backupRetention: Duration.days(10),
       engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_13_3,
+        version: PostgresEngineVersion.VER_13,
       }),
       instanceType: "t3.micro",
       instanceIdentifier: `typerighter-rule-manager-store-${this.stage}`,
