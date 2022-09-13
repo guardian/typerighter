@@ -1492,7 +1492,7 @@ dpkg -i /tmp/package.deb",
       "DeletionPolicy": "Snapshot",
       "Properties": Object {
         "AllocatedStorage": "50",
-        "AllowMajorVersionUpgrade": true,
+        "AllowMajorVersionUpgrade": false,
         "AutoMinorVersionUpgrade": true,
         "BackupRetentionPeriod": 10,
         "CopyTagsToSnapshot": true,
