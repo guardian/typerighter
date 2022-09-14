@@ -135,3 +135,5 @@ riffRaffArtifactResources := Seq(
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "cdk/cdk.out/typerighter.template.json" -> "typerighter-cloudformation/typerighter.template.json"
 )
+
+riffRaffManifestProjectName := s"Editorial Tools::Typerighter"
