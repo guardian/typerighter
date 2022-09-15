@@ -5,10 +5,11 @@ on: push
 
 jobs:
   security:
-    uses: guardian/.github/.github/workflows/sbt-node-snyk.yml@main
+    uses: guardian/.github/.github/workflows/sbt-node-snyk.yml@js/snyk-prune-dupes
     with:
       DEBUG: true
       ORG: guardian-test
       SKIP_NODE: false
+      PRUNE_DUPLICATES: true
     secrets:
        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
