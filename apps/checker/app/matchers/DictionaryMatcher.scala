@@ -1,15 +1,11 @@
 package matchers
 
-import model.{BaseRule, Category, HunspellRule, RuleMatch, TextBlock, TextSuggestion}
+import model.{BaseRule, Category, HunspellRule, RuleMatch, TextBlock, TextRange, TextSuggestion}
 import services.{MatcherRequest, Tokenizer}
 import utils.{Matcher, Text}
-import dk.dren.hunspell.Hunspell
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.collection.JavaConverters._
-import nlp.EntityFinder
-import nlp.NameEntity
-import nlp.DistanceHelpers
+import nlp.{DistanceHelpers, Entity, EntityFinder, NameEntity}
 
 object DictionaryMatcher {
   val hunspellMessage = "This word may be misspelled"
@@ -27,38 +23,43 @@ object DictionaryMatcher {
   *
   * Uses entity recognition to discover names and match them against known names.
   *
-  * Relies on a Hunspell dictionary for everything else.
+  * Relies on a Morfologik dictionary, via LanguageTool, for everything else.
   */
-class DictionaryMatcher(category: Category, pathToDictionary: String, names: Set[String] = Set.empty) extends Matcher {
+class DictionaryMatcher(category: Category, languageToolFactory: LanguageToolFactory, names: Set[String] = Set.empty) extends Matcher {
   val tokenizer = new Tokenizer()
   val entityFinder = new EntityFinder()
-  val hunspell: Hunspell = Hunspell.getInstance()
-  val dictionary: Hunspell#Dictionary = hunspell.getDictionary(pathToDictionary)
+  val ltInstance = languageToolFactory.createSpellingInstance() match {
+    case Left(error) => throw error.head
+    case Right(instance) => instance
+  }
 
-  def getType() = "hunspell"
+  def getType() = "dictionary"
 
   override def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    Future.successful(request.blocks.flatMap(checkText))
+    val (entities, nameMatches) = request.blocks.foldLeft((List.empty[Entity], List.empty[RuleMatch])) { (acc, block) =>
+      acc match {
+        case (accEntities, accNameMatches) =>
+          val entities = entityFinder.findNamesAndNonWordTokens(block.text, block.from)
+          val nameMatches = getMatchesForNameEntities(entities, names, block)
+          (accEntities ++ entities, accNameMatches ++ nameMatches)
+      }
+    }
+
+    ltInstance.check(MatcherRequest(request.blocks)).map { ruleMatches =>
+      // Remove any matches which intersect with entities.
+      val filteredMatches = ruleMatches.filter { ruleMatch =>
+        entities.forall { entity =>
+          TextRange(ruleMatch.fromPos, ruleMatch.toPos).getIntersection(TextRange(entity.from, entity.to)).isEmpty
+        }
+      }.map { _.copy(priority = 1) }
+
+      (nameMatches ++ filteredMatches).sortBy(_.fromPos)
+    }
   }
 
   override def getRules(): List[BaseRule] = List.empty // @todo -- placeholder
 
   override def getCategories(): Set[Category] = Set(category)
-
-  private def checkText(block: TextBlock): List[RuleMatch] = {
-    val words = tokenizer.tokenize(block.text)
-    val nameEntities = entityFinder.findNames((block.text))
-    val nameMatches = getMatchesForNameEntities(nameEntities, names, block)
-
-    val hunspellMatches = words.flatMap {
-      case wordToken@(word, from, to) if (shouldSpellcheckWord(wordToken, nameEntities) && dictionary.misspelled(word)) =>
-        val suggestions = dictionary.suggest(word).asScala.toList.map(TextSuggestion(_))
-        Some(getRuleMatch(word, from, to, suggestions, block))
-      case _ => None
-    }
-
-    (nameMatches ++ hunspellMatches).sortBy(_.fromPos)
-  }
 
   def getRuleMatch(word: String, from: Int, to: Int, suggestions: List[TextSuggestion], block: TextBlock, markAsCorrect: Boolean = false): RuleMatch = {
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, from, to)
@@ -78,28 +79,12 @@ class DictionaryMatcher(category: Category, pathToDictionary: String, names: Set
       },
       matchContext = Text.getMatchTextSnippet(precedingText, word, subsequentText),
       matcherType = this.getType(),
-      markAsCorrect = markAsCorrect
+      markAsCorrect = markAsCorrect,
+      priority = 1
     )
   }
 
-  // https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
-  private val emailRegex = """^[a-zA-Z0-9\.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"""
-  private val twitterHandleRegex = """@.*"""
-
-  private val doNotCheckList = List(emailRegex, twitterHandleRegex)
-
-  private def shouldSpellcheckWord(word: (String, Int, Int), names: List[NameEntity]): Boolean =
-    wordIsNotAName(word, names) &&
-    !doNotCheckList.exists(word._1.matches)
-
-  private def wordIsNotAName(word: (String, Int, Int), names: List[NameEntity]): Boolean =
-    names.forall { name =>
-      val nameLen = name.to - name.from
-      name.from > word._3 ||
-      name.from < word._2 && name.from + nameLen < word._2
-    }
-
-  private def getMatchesForNameEntities(nameEntities: List[NameEntity], names: Set[String], block: TextBlock): List[RuleMatch] =
+  private def getMatchesForNameEntities(nameEntities: List[Entity], names: Set[String], block: TextBlock): List[RuleMatch] =
     nameEntities.foldLeft(List.empty[RuleMatch])((matches, nameEntity) => {
       if (names.contains(nameEntity.text)) {
         matches :+ getRuleMatch(nameEntity.text, nameEntity.from, nameEntity.to, Nil, block, true)

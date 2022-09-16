@@ -17,7 +17,8 @@ class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
     "Jerzy Brzęczek",
     "Birling"
   )
-  val dictionaryMatcher = new DictionaryMatcher(category, "conf/resources/hunspell/example", exampleNames)
+  val ltFactory = new LanguageToolFactory(None, false)
+  val dictionaryMatcher = new DictionaryMatcher(category, ltFactory, exampleNames)
 
   def getBlocks(text: String, from: Int = 0) = List(TextBlock("text-block-id", text, from, from + text.length))
 

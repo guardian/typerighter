@@ -49,7 +49,9 @@ case class RuleMatch(rule: BaseRule,
                      replacement: Option[Suggestion] = None,
                      markAsCorrect: Boolean = false,
                      matchContext: String,
-                     matcherType: String) {
+                     matcherType: String,
+                     // If matches overlap, `priority` determines which match wins. 0 is highest.
+                     priority: Int = 0) {
   /**
     * Map the range this match applies to through the given ranges, adjusting its range accordingly.
     */

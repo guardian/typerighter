@@ -1,10 +1,9 @@
 package nlp
 
-import nlp.EntityFinder
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class EntityFinderTest extends AnyFlatSpec with Matchers {
+class NameEntityFinderTest extends AnyFlatSpec with Matchers {
   val entityFinder = new EntityFinder()
 
   behavior of "findNames"
@@ -13,7 +12,7 @@ class EntityFinderTest extends AnyFlatSpec with Matchers {
     val exampleText =
       "In an attempt to make a useful tool, Jonathon was trying out NLP."
     val expected = List(NameEntity(37, 45, "Jonathon"))
-    val actual = entityFinder.findNames(exampleText)
+    val actual = entityFinder.findNamesAndNonWordTokens(exampleText)
     expected should be(actual)
   }
 
@@ -21,7 +20,7 @@ class EntityFinderTest extends AnyFlatSpec with Matchers {
     val exampleText =
       "A sentence before the original sentence. In an attempt to make a useful tool, Jonathon was trying out NLP."
     val expected = List(NameEntity(78, 86, "Jonathon"))
-    val actual = entityFinder.findNames(exampleText)
+    val actual = entityFinder.findNamesAndNonWordTokens(exampleText)
     expected should be(actual)
   }
 
@@ -29,7 +28,7 @@ class EntityFinderTest extends AnyFlatSpec with Matchers {
     val exampleText =
       "The philosopher, Hubert Dreyfus, was smart, but also kindof crabby."
     val expected = List(NameEntity(17, 31, "Hubert Dreyfus"))
-    val actual = entityFinder.findNames(exampleText)
+    val actual = entityFinder.findNamesAndNonWordTokens(exampleText)
     expected should be(actual)
   }
 
@@ -43,7 +42,7 @@ class EntityFinderTest extends AnyFlatSpec with Matchers {
       NameEntity(54,67,"Immaneul Kant"),
       NameEntity(73,89,"Martin Heidegger")
     )
-    val actual = entityFinder.findNames(exampleText)
+    val actual = entityFinder.findNamesAndNonWordTokens(exampleText)
 
     expected should be(actual)
   }
@@ -56,7 +55,7 @@ class EntityFinderTest extends AnyFlatSpec with Matchers {
       NameEntity(0, 12, "Clare Gerada"),
       NameEntity(61, 73, "David Levene"),
     )
-    val actual = entityFinder.findNames(exampleText)
+    val actual = entityFinder.findNamesAndNonWordTokens(exampleText)
 
     expected should be(actual)
   }
