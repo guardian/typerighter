@@ -2,7 +2,7 @@ package nlp
 
 import java.util.Properties
 
-import edu.stanford.nlp.ling.CoreAnnotations.{NamedEntityTagAnnotation, LemmaAnnotation, PartOfSpeechAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
+import edu.stanford.nlp.ling.CoreAnnotations.{NamedEntityTagAnnotation, SentencesAnnotation, TextAnnotation, TokensAnnotation}
 import edu.stanford.nlp.ling.CoreLabel
 import edu.stanford.nlp.pipeline.{Annotation, StanfordCoreNLP}
 import edu.stanford.nlp.util.CoreMap
@@ -20,7 +20,11 @@ class EntityFinder() {
   val pipeline: StanfordCoreNLP = new StanfordCoreNLP(props)
 
   def findNames(text: String): List[NameEntity] = {
-    val document: Annotation = new Annotation(text)
+    // Strip some chars that aren't useful when detecting names:
+    // - '/' is sometimes used in captions (e.g. "David Levene/The Guardian"),
+    //   and results in "Levene/The" being treated as a single, non-entity token.
+    val cleanedText = text.replaceAll("/", " ")
+    val document: Annotation = new Annotation(cleanedText)
     pipeline.annotate(document)
 
     val sentences: List[CoreMap] = document.get(classOf[SentencesAnnotation]).asScala.toList
@@ -34,7 +38,7 @@ class EntityFinder() {
     }
 
     val (nameResults, _) = tokensAndEntities.foldLeft[(List[NameEntity], Option[(CoreLabel, String)])]((List.empty[NameEntity], None)) {
-      case ((nameResults, maybeLastTokenAndWord), (token, word, entity)) if (entity == "PERSON") => {
+      case ((nameResults, maybeLastTokenAndWord), (token, word, entity)) if entity == "PERSON" =>
         // If we have another token that represents a PERSON entity immediately
         // previous to this one, combine it. Assumption -- it seems very likely
         // that contiguous tokens identified as PERSON entities represent a name
@@ -46,8 +50,7 @@ class EntityFinder() {
         } else {
           (nameResults :+ NameEntity(token.beginPosition, token.endPosition, word), Some((token, word)))
         }
-      }
-      case ((nameResults, maybeLastTokenAndWord), _) => (nameResults, None)
+      case ((nameResults, _), _) => (nameResults, None)
     }
 
     nameResults

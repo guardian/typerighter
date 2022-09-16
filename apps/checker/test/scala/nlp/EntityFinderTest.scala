@@ -47,4 +47,17 @@ class EntityFinderTest extends AnyFlatSpec with Matchers {
 
     expected should be(actual)
   }
+
+  it should "handle names followed by slashes" in {
+    val exampleText =
+      "Clare Gerada as a recently qualified GP in 1992. Photograph: David Levene/The Guardian"
+
+    val expected = List(
+      NameEntity(0, 12, "Clare Gerada"),
+      NameEntity(61, 73, "David Levene"),
+    )
+    val actual = entityFinder.findNames(exampleText)
+
+    expected should be(actual)
+  }
 }
