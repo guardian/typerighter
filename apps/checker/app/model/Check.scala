@@ -35,4 +35,4 @@ object CheckResult {
   implicit val writes: Writes[CheckResult] = Json.writes[CheckResult]
 }
 
-case class CheckResult(categoryIds: Set[String], blocks: List[TextBlock], matches: List[RuleMatch])
+case class CheckResult(categoryIds: Set[String], blocks: List[TextBlock], matches: List[RuleMatch], percentageRequestComplete: Option[Float] = None)

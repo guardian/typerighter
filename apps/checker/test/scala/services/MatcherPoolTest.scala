@@ -420,4 +420,17 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       case Failure(e) => e.getMessage shouldBe errorMessage
     }
   }
+
+  it should "report on the percentage of completed jobs in each result" in {
+    val matchers = getMatchers(10)
+    matchers.foreach(_.completeWith(responses))
+
+    val pool = getPool(matchers)
+    val futureResult: Future[Seq[CheckResult]] = pool.checkStream(getCheck(text = "Example text")).runWith(Sink.seq)
+
+    futureResult map { result =>
+      val percentages = result.flatMap(_.percentageRequestComplete)
+      percentages shouldBe Seq(10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0)
+    }
+  }
 }
