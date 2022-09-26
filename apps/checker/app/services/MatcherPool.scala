@@ -1,24 +1,21 @@
 package services
 
-import java.util.concurrent.ConcurrentHashMap
-
-import net.logstash.logback.marker.Markers
-
-import scala.jdk.CollectionConverters._
-import scala.concurrent.{ExecutionContext, Future, Promise}
-import scala.util.{Failure, Success, Try}
-import scala.concurrent.duration._
-import model.{BaseRule, Category, Check, CheckResult, RuleMatch, TextBlock}
-import utils.{Matcher, RuleMatchHelpers}
+import akka.NotUsed
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import play.api.libs.concurrent.Futures
+import model._
+import net.logstash.logback.marker.Markers
 import play.api.Logging
-import utils.Timer
-import utils.CloudWatchClient
-import utils.Metrics
-import akka.NotUsed
+import play.api.libs.concurrent.Futures
+import utils._
+
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Success, Try}
 
 case class MatcherRequest(blocks: List[TextBlock])
 
@@ -95,10 +92,7 @@ class MatcherPool(
     * If no ids are assigned, use all the currently available matchers.
     */
   def check(query: Check): Future[CheckResult] = {
-    val categoryIds = query.categoryIds match {
-      case None => getCurrentCategories.map(_.id)
-      case Some(ids) => ids
-    }
+    val categoryIds = getCategoryIds(query)
 
     logger.info(s"Matcher pool query received")(query.toMarker)
 
@@ -123,23 +117,34 @@ class MatcherPool(
   }
 
   def checkStream(query: Check): Source[CheckResult, NotUsed] = {
-      val categoryIds = query.categoryIds match {
-        case None => getCurrentCategories.map(_.id)
-        case Some(ids) => ids
-      }
+      val categoryIds = getCategoryIds(query)
 
       logger.info(s"Validation job with id: ${query.requestId} received. Checking categories: ${categoryIds.mkString(", ")}")
 
       val jobs = createJobsFromPartialJobs(query.requestId, query.documentId.getOrElse("no-document-id"), checkStrategy(query.blocks, categoryIds))
-      logger.info(s"Created ${jobs.size} jobs")
+      val totalJobCount = jobs.size
+      val jobsCompleted = new AtomicInteger(0)
+
+      def percentageRequestComplete: Float = Math.round(jobsCompleted.floatValue() / totalJobCount * 100)
+
+      logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")
 
       val eventualResponses = jobs.map(offerJobToQueue)
       val responseStream = Source(eventualResponses).mapAsyncUnordered(1)(identity)
 
       responseStream.map {
-        case (job, matches) => CheckResult(job.categoryIds, job.blocks, matches)
+        case (job, matches) =>
+          jobsCompleted.incrementAndGet()
+          CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete))
       }
     }
+
+  def getCategoryIds(query: Check): Set[MatcherId] = {
+    query.categoryIds match {
+      case None => getCurrentCategories.map(_.id)
+      case Some(ids) => ids
+    }
+  }
 
   /**
     * Add a matcher to the pool of matchers.
