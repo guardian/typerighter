@@ -1,6 +1,6 @@
 package com.gu.typerighter.lib
 
-import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, AuthenticationStatus, GracePeriod, User}
+import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, AuthenticationStatus, Expired, GracePeriod, User}
 import com.gu.pandomainauth.{PanDomain, PublicKey, PublicSettings}
 import play.api.mvc._
 
@@ -40,6 +40,11 @@ trait PandaAuthentication extends BaseControllerHelpers with Loggable {
         case (Some(pk), Some(cookie)) =>
           authStatus(cookie, pk) match {
             case Authenticated(AuthenticatedUser(user, _, _, _, _)) =>
+              block(user, request).map(Right(_))(executionContext)
+            case GracePeriod(AuthenticatedUser(user, _, _, _, _)) =>
+              block(user, request).map(Right(_))(executionContext)
+            case Expired(AuthenticatedUser(user, _, _, _, _)) =>
+              log.info(s"User ${user.email} has made a request with an expired token")
               block(user, request).map(Right(_))(executionContext)
             case other =>
               log.info(s"Login response $other")
