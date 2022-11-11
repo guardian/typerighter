@@ -1,5 +1,6 @@
 package controllers
 
+import akka.stream.scaladsl.Sink
 import com.gu.pandomainauth.PublicSettings
 import model.Check
 import play.api.libs.json.{JsValue, Json}
@@ -7,8 +8,10 @@ import play.api.mvc._
 import services.MatcherPool
 import com.gu.typerighter.lib.PandaAuthentication
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import utils.Timer
+
+import scala.util.{Failure, Success}
 
 /**
   * The controller that handles API requests.
@@ -37,9 +40,17 @@ class ApiController(
   def checkStream = ApiAuthAction[JsValue](parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
-        val resultStream = matcherPool.checkStream(check).map(result => {
-          Json.toJson(result).toString() + 31.toChar
-        })
+        // A promise to let us listen for the end of the stream, and log when the request is complete.
+        val timerPromise = Promise[Unit]()
+        Timer.timeAsync("ApiController.checkStream", check.toMarker(request.user))(timerPromise.future)
+
+        val resultStream = matcherPool.checkStream(check)
+          .map(result => Json.toJson(result).toString() + 31.toChar)
+          .alsoTo(Sink.onComplete {
+            case Success(_) => timerPromise.complete(Success(()))
+            case Failure(ex) => timerPromise.failure(ex)
+          })
+
         Ok.chunked(resultStream).as("application/json-seq")
       case Left(error) => BadRequest(s"Invalid request: $error")
     }
