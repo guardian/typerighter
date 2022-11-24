@@ -10,9 +10,9 @@ ThisBuild / scalacOptions := Seq(
 
 val languageToolVersion = "5.1"
 val awsSdkVersion = "1.11.999"
-val capiModelsVersion = "17.1.1"
-val capiClientVersion = "17.23"
-val circeVersion = "0.12.3"
+val capiModelsVersion = "17.4.0"
+val capiClientVersion = "19.1.0"
+val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps"
@@ -43,11 +43,11 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
     "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-    "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
-    "com.gu" % "kinesis-logback-appender" % "1.4.4",
-    "com.gu" %% "simple-configuration-ssm" % "1.5.6",
-    "com.gu" %% "pan-domain-auth-verification" % "1.0.4",
+    "com.softwaremill.diffx" %% "diffx-scalatest" % "0.8.2" % Test,
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
+    "com.gu" % "kinesis-logback-appender" % "2.1.0",
+    "com.gu" %% "simple-configuration-ssm" % "1.5.7",
+    "com.gu" %% "pan-domain-auth-verification" % "1.2.0",
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",

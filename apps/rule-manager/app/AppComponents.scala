@@ -19,15 +19,15 @@ import controllers.HomeController
 import db.RuleManagerDB
 import utils.RuleManagerConfig
 
-class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
+class AppComponents(context: Context, region: String, identity: AppIdentity, creds: AWSCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with AssetsComponents
   with AhcWSComponents {
-  val config = new RuleManagerConfig(configuration, identity, creds)
+  val config = new RuleManagerConfig(configuration, region, identity, creds)
   val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
 
-  private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(AppIdentity.region).build()
+  private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).build()
   val stageDomain = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk"
