@@ -41,9 +41,9 @@ val commonSettings = Seq(
     )
   },
   libraryDependencies ++= Seq(
-    "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
+    "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-    "com.softwaremill.diffx" %% "diffx-scalatest" % "0.8.2" % Test,
+    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
     "com.gu" % "kinesis-logback-appender" % "2.1.0",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",

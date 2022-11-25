@@ -1,10 +1,8 @@
 package utils
 
-import model._
 import org.scalatest.flatspec.AnyFlatSpec
-import org.mockito.{ ArgumentMatchersSugar, IdiomaticMockito }
+import org.mockito.{ IdiomaticMockito }
 import org.scalatest.matchers.should.Matchers
-import com.softwaremill.diffx.scalatest.DiffMatcher._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext

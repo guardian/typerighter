@@ -3,7 +3,6 @@ package scala.model
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import com.softwaremill.diffx.scalatest.DiffMatcher._
 
 import utils.Text
 
