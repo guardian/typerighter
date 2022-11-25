@@ -102,7 +102,11 @@ val checker = (project in file(s"$appsFolder/checker"))
       "io.circe" %% "circe-parser"
     ).map(_ % circeVersion),
     libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it"
+    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
+    dependencyOverrides ++= Seq(
+      // Necessary to ensure that LanguageTool gets the correct version of Guava.
+      "com.google.guava" % "guava" % "30.1-jre"
+    )
   )
 
 val ruleManager = (project in file(s"$appsFolder/rule-manager"))
