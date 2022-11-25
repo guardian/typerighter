@@ -13,6 +13,7 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import com.gu.AwsIdentity
 import com.gu.conf.SSMConfigurationLocation
 import com.gu.conf.ConfigurationLoader
+import com.gu.typerighter.lib.AppSetup
 import play.api.Mode.Dev
 
 
@@ -22,30 +23,13 @@ class AppLoader extends ApplicationLoader {
       _.configure(context.environment, context.initialConfiguration, Map.empty)
     }
 
-    val region = context.initialConfiguration.getOptional[String]("aws.region").getOrElse("eu-west-1")
-
-    val creds: AWSCredentialsProvider = context.environment.mode match {
-      case Dev => new ProfileCredentialsProvider("composer")
-      case _ => DefaultAWSCredentialsProviderChain.getInstance
-    }
-
-    val credsV2: AwsCredentialsProviderV2 = context.environment.mode match {
-      case Dev => ProfileCredentialsProviderV2.create("composer")
-      case _ => DefaultCredentialsProviderV2.create()
-    }
-
-    val identity = AppIdentity.whoAmI(defaultAppName = "typerighter-rule-manager", credsV2).get
-
-    val loadedConfig = ConfigurationLoader.load(identity, credsV2) {
-      case identity: AwsIdentity => SSMConfigurationLocation.default(identity)
-      case development: DevIdentity => SSMConfigurationLocation(s"/DEV/flexible/${development.app}", region)
-    }
+    val appSetup = AppSetup(context)
 
     new AppComponents(
-      context.copy(initialConfiguration = Configuration(loadedConfig).withFallback(context.initialConfiguration)),
-      region,
-      identity,
-      creds
+      context.copy(initialConfiguration = Configuration(appSetup.config).withFallback(context.initialConfiguration)),
+      appSetup.region,
+      appSetup.identity,
+      appSetup.creds
     ).application
   }
 }

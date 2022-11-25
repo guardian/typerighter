@@ -21,7 +21,6 @@ import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 import utils.CheckerConfig
 
-
 class AppComponents(context: Context, region: String, identity: AppIdentity, creds: AWSCredentialsProvider, credsV2: AwsCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
