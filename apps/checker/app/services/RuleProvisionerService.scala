@@ -14,6 +14,8 @@ import model.LTRuleXML
 import utils.CloudWatchClient
 import utils.Metrics
 
+import scala.util.Success
+
 class RuleProvisionerService(
   bucketRuleManager: BucketRuleManager,
   matcherPool: MatcherPool,
@@ -28,32 +30,29 @@ class RuleProvisionerService(
     */
   def updateRules(ruleResource: RuleResource, date: Date): Either[List[Throwable], Unit] = {
     matcherPool.removeAllMatchers()
-
-    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
-
-    val addedRulesErrors = ruleResource.rules.groupBy(_.category).toList.flatMap {
-      case (_, rules) => {
-        val regexRules = rules.collect { case r: RegexRule => r }
-        val ltRules = rules.collect { case r: LTRuleXML => r }
-
-        if (regexRules.size > 0) {
-          val regexMatcher = new RegexMatcher(regexRules)
-          matcherPool.addMatcher(regexMatcher)
-        }
-
-        if (ltRules.size > 0) addLTMatcherToPool(matcherPool, ltRules) else Nil
-      }
-    }
-
-    lastModified = date
-    cloudWatchClient.putMetric(Metrics.RulesIngested, matcherPool.getCurrentRules.size)
+//
+//    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
+//
+//    val addedRulesErrors = ruleResource.rules.groupBy(_.category).toList.flatMap {
+//      case (_, rules) => {
+//        val regexRules = rules.collect { case r: RegexRule => r }
+//        val ltRules = rules.collect { case r: LTRuleXML => r }
+//
+//        if (regexRules.size > 0) {
+//          val regexMatcher = new RegexMatcher(regexRules)
+//          matcherPool.addMatcher(regexMatcher)
+//        }
+//
+//        if (ltRules.size > 0) addLTMatcherToPool(matcherPool, ltRules) else Nil
+//      }
+//    }
+//
+//    lastModified = date
+//    cloudWatchClient.putMetric(Metrics.RulesIngested, matcherPool.getCurrentRules.size)
 
     matcherPool.addMatcher(new DictionaryMatcher(Category("DICTIONARY","Collins Dictionary"), languageToolFactory))
 
-    defaultRulesErrors ++ addedRulesErrors match {
-      case Nil => Right(())
-      case e => Left(e)
-    }
+    Right(())
   }
 
   /**
