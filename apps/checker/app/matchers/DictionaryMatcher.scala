@@ -9,7 +9,7 @@ import nlp.{DistanceHelpers, Entity, EntityFinder, NameEntity}
 
 object DictionaryMatcher {
   val hunspellMessage = "This word may be misspelled"
-  val hunspellRule = (word: String) => HunspellRule(
+  val dictionaryRule = (word: String) => HunspellRule(
     s"hunspell-rule-${word}",
     Category("spelling", "Spelling"),
     hunspellMessage,
@@ -36,24 +36,33 @@ class DictionaryMatcher(category: Category, languageToolFactory: LanguageToolFac
   def getType() = "dictionary"
 
   override def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val (entities, nameMatches) = request.blocks.foldLeft((List.empty[Entity], List.empty[RuleMatch])) { (acc, block) =>
-      acc match {
-        case (accEntities, accNameMatches) =>
-          val entities = entityFinder.findNamesAndNonWordTokens(block.text, block.from)
-          val nameMatches = getMatchesForNameEntities(entities, names, block)
-          (accEntities ++ entities, accNameMatches ++ nameMatches)
+    val eventuallyEntities = Future {
+      request.blocks.foldLeft((List.empty[Entity], List.empty[RuleMatch])) { (acc, block) =>
+        acc match {
+          case (accEntities, accNameMatches) =>
+            val entities = entityFinder.findNamesAndNonWordTokens(block.text, block.from)
+            val nameMatches = getMatchesForNameEntities(entities, names, block)
+            (accEntities ++ entities, accNameMatches ++ nameMatches)
+        }
       }
     }
 
-    ltInstance.check(MatcherRequest(request.blocks)).map { ruleMatches =>
+    val eventuallyMatches = ltInstance.check(MatcherRequest(request.blocks))
+
+    for {
+      (entities, nameMatches) <- eventuallyEntities
+      ruleMatches <- eventuallyMatches
+    } yield {
       // Remove any matches which intersect with entities.
       val filteredMatches = ruleMatches.filter { ruleMatch =>
-        entities.forall { entity =>
-          TextRange(ruleMatch.fromPos, ruleMatch.toPos).getIntersection(TextRange(entity.from, entity.to)).isEmpty
-        }
-      }.map { _.copy(priority = 1) }
+          entities.forall { entity =>
+            TextRange(ruleMatch.fromPos, ruleMatch.toPos).getIntersection(TextRange(entity.from, entity.to)).isEmpty
+          }
+      }.map {
+        _.copy(priority = 1)
+      }
 
-      (nameMatches ++ filteredMatches).sortBy(_.fromPos)
+      (filteredMatches ++ nameMatches).sortBy(_.fromPos)
     }
   }
 
@@ -64,7 +73,7 @@ class DictionaryMatcher(category: Category, languageToolFactory: LanguageToolFac
   def getRuleMatch(word: String, from: Int, to: Int, suggestions: List[TextSuggestion], block: TextBlock, markAsCorrect: Boolean = false): RuleMatch = {
     val (precedingText, subsequentText) = Text.getSurroundingText(block.text, from, to)
     RuleMatch(
-      rule = DictionaryMatcher.hunspellRule(word),
+      rule = DictionaryMatcher.dictionaryRule(word),
       fromPos = from + block.from,
       toPos = to + block.from,
       precedingText = precedingText,
