@@ -5,15 +5,16 @@ import com.gu.AppIdentity
 import com.gu.AwsIdentity
 import com.gu.DevIdentity
 import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.regions.Region
 
 /**
   * A class to store configuration that's common across projects.
   *
   * Fails fast with an exception if properties aren't found.
   */
-abstract class CommonConfig(playConfig: Configuration, identity: AppIdentity, credentials: AWSCredentialsProvider) {
+abstract class CommonConfig(playConfig: Configuration, region: String, identity: AppIdentity, credentials: AWSCredentialsProvider) {
   val awsCredentials = credentials
-  val awsRegion = playConfig.getOptional[String]("aws.region").getOrElse("eu-west-1")
+  val awsRegion = region
   val loggingStreamName = playConfig.getOptional[String]("typerighter.loggingStreamName")
 
   val permissionsBucket = playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")

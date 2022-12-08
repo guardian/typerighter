@@ -3,7 +3,8 @@ package matchers
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import com.softwaremill.diffx.scalatest.DiffMatcher._
+import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
+import com.softwaremill.diffx.generic.auto._
 
 import services.MatcherRequest
 import utils.Text
@@ -66,7 +67,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       MatcherRequest(getBlocks(sampleText))
     )
     eventuallyMatches.map { matches =>
-      matches should matchTo(List(
+      matches shouldMatchTo(List(
         getMatch("text", 8, 12, "example ", " is here")
       ))
     }
@@ -102,7 +103,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       MatcherRequest(getBlocks(sampleText))
     )
     eventuallyMatches.map { matches =>
-      matches should matchTo(List(
+      matches shouldMatchTo(List(
         getMatch("text", 121, 125, before, after)
       ))
     }
@@ -113,7 +114,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       MatcherRequest(getBlocks("text text text"))
     )
     eventuallyMatches.map { matches =>
-      matches should matchTo(List(
+      matches shouldMatchTo(List(
         getMatch("text", 0, 4, "", " text text"),
         getMatch("text", 5, 9, "text ", " text"),
         getMatch("text", 10, 14, "text text ", "")
@@ -129,9 +130,9 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     )
     eventuallyMatches.map { matches =>
       matches.size shouldBe 3
-      matches(0) should matchTo(getMatch("ton", 5, 8, "tone ", " goto", overlapRules(1)))
-      matches(1) should matchTo(getMatch("one", 1, 4, "t", " ton goto", overlapRules(2)))
-      matches(2) should matchTo(getMatch("got", 9, 12, "tone ton ", "o", overlapRules(3)))
+      matches(0) shouldMatchTo(getMatch("ton", 5, 8, "tone ", " goto", overlapRules(1)))
+      matches(1) shouldMatchTo(getMatch("one", 1, 4, "t", " ton goto", overlapRules(2)))
+      matches(2) shouldMatchTo(getMatch("got", 9, 12, "tone ton ", "o", overlapRules(3)))
     }
   }
 
@@ -153,7 +154,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       matches.size shouldBe 1
       val expectedReplacement = Some("teapot")
       val expectedMatch = getMatch("tea pot", 13, 20, "I'm a little ", "", rule, expectedReplacement)
-      matches(0) should matchTo(expectedMatch)
+      matches(0) shouldMatchTo(expectedMatch)
       matches(0).markAsCorrect shouldBe false
     }
   }
@@ -176,7 +177,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       matches.size shouldBe 1
       val expectedReplacement = Some("teapot")
       val expectedMatch = getMatch("teapot", 13, 19, "I'm a little ", "", rule, expectedReplacement, markAsCorrect = true)
-      matches(0) should matchTo(expectedMatch)
+      matches(0) shouldMatchTo(expectedMatch)
     }
   }
 
@@ -219,7 +220,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       matches.size shouldBe 1
       val expectedReplacement = Some("nine-month-long")
       val expectedMatch = getMatch("nine month long", 2, 17, "A ", " sabbatical", rule, expectedReplacement)
-      matches(0) should matchTo(expectedMatch)
+      matches(0) shouldMatchTo(expectedMatch)
     }
   }
 

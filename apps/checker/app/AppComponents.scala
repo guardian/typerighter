@@ -1,4 +1,5 @@
 import com.amazonaws.auth.AWSCredentialsProvider
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.pandomainauth.PublicSettings
@@ -20,8 +21,7 @@ import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 import utils.CheckerConfig
 
-
-class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentialsProvider)
+class AppComponents(context: Context, region: String, identity: AppIdentity, creds: AWSCredentialsProvider, credsV2: AwsCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with CORSComponents
@@ -31,11 +31,11 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
 
   override def httpFilters: Seq[EssentialFilter] = corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
-  val config = new CheckerConfig(configuration, identity, creds)
+  val config = new CheckerConfig(configuration, region, identity, creds)
 
   // initialise log shipping if we are in AWS
-  private val logShipping = Some(identity).collect{ case awsIdentity: AwsIdentity =>
-    new ElkLogging(awsIdentity, config.loggingStreamName, creds, applicationLifecycle)
+  Some(identity).collect { case awsIdentity: AwsIdentity =>
+    new ElkLogging(awsIdentity, config.loggingStreamName, credsV2, applicationLifecycle)
   }
 
   val languageToolFactory = new LanguageToolFactory(config.ngramPath, true)
@@ -43,7 +43,11 @@ class AppComponents(context: Context, identity: AppIdentity, creds: AWSCredentia
   val guardianContentClient = GuardianContentClient(config.capiApiKey)
   val contentClient = new ContentClient(guardianContentClient)
 
-  private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).withRegion(AppIdentity.region).build()
+  private val s3Client = AmazonS3ClientBuilder
+    .standard()
+    .withCredentials(creds)
+    .withRegion(region)
+    .build()
 
   val settingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"

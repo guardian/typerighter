@@ -8,11 +8,11 @@ ThisBuild / scalacOptions := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
 
-val languageToolVersion = "5.1"
+val languageToolVersion = "5.9"
 val awsSdkVersion = "1.11.999"
-val capiModelsVersion = "17.1.1"
-val capiClientVersion = "17.23"
-val circeVersion = "0.12.3"
+val capiModelsVersion = "17.4.0"
+val capiClientVersion = "19.1.0"
+val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps"
@@ -41,13 +41,13 @@ val commonSettings = Seq(
     )
   },
   libraryDependencies ++= Seq(
-    "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
+    "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-    "com.softwaremill.diffx" %% "diffx-scalatest" % "0.3.29" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.16.2",
-    "com.gu" % "kinesis-logback-appender" % "1.4.4",
-    "com.gu" %% "simple-configuration-ssm" % "1.5.6",
-    "com.gu" %% "pan-domain-auth-verification" % "1.0.4",
+    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
+    "com.gu" % "kinesis-logback-appender" % "2.1.0",
+    "com.gu" %% "simple-configuration-ssm" % "1.5.7",
+    "com.gu" %% "pan-domain-auth-verification" % "1.2.0",
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
@@ -92,9 +92,11 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "edu.stanford.nlp" % "stanford-corenlp" % "3.4",
-      "edu.stanford.nlp" % "stanford-corenlp" % "3.4" classifier "models",
-      "edu.stanford.nlp" % "stanford-parser" % "3.4",
+      // We exclude `xom`, which has a critical vulnerability,
+      // as we do not use the parts of corenlp that depend on it.
+      "edu.stanford.nlp" % "stanford-corenlp" % "3.9.2" exclude("com.io7m.xom", "xom"),
+      "edu.stanford.nlp" % "stanford-corenlp" % "3.9.2" classifier "models" exclude("com.io7m.xom", "xom"),
+      "edu.stanford.nlp" % "stanford-parser" % "3.9.2",
     ),
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core",
@@ -102,7 +104,11 @@ val checker = (project in file(s"$appsFolder/checker"))
       "io.circe" %% "circe-parser"
     ).map(_ % circeVersion),
     libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it"
+    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
+    dependencyOverrides ++= Seq(
+      // Necessary to ensure that LanguageTool gets the correct version of Guava.
+      "com.google.guava" % "guava" % "30.1-jre"
+    )
   )
 
 val ruleManager = (project in file(s"$appsFolder/rule-manager"))
@@ -117,12 +123,12 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.2.5",
+      "org.postgresql" % "postgresql" % "42.5.1",
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
-      "com.gu" %% "pan-domain-auth-play_2-8" % "1.0.6",
+      "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.0",
       "com.gu" %% "editorial-permissions-client" % "2.14"
     )
   )

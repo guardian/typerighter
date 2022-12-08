@@ -4,16 +4,15 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import model._
 import org.scalatest.time.SpanSugar._
-import com.softwaremill.diffx.scalatest.DiffMatcher._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
+import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
+import com.softwaremill.diffx.generic.auto._
 import utils.Matcher
-
 import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.Failure
 import scala.util.Success
 import play.api.libs.concurrent.DefaultFutures
-
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.Future
 
@@ -178,7 +177,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futureResult = pool.check(getCheck(text = "Example text"))
     futureResult.map { result =>
       result.matches shouldBe responses
-      result.categoryIds should matchTo(Set(getCategory(0).id))
+      result.categoryIds shouldMatchTo(Set(getCategory(0).id))
     }
   }
 
@@ -274,7 +273,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     futureResult.map { result =>
       result.matches.contains(firstMatch.head) shouldBe true
       result.matches.contains(secondMatch.head) shouldBe true
-      result.categoryIds should matchTo(expectedCategories)
+      result.categoryIds shouldMatchTo(expectedCategories)
     }
   }
 
@@ -300,8 +299,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers(0).completeWith(firstMatch)
     matchers(1).completeWith(secondMatch)
     futureResult.map { result =>
-      result.matches.size should matchTo(1)
-      result.matches should matchTo(secondMatch)
+      result.matches.size shouldMatchTo(1)
+      result.matches shouldMatchTo(secondMatch)
     }
   }
 
