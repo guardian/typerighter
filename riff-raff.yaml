@@ -5,14 +5,10 @@ regions:
 deployments:
   typerighter-checker:
     type: autoscaling
-    parameters:
-      bucket: composer-dist
     dependencies:
     - typerighter-cloudformation
   typerighter-rule-manager:
     type: autoscaling
-    parameters:
-      bucket: composer-dist
     dependencies:
     - typerighter-cloudformation
   typerighter-cloudformation:
