@@ -8,10 +8,9 @@ import play.api.Logging
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import model.{RegexRule, BaseRule, Category, RuleResource}
+import model.{RegexRule, RuleResource}
 import rules.BucketRuleManager
 import matchers.LanguageToolFactory
-import model.LTRule
 import model.LTRuleXML
 import utils.CloudWatchClient
 import utils.Metrics
@@ -76,7 +75,7 @@ class RuleProvisionerService(
       case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket()
       case Right(_) => logger.info("No rule update needed")
       case Left(error) => {
-        logger.error("Could not get last modified from S3")
+        logger.error("Could not get last modified from S3", error)
         cloudWatchClient.putMetric(Metrics.RulesNotFound)
       }
     }

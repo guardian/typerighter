@@ -35,7 +35,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
 
   // initialise log shipping if we are in AWS
   Some(identity).collect { case awsIdentity: AwsIdentity =>
-    new ElkLogging(awsIdentity, config.loggingStreamName, credsV2, applicationLifecycle)
+    new ElkLogging(awsIdentity, config.loggingStreamName, credsV2)
   }
 
   val languageToolFactory = new LanguageToolFactory(config.ngramPath, true)
@@ -64,8 +64,8 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val typerighterBucket = s"typerighter-app-${stage}"
 
   val cloudWatchClient = identity match {
-    case identity: AwsIdentity => new CloudWatchClient(stage, false)
-    case _ : DevIdentity => new CloudWatchClient(stage, true)
+    case _: AwsIdentity => new CloudWatchClient(stage, false)
+    case _: DevIdentity => new CloudWatchClient(stage, true)
   }
 
   val matcherPoolDispatcher = actorSystem.dispatchers.lookup("matcher-pool-dispatcher")
@@ -75,10 +75,10 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket, stage)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)
 
-  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId, matcherPool, languageToolFactory)
+  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
-  val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, config.spreadsheetId, ruleProvisioner, publicSettings)
+  val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, ruleProvisioner, publicSettings)
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
   val capiProxyController = new CapiProxyController(controllerComponents, contentClient, publicSettings)

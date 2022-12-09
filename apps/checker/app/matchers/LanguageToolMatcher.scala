@@ -27,7 +27,7 @@ class LanguageToolFactory(
                            maybeLanguageModelDir: Option[File],
                            useLanguageModelRules: Boolean = false) extends Logging {
 
-  def createInstance(ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit ec: ExecutionContext): Either[List[Throwable], Matcher] = {
+  def createInstance(ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil): Either[List[Throwable], Matcher] = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
     val userConfig: UserConfig = new UserConfig()
@@ -92,14 +92,13 @@ class LanguageToolFactory(
 
   private def getLTRulesFromXML(rules: List[LTRuleXML]): Try[List[AbstractPatternRule]] = rules match {
     case Nil => Success(Nil)
-    case r => {
+    case _ =>
       val loader = new PatternRuleLoader()
       getXMLStreamFromLTRules(rules) flatMap {
         xmlStream => {
           Try(loader.getRules(xmlStream, "languagetool-generated-xml").asScala.toList)
         }
       }
-    }
   }
 
   /**

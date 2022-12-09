@@ -9,7 +9,7 @@ import com.gu.typerighter.lib.PandaAuthentication
 import services.ContentClient
 
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class CapiProxyController(cc: ControllerComponents, contentClient: ContentClient, val publicSettings: PublicSettings)(implicit ec: ExecutionContext)
   extends AbstractController(cc) with PandaAuthentication {

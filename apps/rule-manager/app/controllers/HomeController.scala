@@ -1,12 +1,9 @@
 package controllers
 
-import play.api._
 import play.api.mvc._
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
-import com.gu.pandomainauth.PublicSettings
-import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.lib.Loggable
 
 import _root_.db.RuleManagerDB
@@ -26,11 +23,9 @@ class HomeController(
   with AppAuthActions
   with PermissionsHandler {
 
-  def index() = AuthAction { implicit request: Request[AnyContent] =>
-    Ok(views.html.index())
-  }
+  def index() = AuthAction { Ok(views.html.index()) }
 
-  def healthcheck() = Action { implicit request: Request[AnyContent] =>
+  def healthcheck() = Action {
     try {
       db.connectionHealthy()
       Ok(Json.obj("healthy" -> true))

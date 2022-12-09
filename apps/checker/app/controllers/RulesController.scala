@@ -7,8 +7,6 @@ import play.api.mvc._
 import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
 
-import scala.concurrent.ExecutionContext
-
 /**
  * The controller that handles the management of matcher rules.
  */
@@ -17,10 +15,9 @@ class RulesController(
   matcherPool: MatcherPool,
   sheetsRuleManager: SheetsRuleManager,
   bucketRuleManager: BucketRuleManager,
-  sheetId: String,
   ruleProvisioner: RuleProvisionerService,
   val publicSettings: PublicSettings
-)(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
+) extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
     sheetsRuleManager.getRules().flatMap { ruleResource =>
       val maybeRules = bucketRuleManager.putRules(ruleResource).flatMap { _ =>
@@ -37,7 +34,6 @@ class RulesController(
         }
         val currentRules = matcherPool.getCurrentRules
         Ok(views.html.rules(
-            sheetId,
             currentRules,
             matcherPool.getCurrentMatchers,
             Some(true),
@@ -47,7 +43,6 @@ class RulesController(
       }
       case Left(errors) => {
         Ok(views.html.rules(
-          sheetId,
           matcherPool.getCurrentRules,
           matcherPool.getCurrentMatchers,
           Some(false),
@@ -58,11 +53,10 @@ class RulesController(
     }
   }
 
-  def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def rules = ApiAuthAction { request: Request[AnyContent] =>
     Ok(views.html.rules(
-      sheetId,
       matcherPool.getCurrentRules,
       matcherPool.getCurrentMatchers
-    ))
+    )(request))
   }
 }

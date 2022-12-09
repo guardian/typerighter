@@ -1,6 +1,6 @@
 package model
 
-import play.api.libs.json.{Json, Reads}
+import play.api.libs.json.Json
 
 object TextRange {
   implicit val reads = Json.reads[TextRange]
@@ -41,7 +41,7 @@ case class TextRange(from: Int, to: Int) {
     // is placed beyond the last position the range occupies.
     val charsAddedBeforeFrom = if (addedRange.from <= this.from) { addedRange.length + 1 } else 0
     val charsAddedBeforeTo = this.getIntersection(addedRange) match {
-      case Some(intersection) => addedRange.length + 1
+      case Some(_) => addedRange.length + 1
       case None => charsAddedBeforeFrom
     }
 

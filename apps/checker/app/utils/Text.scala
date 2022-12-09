@@ -1,7 +1,5 @@
 package utils
 
-import model.{RuleMatch, TextBlock, TextRange}
-
 object Text {
   def getSurroundingText(text: String, from: Int, to: Int): (String, String) = {
     val buffer = 100

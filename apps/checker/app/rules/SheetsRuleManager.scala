@@ -10,13 +10,8 @@ import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 import model.{Category, RegexRule, TextSuggestion}
 
 import scala.jdk.CollectionConverters._
-import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
-import model.{LTRule, BaseRule, RuleResource}
-import scala.concurrent.ExecutionContext
-import services.MatcherPool
-import matchers.RegexMatcher
-import matchers.LanguageToolFactory
+import model.{BaseRule, RuleResource}
 import play.api.Logging
 import model.LTRuleXML
 
@@ -37,7 +32,7 @@ object PatternRuleCols {
   * @param credentialsJson A string containing the JSON the Google credentials service expects
   * @param spreadsheetId Available in the sheet URL
   */
-class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherPool: MatcherPool, languageToolFactory: LanguageToolFactory) extends Logging {
+class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends Logging {
   private val APPLICATION_NAME = "Typerighter"
   private val JSON_FACTORY = JacksonFactory.getDefaultInstance
 
@@ -49,27 +44,27 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherP
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
+  def getRules(): Either[List[String], RuleResource] = {
     val maybeRules = getPatternRules()
     val maybeLTRuleIds = getLanguageToolDefaultRuleIds()
 
     (maybeRules, maybeLTRuleIds) match {
       case (Right(rules), Right(ltRules)) => Right(RuleResource(rules, ltRules))
-      case (mamaybeRules, maybeLt) => Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRules.left.getOrElse(Nil))
+      case _ => Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRules.left.getOrElse(Nil))
     }
   }
 
   /**
     * Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
     */
-  private def getPatternRules()(implicit ec: ExecutionContext): Either[List[String], List[BaseRule]] = {
+  private def getPatternRules(): Either[List[String], List[BaseRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
   /**
     * Get the rule ids of the LanguageTool rules we'd like to enable.
     */
-  private def getLanguageToolDefaultRuleIds()(implicit ec: ExecutionContext): Either[List[String], List[String]] = {
+  private def getLanguageToolDefaultRuleIds(): Either[List[String], List[String]] = {
     getRulesFromSheet("languagetoolRules", "A:C", getLTRuleFromRow)
   }
 

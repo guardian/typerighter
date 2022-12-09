@@ -10,7 +10,6 @@ import com.gu.AwsIdentity
 import com.gu.logback.appender.kinesis.KinesisAppender
 import net.logstash.logback.layout.LogstashLayout
 import org.slf4j.{LoggerFactory, Logger => SLFLogger}
-import play.api.inject.ApplicationLifecycle
 import play.api.libs.json.{Json => PlayJson}
 import typerighter.BuildInfo
 
@@ -18,8 +17,7 @@ import scala.util.control.NonFatal
 
 class ElkLogging(identity: AwsIdentity,
                  maybeLoggingStreamName: Option[String],
-                 awsCredentialsProvider: AwsCredentialsProvider,
-                 applicationLifecycle: ApplicationLifecycle) extends Loggable {
+                 awsCredentialsProvider: AwsCredentialsProvider) extends Loggable {
   def getContextTags(identity: AwsIdentity): Map[String, String] = {
     val effective = Map(
       "app" -> identity.app,
@@ -95,7 +93,7 @@ class ElkLogging(identity: AwsIdentity,
         val rootLogger = getRootLogger
         rootLogger.addAppender(asyncAppender)
       } catch {
-        case e: JoranException => // ignore, errors will be printed below
+        case _: JoranException => // ignore, errors will be printed below
       }
 
       StatusPrinter.printInCaseOfErrorsOrWarnings(getLoggerContext)

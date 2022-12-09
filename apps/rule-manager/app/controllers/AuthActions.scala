@@ -4,8 +4,6 @@ import com.gu.pandomainauth.PanDomain
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import com.gu.typerighter.lib.Loggable
-import org.slf4j.LoggerFactory
-import play.api.{Configuration}
 import com.gu.typerighter.lib.CommonConfig
 
 trait AppAuthActions extends AuthActions with Loggable {

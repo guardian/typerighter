@@ -125,7 +125,7 @@ class MatcherPool(
       val totalJobCount = jobs.size
       val jobsCompleted = new AtomicInteger(0)
 
-      def percentageRequestComplete: Float = Math.round(jobsCompleted.floatValue() / totalJobCount * 100)
+      def percentageRequestComplete: Float = Math.round(jobsCompleted.floatValue() / totalJobCount * 100).toFloat
 
       logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")
 
@@ -279,7 +279,7 @@ class MatcherPool(
     val matchesByCategory = matches.groupBy(_.rule.category.id).toList
 
     val sortedMatches = matchesByCategory.sortBy {
-      case (categoryId, matches) => categoryId
+      case (categoryId, _) => categoryId
     }
 
     sortedMatches.foldLeft(List.empty[RuleMatch])(

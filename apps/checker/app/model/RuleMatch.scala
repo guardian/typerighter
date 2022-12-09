@@ -4,7 +4,6 @@ import org.languagetool.rules.{RuleMatch => LTRuleMatch}
 import play.api.libs.json.{Json, Writes}
 
 import scala.jdk.CollectionConverters._
-import scala.util.matching.Regex
 
 import utils.Text
 
