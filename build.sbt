@@ -5,8 +5,19 @@ ThisBuild / organization := "com.gu"
 ThisBuild / scalaVersion := "2.13.7"
 ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
-  "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
-  "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
+  "-encoding",
+  "UTF-8",
+  "-target:jvm-1.8",
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-language:implicitConversions",
+  "-language:postfixOps",
+  "-Ywarn-unused",
+  "-Xfatal-warnings",
+  // https://github.com/playframework/twirl/issues/105
+  "-Wconf:src=twirl/.*:s",
+)
 
 val languageToolVersion = "5.9"
 val awsSdkVersion = "1.11.999"
