@@ -15,7 +15,7 @@ class TimerTest extends AnyFlatSpec with Matchers with IdiomaticMockito {
   behavior of "time"
 
   it should "not call `onSlowLog` when a task does not exceed its slow log threshold" in {
-    val mockFunction = spyLambda((d: Long) => ())
+    val mockFunction = spyLambda((_: Long) => ())
 
     Timer.time(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction){}
 
@@ -36,7 +36,7 @@ class TimerTest extends AnyFlatSpec with Matchers with IdiomaticMockito {
   behavior of "timeAsync"
 
   it should "not call `onSlowLog` when a task does not exceed its slow log threshold" in {
-    val mockFunction = spyLambda((d: Long) => ())
+    val mockFunction = spyLambda((_: Long) => ())
 
     Timer.timeAsync(taskName = "task", slowLogThresholdMs = 100, onSlowLog = mockFunction){
       Future.successful(())

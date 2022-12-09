@@ -5,8 +5,6 @@ import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import utils.Text
-
 class RuleMatchTest extends AsyncFlatSpec with Matchers {
   def getRuleMatch(from: Int, to: Int) = RuleMatch(
     rule = RegexRule(

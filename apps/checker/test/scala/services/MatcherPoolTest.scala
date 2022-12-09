@@ -78,7 +78,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private implicit val ec = ExecutionContext.global
   private implicit val system = ActorSystem()
 
-  private def getResponseRule(id: Int = 0) = RegexRule(
+  private def getResponseRule(id: Int) = RegexRule(
     id = "test-rule",
     description = "test-description",
     category = getCategory(id),
@@ -105,7 +105,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futures = new DefaultFutures(system)
     val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, checkTimeoutDuration = checkTimeoutDuration)
     matchers.zipWithIndex.foreach {
-      case (matcher, index) => pool.addMatcher(matcher)
+      case (matcher, _) => pool.addMatcher(matcher)
     }
     pool
   }

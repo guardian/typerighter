@@ -1,13 +1,13 @@
 package db
 
 import scalikejdbc.scalatest.AutoRollback
-import org.scalatest.fixture.FlatSpec
+import org.scalatest.flatspec.FixtureAnyFlatSpecLike
 import org.scalatest.matchers.should.Matchers
 
 class RuleManagerDBTest
-  extends FlatSpec
-  with Matchers
-  with AutoRollback {
+  extends FixtureAnyFlatSpecLike
+    with AutoRollback
+    with Matchers {
   val url ="jdbc:postgresql://localhost:5432/tr-rule-manager-local"
   val username ="tr-rule-manager-local"
   val password ="tr-rule-manager-local"
@@ -15,7 +15,7 @@ class RuleManagerDBTest
 
   behavior of "Database connection"
 
-  it should "provide a way of testing the DB connection" in { implicit session =>
+  it should "provide a way of testing the DB connection" in { () =>
     ruleManagerDb.connectionHealthy() shouldBe true
   }
 }

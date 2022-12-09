@@ -4,8 +4,6 @@ import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import utils.Text
-
 class TextBlockTest extends AsyncFlatSpec with Matchers {
   behavior of "removeSkippedRanges"
 
