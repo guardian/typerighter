@@ -92,11 +92,7 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      // We exclude `xom`, which has a critical vulnerability,
-      // as we do not use the parts of corenlp that depend on it.
-      "edu.stanford.nlp" % "stanford-corenlp" % "3.9.2" exclude("com.io7m.xom", "xom"),
-      "edu.stanford.nlp" % "stanford-corenlp" % "3.9.2" classifier "models" exclude("com.io7m.xom", "xom"),
-      "edu.stanford.nlp" % "stanford-parser" % "3.9.2",
+      "org.apache.opennlp" % "opennlp" % "2.1.0",
     ),
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core",
