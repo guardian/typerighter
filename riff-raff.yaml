@@ -19,10 +19,10 @@ deployments:
       prependStackToCloudFormationStackName: false
       amiParametersToTags:
         AMITyperighterchecker:
-          Recipe: editorial-tools-bionic-java8-ngrams-ARM
+          Recipe: editorial-tools-focal-java8-ngrams-ARM
           BuiltBy: amigo
         AMITyperighterrulemanager:
-          Recipe: editorial-tools-bionic-java8-ngrams-ARM
+          Recipe: editorial-tools-focal-java8-ngrams-ARM
           BuiltBy: amigo
       amiEncrypted: true
       templatePath: typerighter.template.json
