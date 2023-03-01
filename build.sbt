@@ -53,7 +53,7 @@ val commonSettings = Seq(
     "org.languagetool" % "language-en" % languageToolVersion,
   ),
   dependencyOverrides ++= Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.2",
   )
 )
 
