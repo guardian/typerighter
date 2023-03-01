@@ -9,7 +9,7 @@ ThisBuild / scalacOptions := Seq(
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
 
 val languageToolVersion = "6.0"
-val awsSdkVersion = "1.11.999"
+val awsSdkVersion = "1.12.416"
 val capiModelsVersion = "17.4.0"
 val capiClientVersion = "19.2.1"
 val circeVersion = "0.14.1"
