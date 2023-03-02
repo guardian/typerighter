@@ -15,3 +15,7 @@ GET     /editPermissionCheck        controllers.HomeController.editPermissionChe
 +anyhost
 GET     /healthcheck                controllers.HomeController.healthcheck()
 
+POST    /refresh                    controllers.RulesController.refresh()
+GET     /rules                      controllers.RulesController.rules()
+
+

@@ -1,3 +1,10 @@
+# Dependencies
+We will need dev-nginx: `brew install dev-nginx`
+
+# Set up
+
+Run `dev-nginx setup-app ./nginx/nginx-mapping.yml` from the root of the project.
+
 # Basic developer run
 
 Get credentials for Composer profile then run `./script/start` and visit `localhost:9000` to confirm the service came up correctly.
