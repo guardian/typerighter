@@ -3,6 +3,7 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+import play.api.libs.json.Json
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext
@@ -27,15 +28,22 @@ class RulesController(
       maybeRules.left.map { error => List(error.getMessage) }
     } match {
       case Right((ruleResource, lastModified)) => {
-        Ok
+        Ok(Json.toJson(ruleResource))
       }
       case Left(errors) => {
-        InternalServerError
+        InternalServerError(Json.toJson(errors))
       }
     }
   }
 
   def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
-    Ok
+    bucketRuleManager.getRules() match {
+      case Right((ruleResource, lastModified)) => {
+        Ok(Json.toJson(ruleResource))
+      }
+      case Left(error) => {
+        InternalServerError(Json.toJson(error.getMessage))
+      }
+    }
   }
 }
