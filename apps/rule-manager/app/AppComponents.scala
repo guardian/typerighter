@@ -16,15 +16,22 @@ import com.gu.DevIdentity
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import router.Routes
 import db.RuleManagerDB
+import play.api.db.evolutions.EvolutionsComponents
+import play.api.db.{DBComponents, HikariCPComponents}
 import utils.RuleManagerConfig
 
 class AppComponents(context: Context, region: String, identity: AppIdentity, creds: AWSCredentialsProvider)
   extends BuiltInComponentsFromContext(context)
   with HttpFiltersComponents
   with AssetsComponents
+  with DBComponents
+  with HikariCPComponents
+  with EvolutionsComponents
   with AhcWSComponents {
   val config = new RuleManagerConfig(configuration, region, identity, creds)
   val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
+
+  applicationEvolutions
 
   private val s3Client = AmazonS3ClientBuilder
     .standard()
