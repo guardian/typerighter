@@ -28,7 +28,7 @@ Matches contain the range that match applies to, a description of why the match 
 ### Roles
 
 - Rule owner: a person responsible for maintaining the rules that Typerighter consumes.
-- Rule user: a person checking their copy with the [Typerighter service](https://checker.typerighter.gutools.co.uk/).
+- Rule user: a person checking their copy with the checker service.
 
 ```mermaid
 flowchart LR
