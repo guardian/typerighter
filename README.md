@@ -23,6 +23,32 @@ Each rule in the service corresponds to a `Matcher` that receives the document a
 
 Matches contain the range that match applies to, a description of why the match has occurred, and any relevant suggestions – see the `RuleMatch` interface for the full description.
 
+## Architecture
+
+### Roles
+
+- Rule owner: a person responsible for maintaining the rules that Typerighter consumes.
+- Rule user: a person checking their copy with the Typerighter service.
+
+```mermaid
+flowchart LR
+  checker[Checker]
+  sheet[Google Sheet]
+  client[Typerighter client]
+  s3[(typerighter-rules.json)]
+  owner{{Rule owner}}
+  user{{Rule user}}
+
+  sheet--"Get rules"-->checker
+  checker--"Write rule artefact"-->s3
+  s3--"Read rule artefact"-->checker
+  client--"Request matches"-->checker
+
+  owner-."Force checker to re-fetch sheet".->checker
+  user-."Request document check".->client
+  owner-."Edit rules".->sheet
+```
+
 ## Implementation
 
 Both the checker and management services are built in Scala with the Play framework. Data is currently stored in a Google Sheet.
