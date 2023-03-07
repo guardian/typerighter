@@ -2,7 +2,7 @@
 
 <img width="1232" alt="The Typerighter checker service frontend" src="https://user-images.githubusercontent.com/7767575/103550037-353f3200-4ea0-11eb-9ba5-9e4f7ecf2d1f.png">
 
-Typerighter is the server-side part of a service to check a document against a set of user-defined rules. It's designed to work like a spelling or grammar checker.
+Typerighter is the server-side part of a service to check a document against a set of user-defined rules. It's designed to work like a spelling or grammar checker. It contains two services, the [checker](https://checker.typerighter.gutools.co.uk/) and the [rule manager](https://manager.typerighter.gutools.co.uk/) – see [architecture](#architecture) for more information.
 
 We use it at the Guardian to check content against our style guide. Max Walker, the subeditor who inspired the creation of Typerighter, has written an introduction [here](https://www.theguardian.com/help/insideguardian/2020/nov/20/introducing-typerighter-making-life-easier-for-journalists-and-stories-better-for-readers).
 
@@ -28,7 +28,7 @@ Matches contain the range that match applies to, a description of why the match 
 ### Roles
 
 - Rule owner: a person responsible for maintaining the rules that Typerighter consumes.
-- Rule user: a person checking their copy with the Typerighter service.
+- Rule user: a person checking their copy with the [Typerighter service](https://checker.typerighter.gutools.co.uk/).
 
 ```mermaid
 flowchart LR
