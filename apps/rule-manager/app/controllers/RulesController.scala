@@ -27,7 +27,7 @@ class RulesController(
       }
       maybeRules.left.map { error => List(error.getMessage) }
     } match {
-      case Right((ruleResource, lastModified)) => {
+      case Right((ruleResource, _)) => {
         Ok(Json.toJson(ruleResource))
       }
       case Left(errors) => {
@@ -38,12 +38,10 @@ class RulesController(
 
   def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
     bucketRuleManager.getRules() match {
-      case Right((ruleResource, lastModified)) => {
+      case Right((ruleResource, _)) =>
         Ok(Json.toJson(ruleResource))
-      }
-      case Left(error) => {
+      case Left(error) =>
         InternalServerError(Json.toJson(error.getMessage))
-      }
     }
   }
 }
