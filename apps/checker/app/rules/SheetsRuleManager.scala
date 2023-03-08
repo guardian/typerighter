@@ -5,17 +5,15 @@ import java.util.Collections
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 import model.{Category, RegexRule, TextSuggestion}
 
 import scala.jdk.CollectionConverters._
-import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
-import model.{LTRule, BaseRule, RuleResource}
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success, Try}
+import model.{BaseRule, RuleResource}
 import services.MatcherPool
-import matchers.RegexMatcher
 import matchers.LanguageToolFactory
 import play.api.Logging
 import model.LTRuleXML
@@ -39,7 +37,7 @@ object PatternRuleCols {
   */
 class SheetsRuleManager(credentialsJson: String, spreadsheetId: String, matcherPool: MatcherPool, languageToolFactory: LanguageToolFactory) extends Logging {
   private val APPLICATION_NAME = "Typerighter"
-  private val JSON_FACTORY = JacksonFactory.getDefaultInstance
+  private val JSON_FACTORY = GsonFactory.getDefaultInstance()
 
   private val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
   private val credentials = getCredentials(credentialsJson)
