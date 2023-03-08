@@ -11,7 +11,7 @@ Get credentials for Composer profile.
 
 To launch the Checker, run `./script/start-checker` (`--debug` to run a debugger on port 5005).
 
-To start the Rule Manager, run `./script/start-manager` (`--debug` to attach a debugger on port 5006) and visit `https://manager.typerighter.local.dev-gutools.co.uk/` to check it is running.
+To start the Rule Manager, run `./script/start-manager` (`--debug` to attach a debugger on port 5006) and visit [the locally running app](https://manager.typerighter.local.dev-gutools.co.uk) to check it is running.
 
 To run everything, run `./script/start` (`--debug` will attach debuggers on both services in the respective ports above) and visit [the locally running app](https://manager.typerighter.local.dev-gutools.co.uk/) to confirm the service came up correctly.
 
