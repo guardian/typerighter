@@ -60,7 +60,3 @@ EOF
 ```
 
 Assuming you are running a CODE environment, the response should indicate that the word 'Grauniad' is misspelled.
-
-## Running the rule manager
-
-`sbt ruleManager/run`
