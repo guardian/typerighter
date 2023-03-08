@@ -13,7 +13,7 @@ To launch the Checker, run `./script/run-checker` (`--debug` to run a debugger o
 
 To start the Rule Manager, run `./script/run-manager` (`--debug` to attach a debugger on port 5006) and visit `https://manager.typerighter.local.dev-gutools.co.uk/` to check it is running.
 
-To run everything, run `./script/start` (`--debug` will attach debuggers on both services in the respective ports above) and visit `localhost:9000` to confirm the service came up correctly.
+To run everything, run `./script/start` (`--debug` will attach debuggers on both services in the respective ports above) and visit [the locally running app](https://manager.typerighter.local.dev-gutools.co.uk/) to confirm the service came up correctly.
 
 If you're testing changes to the rule audit client, see [the additional steps in its README](https://github.com/guardian/typerighter/tree/main/rule-audit-client).
 
