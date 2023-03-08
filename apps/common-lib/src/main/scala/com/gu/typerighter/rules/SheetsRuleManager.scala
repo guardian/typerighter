@@ -7,11 +7,11 @@ import java.io._
 import java.util.Collections
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 
 import scala.jdk.CollectionConverters._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 object PatternRuleCols {
@@ -33,7 +33,7 @@ object PatternRuleCols {
   */
 class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends Logging {
   private val APPLICATION_NAME = "Typerighter"
-  private val JSON_FACTORY = JacksonFactory.getDefaultInstance
+  private val JSON_FACTORY = GsonFactory.getDefaultInstance()
 
   private val HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport
   private val credentials = getCredentials(credentialsJson)
