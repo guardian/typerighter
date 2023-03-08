@@ -315,7 +315,7 @@ dpkg -i /tmp/package.deb`,
           "1"
         )
       ),
-      multiAz: true,
+      multiAz: this.stage === "PROD",
       port: dbPort,
       preferredBackupWindow: "02:00-02:30",
       preferredMaintenanceWindow: "Mon:06:30-Mon:07:00",
