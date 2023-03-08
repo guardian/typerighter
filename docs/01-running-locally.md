@@ -9,7 +9,7 @@ Run `dev-nginx setup-app ./nginx/nginx-mapping.yml` from the root of the project
 
 Get credentials for Composer profile.
 
-To launch the Checker, run `./script/run-checker` (`--debug` to run a debugger on port 5005).
+To launch the Checker, run `./script/start-checker` (`--debug` to run a debugger on port 5005).
 
 To start the Rule Manager, run `./script/start-manager` (`--debug` to attach a debugger on port 5006) and visit `https://manager.typerighter.local.dev-gutools.co.uk/` to check it is running.
 
