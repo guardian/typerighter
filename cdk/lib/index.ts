@@ -198,6 +198,7 @@ dpkg -i /tmp/package.deb`,
       app: ruleManagerAppName
     });
     typerighterBucket.grantReadWrite(checkerApp.autoScalingGroup);
+    typerighterBucket.grantReadWrite(ruleManagerApp.autoScalingGroup);
 
     const cloudfrontBucket = new GuS3Bucket(this, "cloudfront-bucket", {
       app: ruleManagerAppName,
