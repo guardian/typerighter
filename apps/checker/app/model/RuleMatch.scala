@@ -1,12 +1,15 @@
-package com.gu.typerighter.model
+package model
 
 import org.languagetool.rules.{RuleMatch => LTRuleMatch}
 import play.api.libs.json.{Json, Writes}
 
 import scala.jdk.CollectionConverters._
+import scala.util.matching.Regex
+
+import utils.Text
 
 object RuleMatch {
-  def fromLT(lt: LTRuleMatch, block: TextBlock): RuleMatch = {
+  def fromLT(lt: LTRuleMatch, block: TextBlock, matcherType: String): RuleMatch = {
     val suggestions = lt.getSuggestedReplacements.asScala.toList.map {
       TextSuggestion(_)
     }
@@ -27,6 +30,7 @@ object RuleMatch {
       replacement = replacement,
       suggestions = suggestions,
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
+      matcherType = matcherType
     )
   }
 
@@ -45,7 +49,7 @@ case class RuleMatch(rule: BaseRule,
                      replacement: Option[Suggestion] = None,
                      markAsCorrect: Boolean = false,
                      matchContext: String,
-                     ) {
+                     matcherType: String) {
   /**
     * Map the range this match applies to through the given ranges, adjusting its range accordingly.
     */

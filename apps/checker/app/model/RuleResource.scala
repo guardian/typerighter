@@ -1,6 +1,8 @@
-package com.gu.typerighter.model
+package model
 
-import play.api.libs.json.{Json, Reads, Writes}
+import play.api.libs.json.Writes
+import play.api.libs.json.Reads
+import play.api.libs.json.Json
 
 case class RuleResource(rules: List[BaseRule], ltDefaultRuleIds: List[String])
 

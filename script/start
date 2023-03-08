@@ -1,5 +1,6 @@
 #!/bin/bash -e
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+APP_FOLDER="apps"
 
 IS_DEBUG=false
 for arg in "$@"
@@ -10,21 +11,35 @@ do
   fi
 done
 
-runChecker() {
-  if [[ "$IS_DEBUG" = true ]]; then
-    bash "${DIR}"/start-checker --debug
-  else
-    bash "${DIR}"/start-checker
+checkCredentials() {
+  STATUS=$(aws sts get-caller-identity --profile composer 2>&1 || true)
+  if [[ ${STATUS} =~ (ExpiredToken) ]]; then
+    echo -e "${red}Credentials for the composer profile are expired. Please fetch new credentials and run this again.${plain}"
+    exit 1
+  elif [[ ${STATUS} =~ ("could not be found") ]]; then
+    echo -e "${red}Credentials for the composer profile are missing. Please ensure you have the right credentials.${plain}"
+    exit 1
   fi
 }
 
-runRuleManager() {
-  if [[ "$IS_DEBUG" = true ]]; then
-    bash "${DIR}"/start-manager --debug
+setupDependencies() {
+  docker-compose up -d
+  (cd $APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
+}
+
+teardownDependencies() {
+  docker-compose down
+}
+
+runApp() {
+  if [[ "$IS_DEBUG" = true ]] ; then
+    sbt -jvm-debug 5005 run
   else
-    bash "${DIR}"/start-manager
+    sbt "checker / run"
   fi
 }
 
-runChecker &
-runRuleManager
+trap teardownDependencies EXIT
+
+setupDependencies
+runApp

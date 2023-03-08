@@ -6,15 +6,16 @@ import play.api.http.PreferredMediaTypeHttpErrorHandler
 import play.api.http.JsonHttpErrorHandler
 import play.api.http.DefaultHttpErrorHandler
 import play.api.libs.ws.ahc.AhcWSComponents
-import controllers.{AssetsComponents, HomeController, RulesController}
+import controllers.AssetsComponents
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.auth.AWSCredentialsProvider
-import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
+import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
-import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+
 import router.Routes
+import controllers.HomeController
 import db.RuleManagerDB
 import utils.RuleManagerConfig
 
@@ -42,14 +43,6 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
     case identity: DevIdentity => identity.app
   }
 
-  val publicSettingsFile = identity match {
-    case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
-    case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
-    case _: DevIdentity => "local.dev-gutools.co.uk.settings.public"
-  }
-  val publicSettings = new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", s3Client)
-  publicSettings.start()
-
   val panDomainSettings = new PanDomainAuthSettingsRefresher(
     domain = stageDomain,
     system = appName,
@@ -57,15 +50,6 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
     settingsFileKey = s"$stageDomain.settings",
     s3Client = s3Client
   )
-
-  val stage = identity match {
-    case identity: AwsIdentity => identity.stage.toLowerCase
-    case _ => "code"
-  }
-  val typerighterBucket = s"typerighter-app-${stage}"
-
-  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
-  val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket, stage)
 
   val homeController = new HomeController(
     controllerComponents,
@@ -75,18 +59,9 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
     config
   )
 
-  val rulesController = new RulesController(
-    controllerComponents,
-    sheetsRuleManager,
-    bucketRuleManager,
-    config.spreadsheetId,
-    publicSettings,
-  )
-
   lazy val router = new Routes(
     httpErrorHandler,
     assets,
-    homeController,
-    rulesController
+    homeController
   )
 }

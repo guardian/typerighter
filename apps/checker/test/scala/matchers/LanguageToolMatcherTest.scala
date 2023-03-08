@@ -1,7 +1,5 @@
 package matchers
 
-import com.gu.typerighter
-import com.gu.typerighter.model.{Category, LTRuleXML, TextBlock}
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -96,19 +94,19 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
       </rule>
   </rulegroup>
   """
-  val exampleRulegroup =  typerighter.model.LTRuleXML(
+  val exampleRulegroup =  LTRuleXML(
     "EXAMPLE_RULEGROUP",
     exampleRulegroupXml,
     exampleCategory,
     "An example rulegroup with custom XML"
   )
-  val exampleBadRule1 = typerighter.model.LTRuleXML(
+  val exampleBadRule1 = LTRuleXML(
     "EXAMPLE_RULE",
     exampleBadRuleXml,
     exampleCategory2,
     "An example rule with custom XML that contains references to nonexistent entities"
   )
-  val exampleBadRule2 = typerighter.model.LTRuleXML(
+  val exampleBadRule2 = LTRuleXML(
     "EXAMPLE_RULE",
     exampleRuleXml.slice(15, exampleBadRuleXml.size),
     exampleCategory3,

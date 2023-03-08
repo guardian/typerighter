@@ -1,4 +1,4 @@
-package com.gu.typerighter.model
+package model
 
 import play.api.libs.json.{Json, Reads, Writes}
 

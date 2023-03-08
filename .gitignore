@@ -12,4 +12,3 @@ node_modules
 **/public/build
 /RUNNING_PID
 .DS_Store
-.bsp

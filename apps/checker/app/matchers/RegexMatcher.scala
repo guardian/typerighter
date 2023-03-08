@@ -1,6 +1,6 @@
 package matchers
 
-import com.gu.typerighter.model.{Category, RegexRule, RuleMatch, TextBlock, TextRange}
+import model.{RegexRule, RuleMatch, Category}
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion, RuleMatchHelpers}
 
@@ -8,6 +8,8 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import services.SentenceHelpers
 import services.WordInSentence
+import model.TextRange
+import model.TextBlock
 
 object RegexMatcher extends MatcherCompanion {
   def getType() = "regex"

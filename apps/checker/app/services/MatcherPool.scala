@@ -4,7 +4,6 @@ import akka.NotUsed
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import com.gu.typerighter.model.{BaseRule, Category, RuleMatch, TextBlock}
 import model._
 import net.logstash.logback.marker.Markers
 import play.api.Logging
@@ -261,6 +260,7 @@ class MatcherPool(
 
       val taskName = s"MatcherPool.runMatchersForJob"
       val taskMarkers = Markers.appendEntries(Map(
+        "matcherType" -> matcher.getType(),
         "categories" -> matcher.getCategories().map(_.name).mkString(", ")
       ).asJava)
       val onSlowLog = (durationMs: Long) => maybeCloudWatchClient.foreach(_.putMetric(Metrics.MatcherPoolJobDurationMs, durationMs.toInt))
