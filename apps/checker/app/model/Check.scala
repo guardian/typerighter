@@ -5,7 +5,6 @@ import net.logstash.logback.marker.Markers
 import play.api.libs.json.{Json, Reads, Writes}
 import net.logstash.logback.marker.LogstashMarker
 import com.gu.pandomainauth.model.User
-import com.gu.typerighter.model.{RuleMatch, TextBlock}
 
 object Check {
   implicit val reads: Reads[Check] = Json.reads[Check]

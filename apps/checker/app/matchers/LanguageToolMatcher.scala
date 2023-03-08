@@ -1,18 +1,20 @@
 package matchers
 
-import com.gu.typerighter.model.{Category, LTRule, LTRuleXML, RuleMatch}
 import java.io.File
+
+import model.{LTRule, LTRuleXML, RuleMatch}
 import org.languagetool._
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 import org.languagetool.rules.{Rule => LanguageToolRule}
 import play.api.Logging
 import services.MatcherRequest
+import utils.{Matcher, MatcherCompanion}
 
 import scala.jdk.CollectionConverters._
 import scala.concurrent.{ExecutionContext, Future}
+import model.Category
 import org.languagetool.rules.patterns.PatternRuleLoader
 import org.languagetool.rules.patterns.AbstractPatternRule
-import utils.{Matcher, MatcherCompanion}
 import scala.xml.{XML, Attribute, Null, Text}
 import scala.util.Try
 import scala.util.Success
@@ -158,7 +160,7 @@ class LanguageToolMatcher(instance: JLanguageTool) extends Matcher {
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]] = Future {
     request.blocks.flatMap { block =>
-      instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block)).toList.map { ruleMatch =>
+      instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block, getType())).toList.map { ruleMatch =>
         ruleMatch.copy(
           fromPos = ruleMatch.fromPos + block.from,
           toPos = ruleMatch.toPos + block.from

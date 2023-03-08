@@ -2,20 +2,17 @@ package services
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
-import com.gu.typerighter.model.{Category, RegexRule, RuleMatch, TextBlock, TextRange}
 import model._
 import org.scalatest.time.SpanSugar._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import com.softwaremill.diffx.generic.auto._
-
+import utils.Matcher
 import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.Failure
 import scala.util.Success
 import play.api.libs.concurrent.DefaultFutures
-import utils.Matcher
-
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.Future
 
@@ -125,6 +122,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
           matchedText = "placeholder text",
           message = message,
           matchContext = "[placeholder text]",
+          matcherType = "regex"
         )
     }
   }

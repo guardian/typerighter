@@ -1,6 +1,6 @@
-package com.gu.typerighter.model
+package model
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Reads}
 
 object TextRange {
   implicit val reads = Json.reads[TextRange]

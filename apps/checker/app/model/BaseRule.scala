@@ -1,4 +1,4 @@
-package com.gu.typerighter.model
+package model
 
 import java.util.{List => JList}
 import java.util.regex.Pattern
@@ -10,7 +10,8 @@ import org.languagetool.rules.{Rule => LanguageToolRule}
 
 import scala.util.matching.Regex
 import scala.jdk.CollectionConverters._
-
+import utils.Text
+import matchers.RegexMatcher
 
 /**
   * A rule to match text against.
@@ -66,6 +67,7 @@ case class RegexRule(
       replacement = transformedReplacement,
       markAsCorrect = transformedReplacement.map(_.text).getOrElse("") == block.text.substring(start, end),
       matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
+      matcherType = RegexMatcher.getType()
     )
   }
 }

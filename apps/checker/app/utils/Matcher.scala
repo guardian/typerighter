@@ -1,11 +1,13 @@
 package utils
 
-import com.gu.typerighter.model.{BaseRule, Category, RuleMatch}
-
 import java.util.UUID
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
+
 import services.MatcherRequest
+import model.{BaseRule, RuleMatch}
+import model.Category
 
 trait MatcherCompanion {
   def getType(): String
