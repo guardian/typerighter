@@ -1529,7 +1529,7 @@ dpkg -i /tmp/package.deb",
         "MasterUsername": Object {
           "Ref": "MasterDBUsername",
         },
-        "MultiAZ": true,
+        "MultiAZ": false,
         "Port": "5432",
         "PreferredBackupWindow": "02:00-02:30",
         "PreferredMaintenanceWindow": "Mon:06:30-Mon:07:00",
