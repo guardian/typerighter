@@ -6,7 +6,7 @@ CREATE TYPE ruleType AS ENUM ('regex', 'languageTool');
 
 CREATE TABLE Rules (
       id SERIAL PRIMARY KEY,
-      ruleType ruleType,
+      rule_type ruleType,
       pattern text NOT NULL,
       replacement text,
       category text,
@@ -14,9 +14,9 @@ CREATE TABLE Rules (
       description text,
       ignore boolean NOT NULL,
       notes text,
-      googleSheetId text,
-      forceRedRule boolean,
-      advisoryRule boolean
+      google_sheet_id text,
+      force_red_rule boolean,
+      advisory_rule boolean
 );
 
 -- !Downs
