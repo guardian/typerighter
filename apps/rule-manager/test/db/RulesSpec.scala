@@ -10,10 +10,15 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
   val ruleDb = new RuleManagerDB(url= "jdbc:postgresql://localhost:5432/tr-rule-manager-local", user="tr-rule-manager-local",  password= "tr-rule-manager-local")
   val r = Rules.syntax("r")
 
+
+  override def fixture(implicit session: DBSession) {
+    sql"insert into rules values (1, 'regex', ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false)".update.apply()
+  }
+
   behavior of "Rules"
 
   it should "find by primary keys" in { implicit session =>
-    val maybeFound = Rules.find(123)
+    val maybeFound = Rules.find(1)
     maybeFound.isDefined should be(true)
   }
   it should "find by where clauses" in { implicit session =>
