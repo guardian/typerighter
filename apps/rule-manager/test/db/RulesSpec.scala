@@ -10,9 +10,9 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
   val ruleDb = new RuleManagerDB(url= "jdbc:postgresql://localhost:5432/tr-rule-manager-local", user="tr-rule-manager-local",  password= "tr-rule-manager-local")
   val r = Rules.syntax("r")
 
-
   override def fixture(implicit session: DBSession) {
-    sql"insert into rules values (1, 'regex', ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false)".update.apply()
+    sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update.apply()
+    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false)".update.apply()
   }
 
   behavior of "Rules"
@@ -22,7 +22,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
     maybeFound.isDefined should be(true)
   }
   it should "find by where clauses" in { implicit session =>
-    val maybeFound = Rules.findBy(sqls.eq(r.id, 123))
+    val maybeFound = Rules.findBy(sqls.eq(r.id, 1))
     maybeFound.isDefined should be(true)
   }
   it should "find all records" in { implicit session =>
@@ -34,15 +34,16 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
     count should be >(0L)
   }
   it should "find all by where clauses" in { implicit session =>
-    val results = Rules.findAllBy(sqls.eq(r.id, 123))
+    val results = Rules.findAllBy(sqls.eq(r.id, 1))
     results.size should be >(0)
   }
   it should "count by where clauses" in { implicit session =>
-    val count = Rules.countBy(sqls.eq(r.id, 123))
+    val count = Rules.countBy(sqls.eq(r.id, 1))
     count should be >(0L)
   }
   it should "create new record" in { implicit session =>
-    val created = Rules.create(pattern = "MyString", ignore = false)
+    val created = Rules.create(ruleType=Some("regex"), pattern = "MyString", ignore = false)
+    println(created)
     created should not be(null)
   }
   it should "save a record" in { implicit session =>

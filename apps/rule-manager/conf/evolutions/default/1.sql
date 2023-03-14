@@ -2,11 +2,9 @@
 
 -- !Ups
 
-CREATE TYPE ruleType AS ENUM ('regex', 'languageTool');
-
 CREATE TABLE Rules (
       id SERIAL PRIMARY KEY,
-      rule_type ruleType,
+      rule_type text NOT NULL,
       pattern text NOT NULL,
       replacement text,
       category text,
