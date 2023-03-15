@@ -119,7 +119,7 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.5.1",
+      "org.postgresql" % "postgresql" % "42.5.4",
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
