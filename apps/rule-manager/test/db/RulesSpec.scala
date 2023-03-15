@@ -40,7 +40,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     count should be >(0L)
   }
   it should "create new record" in { implicit session =>
-    val created = Rules.create(ruleType=Some("regex"), pattern = "MyString", ignore = false)
+    val created = Rules.create(ruleType = "regex", pattern = "MyString", ignore = false)
     created should not be(null)
   }
   it should "save a record" in { implicit session =>

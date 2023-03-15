@@ -4,7 +4,7 @@ import scalikejdbc._
 
 case class Rules(
   id: Int,
-  ruleType: Option[String] = None,
+  ruleType: String,
   pattern: String,
   replacement: Option[String] = None,
   category: Option[String] = None,
@@ -69,7 +69,7 @@ object Rules extends SQLSyntaxSupport[Rules] {
   }
 
   def create(
-    ruleType: Option[String] = None,
+    ruleType: String,
     pattern: String,
     replacement: Option[String] = None,
     category: Option[String] = None,
