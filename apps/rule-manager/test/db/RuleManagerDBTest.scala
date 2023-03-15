@@ -1,10 +1,9 @@
 package db
 
 import org.scalatest.{BeforeAndAfter, Suite}
-import play.api.{ApplicationLoader, ConfigLoader, Configuration, Environment}
+import play.api.{ConfigLoader, Configuration, Environment}
 import play.api.db.Databases
 import play.api.db.evolutions.{Evolutions, InconsistentDatabase}
-import utils.RuleManagerConfig
 
 trait RuleManagerDBTest extends BeforeAndAfter { self: Suite =>
   private implicit val loader = ConfigLoader.stringLoader
