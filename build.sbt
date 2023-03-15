@@ -84,7 +84,7 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.amazonaws" % "aws-java-sdk-kinesis" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
       "com.google.api-client" % "google-api-client" % "1.23.0",
-      "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0",
+      "com.google.oauth-client" % "google-oauth-client-jetty" % "1.34.1",
       "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
       "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
       "org.webjars" % "bootstrap" % "4.3.1",
