@@ -51,7 +51,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
     // TODO modify something
     val modified = entity.copy(pattern="NotMyString")
     val updated = Rules.save(modified)
-    updated should equal(entity)
+    updated should equal(modified)
   }
   it should "destroy a record" in { implicit session =>
     val entity = Rules.findAll().head
