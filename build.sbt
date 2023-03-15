@@ -8,7 +8,7 @@ ThisBuild / scalacOptions := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
 
-val languageToolVersion = "5.9"
+val languageToolVersion = "6.0"
 val awsSdkVersion = "1.11.999"
 val capiModelsVersion = "17.4.0"
 val capiClientVersion = "19.1.0"
