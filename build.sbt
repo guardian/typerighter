@@ -47,7 +47,7 @@ val commonSettings = Seq(
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
     "com.gu" % "kinesis-logback-appender" % "2.1.0",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
-    "com.gu" %% "pan-domain-auth-verification" % "1.2.0",
+    "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
@@ -124,7 +124,7 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
-      "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.0",
+      "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
       "com.gu" %% "editorial-permissions-client" % "2.14"
     )
   )
