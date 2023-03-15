@@ -370,6 +370,7 @@ dpkg -i /tmp/package.deb",
     },
     "AutoScalingGroupTyperighterrulemanagerLaunchConfig5311DECE": Object {
       "DependsOn": Array [
+        "InstanceRoleTyperighterrulemanagerDefaultPolicy29F250C4",
         "InstanceRoleTyperighterrulemanagerC4CF9347",
       ],
       "Properties": Object {
@@ -1057,6 +1058,55 @@ dpkg -i /tmp/package.deb",
         ],
       },
       "Type": "AWS::IAM::Role",
+    },
+    "InstanceRoleTyperighterrulemanagerDefaultPolicy29F250C4": Object {
+      "Properties": Object {
+        "PolicyDocument": Object {
+          "Statement": Array [
+            Object {
+              "Action": Array [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+                "s3:DeleteObject*",
+                "s3:PutObject*",
+                "s3:Abort*",
+              ],
+              "Effect": "Allow",
+              "Resource": Array [
+                Object {
+                  "Fn::GetAtt": Array [
+                    "typerighterbucketTyperighterrulemanager54EC2AB2",
+                    "Arn",
+                  ],
+                },
+                Object {
+                  "Fn::Join": Array [
+                    "",
+                    Array [
+                      Object {
+                        "Fn::GetAtt": Array [
+                          "typerighterbucketTyperighterrulemanager54EC2AB2",
+                          "Arn",
+                        ],
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "InstanceRoleTyperighterrulemanagerDefaultPolicy29F250C4",
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
     },
     "ListenerTyperighterchecker1700E874": Object {
       "Properties": Object {

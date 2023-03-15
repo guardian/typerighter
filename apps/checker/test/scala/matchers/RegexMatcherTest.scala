@@ -1,13 +1,14 @@
 package matchers
 
+import com.gu.typerighter
+import com.gu.typerighter.model.{Category, RegexRule, RuleMatch, Text, TextBlock, TextSuggestion}
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import com.softwaremill.diffx.generic.auto._
-
 import services.MatcherRequest
-import utils.Text
+
 import scala.util.matching.Regex
 import scala.concurrent.Future
 
@@ -42,12 +43,11 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     suggestions = rule.suggestions,
     replacement = replacement.map(TextSuggestion(_)),
     matchContext = Text.getMatchTextSnippet(before, text, after),
-    matcherType = RegexMatcher.getType(),
     markAsCorrect = markAsCorrect
   )
 
   def checkTextWithRegex(regex: Regex, replacement: String, text: String): Future[List[RuleMatch]] = {
-    val rule = RegexRule(
+    val rule = typerighter.model.RegexRule(
       id = "test-rule",
       description = "test-description",
       category = Category("test-category", "Test Category"),
@@ -137,7 +137,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   }
 
   "check" should "use substitions when generating replacements" in {
-    val rule = RegexRule(
+    val rule = typerighter.model.RegexRule(
       id = s"example-rule",
       category = Category("new-category", "New Category"),
       description = s"Example rule",
@@ -160,7 +160,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   }
 
   "check" should "apply substitutions when computing `markAsCorrect`" in {
-    val rule = RegexRule(
+    val rule = typerighter.model.RegexRule(
       id = s"example-rule",
       category = Category("new-category", "New Category"),
       description = s"Example rule",
@@ -182,7 +182,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   }
 
   "check" should "apply substitutions when computing `markAsCorrect` - real world case" in {
-    val rule = RegexRule(
+    val rule = typerighter.model.RegexRule(
       id = s"example-rule",
       category = Category("new-category", "New Category"),
       description = s"Example rule",
@@ -203,7 +203,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
   }
 
    "check" should "handle multiple substitions" in {
-    val rule = RegexRule(
+    val rule = typerighter.model.RegexRule(
       id = s"example-rule",
       category = Category("new-category", "New Category"),
       description = s"Example rule",

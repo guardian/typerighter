@@ -1,6 +1,6 @@
 package services
 
-import model.TextRange
+import com.gu.typerighter.model.TextRange
 import opennlp.tools.sentdetect.{SentenceDetectorME, SentenceModel}
 import opennlp.tools.tokenize.SimpleTokenizer
 import opennlp.tools.util.Span

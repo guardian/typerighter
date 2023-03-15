@@ -14,9 +14,9 @@ import play.api.mvc.EssentialFilter
 import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
-import rules.{BucketRuleManager, SheetsRuleManager}
 import services._
 import com.gu.typerighter.lib.{Loggable, ElkLogging}
+import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 import utils.CheckerConfig
@@ -75,7 +75,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket, stage)
   val ruleProvisioner = new RuleProvisionerService(bucketRuleManager, matcherPool, languageToolFactory, cloudWatchClient)
 
-  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId, matcherPool, languageToolFactory)
+  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
   val rulesController = new RulesController(controllerComponents, matcherPool, sheetsRuleManager, bucketRuleManager, config.spreadsheetId, ruleProvisioner, publicSettings)
