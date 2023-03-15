@@ -1,18 +1,24 @@
 package db
 
 import org.scalatest.{BeforeAndAfter, Suite}
+import play.api.{ApplicationLoader, ConfigLoader, Configuration, Environment}
 import play.api.db.Databases
 import play.api.db.evolutions.{Evolutions, InconsistentDatabase}
+import utils.RuleManagerConfig
 
 trait RuleManagerDBTest extends BeforeAndAfter { self: Suite =>
-  val url = "jdbc:postgresql://localhost:5432/tr-rule-manager-local"
-  val user = "tr-rule-manager-local"
-  val password = "tr-rule-manager-local"
-  val scalikejdbcDb = new RuleManagerDB(url, user, password)
-  var playDb = Databases("org.postgresql.Driver", url, config = Map(
+  private implicit val loader = ConfigLoader.stringLoader
+  private val config = Configuration.load(Environment.simple(), Map.empty)
+
+  private val url = config.get("db.default.url")
+  private val user = config.get("db.default.username")
+  private val password = config.get("db.default.password")
+  private val playDb = Databases("org.postgresql.Driver", url, config = Map(
     "username" -> user,
     "password" -> password
   ))
+
+  val scalikejdbcDb = new RuleManagerDB(url, user, password)
 
   before {
     try {
