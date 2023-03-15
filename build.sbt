@@ -86,7 +86,7 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.google.api-client" % "google-api-client" % "1.23.0",
       "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0",
       "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
-      "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
+      "net.logstash.logback" % "logstash-logback-encoder" % "6.6",
       "org.webjars" % "bootstrap" % "4.3.1",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
