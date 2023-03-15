@@ -2,6 +2,8 @@ package db
 
 import scalikejdbc._
 
+import scala.util.Try
+
 case class Rules(
   id: Int,
   ruleType: String,
@@ -16,7 +18,7 @@ case class Rules(
   forceRedRule: Option[Boolean] = None,
   advisoryRule: Option[Boolean] = None) {
 
-  def save()(implicit session: DBSession = Rules.autoSession): Rules = Rules.save(this)(session)
+  def save()(implicit session: DBSession = Rules.autoSession): Try[Rules] = Rules.save(this)(session)
 
   def destroy()(implicit session: DBSession = Rules.autoSession): Int = Rules.destroy(this)(session)
 
@@ -152,7 +154,7 @@ object Rules extends SQLSyntaxSupport[Rules] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: Rules)(implicit session: DBSession = autoSession): Rules = {
+  def save(entity: Rules)(implicit session: DBSession = autoSession): Try[Rules] = {
     withSQL {
       update(Rules).set(
         column.id -> entity.id,
@@ -169,7 +171,10 @@ object Rules extends SQLSyntaxSupport[Rules] {
         column.advisoryRule -> entity.advisoryRule
       ).where.eq(column.id, entity.id)
     }.update.apply()
-    entity
+
+    find(entity.id)
+      .toRight(new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule"))
+      .toTry
   }
 
   def destroy(entity: Rules)(implicit session: DBSession = autoSession): Int = {

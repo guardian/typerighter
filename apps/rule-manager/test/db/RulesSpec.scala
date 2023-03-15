@@ -4,6 +4,7 @@ import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
+import scala.util.Success
 
 class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with RuleManagerDBTest {
   val r = Rules.syntax("r")
@@ -45,10 +46,9 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
   }
   it should "save a record" in { implicit session =>
     val entity = Rules.findAll().head
-    // TODO modify something
     val modified = entity.copy(pattern="NotMyString")
     val updated = Rules.save(modified)
-    updated should equal(modified)
+    updated should equal(Success(modified))
   }
   it should "destroy a record" in { implicit session =>
     val entity = Rules.findAll().head
