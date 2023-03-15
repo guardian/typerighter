@@ -5,9 +5,7 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 
-
-class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
-  val ruleDb = new RuleManagerDB(url= "jdbc:postgresql://localhost:5432/tr-rule-manager-local", user="tr-rule-manager-local",  password= "tr-rule-manager-local")
+class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with RuleManagerDBTest {
   val r = Rules.syntax("r")
 
   override def fixture(implicit session: DBSession) {
@@ -43,7 +41,6 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback {
   }
   it should "create new record" in { implicit session =>
     val created = Rules.create(ruleType=Some("regex"), pattern = "MyString", ignore = false)
-    println(created)
     created should not be(null)
   }
   it should "save a record" in { implicit session =>
