@@ -1,6 +1,6 @@
 package matchers
 
-import model._
+import com.gu.typerighter.model.{Category, LTRuleXML, TextBlock}
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import services.MatcherRequest
@@ -94,7 +94,7 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
       </rule>
   </rulegroup>
   """
-  val exampleRulegroup =  LTRuleXML(
+  val exampleRulegroup = LTRuleXML(
     "EXAMPLE_RULEGROUP",
     exampleRulegroupXml,
     exampleCategory,

@@ -1,6 +1,7 @@
-package model
+package com.gu.typerighter.model
 
 import play.api.libs.json.{Json, Reads, Writes}
+
 import scala.util.matching.Regex
 
 object Suggestion {
