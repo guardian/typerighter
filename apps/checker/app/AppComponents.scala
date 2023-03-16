@@ -1,4 +1,6 @@
 import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
+import com.amazonaws.regions.Regions
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
@@ -15,7 +17,7 @@ import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
 import services._
-import com.gu.typerighter.lib.{Loggable, ElkLogging}
+import com.gu.typerighter.lib.{ElkLogging, Loggable}
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
@@ -43,11 +45,19 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val guardianContentClient = GuardianContentClient(config.capiApiKey)
   val contentClient = new ContentClient(guardianContentClient)
 
-  private val s3Client = AmazonS3ClientBuilder
-    .standard()
-    .withCredentials(creds)
-    .withRegion(region)
-    .build()
+  private val s3Client = identity match {
+    case _: AwsIdentity => AmazonS3ClientBuilder
+      .standard()
+      .withCredentials(creds)
+      .withRegion(region)
+      .build()
+    case _: DevIdentity => AmazonS3ClientBuilder
+      .standard()
+      .withCredentials(creds)
+      .withEndpointConfiguration(new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName))
+      .withRegion(region)
+      .build()
+  }
 
   val settingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
@@ -59,7 +69,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
 
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
-    case _ => "code"
+    case _ : DevIdentity => "local"
   }
   val typerighterBucket = s"typerighter-app-${stage}"
 

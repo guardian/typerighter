@@ -9,6 +9,8 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import controllers.{AssetsComponents, HomeController, RulesController}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
+import com.amazonaws.regions.Regions
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
@@ -26,11 +28,19 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val config = new RuleManagerConfig(configuration, region, identity, creds)
   val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
 
-  private val s3Client = AmazonS3ClientBuilder
-    .standard()
-    .withCredentials(creds)
-    .withRegion(region)
-    .build()
+  private val s3Client = identity match {
+    case _: AwsIdentity => AmazonS3ClientBuilder
+      .standard()
+      .withCredentials(creds)
+      .withRegion(region)
+      .build()
+    case _: DevIdentity => AmazonS3ClientBuilder
+      .standard()
+      .withCredentials(creds)
+      .withEndpointConfiguration(new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName))
+      .withRegion(region)
+      .build()
+  }
 
   val stageDomain = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
@@ -60,7 +70,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
 
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
-    case _ => "code"
+    case _: DevIdentity => "local"
   }
   val typerighterBucket = s"typerighter-app-${stage}"
 
