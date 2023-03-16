@@ -121,7 +121,7 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
-      "com.gu" %% "editorial-permissions-client" % "2.14",
+      "com.gu" %% "editorial-permissions-client" % "2.15",
     )
   )
 
