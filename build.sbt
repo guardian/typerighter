@@ -48,7 +48,7 @@ val commonSettings = Seq(
     "com.gu" % "kinesis-logback-appender" % "2.1.0",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
-    "com.google.api-client" % "google-api-client" % "2.0.1",
+    "com.google.api-client" % "google-api-client" % "2.2.0",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
