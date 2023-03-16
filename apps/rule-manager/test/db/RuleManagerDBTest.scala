@@ -1,21 +1,35 @@
 package db
 
-import scalikejdbc.scalatest.AutoRollback
-import org.scalatest.fixture.FlatSpec
-import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfter, Suite}
+import play.api.{ConfigLoader, Configuration, Environment}
+import play.api.db.Databases
+import play.api.db.evolutions.{Evolutions, InconsistentDatabase}
 
-class RuleManagerDBTest
-  extends FlatSpec
-  with Matchers
-  with AutoRollback {
-  val url ="jdbc:postgresql://localhost:5432/tr-rule-manager-local"
-  val username ="tr-rule-manager-local"
-  val password ="tr-rule-manager-local"
-  val ruleManagerDb = new RuleManagerDB(url, username, password)
+trait RuleManagerDBTest extends BeforeAndAfter { self: Suite =>
+  private implicit val loader = ConfigLoader.stringLoader
+  private val config = Configuration.load(Environment.simple(), Map.empty)
 
-  behavior of "Database connection"
+  private val url = config.get("db.default.url")
+  private val user = config.get("db.default.username")
+  private val password = config.get("db.default.password")
+  private val playDb = Databases("org.postgresql.Driver", url, config = Map(
+    "username" -> user,
+    "password" -> password
+  ))
 
-  it should "provide a way of testing the DB connection" in { implicit session =>
-    ruleManagerDb.connectionHealthy() shouldBe true
+  val scalikejdbcDb = new RuleManagerDB(url, user, password)
+
+  before {
+    try {
+      Evolutions.applyEvolutions(playDb)
+    } catch {
+      case fail: InconsistentDatabase =>
+        println(fail.subTitle)
+        throw fail
+    }
+  }
+
+  after {
+    Evolutions.cleanupEvolutions(playDb)
   }
 }
