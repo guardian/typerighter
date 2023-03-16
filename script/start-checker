@@ -1,0 +1,27 @@
+#!/bin/bash -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+IS_DEBUG=false
+
+for arg in "$@"
+do
+  if [[ "$arg" == "--debug" ]]; then
+    IS_DEBUG=true
+    shift
+  fi
+done
+
+checkCredentials() {
+  bash "${DIR}"/lib/check-aws-credentials
+}
+
+runChecker() {
+  if [[ "$IS_DEBUG" = true ]]; then
+    sbt -jvm-debug 5005 "checker / run"
+  else
+    sbt "checker / run"
+  fi
+}
+
+checkCredentials
+runChecker

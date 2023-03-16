@@ -1,10 +1,11 @@
-@import model.BaseRule
-@import model.RegexRule
-@import model.LTRule
-@import model.Category
-@import utils.Matcher
+
 @import helper._
 
+@import com.gu.typerighter.model.BaseRule
+@import com.gu.typerighter.model.RegexRule
+@import com.gu.typerighter.model.RegexRule
+@import com.gu.typerighter.model.LTRule
+@import utils.Matcher
 @(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[Matcher], rulesRefreshed: Option[Boolean] = None,
         rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
