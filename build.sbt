@@ -47,7 +47,11 @@ val commonSettings = Seq(
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
     "com.gu" % "kinesis-logback-appender" % "2.1.0",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
-    "com.gu" %% "pan-domain-auth-verification" % "1.2.0",
+    "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
+    "com.google.api-client" % "google-api-client" % "2.0.1",
+    "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
+    "org.languagetool" % "languagetool-core" % languageToolVersion,
+    "org.languagetool" % "language-en" % languageToolVersion,
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
@@ -76,23 +80,18 @@ val checker = (project in file(s"$appsFolder/checker"))
     commonSettings,
     libraryDependencies ++= Seq(
       ws,
-      "org.languagetool" % "languagetool-core" % languageToolVersion,
-      "org.languagetool" % "language-en" % languageToolVersion,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-kinesis" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
-      "com.google.api-client" % "google-api-client" % "1.23.0",
-      "com.google.oauth-client" % "google-oauth-client-jetty" % "1.23.0",
-      "com.google.apis" % "google-api-services-sheets" % "v4-rev516-1.23.0",
       "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
       "org.webjars" % "bootstrap" % "4.3.1",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "org.apache.opennlp" % "opennlp" % "2.1.0",
+      "org.apache.opennlp" % "opennlp" % "2.1.0"
     ),
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core",
@@ -101,10 +100,6 @@ val checker = (project in file(s"$appsFolder/checker"))
     ).map(_ % circeVersion),
     libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
     libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
-    dependencyOverrides ++= Seq(
-      // Necessary to ensure that LanguageTool gets the correct version of Guava.
-      "com.google.guava" % "guava" % "30.1-jre"
-    )
   )
 
 val ruleManager = (project in file(s"$appsFolder/rule-manager"))
@@ -124,7 +119,7 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % "3.5.0" % Test,
-      "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.0",
+      "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
       "com.gu" %% "editorial-permissions-client" % "2.14"
     )
   )

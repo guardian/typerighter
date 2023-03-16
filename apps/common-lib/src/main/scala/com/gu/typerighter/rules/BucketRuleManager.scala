@@ -1,18 +1,12 @@
-package rules
+package com.gu.typerighter.rules
 
-import play.api.libs.json.Json
 import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest, S3Object}
-import java.io.InputStream
-import java.util.Date
-
-import com.amazonaws.{AmazonServiceException, SdkClientException}
-import play.api.libs.json.Writes
-import play.api.libs.json.Reads
-
-import model.{RegexRule, RuleResource}
+import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
+import com.gu.typerighter.model.RuleResource
 import play.api.Logging
-import com.amazonaws.services.s3.model.PutObjectResult
+import play.api.libs.json.Json
+
+import java.util.Date
 
 class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
     private val RULES_KEY = s"${stage}/rules/typerighter-rules.json"

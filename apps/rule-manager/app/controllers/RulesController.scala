@@ -3,8 +3,8 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+import play.api.libs.json.Json
 import play.api.mvc._
-import services._
 
 import scala.concurrent.ExecutionContext
 
@@ -13,11 +13,9 @@ import scala.concurrent.ExecutionContext
  */
 class RulesController(
   cc: ControllerComponents,
-  matcherPool: MatcherPool,
   sheetsRuleManager: SheetsRuleManager,
   bucketRuleManager: BucketRuleManager,
   sheetId: String,
-  ruleProvisioner: RuleProvisionerService,
   val publicSettings: PublicSettings
 )(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
@@ -29,39 +27,21 @@ class RulesController(
       }
       maybeRules.left.map { error => List(error.getMessage) }
     } match {
-      case Right((ruleResource, lastModified)) => {
-        val ruleErrors = ruleProvisioner.updateRules(ruleResource, lastModified) match {
-          case Right(()) => Nil
-          case Left(errors) => errors.map(_.getMessage)
-        }
-        val currentRules = matcherPool.getCurrentRules
-        Ok(views.html.rules(
-            sheetId,
-            currentRules,
-            matcherPool.getCurrentMatchers,
-            Some(true),
-            Some(currentRules.size),
-            ruleErrors
-        ))
+      case Right((ruleResource, _)) => {
+        Ok(Json.toJson(ruleResource))
       }
       case Left(errors) => {
-        Ok(views.html.rules(
-          sheetId,
-          matcherPool.getCurrentRules,
-          matcherPool.getCurrentMatchers,
-          Some(false),
-          Some(0),
-          errors
-        ))
+        InternalServerError(Json.toJson(errors))
       }
     }
   }
 
   def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
-    Ok(views.html.rules(
-      sheetId,
-      matcherPool.getCurrentRules,
-      matcherPool.getCurrentMatchers
-    ))
+    bucketRuleManager.getRules() match {
+      case Right((ruleResource, _)) =>
+        Ok(Json.toJson(ruleResource))
+      case Left(error) =>
+        InternalServerError(Json.toJson(error.getMessage))
+    }
   }
 }
