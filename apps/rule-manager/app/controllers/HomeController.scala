@@ -16,15 +16,15 @@ import com.gu.permissions.PermissionDefinition
 import utils.RuleManagerConfig
 
 class HomeController(
-  val controllerComponents: ControllerComponents,
-  val db: RuleManagerDB,
-  override val panDomainSettings: PanDomainAuthSettingsRefresher,
-  override val wsClient: WSClient,
-  override val config: RuleManagerConfig
+    val controllerComponents: ControllerComponents,
+    val db: RuleManagerDB,
+    override val panDomainSettings: PanDomainAuthSettingsRefresher,
+    override val wsClient: WSClient,
+    override val config: RuleManagerConfig
 ) extends BaseController
-  with Loggable
-  with AppAuthActions
-  with PermissionsHandler {
+    with Loggable
+    with AppAuthActions
+    with PermissionsHandler {
 
   def index() = AuthAction { implicit request: Request[AnyContent] =>
     Ok(views.html.index())
@@ -48,7 +48,7 @@ class HomeController(
 
   def editPermissionCheck() = AuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
-      case true => Ok("Permission granted")
+      case true  => Ok("Permission granted")
       case false => Unauthorized("You don't have permission to edit rules")
     }
   }

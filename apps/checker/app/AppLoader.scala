@@ -1,8 +1,6 @@
-
 import com.gu.typerighter.lib.AppSetup
 import play.api.ApplicationLoader.Context
 import play.api._
-
 
 class AppLoader extends ApplicationLoader {
   def load(context: Context): Application = {
@@ -13,7 +11,9 @@ class AppLoader extends ApplicationLoader {
     val appSetup = AppSetup(context)
 
     new AppComponents(
-      context.copy(initialConfiguration = Configuration(appSetup.config).withFallback(context.initialConfiguration)),
+      context.copy(initialConfiguration =
+        Configuration(appSetup.config).withFallback(context.initialConfiguration)
+      ),
       appSetup.region,
       appSetup.identity,
       appSetup.creds,
