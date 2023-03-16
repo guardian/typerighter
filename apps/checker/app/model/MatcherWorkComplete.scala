@@ -9,7 +9,7 @@ case class MatcherWorkComplete() {
 object MatcherWorkComplete {
   implicit val writes = new Writes[MatcherWorkComplete] {
     def writes(model: MatcherWorkComplete) = Json.obj(
-      "type" -> model.`type`,
+      "type" -> model.`type`
     )
   }
 }

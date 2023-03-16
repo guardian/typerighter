@@ -5,9 +5,8 @@ import play.api.libs.json.{Json, Reads, Writes}
 import scala.util.matching.Regex
 
 object Suggestion {
-  implicit val writes: Writes[Suggestion] = {
-    case textSuggestion: TextSuggestion =>
-      TextSuggestion.writes.writes(textSuggestion)
+  implicit val writes: Writes[Suggestion] = { case textSuggestion: TextSuggestion =>
+    TextSuggestion.writes.writes(textSuggestion)
   }
 }
 
@@ -15,13 +14,11 @@ sealed trait Suggestion {
   val `type`: String
   val text: String
 
-  /**
-    * If our suggestion is at the start of a sentence, cap up the first letter.
+  /** If our suggestion is at the start of a sentence, cap up the first letter.
     */
   def ensureCorrectCase(isStartOfSentence: Boolean): Suggestion = this match {
-    case TextSuggestion(text) if isStartOfSentence => {
+    case TextSuggestion(text) if isStartOfSentence =>
       TextSuggestion(text = s"${text.charAt(0).toUpper}${text.slice(1, text.length)}")
-    }
     case suggestion => suggestion
   }
 }

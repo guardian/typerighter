@@ -1,4 +1,3 @@
-
 package com.gu.typerighter.model
 
 import play.api.libs.json.{Json, Reads, Writes}
@@ -6,8 +5,7 @@ import org.languagetool.rules.{CategoryId, Category => LTCategory}
 
 case class Category(id: String, name: String)
 
-/**
-  * The application's representation of a LanguageTool Category.
+/** The application's representation of a LanguageTool Category.
   */
 object Category {
   def fromLT(lt: LTCategory): Category = {
