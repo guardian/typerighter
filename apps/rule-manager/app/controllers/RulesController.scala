@@ -8,16 +8,17 @@ import play.api.mvc._
 
 import scala.concurrent.ExecutionContext
 
-/**
- * The controller that handles the management of matcher rules.
- */
+/** The controller that handles the management of matcher rules.
+  */
 class RulesController(
-  cc: ControllerComponents,
-  sheetsRuleManager: SheetsRuleManager,
-  bucketRuleManager: BucketRuleManager,
-  sheetId: String,
-  val publicSettings: PublicSettings
-)(implicit ec: ExecutionContext) extends AbstractController(cc) with PandaAuthentication {
+    cc: ControllerComponents,
+    sheetsRuleManager: SheetsRuleManager,
+    bucketRuleManager: BucketRuleManager,
+    sheetId: String,
+    val publicSettings: PublicSettings
+)(implicit ec: ExecutionContext)
+    extends AbstractController(cc)
+    with PandaAuthentication {
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
     sheetsRuleManager.getRules().flatMap { ruleResource =>
       val maybeRules = bucketRuleManager.putRules(ruleResource).flatMap { _ =>

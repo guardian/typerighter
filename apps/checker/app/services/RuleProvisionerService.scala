@@ -32,8 +32,8 @@ class RuleProvisionerService(
 
     val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
 
-    val addedRulesErrors = ruleResource.rules.groupBy(_.category).toList.flatMap {
-      case (_, rules) =>
+    val addedRulesErrors =
+      ruleResource.rules.groupBy(_.category).toList.flatMap { case (_, rules) =>
         val regexRules = rules.collect { case r: RegexRule => r }
         val ltRules = rules.collect { case r: LTRuleXML => r }
 
@@ -43,7 +43,7 @@ class RuleProvisionerService(
         }
 
         if (ltRules.nonEmpty) addLTMatcherToPool(matcherPool, ltRules) else Nil
-    }
+      }
 
     lastModified = date
     cloudWatchClient.putMetric(Metrics.RulesIngested, matcherPool.getCurrentRules.size)
@@ -57,9 +57,8 @@ class RuleProvisionerService(
   /** Update our matcherPool rules from the S3 bucket.
     */
   def updateRulesFromBucket(): Unit = {
-    bucketRuleManager.getRules().map {
-      case (ruleResource, date) =>
-        updateRules(ruleResource, date)
+    bucketRuleManager.getRules().map { case (ruleResource, date) =>
+      updateRules(ruleResource, date)
     }
   }
 

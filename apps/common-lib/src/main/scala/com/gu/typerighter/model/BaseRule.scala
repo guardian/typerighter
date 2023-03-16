@@ -14,7 +14,6 @@ import org.languagetool.rules.{Rule => LanguageToolRule}
 import scala.util.matching.Regex
 import scala.jdk.CollectionConverters._
 
-
 /** A rule to match text against.
   */
 sealed trait BaseRule {
@@ -73,7 +72,7 @@ case class RegexRule(
       replacement = transformedReplacement,
       markAsCorrect =
         transformedReplacement.map(_.text).getOrElse("") == block.text.substring(start, end),
-      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
+      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText)
     )
   }
 }

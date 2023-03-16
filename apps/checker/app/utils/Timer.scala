@@ -73,10 +73,10 @@ object Timer extends Logging {
     val durationInMs = (toInNs - fromInNs) / 1000000
     val markers = Markers.appendEntries(
       Map(
-          "taskName" -> taskName,
-          "durationInMs" -> durationInMs,
-          "slowLogThresholdMs" -> slowLogThresholdMs
-        ).asJava
+        "taskName" -> taskName,
+        "durationInMs" -> durationInMs,
+        "slowLogThresholdMs" -> slowLogThresholdMs
+      ).asJava
     )
     markers.add(additionalMarkers)
 

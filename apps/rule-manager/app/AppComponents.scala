@@ -52,7 +52,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val publicSettingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
-    case _: DevIdentity => "local.dev-gutools.co.uk.settings.public"
+    case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
   }
   val publicSettings = new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", s3Client)
   publicSettings.start()
@@ -67,7 +67,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
 
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
-    case _ => "code"
+    case _                     => "code"
   }
   val typerighterBucket = s"typerighter-app-${stage}"
 
@@ -87,7 +87,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
     sheetsRuleManager,
     bucketRuleManager,
     config.spreadsheetId,
-    publicSettings,
+    publicSettings
   )
 
   lazy val router = new Routes(
