@@ -1,0 +1,23 @@
+#!/bin/sh
+#
+# A pre-commit hook to check via scalafmt for linting.
+
+ROOT=$(git rev-parse --show-toplevel)
+SCALAFMT_CONFIG="${ROOT}/.scalafmt.conf"
+
+if [ ! -f "${SCALAFMT_CONFIG}" ]; then
+  # Exit if no scalafmt configuration is found.
+  exit 0
+else
+  # Prefer the CLI version because it is faster.
+  echo "Checking code format via scalafmt, please wait a minute."
+  echo "The check can be skipped by using the --no-verify flag for git commit."
+  $(command -v scalafmt >/dev/null 2>&1 && $(scalafmt --config "${SCALAFMT_CONFIG}" --exclude target --mode changed --non-interactive --quiet --test >/dev/null 2>&1) || $(sbt scalafmtCheckAll >/dev/null 2>&1))
+  STATUS=$?
+  if [ ! $STATUS -eq 0 ]; then
+    echo ""
+    echo "**Some files are not properly formatted, please run scalafmt!**"
+    echo ""
+  fi
+  exit $STATUS
+fi
