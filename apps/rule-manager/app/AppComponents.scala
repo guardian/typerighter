@@ -14,7 +14,7 @@ import com.gu.AppIdentity
 import com.gu.DevIdentity
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import router.Routes
-import db.RuleManagerDB
+import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
 import utils.RuleManagerConfig
@@ -32,7 +32,7 @@ class AppComponents(
     with EvolutionsComponents
     with AhcWSComponents {
   val config = new RuleManagerConfig(configuration, region, identity, creds)
-  val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
+  val db = new DB(config.dbUrl, config.dbUsername, config.dbPassword)
 
   applicationEvolutions
 

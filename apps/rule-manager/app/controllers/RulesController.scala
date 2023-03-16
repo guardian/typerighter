@@ -21,6 +21,8 @@ class RulesController(
     with PandaAuthentication {
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
     sheetsRuleManager.getRules().flatMap { ruleResource =>
+      // write rules to DB and read rules back from DB
+
       val maybeRules = bucketRuleManager.putRules(ruleResource).flatMap { _ =>
         bucketRuleManager.getRulesLastModified.map { lastModified =>
           (ruleResource, lastModified)

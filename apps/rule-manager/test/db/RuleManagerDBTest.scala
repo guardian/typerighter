@@ -17,7 +17,7 @@ trait RuleManagerDBTest extends BeforeAndAfter { self: Suite =>
     "password" -> password
   ))
 
-  val scalikejdbcDb = new RuleManagerDB(url, user, password)
+  val scalikejdbcDb = new DB(url, user, password)
 
   before {
     try {

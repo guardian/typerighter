@@ -4,7 +4,7 @@ import scalikejdbc._
 
 import scala.util.Try
 
-case class Rules(
+case class DbRule(
     id: Int,
     ruleType: String,
     pattern: String,
@@ -19,14 +19,13 @@ case class Rules(
     advisoryRule: Option[Boolean] = None
 ) {
 
-  def save()(implicit session: DBSession = Rules.autoSession): Try[Rules] =
-    Rules.save(this)(session)
+  def save()(implicit session: DBSession = DbRule.autoSession): Try[DbRule] = DbRule.save(this)(session)
 
-  def destroy()(implicit session: DBSession = Rules.autoSession): Int = Rules.destroy(this)(session)
+  def destroy()(implicit session: DBSession = DbRule.autoSession): Int = DbRule.destroy(this)(session)
 
 }
 
-object Rules extends SQLSyntaxSupport[Rules] {
+object DbRule extends SQLSyntaxSupport[DbRule] {
 
   override val tableName = "rules"
 
@@ -45,42 +44,42 @@ object Rules extends SQLSyntaxSupport[Rules] {
     "advisory_rule"
   )
 
-  def apply(r: SyntaxProvider[Rules])(rs: WrappedResultSet): Rules = autoConstruct(rs, r)
-  def apply(r: ResultName[Rules])(rs: WrappedResultSet): Rules = autoConstruct(rs, r)
+  def apply(r: SyntaxProvider[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
+  def apply(r: ResultName[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
 
-  val r = Rules.syntax("r")
+  val r = DbRule.syntax("r")
 
   override val autoSession = AutoSession
 
-  def find(id: Int)(implicit session: DBSession = autoSession): Option[Rules] = {
+  def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRule] = {
     withSQL {
-      select.from(Rules as r).where.eq(r.id, id)
-    }.map(Rules(r.resultName)).single.apply()
+      select.from(DbRule as r).where.eq(r.id, id)
+    }.map(DbRule(r.resultName)).single.apply()
   }
 
-  def findAll()(implicit session: DBSession = autoSession): List[Rules] = {
-    withSQL(select.from(Rules as r)).map(Rules(r.resultName)).list.apply()
+  def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
+    withSQL(select.from(DbRule as r)).map(DbRule(r.resultName)).list.apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
-    withSQL(select(sqls.count).from(Rules as r)).map(rs => rs.long(1)).single.apply().get
+    withSQL(select(sqls.count).from(DbRule as r)).map(rs => rs.long(1)).single.apply().get
   }
 
-  def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[Rules] = {
+  def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[DbRule] = {
     withSQL {
-      select.from(Rules as r).where.append(where)
-    }.map(Rules(r.resultName)).single.apply()
+      select.from(DbRule as r).where.append(where)
+    }.map(DbRule(r.resultName)).single.apply()
   }
 
-  def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[Rules] = {
+  def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[DbRule] = {
     withSQL {
-      select.from(Rules as r).where.append(where)
-    }.map(Rules(r.resultName)).list.apply()
+      select.from(DbRule as r).where.append(where)
+    }.map(DbRule(r.resultName)).list.apply()
   }
 
   def countBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Long = {
     withSQL {
-      select(sqls.count).from(Rules as r).where.append(where)
+      select(sqls.count).from(DbRule as r).where.append(where)
     }.map(_.long(1)).single.apply().get
   }
 
@@ -96,10 +95,10 @@ object Rules extends SQLSyntaxSupport[Rules] {
       googleSheetId: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None
-  )(implicit session: DBSession = autoSession): Rules = {
+  )(implicit session: DBSession = autoSession): DbRule = {
     val generatedKey = withSQL {
       insert
-        .into(Rules)
+        .into(DbRule)
         .namedValues(
           column.ruleType -> ruleType,
           column.pattern -> pattern,
@@ -115,7 +114,7 @@ object Rules extends SQLSyntaxSupport[Rules] {
         )
     }.updateAndReturnGeneratedKey.apply()
 
-    Rules(
+    DbRule(
       id = generatedKey.toInt,
       ruleType = ruleType,
       pattern = pattern,
@@ -132,7 +131,7 @@ object Rules extends SQLSyntaxSupport[Rules] {
   }
 
   def batchInsert(
-      entities: collection.Seq[Rules]
+      entities: collection.Seq[DbRule]
   )(implicit session: DBSession = autoSession): List[Int] = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
@@ -176,9 +175,9 @@ object Rules extends SQLSyntaxSupport[Rules] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: Rules)(implicit session: DBSession = autoSession): Try[Rules] = {
+  def save(entity: DbRule)(implicit session: DBSession = autoSession): Try[DbRule] = {
     withSQL {
-      update(Rules)
+      update(DbRule)
         .set(
           column.id -> entity.id,
           column.ruleType -> entity.ruleType,
@@ -204,8 +203,8 @@ object Rules extends SQLSyntaxSupport[Rules] {
       .toTry
   }
 
-  def destroy(entity: Rules)(implicit session: DBSession = autoSession): Int = {
-    withSQL { delete.from(Rules).where.eq(column.id, entity.id) }.update.apply()
+  def destroy(entity: DbRule)(implicit session: DBSession = autoSession): Int = {
+    withSQL { delete.from(DbRule).where.eq(column.id, entity.id) }.update.apply()
   }
 
 }
