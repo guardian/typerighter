@@ -92,7 +92,7 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "org.apache.opennlp" % "opennlp" % "2.1.1",
+      "org.apache.opennlp" % "opennlp" % "2.1.0",
     ),
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core",
