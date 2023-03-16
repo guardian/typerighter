@@ -5,31 +5,45 @@ import scalikejdbc._
 import scala.util.Try
 
 case class Rules(
-  id: Int,
-  ruleType: String,
-  pattern: String,
-  replacement: Option[String] = None,
-  category: Option[String] = None,
-  tags: Option[String] = None,
-  description: Option[String] = None,
-  ignore: Boolean,
-  notes: Option[String] = None,
-  googleSheetId: Option[String] = None,
-  forceRedRule: Option[Boolean] = None,
-  advisoryRule: Option[Boolean] = None) {
+    id: Int,
+    ruleType: String,
+    pattern: String,
+    replacement: Option[String] = None,
+    category: Option[String] = None,
+    tags: Option[String] = None,
+    description: Option[String] = None,
+    ignore: Boolean,
+    notes: Option[String] = None,
+    googleSheetId: Option[String] = None,
+    forceRedRule: Option[Boolean] = None,
+    advisoryRule: Option[Boolean] = None
+) {
 
-  def save()(implicit session: DBSession = Rules.autoSession): Try[Rules] = Rules.save(this)(session)
+  def save()(implicit session: DBSession = Rules.autoSession): Try[Rules] =
+    Rules.save(this)(session)
 
   def destroy()(implicit session: DBSession = Rules.autoSession): Int = Rules.destroy(this)(session)
 
 }
 
-
 object Rules extends SQLSyntaxSupport[Rules] {
 
   override val tableName = "rules"
 
-  override val columns = Seq("id", "rule_type", "pattern", "replacement", "category", "tags", "description", "ignore", "notes", "google_sheet_id", "force_red_rule", "advisory_rule")
+  override val columns = Seq(
+    "id",
+    "rule_type",
+    "pattern",
+    "replacement",
+    "category",
+    "tags",
+    "description",
+    "ignore",
+    "notes",
+    "google_sheet_id",
+    "force_red_rule",
+    "advisory_rule"
+  )
 
   def apply(r: SyntaxProvider[Rules])(rs: WrappedResultSet): Rules = autoConstruct(rs, r)
   def apply(r: ResultName[Rules])(rs: WrappedResultSet): Rules = autoConstruct(rs, r)
@@ -71,31 +85,34 @@ object Rules extends SQLSyntaxSupport[Rules] {
   }
 
   def create(
-    ruleType: String,
-    pattern: String,
-    replacement: Option[String] = None,
-    category: Option[String] = None,
-    tags: Option[String] = None,
-    description: Option[String] = None,
-    ignore: Boolean,
-    notes: Option[String] = None,
-    googleSheetId: Option[String] = None,
-    forceRedRule: Option[Boolean] = None,
-    advisoryRule: Option[Boolean] = None)(implicit session: DBSession = autoSession): Rules = {
+      ruleType: String,
+      pattern: String,
+      replacement: Option[String] = None,
+      category: Option[String] = None,
+      tags: Option[String] = None,
+      description: Option[String] = None,
+      ignore: Boolean,
+      notes: Option[String] = None,
+      googleSheetId: Option[String] = None,
+      forceRedRule: Option[Boolean] = None,
+      advisoryRule: Option[Boolean] = None
+  )(implicit session: DBSession = autoSession): Rules = {
     val generatedKey = withSQL {
-      insert.into(Rules).namedValues(
-        column.ruleType -> ruleType,
-        column.pattern -> pattern,
-        column.replacement -> replacement,
-        column.category -> category,
-        column.tags -> tags,
-        column.description -> description,
-        column.ignore -> ignore,
-        column.notes -> notes,
-        column.googleSheetId -> googleSheetId,
-        column.forceRedRule -> forceRedRule,
-        column.advisoryRule -> advisoryRule
-      )
+      insert
+        .into(Rules)
+        .namedValues(
+          column.ruleType -> ruleType,
+          column.pattern -> pattern,
+          column.replacement -> replacement,
+          column.category -> category,
+          column.tags -> tags,
+          column.description -> description,
+          column.ignore -> ignore,
+          column.notes -> notes,
+          column.googleSheetId -> googleSheetId,
+          column.forceRedRule -> forceRedRule,
+          column.advisoryRule -> advisoryRule
+        )
     }.updateAndReturnGeneratedKey.apply()
 
     Rules(
@@ -110,10 +127,13 @@ object Rules extends SQLSyntaxSupport[Rules] {
       notes = notes,
       googleSheetId = googleSheetId,
       forceRedRule = forceRedRule,
-      advisoryRule = advisoryRule)
+      advisoryRule = advisoryRule
+    )
   }
 
-  def batchInsert(entities: collection.Seq[Rules])(implicit session: DBSession = autoSession): List[Int] = {
+  def batchInsert(
+      entities: collection.Seq[Rules]
+  )(implicit session: DBSession = autoSession): List[Int] = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
         Symbol("ruleType") -> entity.ruleType,
@@ -126,7 +146,9 @@ object Rules extends SQLSyntaxSupport[Rules] {
         Symbol("notes") -> entity.notes,
         Symbol("googleSheetId") -> entity.googleSheetId,
         Symbol("forceRedRule") -> entity.forceRedRule,
-        Symbol("advisoryRule") -> entity.advisoryRule))
+        Symbol("advisoryRule") -> entity.advisoryRule
+      )
+    )
     SQL("""insert into rules(
       rule_type,
       pattern,
@@ -156,24 +178,29 @@ object Rules extends SQLSyntaxSupport[Rules] {
 
   def save(entity: Rules)(implicit session: DBSession = autoSession): Try[Rules] = {
     withSQL {
-      update(Rules).set(
-        column.id -> entity.id,
-        column.ruleType -> entity.ruleType,
-        column.pattern -> entity.pattern,
-        column.replacement -> entity.replacement,
-        column.category -> entity.category,
-        column.tags -> entity.tags,
-        column.description -> entity.description,
-        column.ignore -> entity.ignore,
-        column.notes -> entity.notes,
-        column.googleSheetId -> entity.googleSheetId,
-        column.forceRedRule -> entity.forceRedRule,
-        column.advisoryRule -> entity.advisoryRule
-      ).where.eq(column.id, entity.id)
+      update(Rules)
+        .set(
+          column.id -> entity.id,
+          column.ruleType -> entity.ruleType,
+          column.pattern -> entity.pattern,
+          column.replacement -> entity.replacement,
+          column.category -> entity.category,
+          column.tags -> entity.tags,
+          column.description -> entity.description,
+          column.ignore -> entity.ignore,
+          column.notes -> entity.notes,
+          column.googleSheetId -> entity.googleSheetId,
+          column.forceRedRule -> entity.forceRedRule,
+          column.advisoryRule -> entity.advisoryRule
+        )
+        .where
+        .eq(column.id, entity.id)
     }.update.apply()
 
     find(entity.id)
-      .toRight(new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule"))
+      .toRight(
+        new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
+      )
       .toTry
   }
 

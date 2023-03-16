@@ -1,4 +1,3 @@
-
 import play.api.ApplicationLoader.Context
 import play.filters.HttpFiltersComponents
 import play.api.BuiltInComponentsFromContext
@@ -20,14 +19,18 @@ import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
 import utils.RuleManagerConfig
 
-class AppComponents(context: Context, region: String, identity: AppIdentity, creds: AWSCredentialsProvider)
-  extends BuiltInComponentsFromContext(context)
-  with HttpFiltersComponents
-  with AssetsComponents
-  with DBComponents
-  with HikariCPComponents
-  with EvolutionsComponents
-  with AhcWSComponents {
+class AppComponents(
+    context: Context,
+    region: String,
+    identity: AppIdentity,
+    creds: AWSCredentialsProvider
+) extends BuiltInComponentsFromContext(context)
+    with HttpFiltersComponents
+    with AssetsComponents
+    with DBComponents
+    with HikariCPComponents
+    with EvolutionsComponents
+    with AhcWSComponents {
   val config = new RuleManagerConfig(configuration, region, identity, creds)
   val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
 
@@ -42,7 +45,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val stageDomain = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk"
-    case _: DevIdentity => "local.dev-gutools.co.uk"
+    case _: DevIdentity        => "local.dev-gutools.co.uk"
   }
   val appName = identity match {
     case identity: AwsIdentity => identity.app
