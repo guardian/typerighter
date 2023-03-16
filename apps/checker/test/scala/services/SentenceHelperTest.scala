@@ -1,10 +1,10 @@
 package services
 
+import com.gu.typerighter.model.TextRange
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import com.softwaremill.diffx.generic.auto._
-import model.TextRange
 
 class SentenceHelperTest extends AsyncFlatSpec with Matchers {
 
