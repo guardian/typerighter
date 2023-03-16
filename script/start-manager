@@ -1,0 +1,41 @@
+#!/bin/bash -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+APP_FOLDER="apps"
+
+IS_DEBUG=false
+
+for arg in "$@"
+do
+  if [[ "$arg" == "--debug" ]]; then
+    IS_DEBUG=true
+    shift
+  fi
+done
+
+checkCredentials() {
+  bash "${DIR}"/lib/check-aws-credentials
+}
+
+setupDependencies() {
+  docker-compose up -d
+  (cd $APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
+}
+
+teardownDependencies() {
+  docker-compose down
+}
+
+runRuleManager() {
+  if [[ "$IS_DEBUG" = true ]] ; then
+    sbt -jvm-debug 5006 "ruleManager / run"
+  else
+    sbt "ruleManager / run"
+  fi
+}
+
+trap teardownDependencies EXIT
+
+checkCredentials
+setupDependencies
+runRuleManager

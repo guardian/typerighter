@@ -1,6 +1,6 @@
-package scala.model
+package model
 
-import model._
+import com.gu.typerighter.model.TextRange
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 

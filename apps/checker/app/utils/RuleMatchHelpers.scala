@@ -1,6 +1,6 @@
 package utils
 
-import model.RuleMatch
+import com.gu.typerighter.model.RuleMatch
 
 object RuleMatchHelpers {
   def removeOverlappingRules(currentMatches: List[RuleMatch], incomingMatches: List[RuleMatch]): List[RuleMatch] =
