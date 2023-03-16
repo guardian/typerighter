@@ -1,7 +1,8 @@
-package model
 
+package com.gu.typerighter.model
+
+import play.api.libs.json.{Json, Reads, Writes}
 import org.languagetool.rules.{CategoryId, Category => LTCategory}
-import play.api.libs.json.{Json, Writes, Reads}
 
 case class Category(id: String, name: String)
 
