@@ -35,7 +35,7 @@ class ApiController(
         } recover { case e: Exception =>
           InternalServerError(Json.obj("error" -> e.getMessage))
         }
-      case        Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
+      case         Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
 
