@@ -20,7 +20,7 @@ class ApiController(
     matcherPool: MatcherPool,
     val publicSettings: PublicSettings
 )(implicit ec: ExecutionContext)
-    extends  AbstractController(cc)
+    extends AbstractController(cc)
     with PandaAuthentication {
   def check: Action[JsValue] = ApiAuthAction.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
@@ -35,7 +35,7 @@ class ApiController(
         } recover { case e: Exception =>
           InternalServerError(Json.obj("error" -> e.getMessage))
         }
-      case         Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
+      case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
 

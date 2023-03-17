@@ -16,7 +16,7 @@ else
   STATUS=$?
   if [ ! $STATUS -eq 0 ]; then
     echo ""
-    echo "**Some files are not properly formatted, please run scalafmt!**"
+    echo "**Failed to format files, please run scalafmt to see error**"
     echo ""
   fi
   exit $STATUS
