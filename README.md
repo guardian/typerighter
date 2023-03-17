@@ -77,3 +77,7 @@ To confirm all files are linted correctly, you can run `sbt scalafmtCheckAll`
 You can configure your IDE to format scala files on save according to the linting rules defined in [.scalafmt.conf](.scalafmt.conf)
 
 For intellij there is a guide to set up automated linting on save [here](https://www.jetbrains.com/help/idea/work-with-scala-formatter.html#scalafmt_config) and [here](https://scalameta.org/scalafmt/docs/installation.html). For visual studio code with metals see [here](https://scalameta.org/scalafmt/docs/installation.html#vs-code)
+
+## Automatic Linting
+
+The project contains a pre-commit hook which will automatically run the linter on all staged files. To enable this, run `./script/setup-hooks` from the root of the project.
