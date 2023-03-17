@@ -9,8 +9,8 @@ if [ ! -f "${SCALAFMT_CONFIG}" ]; then
   # Exit if no scalafmt configuration is found.
   exit 0
 else
-  # Prefer the CLI version because it is faster.
-  echo "Checking code format via scalafmt, please wait a minute."
+  # Try the CLI version for performance.
+  echo "Checking code format via scalafmt..."
   echo "The check can be skipped by using the --no-verify flag for git commit."
   $(command -v scalafmt >/dev/null 2>&1 && $(scalafmt --config "${SCALAFMT_CONFIG}" --exclude target --mode changed --non-interactive --quiet --test >/dev/null 2>&1) || $(sbt scalafmtCheckAll >/dev/null 2>&1))
   STATUS=$?
