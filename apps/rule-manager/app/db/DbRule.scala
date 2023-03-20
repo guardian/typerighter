@@ -5,7 +5,7 @@ import scalikejdbc._
 import scala.util.Try
 
 case class DbRule(
-    id: Int,
+    id: Option[Int],
     ruleType: String,
     pattern: String,
     replacement: Option[String] = None,
@@ -115,7 +115,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     }.updateAndReturnGeneratedKey.apply()
 
     DbRule(
-      id = generatedKey.toInt,
+      id = Some(generatedKey.toInt),
       ruleType = ruleType,
       pattern = pattern,
       replacement = replacement,
@@ -196,7 +196,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
         .eq(column.id, entity.id)
     }.update.apply()
 
-    find(entity.id)
+    find(entity.id.get)
       .toRight(
         new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
       )

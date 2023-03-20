@@ -5,6 +5,7 @@ import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import play.api.libs.json.Json
 import play.api.mvc._
+import service.DbRuleManager
 
 import scala.concurrent.ExecutionContext
 
@@ -22,6 +23,7 @@ class RulesController(
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
     sheetsRuleManager.getRules().flatMap { ruleResource =>
       // write rules to DB and read rules back from DB
+      DbRuleManager.overwriteAllRules(ruleResource)
 
       val maybeRules = bucketRuleManager.putRules(ruleResource).flatMap { _ =>
         bucketRuleManager.getRulesLastModified.map { lastModified =>
