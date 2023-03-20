@@ -12,7 +12,7 @@ module.exports = {
    plugins: [new TSConfigPathsPlugin()],
   },
   entry: {
-    app: "./src/index.tsx"
+    app: "./src/ts/index.tsx"
   },
   output: {
     filename: "rule-manager-app.js",
@@ -26,7 +26,10 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           {
-            loader: "ts-loader"
+            loader: "ts-loader",
+            options: {
+              transpileOnly: true
+            }
           }
         ]
       },

@@ -6,9 +6,10 @@
         "module": "commonjs",
         "target": "es6",
         "jsx": "react",
-        "baseUrl": "./src",
+        "baseUrl": "./src/ts",
         "esModuleInterop": true,
         "strict": true,
-        "alwaysStrict": true
+        "alwaysStrict": true,
+        "skipLibCheck": true
     }
 }
