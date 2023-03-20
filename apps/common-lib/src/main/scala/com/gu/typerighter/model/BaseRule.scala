@@ -36,6 +36,18 @@ object RegexRule {
   implicit val reads: Reads[RegexRule] = Json.reads[RegexRule]
 }
 
+class ComparableRegex(regex: String, groupNames: String*) extends Regex(regex, groupNames: _*) {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case r: ComparableRegex =>
+        this.pattern.pattern == r.pattern.pattern &&
+        this.pattern.flags == r.pattern.flags &&
+        this.groupNames == r.groupNames
+      case _ => false
+    }
+  }
+}
+
 case class RegexRule(
     id: String,
     category: Category,

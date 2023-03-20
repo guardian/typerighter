@@ -38,7 +38,7 @@ object DbRuleManager {
         category = Category(id = rule.category.get, name = rule.category.get),
         description = rule.description.get,
         suggestions = List.empty,
-        replacement = Some(TextSuggestion(rule.replacement.get)),
+        replacement = rule.replacement.map(TextSuggestion(_)),
         regex = rule.pattern.r,
       )
       case "languageTool" => LTRuleXML(
@@ -51,15 +51,24 @@ object DbRuleManager {
   }
 
   def overwriteAllRules(rules: RuleResource): RuleResource = {
-//    DbRule.batchInsert(rules.rules)
     rules.rules.grouped(500)
       .foreach( batch => DbRule.batchInsert(batch.map(baseRuleToDbRule)))
 
-    val persistedRule = RuleResource(rules= DbRule.findAll().map(dbRuleToBaseRule), ltDefaultRuleIds = List.empty)
+    val persistedRules = RuleResource(rules= DbRule.findAll().map(dbRuleToBaseRule), ltDefaultRuleIds = List.empty)
     val expectedRules = rules.copy(ltDefaultRuleIds = List.empty)
-    if (persistedRule != expectedRules) {
+
+
+
+    if (persistedRules != expectedRules) {
+      val allRules = persistedRules.rules.zip(expectedRules.rules);
+      allRules.take(5).foreach { case (persistedRule, expectedRule) =>
+        if (persistedRule != expectedRule) {
+          println(s"Persisted rule: $persistedRule")
+          println(s"Expected rule: $expectedRule")
+        }
+      }
       throw new Exception("Failed to persist rules")
     }
-    persistedRule
+    persistedRules
   }
 }
