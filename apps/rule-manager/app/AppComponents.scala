@@ -8,7 +8,7 @@ import play.api.http.DefaultHttpErrorHandler
 import play.api.libs.ws.ahc.AhcWSComponents
 import controllers.{AssetsComponents, HomeController, RulesController}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSStaticCredentialsProvider}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.Regions
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
@@ -35,12 +35,17 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
       .withRegion(region)
       .build()
     case _: DevIdentity => AmazonS3ClientBuilder
-      .standard()
+       .standard()
       .withCredentials(creds)
       .withEndpointConfiguration(new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName))
-      .withRegion(region)
       .build()
   }
+
+  private val pandaS3Client = AmazonS3ClientBuilder
+    .standard()
+    .withCredentials(creds)
+    .withRegion(region)
+    .build()
 
   val stageDomain = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
@@ -57,7 +62,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
     case _: DevIdentity => "local.dev-gutools.co.uk.settings.public"
   }
-  val publicSettings = new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", s3Client)
+  val publicSettings = new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", pandaS3Client)
   publicSettings.start()
 
   val panDomainSettings = new PanDomainAuthSettingsRefresher(
@@ -65,7 +70,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
     system = appName,
     bucketName = "pan-domain-auth-settings",
     settingsFileKey = s"$stageDomain.settings",
-    s3Client = s3Client
+    s3Client = pandaS3Client
   )
 
   val stage = identity match {
