@@ -2,31 +2,22 @@
   "name": "rule-manager-client",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "webpack --config ./conf/webpack.prod.config.js --watch",
-    "build": "webpack --config ./conf/webpack.prod.config.js",
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@babel/preset-env": "^7.12.11",
-    "@babel/preset-react": "^7.12.10",
     "@types/react": "~17.0.53",
     "@types/react-dom": "~17.0.19",
-    "babel-loader": "^8.2.2",
-    "clean-webpack-plugin": "^3.0.0",
-    "css-loader": "^5.0.1",
-    "html-webpack-plugin": "^4.5.0",
-    "style-loader": "^2.0.0",
-    "ts-loader": "^8.0.12",
-    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "vite": "^4.2.0",
     "typescript": "4.5",
-    "webpack": "^5.11.0",
-    "webpack-cli": "^4.2.0"
+    "@vitejs/plugin-react-swc": "^3.0.0"
   },
   "dependencies": {
     "@elastic/datemath": "^5.0.3",
