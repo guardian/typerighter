@@ -1,7 +1,7 @@
 package matchers
 
 import com.gu.typerighter
-import com.gu.typerighter.model.{Category, RegexRule, RuleMatch, Text, TextBlock, TextSuggestion}
+import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, Text, TextBlock, TextSuggestion}
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -20,7 +20,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
         category = Category("new-category", "New Category"),
         description = s"Example rule $index",
         suggestions = List(TextSuggestion(s"Suggestion for rule $index")),
-        regex = text.r
+        regex = new ComparableRegex(text)
       )
     }
   }
@@ -46,7 +46,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     markAsCorrect = markAsCorrect
   )
 
-  def checkTextWithRegex(regex: Regex, replacement: String, text: String): Future[List[RuleMatch]] = {
+  def checkTextWithRegex(regex: ComparableRegex, replacement: String, text: String): Future[List[RuleMatch]] = {
     val rule = typerighter.model.RegexRule(
       id = "test-rule",
       description = "test-description",
@@ -142,7 +142,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       category = Category("new-category", "New Category"),
       description = s"Example rule",
       replacement = Some(TextSuggestion("tea$1")),
-      regex = "\\btea-? ?(shop|bag|leaf|leaves|pot)".r
+      regex = new ComparableRegex("\\btea-? ?(shop|bag|leaf|leaves|pot)")
     )
 
     val validator = new RegexMatcher(List(rule))
@@ -165,7 +165,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       category = Category("new-category", "New Category"),
       description = s"Example rule",
       replacement = Some(TextSuggestion("tea$1")),
-      regex = "\\btea-? ?(shop|bag|leaf|leaves|pot)".r
+      regex = new ComparableRegex("\\btea-? ?(shop|bag|leaf|leaves|pot)")
     )
 
     val validator = new RegexMatcher(List(rule))
@@ -187,7 +187,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       category = Category("new-category", "New Category"),
       description = s"Example rule",
       replacement = Some(TextSuggestion("Booker prize")),
-      regex = "(?i)\\b(Man)? ?Booker prize".r
+      regex = new ComparableRegex("(?i)\\b(Man)? ?Booker prize")
     )
 
     val validator = new RegexMatcher(List(rule))
@@ -208,7 +208,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       category = Category("new-category", "New Category"),
       description = s"Example rule",
       replacement = Some(TextSuggestion("$1-$2-long")),
-      regex = "\\b(one|two|three|four|five|six|seven|eight|nine|\\d)-? (year|day|month|week|mile)-? long".r
+      regex = new ComparableRegex("\\b(one|two|three|four|five|six|seven|eight|nine|\\d)-? (year|day|month|week|mile)-? long")
     )
 
     val validator = new RegexMatcher(List(rule))
@@ -228,7 +228,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – preserve current case" in {
     val eventuallyMatches = checkTextWithRegex(
-      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      new ComparableRegex("(?i)\\bcaf(e|é|è|ë|ê)"),
       "cafe",
       "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
     )
@@ -243,7 +243,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – cap up sentence start" in {
     val eventuallyMatches = checkTextWithRegex(
-      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      new ComparableRegex("(?i)\\bcaf(e|é|è|ë|ê)"),
       "cafe",
       "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
     )
@@ -258,7 +258,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   it should "transform suggestions to respect sentence starts, to avoid suggesting capping down – cap up sentence start within quote" in {
     val eventuallyMatches = checkTextWithRegex(
-      "(?i)\\bcaf(e|é|è|ë|ê)"r,
+      new ComparableRegex("(?i)\\bcaf(e|é|è|ë|ê)"),
       "cafe",
       "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. \"Cafes\", bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
     )
@@ -273,7 +273,7 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
 
   it should "should not apply capitalisations when the match does not include the start of the word" in {
     val eventuallyMatches = checkTextWithRegex(
-      "(?i)af(e|é|è|ë|ê)"r,
+      new ComparableRegex("(?i)af(e|é|è|ë|ê)"),
       "afe",
       "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. Cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
     )

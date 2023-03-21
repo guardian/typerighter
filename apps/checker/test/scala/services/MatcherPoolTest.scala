@@ -2,7 +2,7 @@ package services
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
-import com.gu.typerighter.model.{Category, RegexRule, RuleMatch, TextBlock, TextRange}
+import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, TextBlock, TextRange}
 import model._
 import org.scalatest.time.SpanSugar._
 import org.scalatest.flatspec.AsyncFlatSpec
@@ -85,7 +85,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     id = "test-rule",
     description = "test-description",
     category = getCategory(id),
-    regex = "test"r
+    regex = new ComparableRegex("test")
   )
 
   private val responses = getResponses(List((0, 5, "test-response")))

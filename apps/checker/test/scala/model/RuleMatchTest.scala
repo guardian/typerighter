@@ -1,7 +1,7 @@
 package scala.model
 
 
-import com.gu.typerighter.model.{Category, RegexRule, RuleMatch, Text, TextRange}
+import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, Text, TextRange}
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -12,7 +12,7 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
       id = "test-rule",
       description = "test-description",
       category = Category("test-category", "Test Category"),
-      regex = "test"r
+      regex = new ComparableRegex("test")
     ),
     fromPos = from,
     toPos = to,

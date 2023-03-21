@@ -19,9 +19,11 @@ case class DbRule(
     advisoryRule: Option[Boolean] = None
 ) {
 
-  def save()(implicit session: DBSession = DbRule.autoSession): Try[DbRule] = DbRule.save(this)(session)
+  def save()(implicit session: DBSession = DbRule.autoSession): Try[DbRule] =
+    DbRule.save(this)(session)
 
-  def destroy()(implicit session: DBSession = DbRule.autoSession): Int = DbRule.destroy(this)(session)
+  def destroy()(implicit session: DBSession = DbRule.autoSession): Int =
+    DbRule.destroy(this)(session)
 
 }
 

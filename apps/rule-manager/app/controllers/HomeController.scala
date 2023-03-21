@@ -16,11 +16,11 @@ import com.gu.permissions.PermissionDefinition
 import utils.RuleManagerConfig
 
 class HomeController(
-                      val controllerComponents: ControllerComponents,
-                      val db: DB,
-                      override val panDomainSettings: PanDomainAuthSettingsRefresher,
-                      override val wsClient: WSClient,
-                      override val config: RuleManagerConfig
+    val controllerComponents: ControllerComponents,
+    val db: DB,
+    override val panDomainSettings: PanDomainAuthSettingsRefresher,
+    override val wsClient: WSClient,
+    override val config: RuleManagerConfig
 ) extends BaseController
     with Loggable
     with AppAuthActions
