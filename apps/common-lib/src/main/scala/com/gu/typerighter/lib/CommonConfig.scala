@@ -26,7 +26,7 @@ abstract class CommonConfig(
 
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
-    case _                     => "code"
+    case _                     => "dev"
   }
 
   val stageDomain = identity match {

@@ -62,7 +62,7 @@ buildCDK() {
 
 buildClients() {
   (cd $ROOT_DIR/$APP_FOLDER/rule-audit-client && npm i && npm run build)
-  (cd $ROOT_DIR/$APP_FOLDER/rule-manager/rule-manager-client && npm i && npm run build)
+  (cd $ROOT_DIR/$APP_FOLDER/rule-manager/client && npm i && npm run build)
 }
 
 buildSbt() {
