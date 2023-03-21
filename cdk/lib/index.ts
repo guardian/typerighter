@@ -299,7 +299,7 @@ dpkg -i /tmp/package.deb`,
       engine: DatabaseInstanceEngine.postgres({
         version: PostgresEngineVersion.VER_13,
       }),
-      instanceType: "t3.micro",
+      instanceType: "db.t4g.micro",
       instanceIdentifier: `typerighter-rule-manager-store-${this.stage}`,
       subnetGroup: new SubnetGroup(this, "DBSubnetGroup", {
         vpc: ruleManagerApp.vpc,
