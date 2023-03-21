@@ -1546,7 +1546,7 @@ dpkg -i /tmp/package.deb",
         "AutoMinorVersionUpgrade": true,
         "BackupRetentionPeriod": 10,
         "CopyTagsToSnapshot": true,
-        "DBInstanceClass": "db.t3.micro",
+        "DBInstanceClass": "db.t4g.micro",
         "DBInstanceIdentifier": Object {
           "Fn::Join": Array [
             "",
