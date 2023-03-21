@@ -38,6 +38,8 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
        .standard()
       .withCredentials(creds)
       .withEndpointConfiguration(new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName))
+      // This is needed for localstack
+      .enablePathStyleAccess()
       .build()
   }
 
