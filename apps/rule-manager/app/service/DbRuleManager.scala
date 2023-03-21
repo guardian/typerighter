@@ -69,14 +69,18 @@ object DbRuleManager {
       RuleResource(rules = DbRule.findAll().map(dbRuleToBaseRule), ltDefaultRuleIds = List.empty)
     val expectedRules = rules.copy(ltDefaultRuleIds = List.empty)
 
-    if (persistedRules != expectedRules) {
+    if (Set(persistedRules.rules) != Set(expectedRules.rules)) {
       val allRules = persistedRules.rules.zip(expectedRules.rules);
-      allRules.take(5).foreach { case (persistedRule, expectedRule) =>
-        if (persistedRule != expectedRule) {
+
+      allRules
+        .filter { case (persistedRule, expectedRule) =>
+          persistedRule != expectedRule
+        }
+        .take(10)
+        .foreach { case (persistedRule, expectedRule) =>
           println(s"Persisted rule: $persistedRule")
           println(s"Expected rule: $expectedRule")
         }
-      }
       throw new Exception("Failed to persist rules")
     }
     persistedRules
