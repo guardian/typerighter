@@ -1,11 +1,29 @@
+@(devMode: Boolean)
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Typerighter</title>
-        <script defer type="application/javascript" src="assets/build/rule-manager-app.js"></script>
-    </head>
-    <body>
-        <div id="rule-manager-app"></div>
-    </body>
+  <head>
+    <meta charset="UTF-8">
+    <title>Typerighter</title>
+
+    @if(devMode) {
+      <!-- Connect directly to Vite dev server in development -->
+      <!-- See https://vitejs.dev/guide/backend-integration.html -->
+      <script type="module">
+        import RefreshRuntime from 'http://localhost:5173/@@react-refresh'
+
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {
+        }
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+      </script>
+      <script type="module" src="http://localhost:5173/@@vite/client"></script>
+      <script type="module" src="http://localhost:5173/src/ts/index.tsx"></script>
+    } else {
+      <script defer type="application/javascript" src="assets/build/rule-manager-app.js"></script>
+    }
+  </head>
+  <body>
+    <div id="rule-manager-app"></div>
+  </body>
 </html>

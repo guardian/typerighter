@@ -27,7 +27,8 @@ class HomeController(
     with PermissionsHandler {
 
   def index() = AuthAction { implicit request: Request[AnyContent] =>
-    Ok(views.html.index())
+    val devMode = config.stage == "dev"
+    Ok(views.html.index(devMode))
   }
 
   def healthcheck() = Action { implicit request: Request[AnyContent] =>
