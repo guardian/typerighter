@@ -3,6 +3,7 @@ package com.gu.typerighter.rules
 import com.gu.typerighter.model.{
   BaseRule,
   Category,
+  ComparableRegex,
   LTRuleXML,
   RegexRule,
   RuleResource,
@@ -165,7 +166,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     category = Category(category, category),
     description = description.getOrElse(""),
     replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
-    regex = pattern.r
+    regex = new ComparableRegex(pattern)
   )
 
   private def getLTRuleXML(
