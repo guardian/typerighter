@@ -19,7 +19,7 @@ checkCredentials() {
 
 setupDependencies() {
   docker-compose up -d
-  (cd $APP_FOLDER/rule-manager/client && npm i && npm run build)
+  (cd $APP_FOLDER/rule-manager/client && npm i && npm run start &)
 }
 
 teardownDependencies() {
