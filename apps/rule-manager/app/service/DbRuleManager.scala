@@ -123,10 +123,6 @@ object DbRuleManager extends Loggable {
               log.error(s"Expected rule: $expectedRule")
             }
 
-          log.error(
-            s"LT rule ids differ: ${persistedRules.ltDefaultRuleIds.diff(rules.ltDefaultRuleIds).mkString(",")}"
-          )
-
           Left(
             List(
               s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
