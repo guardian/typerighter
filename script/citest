@@ -36,8 +36,11 @@ setupTestDeps() {
   # Ensure containers are up
   for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)
   do
-    HEALTH_STATUS=$(docker inspect --format "{{json .State.Health }}" $(docker-compose ps -q) | jq .Status)
-    if [ $HEALTH_STATUS = "\"healthy\"" ]
+    HEALTH_STATUS=$(docker inspect --format "{{json .State.Health }}" $(docker-compose ps -q) | jq .Status | tr -d '\n')
+    echo "Start"
+    echo $HEALTH_STATUS
+    echo "End"
+    if [ $HEALTH_STATUS = "\"healthy\"\"healthy\"" ]
     then
       echo "Docker containers – started"
       break
@@ -47,7 +50,7 @@ setupTestDeps() {
       echo "Docker containers did not initialise in $MAX_DB_ATTEMPTS attempts"
       exit 1
     fi
-    echo "Docker containers – waiting, as status=$HEALTH_STATUS (expects \"healthy\") ($ATTEMPT/$MAX_DB_ATTEMPTS)"
+    echo "Docker containers – waiting, as status=$HEALTH_STATUS (expects \"healthy\"\"healthy\") ($ATTEMPT/$MAX_DB_ATTEMPTS)"
     sleep 5
   done
 }
