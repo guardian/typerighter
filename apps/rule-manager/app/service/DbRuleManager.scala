@@ -93,7 +93,7 @@ object DbRuleManager {
     }
   }
 
-  def overwriteAllRules(rules: RuleResource): Either[List[String], RuleResource] = {
+  def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
     rules.rules
       .map(baseRuleToDbRule)
       .grouped(100)

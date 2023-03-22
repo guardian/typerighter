@@ -32,7 +32,7 @@ class DbRuleManagerSpec
 
   behavior of "DbRuleManager"
 
-  "overwriteAllRules" should "add a single rule in a ruleResource, and read it back as an identical resource" in { implicit session =>
+  "destructivelyDumpRuleResourceToDB" should "add a single rule in a ruleResource, and read it back as an identical resource" in { implicit session =>
     val rulesFromSheet = List(
       RegexRule(
         "faef1f8a-4ee2-4b97-8783-0566e27851da",
@@ -45,24 +45,24 @@ class DbRuleManagerSpec
     )
 
     val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
-    val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
+    val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
     rulesFromDb.shouldEqual(Right(rules))
   }
 
-  "overwriteAllRules" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in { implicit session =>
+  "destructivelyDumpRuleResourceToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in { implicit session =>
     val rulesFromSheet = createRandomRules(1000)
 
     val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
-    val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
+    val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
     rulesFromDb.shouldEqual(Right(rules))
   }
 
-  "overwriteAllRules" should "pass through ltDefaultRuleIds without persisting – the database will never store these IDs, and we hope to migrate them as normal rules" in { implicit session =>
+  "destructivelyDumpRuleResourceToDB" should "pass through ltDefaultRuleIds without persisting – the database will never store these IDs, and we hope to migrate them as normal rules" in { implicit session =>
     val ltDefaultRuleIds = List("AN_EXAMPLE_RULE_ID")
     val rules = RuleResource(rules = List.empty, ltDefaultRuleIds = ltDefaultRuleIds)
-    val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
+    val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
     rulesFromDb.shouldEqual(Right(rules))
   }
