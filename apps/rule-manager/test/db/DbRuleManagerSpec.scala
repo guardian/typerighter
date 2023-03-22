@@ -58,4 +58,12 @@ class DbRuleManagerSpec
 
     rulesFromDb.shouldEqual(rules)
   }
+
+  "overwriteAllRules" should "pass through ltDefaultRuleIds without persisting – the database will never store these IDs, and we hope to migrate them as normal rules" in { implicit session =>
+    val ltDefaultRuleIds = List("AN_EXAMPLE_RULE_ID")
+    val rules = RuleResource(rules = List.empty, ltDefaultRuleIds = ltDefaultRuleIds)
+    val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
+
+    rulesFromDb.shouldEqual(rules)
+  }
 }

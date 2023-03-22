@@ -67,11 +67,10 @@ object DbRuleManager {
       .foreach(DbRule.batchInsert)
 
     val dbRules = DbRule.findAll().map(dbRuleToBaseRule)
-    val persistedRules = RuleResource(rules = dbRules, ltDefaultRuleIds = List.empty)
-    val expectedRules = rules.copy(ltDefaultRuleIds = List.empty)
+    val persistedRules = RuleResource(rules = dbRules, ltDefaultRuleIds = rules.ltDefaultRuleIds)
 
-    if (persistedRules.rules != expectedRules.rules) {
-      val allRules = persistedRules.rules.zip(expectedRules.rules)
+    if (persistedRules.rules != rules.rules) {
+      val allRules = persistedRules.rules.zip(rules.rules)
 
       allRules
         .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
@@ -81,10 +80,15 @@ object DbRuleManager {
           println(s"Expected rule: $expectedRule")
         }
 
+      println(
+        s"LT rule ids differ: ${persistedRules.ltDefaultRuleIds.diff(rules.ltDefaultRuleIds).mkString(",")}"
+      )
+
       throw new Exception(
         s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
       )
     }
+
     persistedRules
   }
 }
