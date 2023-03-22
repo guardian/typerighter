@@ -48,13 +48,13 @@ object DbRuleManager extends Loggable {
             pattern,
             replacement,
             Some(category),
-            tags,
+            _,
             description,
-            ignore,
-            notes,
+            _,
+            _,
             Some(googleSheetId),
-            forceRedRule,
-            advisoryRule
+            _,
+            _
           ) =>
         Right(
           RegexRule(
@@ -70,15 +70,15 @@ object DbRuleManager extends Loggable {
             _,
             "languageTool",
             pattern,
-            replacement,
+            _,
             Some(category),
-            tags,
+            _,
             description,
-            ignore,
-            notes,
+            _,
+            _,
             Some(googleSheetId),
-            forceRedRule,
-            advisoryRule
+            _,
+            _
           ) =>
         Right(
           LTRuleXML(
@@ -99,15 +99,20 @@ object DbRuleManager extends Loggable {
       .foreach(DbRule.batchInsert)
 
     val maybeAllDbRules = DbRule.findAll().map(dbRuleToBaseRule)
-    val failedDbRules = maybeAllDbRules.collect { case l @ Left(_) => l }
-    val successfulDbRules = maybeAllDbRules.collect { case r @ Right(_) => r.value }
+
+    val (failedDbRules, successfulDbRules) = maybeAllDbRules.partitionMap {
+      case l @ Left(_)  => l
+      case r @ Right(_) => r
+    }
 
     failedDbRules match {
       case Nil =>
         val persistedRules =
           RuleResource(rules = successfulDbRules, ltDefaultRuleIds = rules.ltDefaultRuleIds)
 
-        if (persistedRules.rules != rules.rules) {
+        if (persistedRules.rules == rules.rules) {
+          Right(persistedRules)
+        } else {
           val allRules = persistedRules.rules.zip(rules.rules)
 
           allRules
@@ -122,13 +127,13 @@ object DbRuleManager extends Loggable {
             s"LT rule ids differ: ${persistedRules.ltDefaultRuleIds.diff(rules.ltDefaultRuleIds).mkString(",")}"
           )
 
-          throw new Exception(
-            s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
+          Left(
+            List(
+              s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
+            )
           )
         }
-
-        Right(persistedRules)
-      case _ => Left(failedDbRules.map(_.value))
+      case _ => Left(failedDbRules)
     }
   }
 }
