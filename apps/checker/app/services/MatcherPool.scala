@@ -20,40 +20,46 @@ import scala.util.{Failure, Success, Try}
 
 case class MatcherRequest(blocks: List[TextBlock])
 
-/**
-  * A PartialMatcherJob represents the information our CheckStrategy needs to divide validation work into jobs.
+/** A PartialMatcherJob represents the information our CheckStrategy needs to divide validation work
+  * into jobs.
   */
 case class PartialMatcherJob(blocks: List[TextBlock], categoryIds: Set[String])
 
-/**
-  * A MatcherJob represents everything we need to for a matcher to
-  *  - perform work
-  *  - notify its caller once work is complete
+/** A MatcherJob represents everything we need to for a matcher to
+  *   - perform work
+  *   - notify its caller once work is complete
   */
-case class MatcherJob(requestId: String, documentId: String, blocks: List[TextBlock], categoryIds: MatcherPool.CategoryIds, promise: Promise[List[RuleMatch]], jobsInValidationSet: Integer) {
-  def toMarker = Markers.appendEntries(Map(
-    "requestId" -> this.requestId,
-    "documentId" -> this.documentId,
-    "blocks" -> this.blocks.map(_.id).mkString(", "),
-    "categoryIds" -> this.categoryIds.mkString(", ")
-  ).asJava)
+case class MatcherJob(
+    requestId: String,
+    documentId: String,
+    blocks: List[TextBlock],
+    categoryIds: MatcherPool.CategoryIds,
+    promise: Promise[List[RuleMatch]],
+    jobsInValidationSet: Integer
+) {
+  def toMarker = Markers.appendEntries(
+    Map(
+      "requestId" -> this.requestId,
+      "documentId" -> this.documentId,
+      "blocks" -> this.blocks.map(_.id).mkString(", "),
+      "categoryIds" -> this.categoryIds.mkString(", ")
+    ).asJava
+  )
 }
 
 object MatcherPool extends Logging {
   type CategoryIds = Set[String]
   type CheckStrategy = (List[TextBlock], CategoryIds) => List[PartialMatcherJob]
 
-  /**
-    * This strategy divides the document into single blocks, and evaluates each block
-    * against all of the passed categories.
+  /** This strategy divides the document into single blocks, and evaluates each block against all of
+    * the passed categories.
     */
   def blockLevelCheckStrategy: CheckStrategy = (blocks, categoryIds) => {
     blocks.map(block => PartialMatcherJob(List(block), categoryIds))
   }
 
-  /**
-    * This strategy evaluates whole documents at once, and evaluates the document
-    * separately against each of the passed categories.
+  /** This strategy evaluates whole documents at once, and evaluates the document separately against
+    * each of the passed categories.
     */
   def documentPerCategoryCheckStrategy: CheckStrategy = (blocks, categoryIds) => {
     categoryIds.map(categoryId => PartialMatcherJob(blocks, Set(categoryId))).toList
@@ -61,14 +67,15 @@ object MatcherPool extends Logging {
 }
 
 class MatcherPool(
-  val maxCurrentJobs: Int = 8,
-  val maxQueuedJobs: Int = 1000,
-  val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
-  val futures: Futures,
-  val checkSlowLogDuration: FiniteDuration = 5 seconds,
-  val checkTimeoutDuration: FiniteDuration = 30 seconds,
-  val maybeCloudWatchClient: Option[CloudWatchClient] = None
-)(implicit ec: ExecutionContext, implicit val mat: Materializer) extends Logging {
+    val maxCurrentJobs: Int = 8,
+    val maxQueuedJobs: Int = 1000,
+    val checkStrategy: MatcherPool.CheckStrategy = MatcherPool.blockLevelCheckStrategy,
+    val futures: Futures,
+    val checkSlowLogDuration: FiniteDuration = 5 seconds,
+    val checkTimeoutDuration: FiniteDuration = 30 seconds,
+    val maybeCloudWatchClient: Option[CloudWatchClient] = None
+)(implicit ec: ExecutionContext, implicit val mat: Materializer)
+    extends Logging {
   type JobProgressMap = Map[String, Int]
   type MatcherId = String
   type CategoryId = String
@@ -79,7 +86,8 @@ class MatcherPool(
   // https://doc.akka.io/docs/akka/current/stream/stream-error.html#errors-from-mapasync
   private val supervisionStrategy = ActorAttributes.supervisionStrategy(Supervision.resumingDecider)
 
-  private val queue = Source.queue[MatcherJob](maxQueuedJobs, OverflowStrategy.dropNew)
+  private val queue = Source
+    .queue[MatcherJob](maxQueuedJobs, OverflowStrategy.dropNew)
     .mapAsyncUnordered(maxCurrentJobs)(getMatchesForJob)
     .withAttributes(supervisionStrategy)
     .to(Sink.ignore)
@@ -88,9 +96,8 @@ class MatcherPool(
   def getMaxCurrentValidations: Int = maxCurrentJobs
   def getMaxQueuedValidations: Int = maxQueuedJobs
 
-  /**
-    * Check the text with the matchers assigned to the given category ids.
-    * If no ids are assigned, use all the currently available matchers.
+  /** Check the text with the matchers assigned to the given category ids. If no ids are assigned,
+    * use all the currently available matchers.
     */
   def check(query: Check): Future[CheckResult] = {
     val categoryIds = getApplicableCategories(query)
@@ -107,58 +114,64 @@ class MatcherPool(
     val eventuallyResponses = jobs.map(offerJobToQueue)
 
     Future.sequence(eventuallyResponses).map { responses =>
-        val (catIds, blocks, matches) = responses.foldLeft((Set.empty[String], List.empty[TextBlock], List.empty[RuleMatch])) {
+      val (catIds, blocks, matches) =
+        responses.foldLeft((Set.empty[String], List.empty[TextBlock], List.empty[RuleMatch])) {
           case ((accCatIds, accBlocks, accMatches), (job, matches)) =>
             (accCatIds ++ job.categoryIds, accBlocks ++ job.blocks, accMatches ++ matches)
         }
-        logCheckComplete(query)
+      logCheckComplete(query)
 
-        CheckResult(catIds, blocks, matches)
+      CheckResult(catIds, blocks, matches)
     }
   }
 
   def checkStream(query: Check): Source[CheckResult, NotUsed] = {
-      val categoryIds = getApplicableCategories(query)
+    val categoryIds = getApplicableCategories(query)
 
-      logCheckBegin(query)
+    logCheckBegin(query)
 
-      val jobs = createJobsFromPartialJobs(query.requestId, query.documentId, checkStrategy(query.blocks, categoryIds))
-      val totalJobCount = jobs.size
-      val jobsCompleted = new AtomicInteger(0)
+    val jobs = createJobsFromPartialJobs(
+      query.requestId,
+      query.documentId,
+      checkStrategy(query.blocks, categoryIds)
+    )
+    val totalJobCount = jobs.size
+    val jobsCompleted = new AtomicInteger(0)
 
-      def percentageRequestComplete: Float = Math.round(jobsCompleted.floatValue() / totalJobCount * 100)
+    def percentageRequestComplete: Float =
+      Math.round(jobsCompleted.floatValue() / totalJobCount * 100)
 
-      logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")
+    logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")
 
-      val eventualResponses = jobs.map(offerJobToQueue)
+    val eventualResponses = jobs.map(offerJobToQueue)
 
-      Source(eventualResponses)
-        .mapAsyncUnordered(1)(identity)
-        .map { case (job, matches) => {
+    Source(eventualResponses)
+      .mapAsyncUnordered(1)(identity)
+      .map {
+        case (job, matches) => {
           jobsCompleted.incrementAndGet()
-          CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete)) }
+          CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete))
         }
-        .alsoTo(Sink.onComplete { _ => logCheckComplete(query) })
-    }
+      }
+      .alsoTo(Sink.onComplete { _ => logCheckComplete(query) })
+  }
 
   def getCategoryIds(query: Check): Set[MatcherId] = {
     query.categoryIds match {
-      case None => getCurrentCategories.map(_.id)
+      case None      => getCurrentCategories.map(_.id)
       case Some(ids) => ids
     }
   }
 
-  /**
-    * Add a matcher to the pool of matchers.
+  /** Add a matcher to the pool of matchers.
     */
   def addMatcher(matcher: Matcher): Option[Matcher] = {
-    logger.info(s"New instance of matcher available of type: ${matcher.getType()} for categories: ${matcher.getCategories().map(_.id)}")
+    logger.info(s"New instance of matcher available of type: ${matcher
+        .getType()} for categories: ${matcher.getCategories().map(_.id)}")
     matchers.put(matcher.getId(), matcher)
   }
 
-  /**
-    * Remove a matcher from the pool by its id.
-    * Returns the removed matcher.
+  /** Remove a matcher from the pool by its id. Returns the removed matcher.
     */
   def removeMatcherById(matcherId: String): Option[Matcher] = {
     matchers.remove(matcherId)
@@ -178,9 +191,20 @@ class MatcherPool(
     matchers.values.flatMap { matcher => matcher.getRules() }.toList
   }
 
-  private def createJobsFromPartialJobs(requestId: String, documentId: Option[String], partialJobs: List[PartialMatcherJob]) = partialJobs.map { partialJob =>
+  private def createJobsFromPartialJobs(
+      requestId: String,
+      documentId: Option[String],
+      partialJobs: List[PartialMatcherJob]
+  ) = partialJobs.map { partialJob =>
     val promise = Promise[List[RuleMatch]]()
-    MatcherJob(requestId, documentId.getOrElse("no-document-id"), partialJob.blocks, partialJob.categoryIds, promise, partialJobs.length)
+    MatcherJob(
+      requestId,
+      documentId.getOrElse("no-document-id"),
+      partialJob.blocks,
+      partialJob.categoryIds,
+      promise,
+      partialJobs.length
+    )
   }
 
   private def offerJobToQueue(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
@@ -210,7 +234,7 @@ class MatcherPool(
     val maybeMatchesForJob = for {
       matchers <- getMatchersForJob(job)
     } yield {
-      val eventuallyMatches = runMatchersForJob(matchers, job.blocks).map{(job, _)}
+      val eventuallyMatches = runMatchersForJob(matchers, job.blocks).map { (job, _) }
       job.promise.completeWith(eventuallyMatches.map {
         case (_, matches) => {
           matches
@@ -221,25 +245,24 @@ class MatcherPool(
     }
 
     maybeMatchesForJob.failed.map { exception =>
-        logger.error(s"Job failed with error: ${exception.getMessage}")(job.toMarker)
-        job.promise.failure(exception)
-        exception
+      logger.error(s"Job failed with error: ${exception.getMessage}")(job.toMarker)
+      job.promise.failure(exception)
+      exception
     }
 
     Future.fromTry(maybeMatchesForJob).flatten
   }
 
   private def getMatchersForJob(job: MatcherJob): Try[List[Matcher]] = {
-    val matchersToCheck = matchers
-      .values
-      .toList
+    val matchersToCheck = matchers.values.toList
       .filter { doesMatcherServeAllCategories(job.categoryIds, _) }
 
     val availableCategories = matchersToCheck.flatMap(_.getCategories().map(_.id)).toSet
     val missingCategoryIds = job.categoryIds.diff(availableCategories)
 
     if (missingCategoryIds.nonEmpty) {
-      val message = s"Could not run job: no matcher for category for id(s): ${missingCategoryIds.mkString(", ")}"
+      val message =
+        s"Could not run job: no matcher for category for id(s): ${missingCategoryIds.mkString(", ")}"
       val exception = new IllegalStateException(message)
       logger.error(message)(job.toMarker)
       Failure(exception)
@@ -251,7 +274,10 @@ class MatcherPool(
   private def doesMatcherServeAllCategories(categoryIds: Set[String], matcher: Matcher) =
     categoryIds.exists { matcher.getCategories().map(_.id).contains }
 
-  private def runMatchersForJob(matchers: List[Matcher], blocks: List[TextBlock]): Future[List[RuleMatch]] = {
+  private def runMatchersForJob(
+      matchers: List[Matcher],
+      blocks: List[TextBlock]
+  ): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
       val blocksWithSkippedRangesRemoved = blocks.map(_.removeSkippedRanges())
 
@@ -260,10 +286,15 @@ class MatcherPool(
         .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
 
       val taskName = s"MatcherPool.runMatchersForJob"
-      val taskMarkers = Markers.appendEntries(Map(
-        "categories" -> matcher.getCategories().map(_.name).mkString(", ")
-      ).asJava)
-      val onSlowLog = (durationMs: Long) => maybeCloudWatchClient.foreach(_.putMetric(Metrics.MatcherPoolJobDurationMs, durationMs.toInt))
+      val taskMarkers = Markers.appendEntries(
+        Map(
+          "categories" -> matcher.getCategories().map(_.name).mkString(", ")
+        ).asJava
+      )
+      val onSlowLog = (durationMs: Long) =>
+        maybeCloudWatchClient.foreach(
+          _.putMetric(Metrics.MatcherPoolJobDurationMs, durationMs.toInt)
+        )
       Timer.timeAsync(taskName, taskMarkers, checkSlowLogDuration.toMillis, onSlowLog) {
         futures.timeout(checkTimeoutDuration)(eventuallyCheck)
       }
@@ -274,30 +305,30 @@ class MatcherPool(
     eventuallyAllMatches.map(removeOverlappingMatches)
   }
 
-
   private def removeOverlappingMatches(matches: List[RuleMatch]) = {
     val matchesByCategory = matches.groupBy(_.rule.category.id).toList
 
-    val sortedMatches = matchesByCategory.sortBy {
-      case (categoryId, matches) => categoryId
+    val sortedMatches = matchesByCategory.sortBy { case (categoryId, matches) =>
+      categoryId
     }
 
-    sortedMatches.foldLeft(List.empty[RuleMatch])(
-      (acc, currentMatches) => currentMatches match {
+    sortedMatches.foldLeft(List.empty[RuleMatch])((acc, currentMatches) =>
+      currentMatches match {
         case (_, matches) => RuleMatchHelpers.removeOverlappingRules(acc, matches) ++ matches
       }
     )
   }
 
-  private def logCheckBegin(query: Check) = logger.info(s"Matcher pool query complete")(query.toMarker)
-  private def logCheckComplete(query: Check) = logger.info(s"Matcher pool query complete")(query.toMarker)
+  private def logCheckBegin(query: Check) =
+    logger.info(s"Matcher pool query complete")(query.toMarker)
+  private def logCheckComplete(query: Check) =
+    logger.info(s"Matcher pool query complete")(query.toMarker)
 
-  /**
-    * Get the categories to apply to this check. If no categories are supplied,
-    * default to all available categories.
+  /** Get the categories to apply to this check. If no categories are supplied, default to all
+    * available categories.
     */
   private def getApplicableCategories(query: Check) = query.categoryIds match {
-    case None => getCurrentCategories.map(_.id)
+    case None      => getCurrentCategories.map(_.id)
     case Some(ids) => ids
   }
 }

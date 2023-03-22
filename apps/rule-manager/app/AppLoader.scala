@@ -1,6 +1,14 @@
 import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSCredentialsProviderChain, DefaultAWSCredentialsProviderChain}
-import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider => AwsCredentialsProviderV2, DefaultCredentialsProvider => DefaultCredentialsProviderV2, ProfileCredentialsProvider => ProfileCredentialsProviderV2}
+import com.amazonaws.auth.{
+  AWSCredentialsProvider,
+  AWSCredentialsProviderChain,
+  DefaultAWSCredentialsProviderChain
+}
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider => AwsCredentialsProviderV2,
+  DefaultCredentialsProvider => DefaultCredentialsProviderV2,
+  ProfileCredentialsProvider => ProfileCredentialsProviderV2
+}
 import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import play.api.ApplicationLoader.Context
@@ -16,7 +24,6 @@ import com.gu.conf.ConfigurationLoader
 import com.gu.typerighter.lib.AppSetup
 import play.api.Mode.Dev
 
-
 class AppLoader extends ApplicationLoader {
   def load(context: Context): Application = {
     LoggerConfigurator(context.environment.classLoader).foreach {
@@ -26,7 +33,9 @@ class AppLoader extends ApplicationLoader {
     val appSetup = AppSetup(context)
 
     new AppComponents(
-      context.copy(initialConfiguration = Configuration(appSetup.config).withFallback(context.initialConfiguration)),
+      context.copy(initialConfiguration =
+        Configuration(appSetup.config).withFallback(context.initialConfiguration)
+      ),
       appSetup.region,
       appSetup.identity,
       appSetup.creds

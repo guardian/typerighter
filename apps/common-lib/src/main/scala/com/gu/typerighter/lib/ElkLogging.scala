@@ -16,10 +16,12 @@ import typerighter.BuildInfo
 
 import scala.util.control.NonFatal
 
-class ElkLogging(identity: AwsIdentity,
-                 maybeLoggingStreamName: Option[String],
-                 awsCredentialsProvider: AwsCredentialsProvider,
-                 applicationLifecycle: ApplicationLifecycle) extends Loggable {
+class ElkLogging(
+    identity: AwsIdentity,
+    maybeLoggingStreamName: Option[String],
+    awsCredentialsProvider: AwsCredentialsProvider,
+    applicationLifecycle: ApplicationLifecycle
+) extends Loggable {
   def getContextTags(identity: AwsIdentity): Map[String, String] = {
     val effective = Map(
       "app" -> identity.app,
@@ -49,7 +51,13 @@ class ElkLogging(identity: AwsIdentity,
     l
   }
 
-  private def makeKinesisAppender(layout: LogstashLayout, context: LoggerContext, streamName: String, bufferSize: Int, region: String): KinesisAppender[ILoggingEvent] = {
+  private def makeKinesisAppender(
+      layout: LogstashLayout,
+      context: LoggerContext,
+      streamName: String,
+      bufferSize: Int,
+      region: String
+  ): KinesisAppender[ILoggingEvent] = {
     val a = new KinesisAppender[ILoggingEvent]()
     a.setStreamName(streamName)
     a.setRegion(region)
@@ -64,7 +72,11 @@ class ElkLogging(identity: AwsIdentity,
     a
   }
 
-  private def wrapWithAsyncAppender(context: LoggerContext, appender: Appender[ILoggingEvent], bufferSize: Int): AsyncAppender = {
+  private def wrapWithAsyncAppender(
+      context: LoggerContext,
+      appender: Appender[ILoggingEvent],
+      bufferSize: Int
+  ): AsyncAppender = {
     val a = new AsyncAppender()
     a.addAppender(appender)
     a.setNeverBlock(true)
@@ -78,10 +90,12 @@ class ElkLogging(identity: AwsIdentity,
   // assume SLF4J is bound to logback in the current environment
   private def getLoggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
-  private def getRootLogger = LoggerFactory.getLogger(SLFLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger]
+  private def getRootLogger =
+    LoggerFactory.getLogger(SLFLogger.ROOT_LOGGER_NAME).asInstanceOf[Logger]
 
   def init(): Unit = {
-    if (maybeLoggingStreamName.isEmpty) log.info("Not configuring log shipping as stream not configured")
+    if (maybeLoggingStreamName.isEmpty)
+      log.info("Not configuring log shipping as stream not configured")
 
     val bufferSize = 1000
 
@@ -90,7 +104,8 @@ class ElkLogging(identity: AwsIdentity,
 
       try {
         val layout = makeLayout(makeCustomFields(getContextTags(identity)))
-        val appender = makeKinesisAppender(layout, getLoggerContext, streamName, bufferSize, identity.region)
+        val appender =
+          makeKinesisAppender(layout, getLoggerContext, streamName, bufferSize, identity.region)
         val asyncAppender = wrapWithAsyncAppender(getLoggerContext, appender, bufferSize)
         val rootLogger = getRootLogger
         rootLogger.addAppender(asyncAppender)

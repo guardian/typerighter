@@ -66,3 +66,18 @@ If you'd like to provide your own integration, this service will function as a s
 LanguageTool has default rules that we use, and as we upgrade LT, these could change underneath us.
 
 There's a script to see if rules have changed as a result of an upgrade in ./script/js/compare-rule-xml.js.
+
+## Linting
+
+Typerighter uses [Scalafmt](https://scalameta.org/scalafmt/) to ensure consistent linting across all Scala files.
+
+To lint all files you can run `sbt scalafmtAll`
+To confirm all files are linted correctly, you can run `sbt scalafmtCheckAll`
+
+You can configure your IDE to format scala files on save according to the linting rules defined in [.scalafmt.conf](.scalafmt.conf)
+
+For intellij there is a guide to set up automated linting on save [here](https://www.jetbrains.com/help/idea/work-with-scala-formatter.html#scalafmt_config) and [here](https://scalameta.org/scalafmt/docs/installation.html). For visual studio code with metals see [here](https://scalameta.org/scalafmt/docs/installation.html#vs-code)
+
+## Automatic Linting
+
+The project contains a pre-commit hook which will automatically run the linter on all staged files. To enable this, run `./script/setup-hooks` from the root of the project.

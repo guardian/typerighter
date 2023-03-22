@@ -5,7 +5,12 @@ import com.gu.typerighter.lib.CommonConfig
 import com.gu.AppIdentity
 import com.amazonaws.auth.AWSCredentialsProvider
 
-class RuleManagerConfig(playConfig: Configuration, region: String, identity: AppIdentity, creds: AWSCredentialsProvider) extends CommonConfig(playConfig, region, identity, creds) {
+class RuleManagerConfig(
+    playConfig: Configuration,
+    region: String,
+    identity: AppIdentity,
+    creds: AWSCredentialsProvider
+) extends CommonConfig(playConfig, region, identity, creds) {
   val dbUrl = playConfig.get[String]("db.default.url")
   val dbUsername = playConfig.get[String]("db.default.username")
   val dbPassword = playConfig.get[String]("db.default.password")

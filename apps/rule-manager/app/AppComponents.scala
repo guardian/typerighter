@@ -1,4 +1,3 @@
-
 import play.api.ApplicationLoader.Context
 import play.filters.HttpFiltersComponents
 import play.api.BuiltInComponentsFromContext
@@ -18,16 +17,27 @@ import com.gu.DevIdentity
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import router.Routes
 import db.RuleManagerDB
+import play.api.db.evolutions.EvolutionsComponents
+import play.api.db.{DBComponents, HikariCPComponents}
 import utils.RuleManagerConfig
 
-class AppComponents(context: Context, region: String, identity: AppIdentity, creds: AWSCredentialsProvider)
-  extends BuiltInComponentsFromContext(context)
-  with HttpFiltersComponents
-  with AssetsComponents
-  with AhcWSComponents {
+class AppComponents(
+    context: Context,
+    region: String,
+    identity: AppIdentity,
+    creds: AWSCredentialsProvider
+) extends BuiltInComponentsFromContext(context)
+    with HttpFiltersComponents
+    with AssetsComponents
+    with DBComponents
+    with HikariCPComponents
+    with EvolutionsComponents
+    with AhcWSComponents {
   val config = new RuleManagerConfig(configuration, region, identity, creds)
   val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
 
+  applicationEvolutions
+  
   private val s3Client = identity match {
     case _: AwsIdentity => AmazonS3ClientBuilder
       .standard()
@@ -52,7 +62,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val stageDomain = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk"
-    case _: DevIdentity => "local.dev-gutools.co.uk"
+    case _: DevIdentity        => "local.dev-gutools.co.uk"
   }
   val appName = identity match {
     case identity: AwsIdentity => identity.app
@@ -62,7 +72,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
   val publicSettingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
-    case _: DevIdentity => "local.dev-gutools.co.uk.settings.public"
+    case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
   }
   val publicSettings = new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", pandaS3Client)
   publicSettings.start()
@@ -97,7 +107,7 @@ class AppComponents(context: Context, region: String, identity: AppIdentity, cre
     sheetsRuleManager,
     bucketRuleManager,
     config.spreadsheetId,
-    publicSettings,
+    publicSettings
   )
 
   lazy val router = new Routes(

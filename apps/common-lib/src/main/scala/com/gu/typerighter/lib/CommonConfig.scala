@@ -7,27 +7,32 @@ import com.gu.DevIdentity
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.regions.Region
 
-/**
-  * A class to store configuration that's common across projects.
+/** A class to store configuration that's common across projects.
   *
   * Fails fast with an exception if properties aren't found.
   */
-abstract class CommonConfig(playConfig: Configuration, region: String, identity: AppIdentity, credentials: AWSCredentialsProvider) {
+abstract class CommonConfig(
+    playConfig: Configuration,
+    region: String,
+    identity: AppIdentity,
+    credentials: AWSCredentialsProvider
+) {
   val awsCredentials = credentials
   val awsRegion = region
   val loggingStreamName = playConfig.getOptional[String]("typerighter.loggingStreamName")
 
-  val permissionsBucket = playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
+  val permissionsBucket =
+    playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
-    case _ => "code"
+    case _                     => "dev"
   }
 
   val stageDomain = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk"
-    case _: DevIdentity => "local.dev-gutools.co.uk"
+    case _: DevIdentity        => "local.dev-gutools.co.uk"
   }
 
   val appName = identity match {
