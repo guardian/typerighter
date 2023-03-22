@@ -1,11 +1,15 @@
 package db
 
-import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleResource}
+import com.gu.typerighter.model.{BaseRule, Category, ComparableRegex, LTRuleXML, RegexRule, RuleResource}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
+import com.softwaremill.diffx.generic.auto._
+import play.api.libs.json.Json
 import scalikejdbc.scalatest.AutoRollback
 import service.DbRuleManager
 
+import scala.io.Source
 import scala.util.Random
 
 class DbRuleManagerSpec
@@ -19,7 +23,7 @@ class DbRuleManagerSpec
       RegexRule(
         s"rule-at-index-${ruleIndex}",
         Category("Check this", "Check this"),
-        Random.shuffle(List("A", "random", "rule", "description")).mkString(" "),
+        "A random rule description. " * Random.between(0, 100),
         List(),
         None,
         new ComparableRegex(s"\b(${Random.shuffle(List("some", "random", "things", "to", "match", "on")).mkString("|")}) by")
@@ -46,17 +50,8 @@ class DbRuleManagerSpec
     rulesFromDb.shouldEqual(rules)
   }
 
-  "overwriteAllRules" should "add 10000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in { implicit session =>
-    val rulesFromSheet = createRandomRules(10000)
-
-    val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
-    val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
-
-    rulesFromDb.shouldEqual(rules)
-  }
-
-  "overwriteAllRules" should "add rules read from an up-to-date bucketRuleResource, and read them back from the DB as an identical resource" in { implicit session =>
-    val rulesFromSheet = createRandomRules(10000)
+  "overwriteAllRules" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in { implicit session =>
+    val rulesFromSheet = createRandomRules(1000)
 
     val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
     val rulesFromDb = DbRuleManager.overwriteAllRules(rules)

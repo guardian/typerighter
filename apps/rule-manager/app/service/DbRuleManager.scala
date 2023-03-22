@@ -62,26 +62,28 @@ object DbRuleManager {
 
   def overwriteAllRules(rules: RuleResource): RuleResource = {
     rules.rules
-      .grouped(500)
-      .foreach(batch => DbRule.batchInsert(batch.map(baseRuleToDbRule)))
+      .map(baseRuleToDbRule)
+      .grouped(100)
+      .foreach(DbRule.batchInsert)
 
-    val persistedRules =
-      RuleResource(rules = DbRule.findAll().map(dbRuleToBaseRule), ltDefaultRuleIds = List.empty)
+    val dbRules = DbRule.findAll().map(dbRuleToBaseRule)
+    val persistedRules = RuleResource(rules = dbRules, ltDefaultRuleIds = List.empty)
     val expectedRules = rules.copy(ltDefaultRuleIds = List.empty)
 
-    if (Set(persistedRules.rules) != Set(expectedRules.rules)) {
-      val allRules = persistedRules.rules.zip(expectedRules.rules);
+    if (persistedRules.rules != expectedRules.rules) {
+      val allRules = persistedRules.rules.zip(expectedRules.rules)
 
       allRules
-        .filter { case (persistedRule, expectedRule) =>
-          persistedRule != expectedRule
-        }
+        .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
         .take(10)
         .foreach { case (persistedRule, expectedRule) =>
           println(s"Persisted rule: $persistedRule")
           println(s"Expected rule: $expectedRule")
         }
-      throw new Exception("Failed to persist rules")
+
+      throw new Exception(
+        s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
+      )
     }
     persistedRules
   }

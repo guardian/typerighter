@@ -31,7 +31,7 @@ object BaseRule {
 
 object RegexRule {
   implicit val regexWrites: Writes[ComparableRegex] = (regex: ComparableRegex) =>
-    JsString(regex.toString)
+    JsString(regex.toString())
   implicit val regexReads: Reads[ComparableRegex] = JsPath.read[String].map(new ComparableRegex(_))
   implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
   implicit val reads: Reads[RegexRule] = Json.reads[RegexRule]
@@ -46,6 +46,8 @@ class ComparableRegex(regex: String, groupNames: String*) extends Regex(regex, g
       case _ => false
     }
   }
+
+  override def hashCode(): Int = this.pattern.##
 }
 
 case class RegexRule(

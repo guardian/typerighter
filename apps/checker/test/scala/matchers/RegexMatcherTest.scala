@@ -2,14 +2,12 @@ package matchers
 
 import com.gu.typerighter
 import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, Text, TextBlock, TextSuggestion}
-import model._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import com.softwaremill.diffx.generic.auto._
 import services.MatcherRequest
 
-import scala.util.matching.Regex
 import scala.concurrent.Future
 
 class RegexMatcherTest extends AsyncFlatSpec with Matchers {

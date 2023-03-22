@@ -60,7 +60,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
-    withSQL(select.from(DbRule as r)).map(DbRule(r.resultName)).list.apply()
+    withSQL(select.from(DbRule as r).orderBy(r.id)).map(DbRule(r.resultName)).list.apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
