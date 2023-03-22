@@ -16,7 +16,7 @@ class DbRuleManagerSpec
     extends FixtureAnyFlatSpec
     with Matchers
     with AutoRollback
-    with RuleManagerDBTest {
+    with DBTest {
 
   def createRandomRules(ruleCount: Int) =
     (1 to ruleCount).map { ruleIndex =>

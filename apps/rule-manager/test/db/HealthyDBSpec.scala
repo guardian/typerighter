@@ -4,11 +4,11 @@ import scalikejdbc.scalatest.AutoRollback
 import org.scalatest.fixture.FlatSpec
 import org.scalatest.matchers.should.Matchers
 
-class RuleManagerDBSpec
+class HealthyDBSpec
   extends FlatSpec
   with Matchers
   with AutoRollback
-  with RuleManagerDBTest {
+  with DBTest {
 
   behavior of "Database connection"
 

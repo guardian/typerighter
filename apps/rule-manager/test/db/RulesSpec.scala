@@ -6,7 +6,7 @@ import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 import scala.util.Success
 
-class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with RuleManagerDBTest {
+class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val r = DbRule.syntax("r")
 
   override def fixture(implicit session: DBSession) {

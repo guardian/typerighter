@@ -18,4 +18,3 @@ class DB(url: String, user: String, password: String) {
     dbString == "HELLO WORLD"
   }
 }
-
