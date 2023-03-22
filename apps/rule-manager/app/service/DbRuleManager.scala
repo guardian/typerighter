@@ -1,5 +1,6 @@
 package service
 
+import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
   BaseRule,
   Category,
@@ -11,12 +12,10 @@ import com.gu.typerighter.model.{
 }
 import db.DbRule
 
-import scala.util.{Failure, Success, Try}
-
-object DbRuleManager {
+object DbRuleManager extends Loggable {
   def baseRuleToDbRule(rule: BaseRule): DbRule = {
     rule match {
-      case RegexRule(id, category, description, suggestions, replacement, regex) =>
+      case RegexRule(id, category, description, _, replacement, regex) =>
         DbRule(
           id = None,
           ruleType = "regex",
@@ -115,11 +114,11 @@ object DbRuleManager {
             .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
             .take(10)
             .foreach { case (persistedRule, expectedRule) =>
-              println(s"Persisted rule: $persistedRule")
-              println(s"Expected rule: $expectedRule")
+              log.error(s"Persisted rule: $persistedRule")
+              log.error(s"Expected rule: $expectedRule")
             }
 
-          println(
+          log.error(
             s"LT rule ids differ: ${persistedRules.ltDefaultRuleIds.diff(rules.ltDefaultRuleIds).mkString(",")}"
           )
 
