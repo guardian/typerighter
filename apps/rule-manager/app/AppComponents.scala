@@ -89,7 +89,6 @@ class AppComponents(
     controllerComponents,
     sheetsRuleManager,
     bucketRuleManager,
-    config.spreadsheetId,
     publicSettings
   )
 

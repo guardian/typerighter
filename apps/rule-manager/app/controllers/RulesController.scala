@@ -15,24 +15,19 @@ class RulesController(
     cc: ControllerComponents,
     sheetsRuleManager: SheetsRuleManager,
     bucketRuleManager: BucketRuleManager,
-    sheetId: String,
     val publicSettings: PublicSettings
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc)
     with PandaAuthentication {
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
-    sheetsRuleManager.getRules().flatMap { sheetRules =>
-      // write rules to DB and read rules back from DB
-      val dbRules = DbRuleManager.overwriteAllRules(sheetRules)
+    val maybeWrittenRules = for {
+      sheetRules <- sheetsRuleManager.getRules()
+      dbRules <- DbRuleManager.overwriteAllRules(sheetRules)
+      _ <- bucketRuleManager.putRules(dbRules).left.map { l => List(l.toString) }
+    } yield dbRules
 
-      val maybeRules = bucketRuleManager.putRules(dbRules).flatMap { _ =>
-        bucketRuleManager.getRulesLastModified.map { lastModified =>
-          (dbRules, lastModified)
-        }
-      }
-      maybeRules.left.map { error => List(error.getMessage) }
-    } match {
-      case Right((ruleResource, _)) =>
+    maybeWrittenRules match {
+      case Right(ruleResource) =>
         Ok(Json.toJson(ruleResource))
       case Left(errors) =>
         InternalServerError(Json.toJson(errors))

@@ -47,7 +47,7 @@ class DbRuleManagerSpec
     val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
     val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
 
-    rulesFromDb.shouldEqual(rules)
+    rulesFromDb.shouldEqual(Right(rules))
   }
 
   "overwriteAllRules" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in { implicit session =>
@@ -56,7 +56,7 @@ class DbRuleManagerSpec
     val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
     val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
 
-    rulesFromDb.shouldEqual(rules)
+    rulesFromDb.shouldEqual(Right(rules))
   }
 
   "overwriteAllRules" should "pass through ltDefaultRuleIds without persisting – the database will never store these IDs, and we hope to migrate them as normal rules" in { implicit session =>
@@ -64,6 +64,6 @@ class DbRuleManagerSpec
     val rules = RuleResource(rules = List.empty, ltDefaultRuleIds = ltDefaultRuleIds)
     val rulesFromDb = DbRuleManager.overwriteAllRules(rules)
 
-    rulesFromDb.shouldEqual(rules)
+    rulesFromDb.shouldEqual(Right(rules))
   }
 }

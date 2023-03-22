@@ -11,6 +11,8 @@ import com.gu.typerighter.model.{
 }
 import db.DbRule
 
+import scala.util.{Failure, Success, Try}
+
 object DbRuleManager {
   def baseRuleToDbRule(rule: BaseRule): DbRule = {
     rule match {
@@ -39,56 +41,95 @@ object DbRuleManager {
     }
   }
 
-  def dbRuleToBaseRule(rule: DbRule): BaseRule = {
-    rule.ruleType match {
-      case "regex" =>
-        RegexRule(
-          id = rule.googleSheetId.get,
-          category = Category(id = rule.category.get, name = rule.category.get),
-          description = rule.description.get,
-          suggestions = List.empty,
-          replacement = rule.replacement.map(TextSuggestion(_)),
-          regex = new ComparableRegex(rule.pattern)
+  def dbRuleToBaseRule(rule: DbRule): Either[String, BaseRule] = {
+    rule match {
+      case DbRule(
+            _,
+            "regex",
+            pattern,
+            replacement,
+            Some(category),
+            tags,
+            description,
+            ignore,
+            notes,
+            Some(googleSheetId),
+            forceRedRule,
+            advisoryRule
+          ) =>
+        Right(
+          RegexRule(
+            id = googleSheetId,
+            category = Category(id = category, name = category),
+            description = description.getOrElse(""),
+            suggestions = List.empty,
+            replacement = replacement.map(TextSuggestion(_)),
+            regex = new ComparableRegex(pattern)
+          )
         )
-      case "languageTool" =>
-        LTRuleXML(
-          id = rule.googleSheetId.get,
-          category = Category(id = rule.category.get, name = rule.category.get),
-          description = rule.description.get,
-          xml = rule.pattern
+      case DbRule(
+            _,
+            "languageTool",
+            pattern,
+            replacement,
+            Some(category),
+            tags,
+            description,
+            ignore,
+            notes,
+            Some(googleSheetId),
+            forceRedRule,
+            advisoryRule
+          ) =>
+        Right(
+          LTRuleXML(
+            id = googleSheetId,
+            category = Category(id = category, name = category),
+            description = description.getOrElse(""),
+            xml = pattern
+          )
         )
+      case other => Left(s"Could not derive BaseRule from DbRule for: $other")
     }
   }
 
-  def overwriteAllRules(rules: RuleResource): RuleResource = {
+  def overwriteAllRules(rules: RuleResource): Either[List[String], RuleResource] = {
     rules.rules
       .map(baseRuleToDbRule)
       .grouped(100)
       .foreach(DbRule.batchInsert)
 
-    val dbRules = DbRule.findAll().map(dbRuleToBaseRule)
-    val persistedRules = RuleResource(rules = dbRules, ltDefaultRuleIds = rules.ltDefaultRuleIds)
+    val maybeAllDbRules = DbRule.findAll().map(dbRuleToBaseRule)
+    val failedDbRules = maybeAllDbRules.collect { case l @ Left(_) => l }
+    val successfulDbRules = maybeAllDbRules.collect { case r @ Right(_) => r.value }
 
-    if (persistedRules.rules != rules.rules) {
-      val allRules = persistedRules.rules.zip(rules.rules)
+    failedDbRules match {
+      case Nil =>
+        val persistedRules =
+          RuleResource(rules = successfulDbRules, ltDefaultRuleIds = rules.ltDefaultRuleIds)
 
-      allRules
-        .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
-        .take(10)
-        .foreach { case (persistedRule, expectedRule) =>
-          println(s"Persisted rule: $persistedRule")
-          println(s"Expected rule: $expectedRule")
+        if (persistedRules.rules != rules.rules) {
+          val allRules = persistedRules.rules.zip(rules.rules)
+
+          allRules
+            .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
+            .take(10)
+            .foreach { case (persistedRule, expectedRule) =>
+              println(s"Persisted rule: $persistedRule")
+              println(s"Expected rule: $expectedRule")
+            }
+
+          println(
+            s"LT rule ids differ: ${persistedRules.ltDefaultRuleIds.diff(rules.ltDefaultRuleIds).mkString(",")}"
+          )
+
+          throw new Exception(
+            s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
+          )
         }
 
-      println(
-        s"LT rule ids differ: ${persistedRules.ltDefaultRuleIds.diff(rules.ltDefaultRuleIds).mkString(",")}"
-      )
-
-      throw new Exception(
-        s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
-      )
+        Right(persistedRules)
+      case _ => Left(failedDbRules.map(_.value))
     }
-
-    persistedRules
   }
 }
