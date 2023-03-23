@@ -65,12 +65,14 @@ class AppComponents(
     new AWSStaticCredentialsProvider(
       new BasicAWSCredentials("accessKey", "secretKey"))
 
+  private val standardS3Client = AmazonS3ClientBuilder
+    .standard()
+    .withCredentials(creds)
+    .withRegion(region)
+    .build()
+
   private val s3Client = identity match {
-    case _: AwsIdentity => AmazonS3ClientBuilder
-      .standard()
-      .withCredentials(creds)
-      .withRegion(region)
-      .build()
+    case _: AwsIdentity => standardS3Client
     case _: DevIdentity => AmazonS3ClientBuilder
       .standard()
       .withCredentials(localStackBasicAWSCredentialsProviderV1)
@@ -80,18 +82,12 @@ class AppComponents(
       .build()
   }
 
-  private val pandaS3Client = AmazonS3ClientBuilder
-      .standard()
-      .withCredentials(creds)
-      .withRegion(region)
-      .build()
-
   val settingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
     case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
   }
-  val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", pandaS3Client)
+  val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", standardS3Client)
   publicSettings.start()
 
   val stage = identity match {

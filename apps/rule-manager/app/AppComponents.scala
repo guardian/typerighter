@@ -7,7 +7,7 @@ import play.api.http.DefaultHttpErrorHandler
 import play.api.libs.ws.ahc.AhcWSComponents
 import controllers.{AssetsComponents, HomeController, RulesController}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.auth.{AWSCredentialsProvider, AWSStaticCredentialsProvider}
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSStaticCredentialsProvider, BasicAWSCredentials}
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.Regions
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
@@ -37,27 +37,27 @@ class AppComponents(
   val db = new RuleManagerDB(config.dbUrl, config.dbUsername, config.dbPassword)
 
   applicationEvolutions
-  
+
+  private val localStackBasicAWSCredentialsProviderV1: AWSCredentialsProvider =
+    new AWSStaticCredentialsProvider(
+      new BasicAWSCredentials("accessKey", "secretKey"))
+
+  private val standardS3Client = AmazonS3ClientBuilder
+    .standard()
+    .withCredentials(creds)
+    .withRegion(region)
+    .build()
+
   private val s3Client = identity match {
-    case _: AwsIdentity => AmazonS3ClientBuilder
-      .standard()
-      .withCredentials(creds)
-      .withRegion(region)
-      .build()
+    case _: AwsIdentity => standardS3Client
     case _: DevIdentity => AmazonS3ClientBuilder
-       .standard()
-      .withCredentials(creds)
+      .standard()
+      .withCredentials(localStackBasicAWSCredentialsProviderV1)
       .withEndpointConfiguration(new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName))
       // This is needed for localstack
       .enablePathStyleAccess()
       .build()
   }
-
-  private val pandaS3Client = AmazonS3ClientBuilder
-    .standard()
-    .withCredentials(creds)
-    .withRegion(region)
-    .build()
 
   val stageDomain = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
@@ -74,7 +74,7 @@ class AppComponents(
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
     case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
   }
-  val publicSettings = new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", pandaS3Client)
+  val publicSettings = new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", standardS3Client)
   publicSettings.start()
 
   val panDomainSettings = new PanDomainAuthSettingsRefresher(
@@ -82,7 +82,7 @@ class AppComponents(
     system = appName,
     bucketName = "pan-domain-auth-settings",
     settingsFileKey = s"$stageDomain.settings",
-    s3Client = pandaS3Client
+    s3Client = standardS3Client
   )
 
   val stage = identity match {
