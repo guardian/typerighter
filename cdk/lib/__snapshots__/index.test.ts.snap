@@ -2,43 +2,53 @@
 
 exports[`The typerighter stack matches the snapshot 1`] = `
 Object {
-  "Mappings": Object {
-    "typerighter": Object {
-      "CODE": Object {
-        "lowercase": "code",
-      },
-      "PROD": Object {
-        "lowercase": "prod",
-      },
-    },
-    "typerighterchecker": Object {
-      "CODE": Object {
-        "checkerDomain": "checker.typerighter.code.dev-gutools.co.uk",
-        "domainName": "checker.typerighter.code.dev-gutools.co.uk",
-        "maxInstances": 2,
-        "minInstances": 1,
-      },
-      "PROD": Object {
-        "checkerDomain": "checker.typerighter.gutools.co.uk",
-        "domainName": "checker.typerighter.gutools.co.uk",
-        "maxInstances": 6,
-        "minInstances": 3,
-      },
-    },
-    "typerighterrulemanager": Object {
-      "CODE": Object {
-        "domainName": "manager.typerighter.code.dev-gutools.co.uk",
-        "maxInstances": 2,
-        "minInstances": 1,
-        "ruleManagerDomain": "manager.typerighter.code.dev-gutools.co.uk",
-      },
-      "PROD": Object {
-        "domainName": "manager.typerighter.gutools.co.uk",
-        "maxInstances": 6,
-        "minInstances": 3,
-        "ruleManagerDomain": "manager.typerighter.gutools.co.uk",
-      },
-    },
+  "Metadata": Object {
+    "gu:cdk:constructs": Array [
+      "GuParameter",
+      "GuArnParameter",
+      "GuGetS3ObjectsPolicy",
+      "GuVpcParameter",
+      "GuSubnetListParameter",
+      "GuSubnetListParameter",
+      "GuPlayApp",
+      "GuCertificate",
+      "GuInstanceRole",
+      "GuDescribeEC2Policy",
+      "GuLoggingStreamNameParameter",
+      "GuLogShippingPolicy",
+      "GuDistributionBucketParameter",
+      "GuGetDistributablePolicy",
+      "GuParameterStoreReadPolicy",
+      "GuAmiParameter",
+      "GuHttpsEgressSecurityGroup",
+      "GuWazuhAccess",
+      "GuAutoScalingGroup",
+      "GuApplicationLoadBalancer",
+      "GuApplicationTargetGroup",
+      "GuHttpsApplicationListener",
+      "GuDnsRecordSet",
+      "GuPutCloudwatchMetricsPolicy",
+      "GuSubnetListParameter",
+      "GuSubnetListParameter",
+      "GuPlayApp",
+      "GuCertificate",
+      "GuInstanceRole",
+      "GuGetDistributablePolicy",
+      "GuParameterStoreReadPolicy",
+      "GuAmiParameter",
+      "GuHttpsEgressSecurityGroup",
+      "GuAutoScalingGroup",
+      "GuApplicationLoadBalancer",
+      "GuApplicationTargetGroup",
+      "GuHttpsApplicationListener",
+      "GuS3Bucket",
+      "GuS3Bucket",
+      "GuDnsRecordSet",
+      "GuSecurityGroup",
+      "GuSubnetListParameter",
+      "GuDatabaseInstance",
+    ],
+    "gu:cdk:version": "TEST",
   },
   "Outputs": Object {
     "LoadBalancerTyperightercheckerDnsName": Object {
@@ -95,18 +105,9 @@ Object {
       "Description": "A list of private subnets",
       "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
     },
-    "Stage": Object {
-      "AllowedValues": Array [
-        "CODE",
-        "PROD",
-      ],
-      "Default": "CODE",
-      "Description": "Stage name",
-      "Type": "String",
-    },
     "VpcId": Object {
       "Default": "/account/vpc/primary/id",
-      "Description": "Virtual Private Cloud to run EC2 instances within",
+      "Description": "Virtual Private Cloud to run EC2 instances within. Should NOT be the account default VPC.",
       "Type": "AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>",
     },
     "typerightercheckerPrivateSubnets": Object {
@@ -135,37 +136,24 @@ Object {
       "Properties": Object {
         "HealthCheckGracePeriod": 120,
         "HealthCheckType": "ELB",
-        "LaunchConfigurationName": Object {
-          "Ref": "AutoScalingGroupTyperightercheckerLaunchConfig64056387",
+        "LaunchTemplate": Object {
+          "LaunchTemplateId": Object {
+            "Ref": "flexibleTESTtyperightercheckerC54CB6AC",
+          },
+          "Version": Object {
+            "Fn::GetAtt": Array [
+              "flexibleTESTtyperightercheckerC54CB6AC",
+              "LatestVersionNumber",
+            ],
+          },
         },
-        "MaxSize": Object {
-          "Fn::FindInMap": Array [
-            "typerighterchecker",
-            Object {
-              "Ref": "Stage",
-            },
-            "maxInstances",
-          ],
-        },
-        "MinSize": Object {
-          "Fn::FindInMap": Array [
-            "typerighterchecker",
-            Object {
-              "Ref": "Stage",
-            },
-            "minInstances",
-          ],
-        },
+        "MaxSize": "2",
+        "MinSize": "1",
         "Tags": Array [
           Object {
             "Key": "App",
             "PropagateAtLaunch": true,
             "Value": "typerighter-checker",
-          },
-          Object {
-            "Key": "gu:cdk:pattern-name",
-            "PropagateAtLaunch": true,
-            "Value": "GuPlayApp",
           },
           Object {
             "Key": "gu:cdk:version",
@@ -178,9 +166,11 @@ Object {
             "Value": "guardian/typerighter",
           },
           Object {
-            "Key": "Name",
+            "Key": "LogKinesisStreamName",
             "PropagateAtLaunch": true,
-            "Value": "typerighter/AutoScalingGroupTyperighterchecker",
+            "Value": Object {
+              "Ref": "LoggingStreamName",
+            },
           },
           Object {
             "Key": "Stack",
@@ -190,9 +180,7 @@ Object {
           Object {
             "Key": "Stage",
             "PropagateAtLaunch": true,
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "TargetGroupARNs": Array [
@@ -206,118 +194,28 @@ Object {
       },
       "Type": "AWS::AutoScaling::AutoScalingGroup",
     },
-    "AutoScalingGroupTyperightercheckerInstanceProfile062719D8": Object {
-      "Properties": Object {
-        "Roles": Array [
-          Object {
-            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::InstanceProfile",
-    },
-    "AutoScalingGroupTyperightercheckerLaunchConfig64056387": Object {
-      "DependsOn": Array [
-        "InstanceRoleTyperightercheckerDefaultPolicyAC356146",
-        "InstanceRoleTyperightercheckerEA6224AC",
-      ],
-      "Properties": Object {
-        "IamInstanceProfile": Object {
-          "Ref": "AutoScalingGroupTyperightercheckerInstanceProfile062719D8",
-        },
-        "ImageId": Object {
-          "Ref": "AMITyperighterchecker",
-        },
-        "InstanceType": "t4g.small",
-        "SecurityGroups": Array [
-          Object {
-            "Fn::GetAtt": Array [
-              "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C",
-              "GroupId",
-            ],
-          },
-          Object {
-            "Fn::GetAtt": Array [
-              "WazuhSecurityGroup",
-              "GroupId",
-            ],
-          },
-        ],
-        "UserData": Object {
-          "Fn::Base64": Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "#!/bin/bash -ev
-mkdir /etc/gu
-
-cat > /etc/gu/tags << 'EOF'
-Stage=",
-                Object {
-                  "Ref": "Stage",
-                },
-                "
-Stack=flexible
-App=typerighter-checker
-EOF
-
-cat > /etc/gu/typerighter-checker.conf << 'EOF'
-include \\"application\\"
-typerighter.ngramPath=\\"/opt/ngram-data\\"
-EOF
-
-aws --quiet --region ",
-                Object {
-                  "Ref": "AWS::Region",
-                },
-                " s3 cp s3://composer-dist/flexible/",
-                Object {
-                  "Ref": "Stage",
-                },
-                "/typerighter-checker/typerighter-checker.deb /tmp/package.deb
-dpkg -i /tmp/package.deb",
-              ],
-            ],
-          },
-        },
-      },
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-    },
     "AutoScalingGroupTyperighterrulemanagerASG7B90BF61": Object {
       "Properties": Object {
         "HealthCheckGracePeriod": 120,
         "HealthCheckType": "ELB",
-        "LaunchConfigurationName": Object {
-          "Ref": "AutoScalingGroupTyperighterrulemanagerLaunchConfig5311DECE",
+        "LaunchTemplate": Object {
+          "LaunchTemplateId": Object {
+            "Ref": "flexibleTESTtyperighterrulemanager4AFD32A8",
+          },
+          "Version": Object {
+            "Fn::GetAtt": Array [
+              "flexibleTESTtyperighterrulemanager4AFD32A8",
+              "LatestVersionNumber",
+            ],
+          },
         },
-        "MaxSize": Object {
-          "Fn::FindInMap": Array [
-            "typerighterrulemanager",
-            Object {
-              "Ref": "Stage",
-            },
-            "maxInstances",
-          ],
-        },
-        "MinSize": Object {
-          "Fn::FindInMap": Array [
-            "typerighterrulemanager",
-            Object {
-              "Ref": "Stage",
-            },
-            "minInstances",
-          ],
-        },
+        "MaxSize": "2",
+        "MinSize": "1",
         "Tags": Array [
           Object {
             "Key": "App",
             "PropagateAtLaunch": true,
             "Value": "typerighter-rule-manager",
-          },
-          Object {
-            "Key": "gu:cdk:pattern-name",
-            "PropagateAtLaunch": true,
-            "Value": "GuPlayApp",
           },
           Object {
             "Key": "gu:cdk:version",
@@ -330,9 +228,11 @@ dpkg -i /tmp/package.deb",
             "Value": "guardian/typerighter",
           },
           Object {
-            "Key": "Name",
+            "Key": "LogKinesisStreamName",
             "PropagateAtLaunch": true,
-            "Value": "typerighter/AutoScalingGroupTyperighterrulemanager",
+            "Value": Object {
+              "Ref": "LoggingStreamName",
+            },
           },
           Object {
             "Key": "Stack",
@@ -342,9 +242,7 @@ dpkg -i /tmp/package.deb",
           Object {
             "Key": "Stage",
             "PropagateAtLaunch": true,
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "TargetGroupARNs": Array [
@@ -358,78 +256,10 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::AutoScaling::AutoScalingGroup",
     },
-    "AutoScalingGroupTyperighterrulemanagerInstanceProfile4E294BC2": Object {
-      "Properties": Object {
-        "Roles": Array [
-          Object {
-            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::InstanceProfile",
-    },
-    "AutoScalingGroupTyperighterrulemanagerLaunchConfig5311DECE": Object {
-      "DependsOn": Array [
-        "InstanceRoleTyperighterrulemanagerDefaultPolicy29F250C4",
-        "InstanceRoleTyperighterrulemanagerC4CF9347",
-      ],
-      "Properties": Object {
-        "IamInstanceProfile": Object {
-          "Ref": "AutoScalingGroupTyperighterrulemanagerInstanceProfile4E294BC2",
-        },
-        "ImageId": Object {
-          "Ref": "AMITyperighterrulemanager",
-        },
-        "InstanceType": "t4g.micro",
-        "SecurityGroups": Array [
-          Object {
-            "Fn::GetAtt": Array [
-              "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
-              "GroupId",
-            ],
-          },
-          Object {
-            "Fn::GetAtt": Array [
-              "WazuhSecurityGroup",
-              "GroupId",
-            ],
-          },
-        ],
-        "UserData": Object {
-          "Fn::Base64": Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "#!/bin/bash -ev
-        aws --quiet --region ",
-                Object {
-                  "Ref": "AWS::Region",
-                },
-                " s3 cp s3://composer-dist/flexible/",
-                Object {
-                  "Ref": "Stage",
-                },
-                "/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
-        dpkg -i /tmp/package.deb",
-              ],
-            ],
-          },
-        },
-      },
-      "Type": "AWS::AutoScaling::LaunchConfiguration",
-    },
     "CertificateTyperighterchecker335D464A": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
-        "DomainName": Object {
-          "Fn::FindInMap": Array [
-            "typerighterchecker",
-            Object {
-              "Ref": "Stage",
-            },
-            "domainName",
-          ],
-        },
+        "DomainName": "checker.test.dev-gutools.co.uk",
         "Tags": Array [
           Object {
             "Key": "App",
@@ -444,14 +274,16 @@ dpkg -i /tmp/package.deb",
             "Value": "guardian/typerighter",
           },
           Object {
+            "Key": "Name",
+            "Value": "typerighter/CertificateTyperighterchecker",
+          },
+          Object {
             "Key": "Stack",
             "Value": "flexible",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "ValidationMethod": "DNS",
@@ -462,15 +294,7 @@ dpkg -i /tmp/package.deb",
     "CertificateTyperighterrulemanager994D3BCE": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
-        "DomainName": Object {
-          "Fn::FindInMap": Array [
-            "typerighterrulemanager",
-            Object {
-              "Ref": "Stage",
-            },
-            "domainName",
-          ],
-        },
+        "DomainName": "manager.test.dev-gutools.co.uk",
         "Tags": Array [
           Object {
             "Key": "App",
@@ -485,14 +309,16 @@ dpkg -i /tmp/package.deb",
             "Value": "guardian/typerighter",
           },
           Object {
+            "Key": "Name",
+            "Value": "typerighter/CertificateTyperighterrulemanager",
+          },
+          Object {
             "Key": "Stack",
             "Value": "flexible",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "ValidationMethod": "DNS",
@@ -531,9 +357,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "VpcId": Object {
@@ -563,6 +387,27 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "DBSecurityGroupTyperighterrulemanagerfromtyperighterWazuhSecurityGroupF941BA2354320D59DB78": Object {
+      "Properties": Object {
+        "Description": "Allow connection from EC2 instances to DB",
+        "FromPort": 5432,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "DBSecurityGroupTyperighterrulemanagerE0229216",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "WazuhSecurityGroup",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
     "DBSubnetGroup": Object {
       "Properties": Object {
         "DBSubnetGroupDescription": "Subnet for typerighter rule-manager database",
@@ -584,9 +429,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
       },
@@ -636,11 +479,7 @@ dpkg -i /tmp/package.deb",
                     Object {
                       "Ref": "DistributionBucketName",
                     },
-                    "/flexible/",
-                    Object {
-                      "Ref": "Stage",
-                    },
-                    "/typerighter-checker/*",
+                    "/flexible/TEST/typerighter-checker/*",
                   ],
                 ],
               },
@@ -672,11 +511,7 @@ dpkg -i /tmp/package.deb",
                     Object {
                       "Ref": "DistributionBucketName",
                     },
-                    "/flexible/",
-                    Object {
-                      "Ref": "Stage",
-                    },
-                    "/typerighter-rule-manager/*",
+                    "/flexible/TEST/typerighter-rule-manager/*",
                   ],
                 ],
               },
@@ -724,9 +559,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "VpcId": Object {
@@ -787,9 +620,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "VpcId": Object {
@@ -916,7 +747,11 @@ dpkg -i /tmp/package.deb",
                 "s3:GetBucket*",
                 "s3:List*",
                 "s3:DeleteObject*",
-                "s3:PutObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
                 "s3:Abort*",
               ],
               "Effect": "Allow",
@@ -963,22 +798,26 @@ dpkg -i /tmp/package.deb",
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
               "Principal": Object {
-                "Service": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "ec2.",
-                      Object {
-                        "Ref": "AWS::URLSuffix",
-                      },
-                    ],
-                  ],
-                },
+                "Service": "ec2.amazonaws.com",
               },
             },
           ],
           "Version": "2012-10-17",
         },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AmazonSSMManagedInstanceCore",
+              ],
+            ],
+          },
+        ],
         "Path": "/",
         "Tags": Array [
           Object {
@@ -999,9 +838,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
       },
@@ -1015,22 +852,26 @@ dpkg -i /tmp/package.deb",
               "Action": "sts:AssumeRole",
               "Effect": "Allow",
               "Principal": Object {
-                "Service": Object {
-                  "Fn::Join": Array [
-                    "",
-                    Array [
-                      "ec2.",
-                      Object {
-                        "Ref": "AWS::URLSuffix",
-                      },
-                    ],
-                  ],
-                },
+                "Service": "ec2.amazonaws.com",
               },
             },
           ],
           "Version": "2012-10-17",
         },
+        "ManagedPolicyArns": Array [
+          Object {
+            "Fn::Join": Array [
+              "",
+              Array [
+                "arn:",
+                Object {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AmazonSSMManagedInstanceCore",
+              ],
+            ],
+          },
+        ],
         "Path": "/",
         "Tags": Array [
           Object {
@@ -1051,9 +892,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
       },
@@ -1069,7 +908,11 @@ dpkg -i /tmp/package.deb",
                 "s3:GetBucket*",
                 "s3:List*",
                 "s3:DeleteObject*",
-                "s3:PutObject*",
+                "s3:PutObject",
+                "s3:PutObjectLegalHold",
+                "s3:PutObjectRetention",
+                "s3:PutObjectTagging",
+                "s3:PutObjectVersionTagging",
                 "s3:Abort*",
               ],
               "Effect": "Allow",
@@ -1197,9 +1040,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "Type": "application",
@@ -1237,9 +1078,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "VpcId": Object {
@@ -1254,6 +1093,27 @@ dpkg -i /tmp/package.deb",
         "DestinationSecurityGroupId": Object {
           "Fn::GetAtt": Array [
             "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C",
+            "GroupId",
+          ],
+        },
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperightercheckerSecurityGroup35C23EF5",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "LoadBalancerTyperightercheckerSecurityGrouptotyperighterWazuhSecurityGroupF941BA2390008F674D0B": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "WazuhSecurityGroup",
             "GroupId",
           ],
         },
@@ -1308,9 +1168,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "Type": "application",
@@ -1348,9 +1206,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "VpcId": Object {
@@ -1365,6 +1221,27 @@ dpkg -i /tmp/package.deb",
         "DestinationSecurityGroupId": Object {
           "Fn::GetAtt": Array [
             "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+            "GroupId",
+          ],
+        },
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "LoadBalancerTyperighterrulemanagerSecurityGrouptotyperighterWazuhSecurityGroupF941BA23900016F56539": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "WazuhSecurityGroup",
             "GroupId",
           ],
         },
@@ -1423,11 +1300,7 @@ dpkg -i /tmp/package.deb",
                     Object {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/",
-                    Object {
-                      "Ref": "Stage",
-                    },
-                    "/flexible/typerighter-checker",
+                    ":parameter/TEST/flexible/typerighter-checker",
                   ],
                 ],
               },
@@ -1450,11 +1323,7 @@ dpkg -i /tmp/package.deb",
                     Object {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/",
-                    Object {
-                      "Ref": "Stage",
-                    },
-                    "/flexible/typerighter-checker/*",
+                    ":parameter/TEST/flexible/typerighter-checker/*",
                   ],
                 ],
               },
@@ -1490,11 +1359,7 @@ dpkg -i /tmp/package.deb",
                     Object {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/",
-                    Object {
-                      "Ref": "Stage",
-                    },
-                    "/flexible/typerighter-rule-manager",
+                    ":parameter/TEST/flexible/typerighter-rule-manager",
                   ],
                 ],
               },
@@ -1517,11 +1382,7 @@ dpkg -i /tmp/package.deb",
                     Object {
                       "Ref": "AWS::AccountId",
                     },
-                    ":parameter/",
-                    Object {
-                      "Ref": "Stage",
-                    },
-                    "/flexible/typerighter-rule-manager/*",
+                    ":parameter/TEST/flexible/typerighter-rule-manager/*",
                   ],
                 ],
               },
@@ -1547,35 +1408,14 @@ dpkg -i /tmp/package.deb",
         "BackupRetentionPeriod": 10,
         "CopyTagsToSnapshot": true,
         "DBInstanceClass": "db.t4g.micro",
-        "DBInstanceIdentifier": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "typerighter-rule-manager-store-",
-              Object {
-                "Ref": "Stage",
-              },
-            ],
-          ],
-        },
+        "DBInstanceIdentifier": "typerighter-rule-manager-store-test",
         "DBSubnetGroupName": Object {
           "Ref": "DBSubnetGroup",
         },
         "DeletionProtection": true,
         "Engine": "postgres",
         "EngineVersion": "13",
-        "MasterUserPassword": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "{{resolve:ssm-secure:/",
-              Object {
-                "Ref": "Stage",
-              },
-              "/flexible/typerighter-rule-manager/db.default.password:1}}",
-            ],
-          ],
-        },
+        "MasterUserPassword": "{{resolve:ssm-secure:/TEST/flexible/typerighter-rule-manager/db.default.password:1}}",
         "MasterUsername": Object {
           "Ref": "MasterDBUsername",
         },
@@ -1605,9 +1445,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "VPCSecurityGroups": Array [
@@ -1621,45 +1459,6 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::RDS::DBInstance",
       "UpdateReplacePolicy": "Snapshot",
-    },
-    "SSMRunCommandPolicy244E1613": Object {
-      "Properties": Object {
-        "PolicyDocument": Object {
-          "Statement": Array [
-            Object {
-              "Action": Array [
-                "ec2messages:AcknowledgeMessage",
-                "ec2messages:DeleteMessage",
-                "ec2messages:FailMessage",
-                "ec2messages:GetEndpoint",
-                "ec2messages:GetMessages",
-                "ec2messages:SendReply",
-                "ssm:UpdateInstanceInformation",
-                "ssm:ListInstanceAssociations",
-                "ssm:DescribeInstanceProperties",
-                "ssm:DescribeDocumentParameters",
-                "ssmmessages:CreateControlChannel",
-                "ssmmessages:CreateDataChannel",
-                "ssmmessages:OpenControlChannel",
-                "ssmmessages:OpenDataChannel",
-              ],
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "ssm-run-command-policy",
-        "Roles": Array [
-          Object {
-            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
-          },
-          Object {
-            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "TargetGroupTyperighterchecker7E7859CF": Object {
       "Properties": Object {
@@ -1689,9 +1488,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "TargetGroupAttributes": Array [
@@ -1740,9 +1537,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "TargetGroupAttributes": Array [
@@ -1797,9 +1592,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
         "VpcId": Object {
@@ -1808,23 +1601,76 @@ dpkg -i /tmp/package.deb",
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
+    "WazuhSecurityGroupfromtyperighterLoadBalancerTyperightercheckerSecurityGroup6083F06D90004F90B093": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "WazuhSecurityGroup",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperightercheckerSecurityGroup35C23EF5",
+            "GroupId",
+          ],
+        },
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "WazuhSecurityGroupfromtyperighterLoadBalancerTyperighterrulemanagerSecurityGroupCB1A584E9000AF0F78BA": Object {
+      "Properties": Object {
+        "Description": "Load balancer to target",
+        "FromPort": 9000,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "WazuhSecurityGroup",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7",
+            "GroupId",
+          ],
+        },
+        "ToPort": 9000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "WazuhSecurityGrouptotyperighterDBSecurityGroupTyperighterrulemanager6085BB9A54328A9B262B": Object {
+      "Properties": Object {
+        "Description": "Allow connection from EC2 instances to DB",
+        "DestinationSecurityGroupId": Object {
+          "Fn::GetAtt": Array [
+            "DBSecurityGroupTyperighterrulemanagerE0229216",
+            "GroupId",
+          ],
+        },
+        "FromPort": 5432,
+        "GroupId": Object {
+          "Fn::GetAtt": Array [
+            "WazuhSecurityGroup",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
     "checkercloudfrontcachepolicyC5791389": Object {
       "Properties": Object {
         "CachePolicyConfig": Object {
           "DefaultTTL": 86400,
           "MaxTTL": 31536000,
           "MinTTL": 0,
-          "Name": Object {
-            "Fn::Join": Array [
-              "",
-              Array [
-                "checker-cloudfront-cache-policy-",
-                Object {
-                  "Ref": "Stage",
-                },
-              ],
-            ],
-          },
+          "Name": "checker-cloudfront-cache-policy-TEST",
           "ParametersInCacheKeyAndForwardedToOrigin": Object {
             "CookiesConfig": Object {
               "CookieBehavior": "all",
@@ -1850,15 +1696,7 @@ dpkg -i /tmp/package.deb",
     },
     "checkerdnsrecords": Object {
       "Properties": Object {
-        "Name": Object {
-          "Fn::FindInMap": Array [
-            "typerighterchecker",
-            Object {
-              "Ref": "Stage",
-            },
-            "checkerDomain",
-          ],
-        },
+        "Name": "checker.test.dev-gutools.co.uk",
         "RecordType": "CNAME",
         "ResourceRecords": Array [
           Object {
@@ -1868,9 +1706,7 @@ dpkg -i /tmp/package.deb",
             ],
           },
         ],
-        "Stage": Object {
-          "Ref": "Stage",
-        },
+        "Stage": "TEST",
         "TTL": 3600,
       },
       "Type": "Guardian::DNS::RecordSet",
@@ -1911,26 +1747,311 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
       },
       "Type": "AWS::S3::Bucket",
       "UpdateReplacePolicy": "Retain",
     },
+    "flexibleTESTtyperightercheckerC54CB6AC": Object {
+      "Properties": Object {
+        "LaunchTemplateData": Object {
+          "IamInstanceProfile": Object {
+            "Arn": Object {
+              "Fn::GetAtt": Array [
+                "flexibleTESTtyperightercheckerProfile8358872C",
+                "Arn",
+              ],
+            },
+          },
+          "ImageId": Object {
+            "Ref": "AMITyperighterchecker",
+          },
+          "InstanceType": "t4g.small",
+          "MetadataOptions": Object {
+            "HttpTokens": "required",
+          },
+          "SecurityGroupIds": Array [
+            Object {
+              "Fn::GetAtt": Array [
+                "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C",
+                "GroupId",
+              ],
+            },
+            Object {
+              "Fn::GetAtt": Array [
+                "WazuhSecurityGroup",
+                "GroupId",
+              ],
+            },
+          ],
+          "TagSpecifications": Array [
+            Object {
+              "ResourceType": "instance",
+              "Tags": Array [
+                Object {
+                  "Key": "gu:cdk:version",
+                  "Value": "TEST",
+                },
+                Object {
+                  "Key": "gu:repo",
+                  "Value": "guardian/typerighter",
+                },
+                Object {
+                  "Key": "Name",
+                  "Value": "typerighter/flexible-TEST-typerighter-checker",
+                },
+                Object {
+                  "Key": "Stack",
+                  "Value": "flexible",
+                },
+                Object {
+                  "Key": "Stage",
+                  "Value": "TEST",
+                },
+              ],
+            },
+            Object {
+              "ResourceType": "volume",
+              "Tags": Array [
+                Object {
+                  "Key": "gu:cdk:version",
+                  "Value": "TEST",
+                },
+                Object {
+                  "Key": "gu:repo",
+                  "Value": "guardian/typerighter",
+                },
+                Object {
+                  "Key": "Name",
+                  "Value": "typerighter/flexible-TEST-typerighter-checker",
+                },
+                Object {
+                  "Key": "Stack",
+                  "Value": "flexible",
+                },
+                Object {
+                  "Key": "Stage",
+                  "Value": "TEST",
+                },
+              ],
+            },
+          ],
+          "UserData": Object {
+            "Fn::Base64": Object {
+              "Fn::Join": Array [
+                "",
+                Array [
+                  "#!/bin/bash -ev
+mkdir /etc/gu
+
+cat > /etc/gu/tags << 'EOF'
+Stage=TEST
+Stack=flexible
+App=typerighter-checker
+EOF
+
+cat > /etc/gu/typerighter-checker.conf << 'EOF'
+include \\"application\\"
+typerighter.ngramPath=\\"/opt/ngram-data\\"
+EOF
+
+aws --quiet --region ",
+                  Object {
+                    "Ref": "AWS::Region",
+                  },
+                  " s3 cp s3://composer-dist/flexible/TEST/typerighter-checker/typerighter-checker.deb /tmp/package.deb
+dpkg -i /tmp/package.deb",
+                ],
+              ],
+            },
+          },
+        },
+        "TagSpecifications": Array [
+          Object {
+            "ResourceType": "launch-template",
+            "Tags": Array [
+              Object {
+                "Key": "gu:cdk:version",
+                "Value": "TEST",
+              },
+              Object {
+                "Key": "gu:repo",
+                "Value": "guardian/typerighter",
+              },
+              Object {
+                "Key": "Name",
+                "Value": "typerighter/flexible-TEST-typerighter-checker",
+              },
+              Object {
+                "Key": "Stack",
+                "Value": "flexible",
+              },
+              Object {
+                "Key": "Stage",
+                "Value": "TEST",
+              },
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::EC2::LaunchTemplate",
+    },
+    "flexibleTESTtyperightercheckerProfile8358872C": Object {
+      "Properties": Object {
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
+    "flexibleTESTtyperighterrulemanager4AFD32A8": Object {
+      "Properties": Object {
+        "LaunchTemplateData": Object {
+          "IamInstanceProfile": Object {
+            "Arn": Object {
+              "Fn::GetAtt": Array [
+                "flexibleTESTtyperighterrulemanagerProfileBB9AFDE7",
+                "Arn",
+              ],
+            },
+          },
+          "ImageId": Object {
+            "Ref": "AMITyperighterrulemanager",
+          },
+          "InstanceType": "t4g.micro",
+          "MetadataOptions": Object {
+            "HttpTokens": "required",
+          },
+          "SecurityGroupIds": Array [
+            Object {
+              "Fn::GetAtt": Array [
+                "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
+                "GroupId",
+              ],
+            },
+            Object {
+              "Fn::GetAtt": Array [
+                "WazuhSecurityGroup",
+                "GroupId",
+              ],
+            },
+          ],
+          "TagSpecifications": Array [
+            Object {
+              "ResourceType": "instance",
+              "Tags": Array [
+                Object {
+                  "Key": "gu:cdk:version",
+                  "Value": "TEST",
+                },
+                Object {
+                  "Key": "gu:repo",
+                  "Value": "guardian/typerighter",
+                },
+                Object {
+                  "Key": "Name",
+                  "Value": "typerighter/flexible-TEST-typerighter-rule-manager",
+                },
+                Object {
+                  "Key": "Stack",
+                  "Value": "flexible",
+                },
+                Object {
+                  "Key": "Stage",
+                  "Value": "TEST",
+                },
+              ],
+            },
+            Object {
+              "ResourceType": "volume",
+              "Tags": Array [
+                Object {
+                  "Key": "gu:cdk:version",
+                  "Value": "TEST",
+                },
+                Object {
+                  "Key": "gu:repo",
+                  "Value": "guardian/typerighter",
+                },
+                Object {
+                  "Key": "Name",
+                  "Value": "typerighter/flexible-TEST-typerighter-rule-manager",
+                },
+                Object {
+                  "Key": "Stack",
+                  "Value": "flexible",
+                },
+                Object {
+                  "Key": "Stage",
+                  "Value": "TEST",
+                },
+              ],
+            },
+          ],
+          "UserData": Object {
+            "Fn::Base64": Object {
+              "Fn::Join": Array [
+                "",
+                Array [
+                  "#!/bin/bash -ev
+        aws --quiet --region ",
+                  Object {
+                    "Ref": "AWS::Region",
+                  },
+                  " s3 cp s3://composer-dist/flexible/TEST/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+        dpkg -i /tmp/package.deb",
+                ],
+              ],
+            },
+          },
+        },
+        "TagSpecifications": Array [
+          Object {
+            "ResourceType": "launch-template",
+            "Tags": Array [
+              Object {
+                "Key": "gu:cdk:version",
+                "Value": "TEST",
+              },
+              Object {
+                "Key": "gu:repo",
+                "Value": "guardian/typerighter",
+              },
+              Object {
+                "Key": "Name",
+                "Value": "typerighter/flexible-TEST-typerighter-rule-manager",
+              },
+              Object {
+                "Key": "Stack",
+                "Value": "flexible",
+              },
+              Object {
+                "Key": "Stage",
+                "Value": "TEST",
+              },
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::EC2::LaunchTemplate",
+    },
+    "flexibleTESTtyperighterrulemanagerProfileBB9AFDE7": Object {
+      "Properties": Object {
+        "Roles": Array [
+          Object {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+    },
     "managerdnsrecords": Object {
       "Properties": Object {
-        "Name": Object {
-          "Fn::FindInMap": Array [
-            "typerighterrulemanager",
-            Object {
-              "Ref": "Stage",
-            },
-            "ruleManagerDomain",
-          ],
-        },
+        "Name": "manager.test.dev-gutools.co.uk",
         "RecordType": "CNAME",
         "ResourceRecords": Array [
           Object {
@@ -1940,9 +2061,7 @@ dpkg -i /tmp/package.deb",
             ],
           },
         ],
-        "Stage": Object {
-          "Ref": "Stage",
-        },
+        "Stage": "TEST",
         "TTL": 3600,
       },
       "Type": "Guardian::DNS::RecordSet",
@@ -1950,18 +2069,7 @@ dpkg -i /tmp/package.deb",
     "ruleprovisioneralarm77B679CD": Object {
       "Properties": Object {
         "AlarmDescription": "There was a problem getting rules for Typerighter. Rules might not be present, or might be out of date.",
-        "AlarmName": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "Typerighter - ",
-              Object {
-                "Ref": "Stage",
-              },
-              " - issue provisioning rules",
-            ],
-          ],
-        },
+        "AlarmName": "Typerighter - TEST - issue provisioning rules",
         "ComparisonOperator": "GreaterThanThreshold",
         "EvaluationPeriods": 3,
         "MetricName": "RulesNotFound",
@@ -1976,23 +2084,7 @@ dpkg -i /tmp/package.deb",
     "typerighterbucketTyperighterrulemanager54EC2AB2": Object {
       "DeletionPolicy": "Retain",
       "Properties": Object {
-        "BucketName": Object {
-          "Fn::Join": Array [
-            "",
-            Array [
-              "typerighter-app-",
-              Object {
-                "Fn::FindInMap": Array [
-                  "typerighter",
-                  Object {
-                    "Ref": "Stage",
-                  },
-                  "lowercase",
-                ],
-              },
-            ],
-          ],
-        },
+        "BucketName": "typerighter-app-test",
         "PublicAccessBlockConfiguration": Object {
           "BlockPublicAcls": true,
           "BlockPublicPolicy": true,
@@ -2018,9 +2110,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
       },
@@ -2031,15 +2121,7 @@ dpkg -i /tmp/package.deb",
       "Properties": Object {
         "DistributionConfig": Object {
           "Aliases": Array [
-            Object {
-              "Fn::FindInMap": Array [
-                "typerighterchecker",
-                Object {
-                  "Ref": "Stage",
-                },
-                "checkerDomain",
-              ],
-            },
+            "checker.test.dev-gutools.co.uk",
           ],
           "DefaultCacheBehavior": Object {
             "AllowedMethods": Array [
@@ -2090,7 +2172,7 @@ dpkg -i /tmp/package.deb",
             "AcmCertificateArn": Object {
               "Ref": "CheckerCloudfrontCertificate",
             },
-            "MinimumProtocolVersion": "TLSv1.2_2019",
+            "MinimumProtocolVersion": "TLSv1.2_2021",
             "SslSupportMethod": "sni-only",
           },
         },
@@ -2109,9 +2191,7 @@ dpkg -i /tmp/package.deb",
           },
           Object {
             "Key": "Stage",
-            "Value": Object {
-              "Ref": "Stage",
-            },
+            "Value": "TEST",
           },
         ],
       },
