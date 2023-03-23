@@ -1,4 +1,6 @@
-import com.amazonaws.auth.AWSCredentialsProvider
+import com.amazonaws.auth.{AWSCredentialsProvider, AWSStaticCredentialsProvider, BasicAWSCredentials}
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
+import com.amazonaws.regions.Regions
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
@@ -25,7 +27,7 @@ import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
 import services._
-import com.gu.typerighter.lib.{Loggable, ElkLogging}
+import com.gu.typerighter.lib.{ElkLogging, Loggable}
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
@@ -59,23 +61,38 @@ class AppComponents(
   val guardianContentClient = GuardianContentClient(config.capiApiKey)
   val contentClient = new ContentClient(guardianContentClient)
 
-  private val s3Client = AmazonS3ClientBuilder
+  private val localStackBasicAWSCredentialsProviderV1: AWSCredentialsProvider =
+    new AWSStaticCredentialsProvider(
+      new BasicAWSCredentials("accessKey", "secretKey"))
+
+  private val standardS3Client = AmazonS3ClientBuilder
     .standard()
     .withCredentials(creds)
     .withRegion(region)
     .build()
+
+  private val s3Client = identity match {
+    case _: AwsIdentity => standardS3Client
+    case _: DevIdentity => AmazonS3ClientBuilder
+      .standard()
+      .withCredentials(localStackBasicAWSCredentialsProviderV1)
+      .withEndpointConfiguration(new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName))
+      // This is needed for localstack
+      .enablePathStyleAccess()
+      .build()
+  }
 
   val settingsFile = identity match {
     case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
     case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
   }
-  val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", s3Client)
+  val publicSettings = new PublicSettings(settingsFile, "pan-domain-auth-settings", standardS3Client)
   publicSettings.start()
 
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
-    case _                     => "code"
+    case _ : DevIdentity => "local"
   }
   val typerighterBucket = s"typerighter-app-${stage}"
 
