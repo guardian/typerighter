@@ -2,7 +2,7 @@ package db
 
 import scalikejdbc._
 
-class RuleManagerDB(url: String, user: String, password: String) {
+class DB(url: String, user: String, password: String) {
   Class.forName("org.postgresql.Driver")
   ConnectionPool.singleton(url, user, password)
 

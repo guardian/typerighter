@@ -9,7 +9,7 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.lib.Loggable
 
-import _root_.db.RuleManagerDB
+import _root_.db.DB
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import utils.PermissionsHandler
 import com.gu.permissions.PermissionDefinition
@@ -17,7 +17,7 @@ import utils.RuleManagerConfig
 
 class HomeController(
     val controllerComponents: ControllerComponents,
-    val db: RuleManagerDB,
+    val db: DB,
     override val panDomainSettings: PanDomainAuthSettingsRefresher,
     override val wsClient: WSClient,
     override val config: RuleManagerConfig

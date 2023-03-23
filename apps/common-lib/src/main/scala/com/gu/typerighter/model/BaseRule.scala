@@ -30,10 +30,24 @@ object BaseRule {
 }
 
 object RegexRule {
-  implicit val regexWrites: Writes[Regex] = (regex: Regex) => JsString(regex.toString)
-  implicit val regexReads: Reads[Regex] = JsPath.read[String].map(new Regex(_))
+  implicit val regexWrites: Writes[ComparableRegex] = (regex: ComparableRegex) =>
+    JsString(regex.toString())
+  implicit val regexReads: Reads[ComparableRegex] = JsPath.read[String].map(new ComparableRegex(_))
   implicit val writes: Writes[RegexRule] = Json.writes[RegexRule]
   implicit val reads: Reads[RegexRule] = Json.reads[RegexRule]
+}
+
+class ComparableRegex(regex: String, groupNames: String*) extends Regex(regex, groupNames: _*) {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case r: ComparableRegex =>
+        this.pattern.pattern == r.pattern.pattern &&
+        this.pattern.flags == r.pattern.flags
+      case _ => false
+    }
+  }
+
+  override def hashCode(): Int = this.pattern.##
 }
 
 case class RegexRule(
@@ -42,7 +56,7 @@ case class RegexRule(
     description: String,
     suggestions: List[TextSuggestion] = List.empty,
     replacement: Option[TextSuggestion] = None,
-    regex: Regex
+    regex: ComparableRegex
 ) extends BaseRule {
 
   def toMatch(

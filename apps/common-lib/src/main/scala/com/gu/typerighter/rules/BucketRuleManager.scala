@@ -48,7 +48,7 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends
       Right(op)
     } catch {
       case e: Exception =>
-        logger.error(s"BucketRuleManager: error whilst $name. ${e.getMessage}")
+        logger.error(s"BucketRuleManager: error whilst $name. ${e.getMessage}", e)
         Left(e)
     }
   }
