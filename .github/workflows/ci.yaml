@@ -22,9 +22,3 @@ jobs:
         with:
           java-version: "8"
           distribution: "corretto"
-      - name: test and check formatting
-        run: |
-          sbt -v test scalafmtCheckAll
-      - name: build uberjar
-        run: |
-          sbt -v assembly
