@@ -31,7 +31,22 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - working-directory: ./cdk
+      - name: build rule-manager-client
+        working-directory: ./apps/rule-manager/client
+        run: |
+          npm i
+          npm run build
+      - name: build rule-audit-client
+        working-directory: ./apps/rule-audit-client
+        run: |
+          npm i
+          npm run build
+      - name: cdk synth
+        working-directory: ./cdk
         run: |
           yarn
           yarn synth
+      - name: build sbt
+        run: |
+          sbt clean compile test riffRaffUpload
+  
