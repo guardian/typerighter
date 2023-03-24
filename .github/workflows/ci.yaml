@@ -1,4 +1,4 @@
-name: CI
+name: Typerighter CI
 on:
   pull_request:
   workflow_dispatch:
@@ -23,7 +23,8 @@ jobs:
           java-version: "8"
           distribution: "corretto"
       - name: Build the stack
-        run: docker-compose up
+        run: | 
+          docker-compose up -d
       - name: test and check formatting
         run: |
           sbt -v test scalafmtCheckAll
