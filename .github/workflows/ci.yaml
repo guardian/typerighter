@@ -22,3 +22,8 @@ jobs:
         with:
           java-version: "8"
           distribution: "corretto"
+      - name: Build the stack
+        run: docker-compose up
+      - name: test and check formatting
+        run: |
+          sbt -v test scalafmtCheckAll
