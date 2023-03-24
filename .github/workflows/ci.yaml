@@ -28,3 +28,9 @@ jobs:
       - name: Run tests
         run: |
           sbt -v test
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - working-directory: ./cdk
+        run: |
+          npm run synth
