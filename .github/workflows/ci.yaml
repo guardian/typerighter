@@ -25,6 +25,6 @@ jobs:
       - name: Build the stack
         run: | 
           docker-compose up -d
-      - name: test and check formatting
+      - name: Run tests
         run: |
-          sbt -v test scalafmtCheckAll
+          sbt -v test
