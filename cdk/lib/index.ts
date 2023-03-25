@@ -1,10 +1,9 @@
 import {
   App,
-  CfnMapping,
   Duration,
   RemovalPolicy,
   SecretValue,
-} from "aws-cdk-lib/core";
+} from "aws-cdk-lib";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
 import {
@@ -75,11 +74,6 @@ export class Typerighter extends GuStack {
     const pandaAuthPolicy = new GuGetS3ObjectsPolicy(this, "PandaAuthPolicy", {
       bucketName: "pan-domain-auth-settings",
     });
-
-    const checkerDomainCODE = "checker.typerighter.code.dev-gutools.co.uk";
-    const checkerDomainPROD = "checker.typerighter.gutools.co.uk";
-    const managerDomainCODE = "manager.typerighter.code.dev-gutools.co.uk";
-    const managerDomainPROD = "manager.typerighter.gutools.co.uk";
 
     const lowercaseStage = this.stage.toLowerCase();
 
