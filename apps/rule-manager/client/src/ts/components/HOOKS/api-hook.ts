@@ -1,39 +1,6 @@
 import {useState, useEffect} from 'react';
 
-const rulesMock = [
-    {
-        id: "0170d0b7-193c-46c7-b64c-56d0130329ab",
-        category: {
-            id: "Style guide and names",
-            name: "Style guide and names"
-        },
-        description: "**riverbed**",
-        suggestions: [],
-        replacement: {
-            type: "TEXT_SUGGESTION",
-            text: "riverbed"
-        },
-        regex: "(?i)\\briver-? ?bed",
-        _type: "com.gu.typerighter.model.RegexRule"
-    },
-    {
-        id: "b04d6180-aa72-425f-86d7-e1d518f9fca6",
-        category: {
-            id: "Style guide and names",
-            name: "Style guide and names"
-        },
-        description: "**Royal National Institute of Blind People (no longer the Blind)**",
-        suggestions: [],
-        replacement: {
-            type: "TEXT_SUGGESTION",
-            text: "Royal National Institute of Blind People"
-        },
-        regex: "\\bRoyal National Institute of (the )?Blind( People)?",
-        _type: "com.gu.typerighter.model.RegexRule"
-    },
-];
-
-export function useApi(endpoint, method, body) {
+export function useApi(endpoint, method, body) { // TODO - keep the endpoint, lose the method and  body - rename to something less general
     const [data, setData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -45,10 +12,11 @@ export function useApi(endpoint, method, body) {
             const response = await fetch(endpoint, {
                 method,
                 headers: {
-                    'Csrf-Token': 'nocheck'
+                    'Csrf-Token': 'nocheck' // TODO - check is this needs to be here
                 }
             })
             const {rules} = await response.json();
+            // setData(rules.slice(0, 500));
             setData(rules);
 
         } catch (error) {
@@ -58,7 +26,7 @@ export function useApi(endpoint, method, body) {
         setIsLoading(false);
     }
 
-    useEffect(() => {
+    useEffect(() => { // TODO - is this doing anything for us?
         fetchData();
     }, [endpoint, method, body]);
 
