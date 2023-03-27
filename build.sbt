@@ -5,8 +5,15 @@ ThisBuild / organization := "com.gu"
 ThisBuild / scalaVersion := "2.13.7"
 ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
-  "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
-  "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
+  "-encoding",
+  "UTF-8",
+  "-target:jvm-1.8",
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-language:implicitConversions",
+  "-language:postfixOps"
+)
 
 val languageToolVersion = "5.9"
 val awsSdkVersion = "1.11.999"
@@ -48,13 +55,13 @@ val commonSettings = Seq(
     "com.gu" % "kinesis-logback-appender" % "2.1.0",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
-    "com.google.api-client" % "google-api-client" % "2.0.1",
+    "com.google.api-client" % "google-api-client" % "2.2.0",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
-    "org.languagetool" % "language-en" % languageToolVersion,
+    "org.languagetool" % "language-en" % languageToolVersion
   ),
   dependencyOverrides ++= Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4"
   )
 )
 
@@ -99,7 +106,7 @@ val checker = (project in file(s"$appsFolder/checker"))
       "io.circe" %% "circe-parser"
     ).map(_ % circeVersion),
     libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
+    libraryDependencies += "io.gatling" % "gatling-test-framework" % "3.7.2" % "test,it"
   )
 
 val ruleManager = (project in file(s"$appsFolder/rule-manager"))
@@ -121,15 +128,16 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
-      "com.gu" %% "editorial-permissions-client" % "2.14",
+      "com.gu" %% "editorial-permissions-client" % "2.14"
     )
   )
 
-val root = (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
+val root =
+  (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
-  (checker / Debian / packageBin).value  -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
-  (ruleManager / Debian / packageBin).value  -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
+  (checker / Debian / packageBin).value -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
+  (ruleManager / Debian / packageBin).value -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "cdk/cdk.out/typerighter.template.json" -> "typerighter-cloudformation/typerighter.template.json"
 )
