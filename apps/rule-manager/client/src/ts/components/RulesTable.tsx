@@ -109,9 +109,19 @@ const RulesTable = () => {
                     Refresh{isRefreshing ? "ing" : ""} rules
                 </EuiButton>
             </EuiFlexItem>
+
         </EuiFlexGroup>
-        {
-            isLoading && <span css={css`padding: 8px`}>loading...</span>
+        {isLoading &&
+            <EuiFlexItem grow={true} css={css`
+              align-content: center;
+              display: flex;
+              justify-content: center;
+              width: 100%;
+              padding-bottom: 20px;
+            `}>
+                <span>loading...</span>
+            </EuiFlexItem>
+
         }
         {
             error && <span>Error: {`${error}`}</span>
