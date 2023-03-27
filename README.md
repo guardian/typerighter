@@ -63,7 +63,7 @@ If you'd like to provide your own integration, this service will function as a s
 
 ## Upgrading LanguageTool
 
-LanguageTool has default rules that we use, and as we upgrade LT, these could change underneath us.
+LanguageTool has core rules that we use, and as we upgrade LT, these could change underneath us.
 
 There's a script to see if rules have changed as a result of an upgrade in ./script/js/compare-rule-xml.js.
 

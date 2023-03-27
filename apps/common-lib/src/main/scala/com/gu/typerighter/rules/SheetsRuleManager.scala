@@ -1,6 +1,15 @@
 package com.gu.typerighter.rules
 
-import com.gu.typerighter.model.{BaseRule, Category, ComparableRegex, LTDefaultRule, LTRuleXML, RegexRule, RuleResource, TextSuggestion}
+import com.gu.typerighter.model.{
+  BaseRule,
+  Category,
+  ComparableRegex,
+  LTRuleCore,
+  LTRuleXML,
+  RegexRule,
+  RuleResource,
+  TextSuggestion
+}
 import play.api.Logging
 
 import java.io._
@@ -124,11 +133,12 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
               )
             )
           )
-        case (Some(id), _, "lt_default") => Success(
-          Some(
-            LTDefaultRule(id, id)
+        case (Some(id), _, "lt_core") =>
+          Success(
+            Some(
+              LTRuleCore(id, id)
+            )
           )
-        )
         case (Some(id), _, ruleType) =>
           Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
       }

@@ -26,8 +26,8 @@ class LanguageToolFactory(
     useLanguageModelRules: Boolean = false
 ) extends Logging {
 
-  def createInstance(ruleXMLs: List[LTRuleXML], defaultRuleIds: List[String] = Nil)(implicit
-      ec: ExecutionContext
+  def createInstance(ruleXMLs: List[LTRuleXML], coreRuleIds: List[String] = Nil)(implicit
+                                                                                 ec: ExecutionContext
   ): Either[List[Throwable], Matcher] = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)
@@ -44,13 +44,13 @@ class LanguageToolFactory(
     val allRuleIds = instance.getAllRules.asScala.map(_.getId())
     allRuleIds.foreach(ruleId => instance.disableRule(ruleId))
     // ... apart from those we'd explicitly like
-    val errors = defaultRuleIds.foldLeft(List.empty[Throwable])((acc, ruleId) =>
+    val errors = coreRuleIds.foldLeft(List.empty[Throwable])((acc, ruleId) =>
       if (allRuleIds.contains(ruleId)) {
         instance.enableRule(ruleId)
         acc
       } else
         new Exception(
-          s"Attempted to enable a default rule with id ${ruleId}, but the rule was not available on the instance"
+          s"Attempted to enable a core rule with id ${ruleId}, but the rule was not available on the instance"
         ) :: acc
     )
 
@@ -60,7 +60,7 @@ class LanguageToolFactory(
         applyXMLRules(instance, ruleXMLs) map { _ =>
           val matcher = new LanguageToolMatcher(instance)
           logger.info(
-            s"Added ${ruleXMLs.size} rules and enabled ${defaultRuleIds.size} default rules for matcher instance with id: ${matcher.getId()}"
+            s"Added ${ruleXMLs.size} rules and enabled ${coreRuleIds.size} core rules for matcher instance with id: ${matcher.getId()}"
           )
           matcher
         }

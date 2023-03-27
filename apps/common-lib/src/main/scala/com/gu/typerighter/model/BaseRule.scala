@@ -26,16 +26,16 @@ object BaseRule {
   implicit val reads: Reads[BaseRule] = Json.reads[BaseRule]
 }
 
-case class LTDefaultRule(
+case class LTRuleCore(
     id: String,
     languageToolRuleId: String
 ) extends BaseRule {
-  override val category: Category = Category("lt_default", "LanguageTool Default Rule")
+  override val category: Category = Category("lt_core", "LanguageTool Core Rule")
 }
 
-object LTDefaultRule {
-  implicit val writes: Writes[LTDefaultRule] = Json.writes[LTDefaultRule]
-  implicit val reads: Reads[LTDefaultRule] = Json.reads[LTDefaultRule]
+object LTRuleCore {
+  implicit val writes: Writes[LTRuleCore] = Json.writes[LTRuleCore]
+  implicit val reads: Reads[LTRuleCore] = Json.reads[LTRuleCore]
 }
 
 sealed trait PatternRule extends BaseRule {
