@@ -4,9 +4,9 @@
 @import com.gu.typerighter.model.BaseRule
 @import com.gu.typerighter.model.RegexRule
 @import com.gu.typerighter.model.LTRule
-@import com.gu.typerighter.model.PatternRule
 @import utils.Matcher
 
+@import com.gu.typerighter.model.LTRuleXML
 @(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[Matcher], rulesRefreshed: Option[Boolean] = None,
         rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
@@ -80,10 +80,7 @@
                           @rule.id
                         </td>
                         <td>
-                          @rule match {
-                            case p: PatternRule => { @p.category.name }
-                            case _ => { N/A }
-                          }
+                          @rule.category.name
                         </td>
                         <td>@rule match {
                           case r: RegexRule => { @r.regex.toString.slice(0, 30) }
@@ -91,7 +88,8 @@
                         }</td>
                         <td>
                           @rule match {
-                            case p: PatternRule if p.description.nonEmpty => { @p.description }
+                            case p: RegexRule if p.description.nonEmpty => { @p.description }
+                            case p: LTRuleXML if p.description.nonEmpty => { @p.description }
                             case _ => { N/A }
                           }
                         </td>

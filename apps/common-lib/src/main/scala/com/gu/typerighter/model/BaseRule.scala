@@ -38,17 +38,6 @@ object LTRuleCore {
   implicit val reads: Reads[LTRuleCore] = Json.reads[LTRuleCore]
 }
 
-sealed trait PatternRule extends BaseRule {
-  val description: String
-  val suggestions: List[Suggestion]
-  val replacement: Option[TextSuggestion]
-}
-
-object PatternRule {
-  implicit val writes: Writes[PatternRule] = Json.writes[PatternRule]
-  implicit val reads: Reads[PatternRule] = Json.reads[PatternRule]
-}
-
 object RegexRule {
   implicit val regexWrites: Writes[ComparableRegex] = (regex: ComparableRegex) =>
     JsString(regex.toString())
@@ -77,7 +66,7 @@ case class RegexRule(
     suggestions: List[TextSuggestion] = List.empty,
     replacement: Option[TextSuggestion] = None,
     regex: ComparableRegex
-) extends PatternRule {
+) extends BaseRule {
 
   def toMatch(
       start: Int,
@@ -119,7 +108,7 @@ case class LTRuleXML(
     xml: String,
     category: Category,
     description: String
-) extends PatternRule {
+) extends BaseRule {
   val suggestions = List.empty
   val replacement: Option[TextSuggestion] = None
 }
@@ -142,7 +131,7 @@ case class LTRule(
     message: String,
     url: Option[String] = None,
     suggestions: List[TextSuggestion]
-) extends PatternRule {
+) extends BaseRule {
   val replacement: Option[TextSuggestion] = None
 }
 
