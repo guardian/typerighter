@@ -4,7 +4,7 @@ import { Typerighter } from "../lib";
 
 const app = new App();
 
-const stack = "editorial-feeds";
+const stack = "flexible";
 
 const env = {
   region: "eu-west-1",
