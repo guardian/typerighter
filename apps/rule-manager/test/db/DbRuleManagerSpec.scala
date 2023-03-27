@@ -1,6 +1,10 @@
 package db
 
+<<<<<<< HEAD
 import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleResource}
+=======
+import com.gu.typerighter.model.{BaseRule, Category, ComparableRegex, LTRuleCore, LTRuleXML, RegexRule, RuleResource}
+>>>>>>> 6b9d7de2 (Update tests)
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
@@ -28,7 +32,7 @@ class DbRuleManagerSpec
 
   behavior of "DbRuleManager"
 
-  "destructivelyDumpRuleResourceToDB" should "add a single rule in a ruleResource, and read it back as an identical resource" in { implicit session =>
+  "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in { implicit session =>
     val rulesFromSheet = List(
       RegexRule(
         "faef1f8a-4ee2-4b97-8783-0566e27851da",
@@ -37,10 +41,20 @@ class DbRuleManagerSpec
         List(),
         None,
         new ComparableRegex("\b(children|sons?|daughters?) by")
+      ),
+      LTRuleXML(
+        "DATEFORMAT",
+        "<rulegroup></rulegroup>",
+        Category("Check this", "Check this"),
+        "An example description"
+      ),
+      LTRuleCore(
+        "DOUBLE_PUNCTUATION",
+        "DOUBLE_PUNCTUATION"
       )
     )
 
-    val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
+    val rules = RuleResource(rules = rulesFromSheet)
     val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
     rulesFromDb.shouldEqual(Right(rules))
@@ -49,7 +63,7 @@ class DbRuleManagerSpec
   "destructivelyDumpRuleResourceToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in { implicit session =>
     val rulesFromSheet = createRandomRules(1000)
 
-    val rules = RuleResource(rules = rulesFromSheet, ltDefaultRuleIds = List.empty)
+    val rules = RuleResource(rules = rulesFromSheet)
     val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
     rulesFromDb.shouldEqual(Right(rules))
@@ -57,11 +71,11 @@ class DbRuleManagerSpec
 
   "destructivelyDumpRuleResourceToDB" should "remove old rules before adding new ones" in { implicit session =>
     val firstRules = createRandomRules(10)
-    DbRuleManager.destructivelyDumpRuleResourceToDB(RuleResource(firstRules, List.empty))
+    DbRuleManager.destructivelyDumpRuleResourceToDB(RuleResource(firstRules))
 
     val secondRules = createRandomRules(10)
-    val secondRulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(RuleResource(secondRules, List.empty))
+    val secondRulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(RuleResource(secondRules))
 
-    secondRulesFromDb.shouldEqual(Right(RuleResource(secondRules, List.empty)))
+    secondRulesFromDb.shouldEqual(Right(RuleResource(secondRules)))
   }
 }

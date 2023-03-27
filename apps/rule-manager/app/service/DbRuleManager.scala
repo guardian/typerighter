@@ -1,25 +1,23 @@
 package service
 
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.model.{
-  BaseRule,
-  Category,
-  ComparableRegex,
-  LTRuleXML,
-  RegexRule,
-  RuleResource,
-  TextSuggestion
-}
+import com.gu.typerighter.model.{BaseRule, Category, ComparableRegex, LTRuleCore, LTRuleXML, RegexRule, RuleResource, TextSuggestion}
 import db.DbRule
 
 object DbRuleManager extends Loggable {
+  object RuleType {
+    val regex = "regex"
+    val languageToolXML = "languageToolXML"
+    val languageToolCore = "languageToolCore"
+  }
+
   def baseRuleToDbRule(rule: BaseRule): DbRule = {
     rule match {
       case RegexRule(id, category, description, _, replacement, regex) =>
         DbRule(
           id = None,
-          ruleType = "regex",
-          pattern = regex.toString(),
+          ruleType = RuleType.regex,
+          pattern = Some(regex.toString()),
           category = Some(category.name),
           description = Some(description),
           replacement = replacement.map(_.text),
@@ -29,13 +27,20 @@ object DbRuleManager extends Loggable {
       case LTRuleXML(id, xml, category, description) =>
         DbRule(
           id = None,
-          ruleType = "languageTool",
-          pattern = xml,
+          ruleType = RuleType.languageToolXML,
+          pattern = Some(xml),
           category = Some(category.name),
           description = Some(description),
           replacement = None,
           ignore = false,
           googleSheetId = Some(id)
+        )
+      case LTRuleCore(id, languageToolRuleId) =>
+        DbRule(
+          id = None,
+          ruleType = RuleType.languageToolCore,
+          googleSheetId = Some(languageToolRuleId),
+          ignore = false
         )
     }
   }
@@ -44,8 +49,8 @@ object DbRuleManager extends Loggable {
     rule match {
       case DbRule(
             _,
-            "regex",
-            pattern,
+            RuleType.regex,
+            Some(pattern),
             replacement,
             Some(category),
             _,
@@ -68,8 +73,8 @@ object DbRuleManager extends Loggable {
         )
       case DbRule(
             _,
-            "languageTool",
-            pattern,
+            RuleType.languageToolXML,
+            Some(pattern),
             _,
             Some(category),
             _,
@@ -88,6 +93,8 @@ object DbRuleManager extends Loggable {
             xml = pattern
           )
         )
+      case DbRule(_, RuleType.languageToolCore, _, _, _, _, _, _, _, Some(googleSheetId), _, _) =>
+        Right(LTRuleCore(googleSheetId, googleSheetId))
       case other => Left(s"Could not derive BaseRule from DbRule for: $other")
     }
   }

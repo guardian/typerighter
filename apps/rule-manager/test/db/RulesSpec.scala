@@ -41,12 +41,12 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     count should be >(0L)
   }
   it should "create new record" in { implicit session =>
-    val created = DbRule.create(ruleType = "regex", pattern = "MyString", ignore = false)
+    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
     created should not be(null)
   }
   it should "save a record" in { implicit session =>
     val entity = DbRule.findAll().head
-    val modified = entity.copy(pattern="NotMyString")
+    val modified = entity.copy(pattern = Some("NotMyString"))
     val updated = DbRule.save(modified)
     updated should equal(Success(modified))
   }

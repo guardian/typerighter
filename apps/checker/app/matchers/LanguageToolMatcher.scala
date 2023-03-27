@@ -27,7 +27,7 @@ class LanguageToolFactory(
 ) extends Logging {
 
   def createInstance(ruleXMLs: List[LTRuleXML], coreRuleIds: List[String] = Nil)(implicit
-                                                                                 ec: ExecutionContext
+      ec: ExecutionContext
   ): Either[List[Throwable], Matcher] = {
     val language: Language = Languages.getLanguageForShortCode("en")
     val cache: ResultCache = new ResultCache(10000)

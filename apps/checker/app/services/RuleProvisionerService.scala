@@ -90,9 +90,9 @@ class RuleProvisionerService(
   }
 
   private def addLTMatcherToPool(
-                                  matcherPool: MatcherPool,
-                                  xmlRules: List[LTRuleXML],
-                                  coreRules: List[LTRuleCore] = List.empty
+      matcherPool: MatcherPool,
+      xmlRules: List[LTRuleXML],
+      coreRules: List[LTRuleCore] = List.empty
   ): List[Throwable] = {
     languageToolFactory.createInstance(xmlRules, coreRules.map(_.languageToolRuleId)) match {
       case Right(matcher) =>
