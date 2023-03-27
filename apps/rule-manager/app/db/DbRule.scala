@@ -209,4 +209,10 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     withSQL { delete.from(DbRule).where.eq(column.id, entity.id) }.update.apply()
   }
 
+  def destroyAll()(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete.from(DbRule)
+    }.update.apply()
+  }
+
 }
