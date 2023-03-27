@@ -52,7 +52,7 @@ val commonSettings = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
-    "com.gu" % "kinesis-logback-appender" % "2.1.0",
+    "com.gu" % "kinesis-logback-appender" % "2.1.1",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
     "com.google.api-client" % "google-api-client" % "2.2.0",
