@@ -19,14 +19,34 @@ import scala.jdk.CollectionConverters._
 sealed trait BaseRule {
   val id: String
   val category: Category
-  val description: String
-  val suggestions: List[Suggestion]
-  val replacement: Option[TextSuggestion]
 }
 
 object BaseRule {
   implicit val writes: Writes[BaseRule] = Json.writes[BaseRule]
   implicit val reads: Reads[BaseRule] = Json.reads[BaseRule]
+}
+
+case class LTDefaultRule(
+    id: String,
+    languageToolRuleId: String
+) extends BaseRule {
+  override val category: Category = Category("lt_default", "LanguageTool Default Rule")
+}
+
+object LTDefaultRule {
+  implicit val writes: Writes[LTDefaultRule] = Json.writes[LTDefaultRule]
+  implicit val reads: Reads[LTDefaultRule] = Json.reads[LTDefaultRule]
+}
+
+sealed trait PatternRule extends BaseRule {
+  val description: String
+  val suggestions: List[Suggestion]
+  val replacement: Option[TextSuggestion]
+}
+
+object PatternRule {
+  implicit val writes: Writes[PatternRule] = Json.writes[PatternRule]
+  implicit val reads: Reads[PatternRule] = Json.reads[PatternRule]
 }
 
 object RegexRule {
@@ -57,7 +77,7 @@ case class RegexRule(
     suggestions: List[TextSuggestion] = List.empty,
     replacement: Option[TextSuggestion] = None,
     regex: ComparableRegex
-) extends BaseRule {
+) extends PatternRule {
 
   def toMatch(
       start: Int,
@@ -99,7 +119,7 @@ case class LTRuleXML(
     xml: String,
     category: Category,
     description: String
-) extends BaseRule {
+) extends PatternRule {
   val suggestions = List.empty
   val replacement: Option[TextSuggestion] = None
 }
@@ -122,7 +142,7 @@ case class LTRule(
     message: String,
     url: Option[String] = None,
     suggestions: List[TextSuggestion]
-) extends BaseRule {
+) extends PatternRule {
   val replacement: Option[TextSuggestion] = None
 }
 

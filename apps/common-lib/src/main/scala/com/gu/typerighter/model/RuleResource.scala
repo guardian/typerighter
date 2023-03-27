@@ -2,7 +2,7 @@ package com.gu.typerighter.model
 
 import play.api.libs.json.{Json, Reads, Writes}
 
-case class RuleResource(rules: List[BaseRule], ltDefaultRuleIds: List[String])
+case class RuleResource(rules: List[BaseRule])
 
 object RuleResource {
   implicit val writes: Writes[RuleResource] = Json.writes[RuleResource]

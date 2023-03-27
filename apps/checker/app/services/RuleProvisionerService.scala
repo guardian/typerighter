@@ -1,9 +1,8 @@
 package services
 
 import java.util.Date
-
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{BaseRule, Category, LTRule, LTRuleXML, RegexRule, RuleResource}
+import com.gu.typerighter.model.{BaseRule, Category, LTDefaultRule, LTRule, LTRuleXML, RegexRule, RuleResource}
 import com.gu.typerighter.rules.BucketRuleManager
 import matchers.RegexMatcher
 import play.api.Logging
@@ -30,7 +29,8 @@ class RuleProvisionerService(
   def updateRules(ruleResource: RuleResource, date: Date): Either[List[Throwable], Unit] = {
     matcherPool.removeAllMatchers()
 
-    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
+    val defaultRules = ruleResource.rules.collect { case r: LTDefaultRule => r }
+    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, defaultRules)
 
     val addedRulesErrors =
       ruleResource.rules.groupBy(_.category).toList.flatMap { case (_, rules) =>
@@ -84,9 +84,9 @@ class RuleProvisionerService(
   private def addLTMatcherToPool(
       matcherPool: MatcherPool,
       xmlRules: List[LTRuleXML],
-      defaultRules: List[String] = Nil
+      defaultRules: List[LTDefaultRule] = List.empty
   ): List[Throwable] = {
-    languageToolFactory.createInstance(xmlRules, defaultRules) match {
+    languageToolFactory.createInstance(xmlRules, defaultRules.map(_.languageToolRuleId)) match {
       case Right(matcher) =>
         matcherPool.addMatcher(matcher)
         Nil

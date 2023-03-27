@@ -110,7 +110,7 @@ object DbRuleManager extends Loggable {
     failedDbRules match {
       case Nil =>
         val persistedRules =
-          RuleResource(rules = successfulDbRules, ltDefaultRuleIds = rules.ltDefaultRuleIds)
+          RuleResource(rules = successfulDbRules)
 
         if (persistedRules.rules == rules.rules) {
           Right(persistedRules)
