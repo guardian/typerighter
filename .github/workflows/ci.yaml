@@ -1,10 +1,7 @@
 name: Typerighter CI
 on:
-  pull_request:
   workflow_dispatch:
   push:
-    branches:
-      - main
 
 jobs:
   CI:
