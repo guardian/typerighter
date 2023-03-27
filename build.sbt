@@ -15,7 +15,7 @@ ThisBuild / scalacOptions := Seq(
   "-language:postfixOps"
 )
 
-val languageToolVersion = "5.9"
+val languageToolVersion = "6.0"
 val awsSdkVersion = "1.11.999"
 val capiModelsVersion = "17.4.3"
 val capiClientVersion = "19.1.2"
