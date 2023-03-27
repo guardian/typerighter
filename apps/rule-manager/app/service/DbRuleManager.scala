@@ -1,7 +1,16 @@
 package service
 
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.model.{BaseRule, Category, ComparableRegex, LTRuleCore, LTRuleXML, RegexRule, RuleResource, TextSuggestion}
+import com.gu.typerighter.model.{
+  BaseRule,
+  Category,
+  ComparableRegex,
+  LTRuleCore,
+  LTRuleXML,
+  RegexRule,
+  RuleResource,
+  TextSuggestion
+}
 import db.DbRule
 
 object DbRuleManager extends Loggable {
@@ -35,7 +44,7 @@ object DbRuleManager extends Loggable {
           ignore = false,
           googleSheetId = Some(id)
         )
-      case LTRuleCore(id, languageToolRuleId) =>
+      case LTRuleCore(_, languageToolRuleId) =>
         DbRule(
           id = None,
           ruleType = RuleType.languageToolCore,
@@ -123,14 +132,17 @@ object DbRuleManager extends Loggable {
           Right(persistedRules)
         } else {
           val allRules = persistedRules.rules.zip(rules.rules)
-
-          allRules
+          log.error(s"Persisted rules differ.")
+          val diffRules = allRules
             .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
-            .take(10)
-            .foreach { case (persistedRule, expectedRule) =>
-              log.error(s"Persisted rule: $persistedRule")
-              log.error(s"Expected rule: $expectedRule")
-            }
+
+          allRules.take(10).foreach { case (persistedRule, expectedRule) =>
+            log.error(s"Persisted rule: $persistedRule")
+            log.error(s"Expected rule: $expectedRule")
+          }
+
+          log.info((persistedRules.rules == rules.rules).toString)
+          log.info((persistedRules == rules).toString)
 
           Left(
             List(

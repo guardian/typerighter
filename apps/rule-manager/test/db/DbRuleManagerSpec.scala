@@ -1,10 +1,6 @@
 package db
 
-<<<<<<< HEAD
-import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleResource}
-=======
-import com.gu.typerighter.model.{BaseRule, Category, ComparableRegex, LTRuleCore, LTRuleXML, RegexRule, RuleResource}
->>>>>>> 6b9d7de2 (Update tests)
+import com.gu.typerighter.model.{Category, ComparableRegex, LTRuleCore, LTRuleXML, RegexRule, RuleResource}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
