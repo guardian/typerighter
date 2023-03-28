@@ -55,7 +55,7 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
         field: 'category',
         name: 'Category',
         render: (category: Rule['category']) => {
-            return <>{category.name}</>
+            return <>{category?.name}</>
         }
     },
     {

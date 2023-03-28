@@ -15,7 +15,9 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends
     val ruleJson = Json.toJson(ruleResource)
     val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
 
-    logOnError(s"writing rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleJson.hashCode}") {
+    logOnError(
+      s"writing rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleJson.hashCode}"
+    ) {
       val stream: java.io.InputStream = new java.io.ByteArrayInputStream(bytes)
       val metaData = new ObjectMetadata()
       metaData.setContentLength(bytes.length)
