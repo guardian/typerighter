@@ -93,6 +93,8 @@ object DbRuleManager extends Loggable {
   }
 
   def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
+    DbRule.destroyAll()
+
     rules.rules
       .map(baseRuleToDbRule)
       .grouped(100)
