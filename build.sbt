@@ -131,7 +131,8 @@ riffRaffArtifactResources := Seq(
   (checker / Debian / packageBin).value  -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
   (ruleManager / Debian / packageBin).value  -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
-  baseDirectory.value / "cdk/cdk.out/typerighter.template.json" -> "typerighter-cloudformation/typerighter.template.json"
+  baseDirectory.value / "cdk/cdk.out/typerighter-CODE.template.json" -> "typerighter-cloudformation/typerighter-CODE.template.json",
+  baseDirectory.value / "cdk/cdk.out/typerighter-PROD.template.json" -> "typerighter-cloudformation/typerighter-PROD.template.json"
 )
 
 riffRaffManifestProjectName := s"Editorial Tools::Typerighter"

@@ -25,4 +25,6 @@ deployments:
           Recipe: editorial-tools-focal-java8-ngrams-ARM
           BuiltBy: amigo
       amiEncrypted: true
-      templatePath: typerighter.template.json
+      templateStagePaths:
+        CODE: typerighter-CODE.template.json
+        PROD: typerighter-PROD.template.json

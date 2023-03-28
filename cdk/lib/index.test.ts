@@ -1,6 +1,5 @@
-import "@aws-cdk/assert/jest";
-import { SynthUtils } from "@aws-cdk/assert";
-import { App } from "@aws-cdk/core";
+import { Template } from "aws-cdk-lib/assertions";
+import { App } from "aws-cdk-lib";
 import { Typerighter } from "./";
 
 describe("The typerighter stack", () => {
@@ -8,8 +7,13 @@ describe("The typerighter stack", () => {
         const app = new App();
         const stack = new Typerighter(app, "typerighter", {
             stack: "flexible",
+            stage: "TEST",
+            instanceCount: 1,
+            domainSuffix: "test.dev-gutools.co.uk"
         });
 
-        expect(SynthUtils.toCloudFormation(stack)).toMatchSnapshot();
+        const template = Template.fromStack(stack);
+
+        expect(template.toJSON()).toMatchSnapshot();
     })
 })
