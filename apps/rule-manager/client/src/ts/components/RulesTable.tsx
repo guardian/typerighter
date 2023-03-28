@@ -7,9 +7,12 @@ import {
     EuiFlexItem,
     EuiButton,
     EuiFlexGroup,
+    EuiLoadingSpinner,
+    EuiButtonIcon,
+    EuiFlexGrid,
 } from '@elastic/eui';
 import {useRules} from "./hooks/rules-hook";
-import { css } from "@emotion/css";
+import {css} from "@emotion/css";
 
 const sorting = {
     sort: {
@@ -22,6 +25,7 @@ type Category = {
     name: string;
     id: string;
 }
+
 export type Rule = {
     type: string;
     id: string;
@@ -65,28 +69,7 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
 ];
 
 const RulesTable = () => {
-
-    const {location} = window;
-    const [isRefreshing, setIsRefreshing] = React.useState(false);
-    const {rules, isLoading, error, setRules} = useRules(`${location}rules`);
-    // @ts-ignore
-    const refreshRules = async () => {
-        setIsRefreshing(true);
-        try {
-            const updatedRulesResponse = await fetch(`${location}refresh`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-            const {rules} = await updatedRulesResponse.json();
-            setRules(rules);
-            setIsRefreshing(false);
-        } catch (e) {
-            console.error(e);
-            setIsRefreshing(false);
-        }
-    }
+    const {rules, isLoading, error, refreshRules, isRefreshing, setError} = useRules();
 
     const [incremental, _] = useState(false);
 
@@ -111,21 +94,40 @@ const RulesTable = () => {
             </EuiFlexItem>
 
         </EuiFlexGroup>
-        {isLoading &&
-            <EuiFlexItem grow={true} css={css`
-              align-content: center;
-              display: flex;
-              justify-content: center;
-              width: 100%;
-              padding-bottom: 20px;
-            `}>
-                <span>loading...</span>
-            </EuiFlexItem>
+        <EuiFlexGrid>
+            {isLoading &&
+                <EuiFlexItem grow={true} css={css`
+                  align-content: center;
+                  display: flex;
+                  justify-content: center;
+                  width: 100%;
+                  padding-bottom: 20px;
+                `}>
+                    <EuiLoadingSpinner size="m"/>
+                </EuiFlexItem>
 
-        }
-        {
-            error && <span>Error: {`${error}`}</span>
-        }
+            }
+            {error &&
+                <EuiFlexItem grow={true} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '100%',
+                    backgroundColor: '#F8D7DA',
+                    color: '#721C24',
+                    flexDirection: 'row',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    marginBottom: '10px',
+                    fontWeight: 'bold'
+                }}>
+                    <div>{`${error}`}</div>
+                    <EuiButtonIcon
+                        onClick={() => setError(undefined)}
+                        iconType="cross"/></EuiFlexItem>
+
+            }
+        </EuiFlexGrid>
         {rules &&
             <EuiInMemoryTable
                 tableCaption="Demo of EuiInMemoryTable"
