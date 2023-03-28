@@ -37,9 +37,9 @@ export function useRules() {
             }
             const {rules} = await updatedRulesResponse.json();
             setRules(rules);
-            setIsRefreshing(false);
         } catch (e) {
             setError(e);
+        } finally {
             setIsRefreshing(false);
         }
     }
