@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {Promise as PromiseType} from 'es6-promise'
 
 export function useRules() {
     const { location } = window;
@@ -6,8 +7,7 @@ export function useRules() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    // @ts-ignore
-    const fetchRules = async () => {
+    const fetchRules = async (): PromiseType<void> => {
         setIsLoading(true);
         try {
             const response = await fetch(`${location}rules`);
@@ -23,8 +23,7 @@ export function useRules() {
         setIsLoading(false);
     }
 
-    // @ts-ignore
-    const refreshRules = async () => {
+    const refreshRules = async (): PromiseType<void>  => {
         setIsRefreshing(true);
         try {
             const updatedRulesResponse = await fetch(`${location}refresh`, {
