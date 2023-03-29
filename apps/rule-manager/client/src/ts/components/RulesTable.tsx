@@ -12,7 +12,7 @@ import {
     EuiFlexGrid,
 } from '@elastic/eui';
 import {useRules} from "./hooks/rules-hook";
-import {css} from "@emotion/css";
+import {css} from "@emotion/react";
 
 const sorting = {
     sort: {
@@ -75,7 +75,7 @@ const RulesTable = () => {
 
     return <>
         <EuiFlexGroup>
-            <EuiFlexItem grow={false} css={css`padding-bottom: 20px`}>
+            <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
                 <EuiTitle>
                     <h1>Current rules</h1>
                 </EuiTitle>
@@ -85,7 +85,6 @@ const RulesTable = () => {
                     Refresh{isRefreshing ? "ing" : ""} rules
                 </EuiButton>
             </EuiFlexItem>
-
         </EuiFlexGroup>
         <EuiFlexGrid>
             {isLoading &&
