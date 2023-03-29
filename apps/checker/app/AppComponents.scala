@@ -123,16 +123,11 @@ class AppComponents(
     cloudWatchClient
   )
 
-  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
-
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
   val rulesController = new RulesController(
     controllerComponents,
     matcherPool,
-    sheetsRuleManager,
-    bucketRuleManager,
     config.spreadsheetId,
-    ruleProvisioner,
     publicSettings
   )
   val homeController = new HomeController(controllerComponents, publicSettings)

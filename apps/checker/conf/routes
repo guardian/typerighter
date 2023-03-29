@@ -8,14 +8,13 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 GET     /                           controllers.HomeController.index()
 GET     /healthcheck                controllers.HomeController.healthcheck()
 
-POST    /refresh                    controllers.RulesController.refresh()
 GET     /rules                      controllers.RulesController.rules()
 
 GET     /audit                      controllers.AuditController.index()
 
-+ nocsrf
++nocsrf
 POST    /check                      controllers.ApiController.check()
-+ nocsrf
++nocsrf
 POST    /checkStream                controllers.ApiController.checkStream
 
 GET     /categories                 controllers.ApiController.getCurrentCategories()

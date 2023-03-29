@@ -24,6 +24,7 @@ setupDependencies() {
 
 teardownDependencies() {
   docker-compose down
+  kill -9 $(lsof -ti:9100) # terminates the rule manager app
 }
 
 runRuleManager() {
