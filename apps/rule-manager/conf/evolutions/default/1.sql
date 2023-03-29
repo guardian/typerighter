@@ -2,7 +2,7 @@
 
 -- !Ups
 
-CREATE TABLE Rules (
+CREATE TABLE rules (
       id SERIAL PRIMARY KEY,
       rule_type text NOT NULL,
       pattern text NOT NULL,
@@ -19,5 +19,4 @@ CREATE TABLE Rules (
 
 -- !Downs
 
-DROP TABLE Rules;
-DROP TYPE IF EXISTS ruleType;
+DROP TABLE rules;

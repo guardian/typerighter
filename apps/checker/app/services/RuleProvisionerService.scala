@@ -1,9 +1,16 @@
 package services
 
 import java.util.Date
-
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{BaseRule, Category, LTRule, LTRuleXML, RegexRule, RuleResource}
+import com.gu.typerighter.model.{
+  BaseRule,
+  Category,
+  LTRuleCore,
+  LTRule,
+  LTRuleXML,
+  RegexRule,
+  RuleResource
+}
 import com.gu.typerighter.rules.BucketRuleManager
 import matchers.RegexMatcher
 import play.api.Logging
@@ -30,7 +37,8 @@ class RuleProvisionerService(
   def updateRules(ruleResource: RuleResource, date: Date): Either[List[Throwable], Unit] = {
     matcherPool.removeAllMatchers()
 
-    val defaultRulesErrors = addLTMatcherToPool(matcherPool, Nil, ruleResource.ltDefaultRuleIds)
+    val coreRules = ruleResource.rules.collect { case r: LTRuleCore => r }
+    val coreRulesErrors = addLTMatcherToPool(matcherPool, Nil, coreRules)
 
     val addedRulesErrors =
       ruleResource.rules.groupBy(_.category).toList.flatMap { case (_, rules) =>
@@ -48,7 +56,7 @@ class RuleProvisionerService(
     lastModified = date
     cloudWatchClient.putMetric(Metrics.RulesIngested, matcherPool.getCurrentRules.size)
 
-    defaultRulesErrors ++ addedRulesErrors match {
+    coreRulesErrors ++ addedRulesErrors match {
       case Nil => Right(())
       case e   => Left(e)
     }
@@ -84,9 +92,9 @@ class RuleProvisionerService(
   private def addLTMatcherToPool(
       matcherPool: MatcherPool,
       xmlRules: List[LTRuleXML],
-      defaultRules: List[String] = Nil
+      coreRules: List[LTRuleCore] = List.empty
   ): List[Throwable] = {
-    languageToolFactory.createInstance(xmlRules, defaultRules) match {
+    languageToolFactory.createInstance(xmlRules, coreRules.map(_.languageToolRuleId)) match {
       case Right(matcher) =>
         matcherPool.addMatcher(matcher)
         Nil

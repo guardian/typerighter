@@ -7,7 +7,7 @@ import scala.util.Try
 case class DbRule(
     id: Option[Int],
     ruleType: String,
-    pattern: String,
+    pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
     tags: Option[String] = None,
@@ -87,7 +87,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
 
   def create(
       ruleType: String,
-      pattern: String,
+      pattern: Option[String] = None,
       replacement: Option[String] = None,
       category: Option[String] = None,
       tags: Option[String] = None,
