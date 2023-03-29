@@ -1,0 +1,6 @@
+/* NB: Anything overridden in here must also be reflected in ts/constants/euiTheme.ts */
+$euiBorderRadius: 0;
+$euiBorderRadiusSmall: 0;
+$euiFontFamily: 'Guardian Agate Sans', BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+
+@import "../../node_modules/@elastic/eui/src/themes/amsterdam/theme_light.scss";

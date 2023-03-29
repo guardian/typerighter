@@ -45,10 +45,7 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
     },
     {
         field: 'id',
-        name: 'ID',
-        render: (id: Rule['id']) => {
-            return <>{id}</>
-        }
+        name: 'ID'
     },
     {
         field: 'category',
@@ -80,11 +77,11 @@ const RulesTable = () => {
         <EuiFlexGroup>
             <EuiFlexItem grow={false} css={css`padding-bottom: 20px`}>
                 <EuiTitle>
-                    <h1>Current rules ({rules ? rules.length : 'loading...'})</h1>
+                    <h1>Current rules</h1>
                 </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-                <EuiButton fill={true} color={"primary"} onClick={() => refreshRules()} isLoading={isRefreshing}>
+                <EuiButton size="s" fill={true} color={"primary"} onClick={() => refreshRules()} isLoading={isRefreshing}>
                     Refresh{isRefreshing ? "ing" : ""} rules
                 </EuiButton>
             </EuiFlexItem>
