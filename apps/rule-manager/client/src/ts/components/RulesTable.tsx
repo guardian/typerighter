@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
     EuiSearchBarProps,
     EuiBasicTableColumn,
@@ -35,7 +35,6 @@ export type Rule = {
     regex: string;
 }
 
-
 const columns: Array<EuiBasicTableColumn<Rule>> = [
     {
         field: '_type',
@@ -70,12 +69,9 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
 
 const RulesTable = () => {
     const {rules, isLoading, error, refreshRules, isRefreshing, setError} = useRules();
-
-    const [incremental, _] = useState(false);
-
     const search: EuiSearchBarProps = {
         box: {
-            incremental: incremental,
+            incremental: true,
             schema: true,
         }
     };

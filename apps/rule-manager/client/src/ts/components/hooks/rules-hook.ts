@@ -12,12 +12,11 @@ export function useRules() {
         try {
             const response = await fetch(`${location}rules`);
             if (!response.ok) {
-                throw new Error('Failed to fetch rules');
+                throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
             }
             const { rules } = await response.json();
             setRules(rules);
         } catch (error) {
-            console.log(error);
             setError(error);
         }
         setIsLoading(false);
@@ -33,7 +32,7 @@ export function useRules() {
                 },
             });
             if (!updatedRulesResponse.ok) {
-                throw new Error('Failed to refresh rules');
+                throw new Error(`Failed to refresh rules: ${updatedRulesResponse.status} ${updatedRulesResponse.statusText}`);
             }
             const {rules} = await updatedRulesResponse.json();
             setRules(rules);
