@@ -19,7 +19,6 @@ class RulesController(
     with PandaAuthentication {
 
   def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
-
     Ok(
       views.html.rules(
         sheetId,

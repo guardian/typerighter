@@ -124,9 +124,11 @@ class AppComponents(
     cloudWatchClient
   )
 
-  val rulesManagerUrl = identity match {
-    case identity: AwsIdentity if identity.stage == "PROD" => "https://manager.typerighter.gutools.co.uk"
-    case identity: AwsIdentity => s"https://manager.typerighter.${identity.stage.toLowerCase}.dev-gutools.co.uk"
+  private val ruleManagerUrl = identity match {
+    case identity: AwsIdentity if identity.stage == "PROD" =>
+      "https://manager.typerighter.gutools.co.uk"
+    case identity: AwsIdentity =>
+      s"https://manager.typerighter.${identity.stage.toLowerCase}.dev-gutools.co.uk"
     case _: DevIdentity => "https://manager.typerighter.local.dev-gutools.co.uk"
   }
 
@@ -136,7 +138,7 @@ class AppComponents(
     matcherPool,
     config.spreadsheetId,
     publicSettings,
-    rulesManagerUrl,
+    ruleManagerUrl
   )
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
