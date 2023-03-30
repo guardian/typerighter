@@ -2,7 +2,14 @@ package services
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
-import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, TextBlock, TextRange}
+import com.gu.typerighter.model.{
+  Category,
+  ComparableRegex,
+  RegexRule,
+  RuleMatch,
+  TextBlock,
+  TextRange
+}
 import model._
 import org.scalatest.time.SpanSugar._
 import org.scalatest.flatspec.AsyncFlatSpec
@@ -19,10 +26,8 @@ import utils.Matcher
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.Future
 
-/**
-  * A mock matcher to test the pool implementation. Doesn't
-  * complete work until a response is provided, to test
-  * queue behaviour.
+/** A mock matcher to test the pool implementation. Doesn't complete work until a response is
+  * provided, to test queue behaviour.
   */
 class MockMatcher(id: Int) extends Matcher {
   private var currentWork: Option[Promise[List[RuleMatch]]] = None
@@ -42,8 +47,7 @@ class MockMatcher(id: Int) extends Matcher {
     future
   }
 
-  /**
-    * When `check` is called, respond with the provided matches.
+  /** When `check` is called, respond with the provided matches.
     */
   def completeWith(responses: List[RuleMatch]): Unit = {
     maybeResponse = Some(Right(responses))
@@ -59,7 +63,7 @@ class MockMatcher(id: Int) extends Matcher {
       promise <- currentWork
     } yield response match {
       case Right(responses) => promise.success(responses)
-      case Left(message) => promise.failure(new Throwable(message))
+      case Left(message)    => promise.failure(new Throwable(message))
     }
   }
 }
@@ -99,40 +103,52 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private def getCategory(id: Int) = Category(s"mock-category-$id", "Mock category")
 
   private def getPool(
-    matchers: List[Matcher],
-    maxCurrentJobs: Int = 4,
-    maxQueuedJobs: Int = 100,
-    strategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy,
-    checkTimeoutDuration: FiniteDuration = 500 milliseconds
+      matchers: List[Matcher],
+      maxCurrentJobs: Int = 4,
+      maxQueuedJobs: Int = 100,
+      strategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy,
+      checkTimeoutDuration: FiniteDuration = 500 milliseconds
   ): MatcherPool = {
     val futures = new DefaultFutures(system)
-    val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, checkTimeoutDuration = checkTimeoutDuration)
-    matchers.zipWithIndex.foreach {
-      case (matcher, index) => pool.addMatcher(matcher)
+    val pool = new MatcherPool(
+      maxCurrentJobs,
+      maxQueuedJobs,
+      strategy,
+      futures,
+      checkTimeoutDuration = checkTimeoutDuration
+    )
+    matchers.zipWithIndex.foreach { case (matcher, index) =>
+      pool.addMatcher(matcher)
     }
     pool
   }
 
-  private def getResponses(ruleSpec: List[(Int, Int, String)], categoryId: Int = 0): List[RuleMatch] = {
-    ruleSpec.map {
-      case (from, to, message) =>
-        RuleMatch(
-          rule = getResponseRule(categoryId),
-          fromPos = from,
-          toPos = to,
-          precedingText = "",
-          subsequentText = "",
-          matchedText = "placeholder text",
-          message = message,
-          matchContext = "[placeholder text]",
-        )
+  private def getResponses(
+      ruleSpec: List[(Int, Int, String)],
+      categoryId: Int = 0
+  ): List[RuleMatch] = {
+    ruleSpec.map { case (from, to, message) =>
+      RuleMatch(
+        rule = getResponseRule(categoryId),
+        fromPos = from,
+        toPos = to,
+        precedingText = "",
+        subsequentText = "",
+        matchedText = "placeholder text",
+        message = message,
+        matchContext = "[placeholder text]"
+      )
     }
   }
 
   private val setId = "set-id"
   private val blockId = "block-id"
 
-  private def getCheck(text: String, categoryIds: Option[Set[String]] = None, skippedRanges: List[TextRange] = Nil) = Check(
+  private def getCheck(
+      text: String,
+      categoryIds: Option[Set[String]] = None,
+      skippedRanges: List[TextRange] = Nil
+  ) = Check(
     Some("example-document"),
     setId,
     categoryIds,
@@ -143,7 +159,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     Some("example-document"),
     setId,
     None,
-    (0 to 100).toList.map { id => TextBlock(id.toString, "Example text", 0, 12) });
+    (0 to 100).toList.map { id => TextBlock(id.toString, "Example text", 0, 12) }
+  );
 
   behavior of "getCurrentCategories"
 
@@ -179,7 +196,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futureResult = pool.check(getCheck(text = "Example text"))
     futureResult.map { result =>
       result.matches shouldBe responses
-      result.categoryIds shouldMatchTo(Set(getCategory(0).id))
+      result.categoryIds shouldMatchTo (Set(getCategory(0).id))
     }
   }
 
@@ -204,7 +221,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val futureResult = pool.check(checkWithManyBlocks)
     futureResult transformWith {
       case Success(_) => fail()
-      case Failure(e) => e.getMessage should include ("full")
+      case Failure(e) => e.getMessage should include("full")
     }
   }
 
@@ -255,7 +272,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       anotherResult
     } transformWith {
       case Success(result) => result shouldBe responses
-      case Failure(e) => fail(e)
+      case Failure(e)      => fail(e)
     }
 
     eventualResult
@@ -275,11 +292,11 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     futureResult.map { result =>
       result.matches.contains(firstMatch.head) shouldBe true
       result.matches.contains(secondMatch.head) shouldBe true
-      result.categoryIds shouldMatchTo(expectedCategories)
+      result.categoryIds shouldMatchTo (expectedCategories)
     }
   }
 
-    it should "report the categories that are checked, even if no matches are found" in {
+  it should "report the categories that are checked, even if no matches are found" in {
     val matchers = getMatchers(1)
     matchers(0).completeWith(getResponses(List.empty))
 
@@ -301,12 +318,12 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers(0).completeWith(firstMatch)
     matchers(1).completeWith(secondMatch)
     futureResult.map { result =>
-      result.matches.size shouldMatchTo(1)
-      result.matches shouldMatchTo(secondMatch)
+      result.matches.size shouldMatchTo (1)
+      result.matches shouldMatchTo (secondMatch)
     }
   }
 
-   it should "handle requests for categories that do not exist" in {
+  it should "handle requests for categories that do not exist" in {
     val matchers = getMatchers(2)
     val pool = getPool(matchers)
     val futureResult = pool.check(getCheck("Example text", Some(Set("category-id-does-not-exist"))))
@@ -336,7 +353,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
     val pool = getPool(matchers)
     val skippedRanges = List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
-    val check = getCheck(text = "ABCDEF",
+    val check = getCheck(
+      text = "ABCDEF",
       // We skip A, C and E, so the matcher just sees BDF
       skippedRanges = skippedRanges
     )
@@ -357,7 +375,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val matchers = getMatchers(1)
     val matcher = matchers.head
     val text = "ABCDEF"
-    val skippedRanges =  List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
+    val skippedRanges = List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
     // The matcher sees "BDF"
     val responses = getResponses(List((0, 0, "This matches B"), (2, 2, "This matches F")))
     matcher.completeWith(responses)
@@ -385,7 +403,6 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     val futureResult = pool.checkStream(getCheck(text = "Example text")).runWith(Sink.seq)
 
-
     futureResult.map { result =>
       result.length shouldBe 24
     }
@@ -403,7 +420,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       case Success(result) =>
         println(result)
         fail()
-      case Failure(e) => e.getMessage should include ("full")
+      case Failure(e) => e.getMessage should include("full")
     }
   }
 
@@ -427,7 +444,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers.foreach(_.completeWith(responses))
 
     val pool = getPool(matchers)
-    val futureResult: Future[Seq[CheckResult]] = pool.checkStream(getCheck(text = "Example text")).runWith(Sink.seq)
+    val futureResult: Future[Seq[CheckResult]] =
+      pool.checkStream(getCheck(text = "Example text")).runWith(Sink.seq)
 
     futureResult map { result =>
       val percentages = result.flatMap(_.percentageRequestComplete)

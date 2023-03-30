@@ -12,10 +12,14 @@ trait DBTest extends BeforeAndAfter { self: Suite =>
   private val url = config.get("db.default.url")
   private val user = config.get("db.default.username")
   private val password = config.get("db.default.password")
-  private val playDb = Databases("org.postgresql.Driver", url, config = Map(
-    "username" -> user,
-    "password" -> password
-  ))
+  private val playDb = Databases(
+    "org.postgresql.Driver",
+    url,
+    config = Map(
+      "username" -> user,
+      "password" -> password
+    )
+  )
 
   val scalikejdbcDb = new DB(url, user, password)
 
