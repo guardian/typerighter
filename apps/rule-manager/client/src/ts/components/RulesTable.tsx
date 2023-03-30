@@ -30,6 +30,10 @@ export type Rule = {
     type: string;
     id: string;
     description: string;
+    replacement: {
+      type: 'TEXT_SUGGESTION',
+      text: string,
+    };
     category: Category;
     enabled: boolean;
     regex: string;
@@ -57,6 +61,13 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
     {
         field: 'regex',
         name: 'Match',
+    },
+    {
+      field: 'replacement',
+      name: 'Replacement',
+      render: (replacement: Rule['replacement']) => {
+        return <>{replacement?.text}</>
+      }
     },
     {
         field: 'description',

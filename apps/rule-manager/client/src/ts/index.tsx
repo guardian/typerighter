@@ -1,7 +1,7 @@
 import "../css/theme.scss";
 import "../css/reset.css";
 import "../css/typography.css";
-import "./constants/icons";
+import "./components/icons";
 
 import * as React from "react";
 import * as ReactDOM from "react-dom";
