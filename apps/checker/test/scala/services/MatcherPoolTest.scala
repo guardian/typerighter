@@ -9,7 +9,6 @@ import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import com.softwaremill.diffx.generic.auto._
-
 import scala.concurrent.{ExecutionContext, Promise}
 import scala.util.Failure
 import scala.util.Success
@@ -77,8 +76,11 @@ class MockMatcherThatThrows(e: Throwable) extends Matcher {
 }
 
 class MatcherPoolTest extends AsyncFlatSpec with Matchers {
+
+  private val threadPool = ExecutionContext.fromExecutor(java.util.concurrent.Executors.newFixedThreadPool(10))
+
   def timeLimit() = 1 second
-  private implicit val ec = ExecutionContext.global
+  private implicit val ec = threadPool
   private implicit val system = ActorSystem()
 
   private def getResponseRule(id: Int = 0) = RegexRule(
@@ -103,7 +105,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     maxCurrentJobs: Int = 4,
     maxQueuedJobs: Int = 100,
     strategy: MatcherPool.CheckStrategy = MatcherPool.documentPerCategoryCheckStrategy,
-    checkTimeoutDuration: FiniteDuration = 5000 milliseconds
+    checkTimeoutDuration: FiniteDuration = 100 milliseconds
   ): MatcherPool = {
     val futures = new DefaultFutures(system)
     val pool = new MatcherPool(maxCurrentJobs, maxQueuedJobs, strategy, futures, checkTimeoutDuration = checkTimeoutDuration)
