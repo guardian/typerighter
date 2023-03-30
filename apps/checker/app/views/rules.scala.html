@@ -1,13 +1,20 @@
-
 @import helper._
 
 @import com.gu.typerighter.model.BaseRule
 @import com.gu.typerighter.model.RegexRule
 @import com.gu.typerighter.model.LTRule
 @import utils.Matcher
-@(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[Matcher],
-        rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
+
+@import com.gu.typerighter.model.LTRuleXML
+@(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[Matcher], ruleManagerUrl: String,
+rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
+    <h1 class="align-middle mb-4">
+        Current rules
+    </h1>
+  <div class="pb-3 align-content-end">
+      <aside >Looking for the refresh button? It's moved <a href="@ruleManagerUrl" target="_blank">here</a></aside>
+  </div>
     <div class="row">
         <div class="col-sm-5">
             <h5>Matchers (@matchers.size)</h5>
@@ -23,7 +30,7 @@
                 @for(matcher <- matchers) {
                     <tr>
                         <td>
-                          @matcher.getType()
+                        @matcher.getType()
                         </td>
                         <td>@matcher.getCategories().map(_.id).mkString(", ")</td>
                         <td>@matcher.getRules().size</td>
@@ -48,27 +55,27 @@
                 @for(rule <- rules) {
                     <tr>
                         <td>@rule match {
-                          case r: RegexRule => { regex }
-                          case r: LTRule => { languagetool }
-                          case _ => { unknown }
+                            case r: RegexRule => { regex }
+                            case r: LTRule => { languagetool }
+                            case _ => { unknown }
                         }
                         </td>
                         <td>
-                          @rule.id
+                        @rule.id
                         </td>
                         <td>
-                          @rule.category.name
+                        @rule.category.name
                         </td>
                         <td>@rule match {
-                          case r: RegexRule => { @r.regex.toString.slice(0, 30) }
-                          case _ => { N/A }
+                            case r: RegexRule => { @r.regex.toString.slice(0, 30) }
+                            case _ => { N/A }
                         }</td>
                         <td>
-                          @rule match {
+                        @rule match {
                             case p: RegexRule if p.description.nonEmpty => { @p.description }
                             case p: LTRuleXML if p.description.nonEmpty => { @p.description }
                             case _ => { N/A }
-                          }
+                        }
                         </td>
                     </tr>
                 }

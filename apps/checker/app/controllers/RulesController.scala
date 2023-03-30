@@ -12,17 +12,20 @@ class RulesController(
     cc: ControllerComponents,
     matcherPool: MatcherPool,
     sheetId: String,
-    val publicSettings: PublicSettings
+    val publicSettings: PublicSettings,
+    val ruleManagerUrl: String
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc)
     with PandaAuthentication {
 
   def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
+
     Ok(
       views.html.rules(
         sheetId,
         matcherPool.getCurrentRules,
-        matcherPool.getCurrentMatchers
+        matcherPool.getCurrentMatchers,
+        ruleManagerUrl
       )
     )
   }
