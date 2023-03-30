@@ -101,6 +101,7 @@ class AppComponents(
     case identity: AwsIdentity => identity.stage.toLowerCase
     case _: DevIdentity        => "local"
   }
+
   val typerighterBucket = s"typerighter-app-${stage}"
 
   val cloudWatchClient = identity match {
@@ -123,17 +124,21 @@ class AppComponents(
     cloudWatchClient
   )
 
-  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
+  private val ruleManagerUrl = identity match {
+    case identity: AwsIdentity if identity.stage == "PROD" =>
+      "https://manager.typerighter.gutools.co.uk"
+    case identity: AwsIdentity =>
+      s"https://manager.typerighter.${identity.stage.toLowerCase}.dev-gutools.co.uk"
+    case _: DevIdentity => "https://manager.typerighter.local.dev-gutools.co.uk"
+  }
 
   val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
   val rulesController = new RulesController(
     controllerComponents,
     matcherPool,
-    sheetsRuleManager,
-    bucketRuleManager,
     config.spreadsheetId,
-    ruleProvisioner,
-    publicSettings
+    publicSettings,
+    ruleManagerUrl
   )
   val homeController = new HomeController(controllerComponents, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
