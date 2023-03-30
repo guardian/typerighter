@@ -9,7 +9,7 @@ import { icon as arrowEnd } from "@elastic/eui/es/components/icon/assets/arrowEn
 import { icon as check } from "@elastic/eui/es/components/icon/assets/check";
 import { icon as cross } from "@elastic/eui/es/components/icon/assets/cross";
 import { icon as empty } from "@elastic/eui/es/components/icon/assets/empty";
-import { icon as search } from "@elastic/eui/es/components/icon/assets/search";
+import { icon as search } from "./search";
 import { icon as error } from "@elastic/eui/es/components/icon/assets/error";
 
 type IconComponentNameType = ValuesType<typeof ICON_TYPES>;

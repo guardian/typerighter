@@ -20,14 +20,14 @@ jobs:
           java-version: "8"
           distribution: "corretto"
       - name: Build the stack
-        run: | 
+        run: |
           docker-compose up -d
       - name: Run tests
         run: |
           sbt -v test scalafmtCheckAll
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 16.13.1
       - name: build rule-manager-client
         working-directory: ./apps/rule-manager/client
         run: |
@@ -50,4 +50,3 @@ jobs:
           LAST_TEAMCITY_BUILD=1280
           export GITHUB_RUN_NUMBER=$(( $GITHUB_RUN_NUMBER + $LAST_TEAMCITY_BUILD ))
           sbt clean compile test riffRaffUpload
-  

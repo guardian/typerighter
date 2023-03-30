@@ -12,7 +12,7 @@ import {
     EuiFlexGrid,
 } from '@elastic/eui';
 import {useRules} from "./hooks/rules-hook";
-import {css} from "@emotion/css";
+import {css} from "@emotion/react";
 
 const sorting = {
     sort: {
@@ -30,6 +30,10 @@ export type Rule = {
     type: string;
     id: string;
     description: string;
+    replacement: {
+      type: 'TEXT_SUGGESTION',
+      text: string,
+    };
     category: Category;
     enabled: boolean;
     regex: string;
@@ -45,10 +49,7 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
     },
     {
         field: 'id',
-        name: 'ID',
-        render: (id: Rule['id']) => {
-            return <>{id}</>
-        }
+        name: 'ID'
     },
     {
         field: 'category',
@@ -60,6 +61,13 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
     {
         field: 'regex',
         name: 'Match',
+    },
+    {
+      field: 'replacement',
+      name: 'Replacement',
+      render: (replacement: Rule['replacement']) => {
+        return <>{replacement?.text}</>
+      }
     },
     {
         field: 'description',
@@ -78,17 +86,16 @@ const RulesTable = () => {
 
     return <>
         <EuiFlexGroup>
-            <EuiFlexItem grow={false} css={css`padding-bottom: 20px`}>
+            <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
                 <EuiTitle>
-                    <h1>Current rules ({rules ? rules.length : 'loading...'})</h1>
+                    <h1>Current rules</h1>
                 </EuiTitle>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-                <EuiButton fill={true} color={"primary"} onClick={() => refreshRules()} isLoading={isRefreshing}>
+                <EuiButton size="s" fill={true} color={"primary"} onClick={() => refreshRules()} isLoading={isRefreshing}>
                     Refresh{isRefreshing ? "ing" : ""} rules
                 </EuiButton>
             </EuiFlexItem>
-
         </EuiFlexGroup>
         <EuiFlexGrid>
             {isLoading &&
