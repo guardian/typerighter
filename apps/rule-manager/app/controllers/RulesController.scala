@@ -2,14 +2,14 @@ package controllers
 
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
-import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+import com.gu.typerighter.rules.BucketRuleManager
+import play.api.libs.json.Json
 import db.DbRule
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc._
-import service.DbRuleManager
-
+import service.{DbRuleManager, SheetsRuleManager}
 import scala.util.{Success, Failure}
 
 /** The controller that handles the management of matcher rules.
@@ -24,15 +24,13 @@ class RulesController(
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
       sheetRules <- sheetsRuleManager.getRules()
-      ruleResource <- DbRuleManager.destructivelyDumpRuleResourceToDB(sheetRules)
-      _ <- bucketRuleManager.putRules(ruleResource).left.map { l => List(l.toString) }
-    } yield {
-      DbRuleManager.getRules()
-    }
+      dbRules <- DbRuleManager.destructivelyDumpRuleResourceToDB(sheetRules)
+      _ <- bucketRuleManager.putRules(dbRules).left.map { l => List(l.toString) }
+    } yield dbRules
 
     maybeWrittenRules match {
-      case Right(rules) => Ok(Json.toJson(rules))
-      case Left(errors) => InternalServerError(Json.toJson(errors))
+      case Right(ruleResource) => Ok(Json.toJson(ruleResource))
+      case Left(errors)        => InternalServerError(Json.toJson(errors))
     }
   }
 

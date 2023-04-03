@@ -148,36 +148,29 @@ object DbRuleManager extends Loggable {
 
   def getRules()(implicit session: DBSession = autoSession): List[DbRule] = DbRule.findAll()
 
-  def getRulesAsRuleResource()(implicit session: DBSession = autoSession) = {
-    val (failedDbRules, successfulDbRules) = getRules()
-      .map(dbRuleToCheckerRule)
-      .partitionMap(identity)
-
-    failedDbRules match {
-      case Nil      => Right(CheckerRuleResource(successfulDbRules))
-      case failures => Left(failures)
-    }
-  }
-
-  def destructivelyDumpRuleResourceToDB(
-      rules: CheckerRuleResource
-  )(implicit session: DBSession = autoSession): Either[List[String], CheckerRuleResource] = {
+  def destructivelyDumpRuleResourceToDB(rules: List[DbRule]): Either[List[String], CheckerRuleResource] = {
     DbRule.destroyAll()
 
-    rules.rules
-      .map(checkerRuleToDbRule)
+    rules
       .grouped(100)
       .foreach(DbRule.batchInsert)
 
-    val maybeAllDbRules = getRulesAsRuleResource()
+    val maybeAllDbRules = DbRule.findAll().map(dbRuleToCheckerRule)
 
-    maybeAllDbRules.fold(
-      Left(_),
-      persistedRules => {
-        if (persistedRules.rules == rules.rules) {
+    val (failedDbRules, successfulDbRules) = maybeAllDbRules.partitionMap {
+      case l @ Left(_)  => l
+      case r @ Right(_) => r
+    }
+
+    failedDbRules match {
+      case Nil =>
+        val persistedRules =
+          CheckerRuleResource(rules = successfulDbRules)
+
+        if (persistedRules.rules == rules) {
           Right(persistedRules)
         } else {
-          val allRules = persistedRules.rules.zip(rules.rules)
+          val allRules = persistedRules.rules.zip(rules)
           log.error(s"Persisted rules differ.")
 
           allRules.take(10).foreach { case (persistedRule, expectedRule) =>
@@ -185,8 +178,7 @@ object DbRuleManager extends Loggable {
             log.error(s"Expected rule: $expectedRule")
           }
 
-          log.info((persistedRules.rules == rules.rules).toString)
-          log.info((persistedRules == rules).toString)
+          log.info((persistedRules.rules == rules).toString)
 
           Left(
             List(
@@ -194,7 +186,7 @@ object DbRuleManager extends Loggable {
             )
           )
         }
-      }
-    )
+      case _ => Left(failedDbRules)
+    }
   }
 }

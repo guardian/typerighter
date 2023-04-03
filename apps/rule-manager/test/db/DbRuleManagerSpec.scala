@@ -56,7 +56,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = CheckerRuleResource(rules = rulesFromSheet)
+      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDbRule)
       val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
       rulesFromDb.shouldEqual(Right(rules))
@@ -66,7 +66,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     implicit session =>
       val rulesFromSheet = createRandomRules(1000)
 
-      val rules = CheckerRuleResource(rules = rulesFromSheet)
+      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDbRule)
       val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
       rulesFromDb.shouldEqual(Right(rules))
@@ -74,12 +74,12 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   "destructivelyDumpRuleResourceToDB" should "remove old rules before adding new ones" in {
     implicit session =>
-      val firstRules = createRandomRules(10)
-      DbRuleManager.destructivelyDumpRuleResourceToDB(CheckerRuleResource(firstRules))
+      val firstRules = createRandomRules(10).map(DbRuleManager.checkerRuleToDbRule)
+      DbRuleManager.destructivelyDumpRuleResourceToDB(firstRules)
 
       val secondRules = createRandomRules(10)
       val secondRulesFromDb =
-        DbRuleManager.destructivelyDumpRuleResourceToDB(CheckerRuleResource(secondRules))
+        DbRuleManager.destructivelyDumpRuleResourceToDB(secondRules.map(DbRuleManager.checkerRuleToDbRule))
 
       secondRulesFromDb.shouldEqual(Right(CheckerRuleResource(secondRules)))
   }
