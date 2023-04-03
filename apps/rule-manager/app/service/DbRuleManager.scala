@@ -167,10 +167,12 @@ object DbRuleManager extends Loggable {
         val persistedRules =
           CheckerRuleResource(rules = successfulDbRules)
 
-        if (persistedRules.rules == rules) {
+        val incomingRules = rules.map(dbRuleToCheckerRule).flatMap(_.toOption)
+
+        if (persistedRules.rules == incomingRules) {
           Right(persistedRules)
         } else {
-          val allRules = persistedRules.rules.zip(rules)
+          val allRules = persistedRules.rules.zip(incomingRules)
           log.error(s"Persisted rules differ.")
 
           allRules.take(10).foreach { case (persistedRule, expectedRule) =>
