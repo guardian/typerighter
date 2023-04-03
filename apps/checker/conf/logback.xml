@@ -11,9 +11,7 @@
   </appender>
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
-    </encoder>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
   </appender>
 
   <appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender">

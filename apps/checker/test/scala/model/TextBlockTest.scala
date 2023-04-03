@@ -29,7 +29,8 @@ class TextBlockTest extends AsyncFlatSpec with Matchers {
 
   it should "remove multiple non-adjacent skipped ranges from the block text - 1" in {
     val skippedRanges = Some(List(TextRange(18, 25), TextRange(41, 48)))
-    val block = TextBlock("id", "Example [noted ]text with more [noted ]text", 10, 52, skippedRanges)
+    val block =
+      TextBlock("id", "Example [noted ]text with more [noted ]text", 10, 52, skippedRanges)
     val newBlock = block.removeSkippedRanges()
     newBlock.text shouldBe "Example text with more text"
     newBlock.from shouldBe 10

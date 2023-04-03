@@ -1,11 +1,10 @@
 import {
   App,
-  CfnMapping,
   Duration,
   RemovalPolicy,
   SecretValue,
-} from "@aws-cdk/core";
-import { Certificate } from "@aws-cdk/aws-certificatemanager";
+} from "aws-cdk-lib";
+import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
 import {
   GuDnsRecordSet,
@@ -18,7 +17,7 @@ import {
   GuPutCloudwatchMetricsPolicy,
 } from "@guardian/cdk/lib/constructs/iam";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
-import { InstanceType, Port, SubnetType } from "@aws-cdk/aws-ec2";
+import { InstanceType, Port, SubnetType } from "aws-cdk-lib/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
@@ -28,14 +27,14 @@ import {
   CacheQueryStringBehavior,
   Distribution,
   OriginProtocolPolicy,
-} from "@aws-cdk/aws-cloudfront";
-import { LoadBalancerV2Origin } from "@aws-cdk/aws-cloudfront-origins";
+} from "aws-cdk-lib/aws-cloudfront";
+import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
   Alarm,
   ComparisonOperator,
   Metric,
   TreatMissingData,
-} from "@aws-cdk/aws-cloudwatch";
+} from "aws-cdk-lib/aws-cloudwatch";
 import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
 import {
   Credentials,
@@ -43,13 +42,17 @@ import {
   PostgresEngineVersion,
   StorageType,
   SubnetGroup,
-} from "@aws-cdk/aws-rds";
+} from "aws-cdk-lib/aws-rds";
 import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
 import { AccessScope } from "@guardian/cdk/lib/constants/access";
-import { Stage } from "@guardian/cdk/lib/constants";
+
+export interface TyperighterStackProps extends GuStackProps {
+  domainSuffix: string;
+  instanceCount: number;
+}
 
 export class Typerighter extends GuStack {
-  constructor(scope: App, id: string, props: GuStackProps) {
+  constructor(scope: App, id: string, props: TyperighterStackProps) {
     super(scope, id, props);
 
     const parameters = {
@@ -72,19 +75,7 @@ export class Typerighter extends GuStack {
       bucketName: "pan-domain-auth-settings",
     });
 
-    const checkerDomainCODE = "checker.typerighter.code.dev-gutools.co.uk";
-    const checkerDomainPROD = "checker.typerighter.gutools.co.uk";
-    const managerDomainCODE = "manager.typerighter.code.dev-gutools.co.uk";
-    const managerDomainPROD = "manager.typerighter.gutools.co.uk";
-
-    const lowercaseStage = this.withStageDependentValue({
-      app: "typerighter",
-      variableName: "lowercase",
-      stageValues: {
-        PROD: "prod",
-        CODE: "code",
-      },
-    });
+    const lowercaseStage = this.stage.toLowerCase();
 
     const typerighterBucketName = `typerighter-app-${lowercaseStage}`;
 
@@ -94,14 +85,7 @@ export class Typerighter extends GuStack {
 
     const ruleManagerAppName = "typerighter-rule-manager";
 
-    const ruleManagerDomain = this.withStageDependentValue({
-      app: ruleManagerAppName,
-      variableName: "ruleManagerDomain",
-      stageValues: {
-        PROD: managerDomainPROD,
-        CODE: managerDomainCODE,
-      },
-    });
+    const ruleManagerDomain = `manager.${props.domainSuffix}`
 
     const ruleManagerApp = new GuPlayApp(this, {
       app: ruleManagerAppName,
@@ -113,8 +97,7 @@ export class Typerighter extends GuStack {
         scope: AccessScope.PUBLIC,
       },
       certificateProps: {
-        CODE: { domainName: managerDomainCODE },
-        PROD: { domainName: managerDomainPROD },
+         domainName: ruleManagerDomain,
       },
       monitoringConfiguration: {
         noMonitoring: true,
@@ -123,9 +106,12 @@ export class Typerighter extends GuStack {
         additionalPolicies: [pandaAuthPolicy],
       },
       scaling: {
-        [Stage.CODE]: { minimumInstances: 1 },
-        [Stage.PROD]: { minimumInstances: 3 },
+        minimumInstances: props.instanceCount,
       },
+      applicationLogging: {
+        enabled: true,
+        systemdUnitName: "typerighter-rule-manager"
+      }
     });
 
     const ruleManagerDnsRecord = new GuDnsRecordSet(
@@ -143,14 +129,7 @@ export class Typerighter extends GuStack {
 
     const checkerAppName = "typerighter-checker";
 
-    const checkerDomain = this.withStageDependentValue({
-      app: checkerAppName,
-      variableName: "checkerDomain",
-      stageValues: {
-        PROD: checkerDomainPROD,
-        CODE: checkerDomainCODE,
-      },
-    });
+    const checkerDomain = `checker.${props.domainSuffix}`
 
     const checkerApp = new GuPlayApp(this, {
       app: checkerAppName,
@@ -175,8 +154,7 @@ dpkg -i /tmp/package.deb`,
         scope: AccessScope.PUBLIC,
       },
       certificateProps: {
-        CODE: { domainName: checkerDomainCODE },
-        PROD: { domainName: checkerDomainPROD },
+        domainName: checkerDomain
       },
       monitoringConfiguration: {
         noMonitoring: true,
@@ -188,9 +166,12 @@ dpkg -i /tmp/package.deb`,
         ],
       },
       scaling: {
-        [Stage.CODE]: { minimumInstances: 1 },
-        [Stage.PROD]: { minimumInstances: 3 },
+        minimumInstances: props.instanceCount,
       },
+      applicationLogging: {
+        enabled: true,
+        systemdUnitName: "typerighter-checker"
+      }
     });
 
     const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {

@@ -15,6 +15,12 @@ export default defineConfig({
     },
     outDir: "../public/",
   },
+  css: {
+    preprocessorOptions: {
+      // Silence deprecation warnings for EUI stylesheets
+      quietDeps: true
+    }
+  },
   server: {
     origin: 'http://localhost:5173',
     // We depend upon this port number in a few places, so fail fast if we cannot allocate it.

@@ -19,10 +19,12 @@ deployments:
       prependStackToCloudFormationStackName: false
       amiParametersToTags:
         AMITyperighterchecker:
-          Recipe: editorial-tools-focal-java8-ngrams-ARM
+          Recipe: editorial-tools-focal-java8-ngrams-ARM-cdk-base
           BuiltBy: amigo
         AMITyperighterrulemanager:
-          Recipe: editorial-tools-focal-java8-ngrams-ARM
+          Recipe: editorial-tools-focal-java8-ngrams-ARM-cdk-base
           BuiltBy: amigo
       amiEncrypted: true
-      templatePath: typerighter.template.json
+      templateStagePaths:
+        CODE: typerighter-CODE.template.json
+        PROD: typerighter-PROD.template.json

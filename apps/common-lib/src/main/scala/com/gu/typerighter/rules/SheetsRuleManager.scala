@@ -4,6 +4,7 @@ import com.gu.typerighter.model.{
   BaseRule,
   Category,
   ComparableRegex,
+  LTRuleCore,
   LTRuleXML,
   RegexRule,
   RuleResource,
@@ -17,6 +18,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
+
 import scala.jdk.CollectionConverters._
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
@@ -53,13 +55,8 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
 
   def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
     val maybeRules = getPatternRules()
-    val maybeLTRuleIds = getLanguageToolDefaultRuleIds()
 
-    (maybeRules, maybeLTRuleIds) match {
-      case (Right(rules), Right(ltRules)) => Right(RuleResource(rules, ltRules))
-      case (mamaybeRules, maybeLt) =>
-        Left(maybeLTRuleIds.left.getOrElse(Nil) ++ maybeRules.left.getOrElse(Nil))
-    }
+    maybeRules.map(RuleResource(_))
   }
 
   /** Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
@@ -68,14 +65,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       ec: ExecutionContext
   ): Either[List[String], List[BaseRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
-  }
-
-  /** Get the rule ids of the LanguageTool rules we'd like to enable.
-    */
-  private def getLanguageToolDefaultRuleIds()(implicit
-      ec: ExecutionContext
-  ): Either[List[String], List[String]] = {
-    getRulesFromSheet("languagetoolRules", "A:C", getLTRuleFromRow)
   }
 
   private def getRulesFromSheet[RuleData](
@@ -142,6 +131,12 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
                 row(PatternRuleCols.Category).asInstanceOf[String],
                 row(PatternRuleCols.Description).asInstanceOf[String]
               )
+            )
+          )
+        case (Some(id), _, "lt_core") =>
+          Success(
+            Some(
+              LTRuleCore(id, id)
             )
           )
         case (Some(id), _, ruleType) =>

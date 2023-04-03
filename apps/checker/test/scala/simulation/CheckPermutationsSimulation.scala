@@ -6,22 +6,26 @@ import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
 class CheckPermutationsSimulation extends Simulation {
-  val httpConf = http.baseUrl("http://localhost:9000")
+  val httpConf = http
+    .baseUrl("http://localhost:9000")
     .contentTypeHeader("application/json")
 
   val scn = scenario("CheckPermutationsSimulation")
-    .exec(http("checkRequest")
-    .post("/check").body(StringBody(_ =>
-      s"""{
+    .exec(
+      http("checkRequest")
+        .post("/check")
+        .body(StringBody(_ => s"""{
          |\"text\": \"$getRandomArticle\",
          |\"id\": \"${java.util.UUID.randomUUID.toString}\"
-         |}""".stripMargin)))
+         |}""".stripMargin))
+    )
 
   setUp(
     scn.inject(atOnceUsers(100))
   ).protocols(httpConf)
 
-  val articleFragments = List("Michel Barnier has warned that the move led by Labour MP Yvette Cooper to block the prime minister from delivering a no-deal Brexit is doomed to fail unless a majority for an alternative agreement is found",
+  val articleFragments = List(
+    "Michel Barnier has warned that the move led by Labour MP Yvette Cooper to block the prime minister from delivering a no-deal Brexit is doomed to fail unless a majority for an alternative agreement is found",
     "The EU’s chief negotiator, in a speech in Brussels, said the “default” for the UK was still crashing out if MPs could not coalesce around a new vision of its future outside the bloc",
     "“There appears to be a majority in the Commons to oppose a no-deal but opposing a no-deal will not stop a no-deal from happening at the end of March”, he said. “To stop ‘no deal’, a positive majority for another solution will need to emerge.” Labour appears set to whip its MPs to back Cooper’s amendment paving the way for legislation that would mandate ministers to extend article 50 if a no-deal Brexit looked imminent",
     "Advertisement Barnier said that extending the two years of the negotiating period beyond 29 March should not be the primary focus for the UK parliament",
@@ -33,10 +37,10 @@ class CheckPermutationsSimulation extends Simulation {
     "In an interview with Le Monde, Rzeczpospolita and Luxemburger Wort published earlier on Wednesday, Barnier made public his belief that May’s strategy of trying to secure a time-limit was doomed to fail",
     "In comments that appear to put a wrecking ball to the prime minister’s strategy, he said the withdrawal agreement in all its facets was the “the only possible option” for Britain as it leaves",
     "“The question of limiting the backstop in time has already been discussed twice by European leaders”, Barnier said. “This is the only possible option because an insurance is of no use if it is time limited",
-    "“We cannot tie the backstop to a time limit”, he added. “Imagine if your home’s insurance was limited to five years and you’d have a problem after six years … That’s difficult to justify. It’s similar with the backstop.” Under the backstop, the UK would stay in a customs union with the EU unless an alternative arrangement could avoid the imposition of a hard border on the island of Ireland")
+    "“We cannot tie the backstop to a time limit”, he added. “Imagine if your home’s insurance was limited to five years and you’d have a problem after six years … That’s difficult to justify. It’s similar with the backstop.” Under the backstop, the UK would stay in a customs union with the EU unless an alternative arrangement could avoid the imposition of a hard border on the island of Ireland"
+  )
 
   def getRandomArticle = {
     util.Random.shuffle(articleFragments).mkString
   }
 }
-

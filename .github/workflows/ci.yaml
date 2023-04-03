@@ -1,0 +1,52 @@
+name: Typerighter CI
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+          aws-region: eu-west-1
+      - uses: actions/setup-java@v3
+        with:
+          java-version: "8"
+          distribution: "corretto"
+      - name: Build the stack
+        run: |
+          docker-compose up -d
+      - name: Run tests
+        run: |
+          sbt -v test scalafmtCheckAll
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.13.1
+      - name: build rule-manager-client
+        working-directory: ./apps/rule-manager/client
+        run: |
+          npm ci
+          npm run build
+      - name: build rule-audit-client
+        working-directory: ./apps/rule-audit-client
+        run: |
+          npm ci
+          npm run build
+      - name: cdk synth
+        working-directory: ./cdk
+        run: |
+          yarn
+          yarn synth
+      - name: build sbt
+        run: |
+          set -e
+          # Ensure we don't overwrite existing (Teamcity) builds.
+          LAST_TEAMCITY_BUILD=1280
+          export GITHUB_RUN_NUMBER=$(( $GITHUB_RUN_NUMBER + $LAST_TEAMCITY_BUILD ))
+          sbt clean compile test riffRaffUpload

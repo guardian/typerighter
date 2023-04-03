@@ -1,6 +1,5 @@
 package scala.model
 
-
 import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, Text, TextRange}
 import model._
 import org.scalatest.flatspec.AsyncFlatSpec
@@ -20,7 +19,7 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
     subsequentText = "",
     matchedText = "placeholder text",
     message = "placeholder message",
-    matchContext = "[placeholder text]",
+    matchContext = "[placeholder text]"
   )
 
   behavior of "mapMatchThroughSkippedRanges"
