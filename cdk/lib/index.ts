@@ -108,6 +108,10 @@ export class Typerighter extends GuStack {
       scaling: {
         minimumInstances: props.instanceCount,
       },
+      applicationLogging: {
+        enabled: true,
+        systemdUnitName: "typerighter-rule-manager"
+      }
     });
 
     const ruleManagerDnsRecord = new GuDnsRecordSet(
@@ -164,6 +168,10 @@ dpkg -i /tmp/package.deb`,
       scaling: {
         minimumInstances: props.instanceCount,
       },
+      applicationLogging: {
+        enabled: true,
+        systemdUnitName: "typerighter-checker"
+      }
     });
 
     const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {

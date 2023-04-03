@@ -19,7 +19,6 @@ abstract class CommonConfig(
 ) {
   val awsCredentials = credentials
   val awsRegion = region
-  val loggingStreamName = playConfig.getOptional[String]("typerighter.loggingStreamName")
 
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")

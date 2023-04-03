@@ -31,7 +31,7 @@ import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
 import services._
-import com.gu.typerighter.lib.{ElkLogging, Loggable}
+import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
@@ -54,11 +54,6 @@ class AppComponents(
     corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
   val config = new CheckerConfig(configuration, region, identity, creds)
-
-  // initialise log shipping if we are in AWS
-  Some(identity).collect { case awsIdentity: AwsIdentity =>
-    new ElkLogging(awsIdentity, config.loggingStreamName, credsV2, applicationLifecycle)
-  }
 
   val languageToolFactory = new LanguageToolFactory(config.ngramPath, true)
 
