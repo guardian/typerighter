@@ -45,7 +45,6 @@ val commonSettings = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
-    "com.gu" % "kinesis-logback-appender" % "2.1.0",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
     "com.google.api-client" % "google-api-client" % "2.0.1",
@@ -66,7 +65,6 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     libraryDependencies ++= Seq(
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
       "com.typesafe.play" %% "play" % "2.8.11",
-      "com.gu" % "kinesis-logback-appender" % "1.4.2"
     )
   )
 
@@ -83,7 +81,6 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
-      "com.amazonaws" % "aws-java-sdk-kinesis" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
       "org.webjars" % "bootstrap" % "4.3.1",
