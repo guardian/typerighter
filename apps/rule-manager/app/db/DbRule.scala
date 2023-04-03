@@ -1,5 +1,6 @@
 package db
 
+import model.UpdateRuleForm
 import scalikejdbc._
 
 import scala.util.Try
@@ -25,6 +26,23 @@ case class DbRule(
   def destroy()(implicit session: DBSession = DbRule.autoSession): Int =
     DbRule.destroy(this)(session)
 
+  def fromFormRule(formRule: UpdateRuleForm) = DbRule(
+    id = None,
+    ruleType = formRule.ruleType.getOrElse(this.ruleType),
+    pattern = formRule.pattern.orElse(this.pattern),
+    replacement = formRule.replacement.orElse(this.replacement),
+    category = formRule.category.orElse(this.category),
+    tags = formRule.tags.orElse(this.tags),
+    description = formRule.description.orElse(this.description),
+    ignore = formRule.ignore.getOrElse(this.ignore),
+    notes = formRule.notes.orElse(this.notes),
+    googleSheetId = formRule.googleSheetId.orElse(this.googleSheetId),
+    forceRedRule = formRule.forceRedRule.orElse(this.forceRedRule),
+    advisoryRule = formRule.advisoryRule.orElse(this.advisoryRule)
+  )
+
+  def fromFormRule(id: Int, formRule: UpdateRuleForm): DbRule =
+    fromFormRule(formRule).copy(id = Some(id))
 }
 
 object DbRule extends SQLSyntaxSupport[DbRule] {
