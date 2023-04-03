@@ -127,10 +127,12 @@ object DbRuleManager extends Loggable {
         val persistedRules =
           RuleResource(rules = successfulDbRules)
 
-        if (persistedRules.rules == rules) {
+        val incomingRules = rules.map(dbRuleToBaseRule).flatMap(_.toOption)
+
+        if (persistedRules.rules == incomingRules) {
           Right(persistedRules)
         } else {
-          val allRules = persistedRules.rules.zip(rules)
+          val allRules = persistedRules.rules.zip(incomingRules)
           log.error(s"Persisted rules differ.")
           val diffRules = allRules
             .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
@@ -140,8 +142,8 @@ object DbRuleManager extends Loggable {
             log.error(s"Expected rule: $expectedRule")
           }
 
-          log.info((persistedRules.rules == rules).toString)
-          log.info((persistedRules == rules).toString)
+          log.info((persistedRules.rules == incomingRules).toString)
+          log.info((persistedRules == incomingRules).toString)
 
           Left(
             List(
