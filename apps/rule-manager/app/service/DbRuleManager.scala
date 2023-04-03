@@ -108,11 +108,10 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
+  def destructivelyDumpRuleResourceToDB(rules: List[DbRule]): Either[List[String], RuleResource] = {
     DbRule.destroyAll()
 
-    rules.rules
-      .map(baseRuleToDbRule)
+    rules
       .grouped(100)
       .foreach(DbRule.batchInsert)
 
@@ -128,10 +127,10 @@ object DbRuleManager extends Loggable {
         val persistedRules =
           RuleResource(rules = successfulDbRules)
 
-        if (persistedRules.rules == rules.rules) {
+        if (persistedRules.rules == rules) {
           Right(persistedRules)
         } else {
-          val allRules = persistedRules.rules.zip(rules.rules)
+          val allRules = persistedRules.rules.zip(rules)
           log.error(s"Persisted rules differ.")
           val diffRules = allRules
             .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
@@ -141,7 +140,7 @@ object DbRuleManager extends Loggable {
             log.error(s"Expected rule: $expectedRule")
           }
 
-          log.info((persistedRules.rules == rules.rules).toString)
+          log.info((persistedRules.rules == rules).toString)
           log.info((persistedRules == rules).toString)
 
           Left(

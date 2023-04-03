@@ -2,10 +2,10 @@ package controllers
 
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
-import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+import com.gu.typerighter.rules.BucketRuleManager
 import play.api.libs.json.Json
 import play.api.mvc._
-import service.DbRuleManager
+import service.{DbRuleManager, SheetsRuleManager}
 
 import scala.concurrent.ExecutionContext
 

@@ -32,7 +32,7 @@ import play.filters.cors.CORSComponents
 import router.Routes
 import services._
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+import com.gu.typerighter.rules.{BucketRuleManager}
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 import utils.CheckerConfig

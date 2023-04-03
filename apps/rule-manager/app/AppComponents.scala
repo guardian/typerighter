@@ -18,11 +18,12 @@ import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
-import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+import com.gu.typerighter.rules.BucketRuleManager
 import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
+import service.SheetsRuleManager
 import utils.RuleManagerConfig
 
 class AppComponents(

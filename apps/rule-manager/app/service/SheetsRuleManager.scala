@@ -1,37 +1,32 @@
-package com.gu.typerighter.rules
+package service
 
-import com.gu.typerighter.model.{
-  BaseRule,
-  Category,
-  ComparableRegex,
-  LTRuleCore,
-  LTRuleXML,
-  RegexRule,
-  RuleResource,
-  TextSuggestion
-}
-import play.api.Logging
-
-import java.io._
-import java.util.Collections
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
+import com.gu.typerighter.model._
+import db.DbRule
+import play.api.Logging
 
-import scala.jdk.CollectionConverters._
+import java.io._
+import java.util.Collections
 import scala.concurrent.ExecutionContext
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 object PatternRuleCols {
   val Type = 0
   val Pattern = 1
-  val Suggestion = 2
+  val Replacement = 2
   val Colour = 3
   val Category = 4
   val Description = 6
+  val Tags = 7
   val ShouldIgnore = 8
+  val Notes = 9
   val Id = 10
+  val ForceRed = 11
+  val Advisory = 13
 }
 
 /** A resource that gets rules from the given Google Sheet.
@@ -53,17 +48,15 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
-    val maybeRules = getPatternRules()
-
-    maybeRules.map(RuleResource(_))
+  def getRules()(implicit ec: ExecutionContext): Either[List[String], List[DbRule]] = {
+    getPatternRules()
   }
 
   /** Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
     */
   private def getPatternRules()(implicit
       ec: ExecutionContext
-  ): Either[List[String], List[BaseRule]] = {
+  ): Either[List[String], List[DbRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
@@ -98,7 +91,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     }
   }
 
-  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[BaseRule]] = {
+  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[DbRule]] = {
     try {
       val ruleType = row(PatternRuleCols.Type)
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
@@ -108,39 +101,24 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       (maybeId, maybeIgnore, ruleType) match {
         case (_, Some("TRUE"), _) => Success(None)
         case (None, _, _)         => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
-        case (Some(id), _, _) if id.length == 0 =>
+        case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
-        case (Some(id), _, "regex") =>
-          Success(
-            Some(
-              getRegexRule(
-                id,
-                row(PatternRuleCols.Pattern).asInstanceOf[String],
-                row(PatternRuleCols.Suggestion).asInstanceOf[String],
-                row(PatternRuleCols.Category).asInstanceOf[String],
-                row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]]
-              )
-            )
-          )
-        case (Some(id), _, "lt") =>
-          Success(
-            Some(
-              getLTRuleXML(
-                id,
-                row(PatternRuleCols.Pattern).asInstanceOf[String],
-                row(PatternRuleCols.Category).asInstanceOf[String],
-                row(PatternRuleCols.Description).asInstanceOf[String]
-              )
-            )
-          )
-        case (Some(id), _, "lt_core") =>
-          Success(
-            Some(
-              LTRuleCore(id, id)
-            )
-          )
-        case (Some(id), _, ruleType) =>
+        case (Some(id), _, ruleType) if !Set("regex", "lt", "lt_core").contains(ruleType.toString) =>
           Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
+        case (Some(id), Some(ignore), ruleType) => Success(Some(DbRule(
+          id = None,
+          ruleType = ruleType.asInstanceOf[String],
+          pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
+          replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+          category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
+          tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
+          description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
+          ignore = if (ignore.toString == "TRUE") true else false,
+          notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+          googleSheetId = Some(id),
+          forceRedRule = Some(row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")),
+          advisoryRule = Some(row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y"))
+        )))
       }
 
     } catch {
