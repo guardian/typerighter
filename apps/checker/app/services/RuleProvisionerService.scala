@@ -86,7 +86,7 @@ class RuleProvisionerService(
   override def run(): Unit = maybeUpdateRulesFromBucket()
 
   def scheduleUpdateRules(scheduler: Scheduler): Unit = {
-    scheduler.scheduleWithFixedDelay(0.seconds, 1.minute)(this)
+    scheduler.scheduleWithFixedDelay(0.seconds, 5.seconds)(this)
   }
 
   private def addLTMatcherToPool(
