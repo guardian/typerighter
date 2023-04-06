@@ -4,7 +4,7 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import db.DbRule
-import model.{CreateRuleForm}
+import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
@@ -60,6 +60,23 @@ class RulesController(
         formRule => {
           val dbRule = DbRule.createFromFormRule(formRule)
           Ok(DbRule.toJson(dbRule))
+        }
+      )
+  }
+
+  def update = ApiAuthAction { implicit request: Request[AnyContent] =>
+    UpdateRuleForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          val errors = formWithErrors.errors
+          BadRequest(Json.toJson(errors))
+        },
+        formRule => {
+          DbRule.updateFromFormRule(formRule) match {
+            case Left(result) => result
+            case Right(dbRule) => Ok(DbRule.toJson(dbRule))
+          }
         }
       )
   }

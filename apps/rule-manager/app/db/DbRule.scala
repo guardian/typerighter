@@ -2,9 +2,11 @@ package db
 
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
+import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 case class DbRule(
     id: Option[Int],
@@ -147,6 +149,62 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       formRule.forceRedRule,
       formRule.advisoryRule
     )
+  }
+
+  def updateFromFormRule(formRule: UpdateRuleForm): Either[Result, DbRule] = {
+    val updatedRule = DbRule.find(formRule.id).toRight(NotFound("Rule not found matching ID"))
+      .map(existingRule =>
+      new DbRule(
+        id = Some(formRule.id),
+        ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
+        pattern = formRule.pattern match {
+          case Some(string) => Some(string)
+          case None => existingRule.pattern
+        },
+        replacement = formRule.replacement match {
+          case Some(string) => Some(string)
+          case None => existingRule.replacement
+        },
+        category = formRule.category match {
+          case Some(string) => Some(string)
+          case None => existingRule.category
+        },
+        tags = formRule.tags match {
+          case Some(string) => Some(string)
+          case None => existingRule.tags
+        },
+        description = formRule.description match {
+          case Some(string) => Some(string)
+          case None => existingRule.description
+        },
+        ignore = formRule.ignore.getOrElse(existingRule.ignore),
+        notes = formRule.notes match {
+          case Some(string) => Some(string)
+          case None => existingRule.notes
+        },
+        googleSheetId = formRule.googleSheetId match {
+          case Some(bool) => Some(bool)
+          case None => existingRule.googleSheetId
+        },
+        forceRedRule = formRule.forceRedRule match {
+          case Some(bool) => Some(bool)
+          case None => existingRule.forceRedRule
+        },
+        advisoryRule = formRule.advisoryRule match {
+          case Some(bool) => Some(bool)
+          case None => existingRule.advisoryRule
+        },
+      )
+    )
+    updatedRule match {
+      case Right(dbRule) => {
+        DbRule.save(dbRule).toEither match {
+          case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
+          case Right(dbRule) => Right(dbRule)
+        }
+      }
+      case Left(result) => Left(result)
+    }
   }
 
   def batchInsert(
