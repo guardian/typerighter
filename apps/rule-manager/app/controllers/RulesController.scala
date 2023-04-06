@@ -4,9 +4,9 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
 import db.DbRule
-import model.{CreateRuleForm, UpdateRuleForm}
+import model.{CreateRuleForm}
 import play.api.data.FormError
-import play.api.libs.json.{JsObject, JsValue, Json, Writes}
+import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
 import service.DbRuleManager
 
