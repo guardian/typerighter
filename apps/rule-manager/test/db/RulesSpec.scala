@@ -1,9 +1,13 @@
 package db
 
+import model.CreateRuleForm
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
+import play.api.libs.json.{JsValue, Json}
+
+
 import scala.util.Success
 
 class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
@@ -45,6 +49,24 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
     created should not be (null)
   }
+  // TODO: Figure out why this test won't run
+//  it should "create a new record from a form rule" in { implicit session =>
+//   val formRule = CreateRuleForm(
+//      ruleType = "regex",
+//      pattern = None,
+//      replacement = None,
+//      category = None,
+//      tags = None,
+//      description = None,
+//      ignore = false,
+//      notes = None,
+//      googleSheetId = None,
+//      forceRedRule = None,
+//      advisoryRule = None
+//    )
+//    val dbRule = DbRule.createFromFormRule(formRule)
+//    dbRule should not be (null)
+//  }
   it should "save a record" in { implicit session =>
     val entity = DbRule.findAll().head
     val modified = entity.copy(pattern = Some("NotMyString"))
@@ -63,5 +85,26 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     entities.foreach(e => DbRule.destroy(e))
     val batchInserted = DbRule.batchInsert(entities)
     batchInserted.size should be > (0)
+  }
+  it should "return a JSON representation of a rule" in { implicit session =>
+    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
+    val json = DbRule.toJson(created)
+    val expected = Json.parse(s"""
+    {
+      "ruleType" : "regex",
+      "forceRedRule": null,
+      "replacement": null,
+      "advisoryRule": null,
+      "id": ${created.id.get},
+      "category": null,
+      "notes": null,
+      "ignore": false,
+      "pattern": "MyString",
+      "googleSheetId": null,
+      "description": null,
+      "tags": null
+    }
+    """)
+    json should equal(expected)
   }
 }

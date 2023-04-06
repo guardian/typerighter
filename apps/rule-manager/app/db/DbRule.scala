@@ -149,25 +149,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     )
   }
 
-  def toJson(dbRule: DbRule): JsValue = {
-    Json.toJson(
-      Map(
-        "id" -> Json.toJson(dbRule.id),
-        "ruleType" -> Json.toJson(dbRule.ruleType),
-        "pattern" -> Json.toJson(dbRule.pattern),
-        "replacement" -> Json.toJson(dbRule.replacement),
-        "category" -> Json.toJson(dbRule.category),
-        "tags" -> Json.toJson(dbRule.tags),
-        "description" -> Json.toJson(dbRule.description),
-        "ignore" -> Json.toJson(dbRule.ignore),
-        "notes" -> Json.toJson(dbRule.notes),
-        "googleSheetId" -> Json.toJson(dbRule.googleSheetId),
-        "forceRedRule" -> Json.toJson(dbRule.forceRedRule),
-        "advisoryRule" -> Json.toJson(dbRule.advisoryRule)
-      )
-    )
-  }
-
   def batchInsert(
       entities: collection.Seq[DbRule]
   )(implicit session: DBSession = autoSession): List[Int] = {
@@ -251,4 +232,22 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     }.update.apply()
   }
 
+  def toJson(dbRule: DbRule): JsValue = {
+    Json.toJson(
+      Map(
+        "id" -> Json.toJson(dbRule.id),
+        "ruleType" -> Json.toJson(dbRule.ruleType),
+        "pattern" -> Json.toJson(dbRule.pattern),
+        "replacement" -> Json.toJson(dbRule.replacement),
+        "category" -> Json.toJson(dbRule.category),
+        "tags" -> Json.toJson(dbRule.tags),
+        "description" -> Json.toJson(dbRule.description),
+        "ignore" -> Json.toJson(dbRule.ignore),
+        "notes" -> Json.toJson(dbRule.notes),
+        "googleSheetId" -> Json.toJson(dbRule.googleSheetId),
+        "forceRedRule" -> Json.toJson(dbRule.forceRedRule),
+        "advisoryRule" -> Json.toJson(dbRule.advisoryRule)
+      )
+    )
+  }
 }
