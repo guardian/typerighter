@@ -1,6 +1,7 @@
 package db
 
 import model.{CreateRuleForm, UpdateRuleForm}
+import play.api.libs.json.{JsValue, Json}
 import scalikejdbc._
 
 import scala.util.Try
@@ -162,6 +163,41 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       googleSheetId = googleSheetId,
       forceRedRule = forceRedRule,
       advisoryRule = advisoryRule
+    )
+  }
+
+  def createFromFormRule(formRule: CreateRuleForm) = {
+    DbRule.create(
+      formRule.ruleType,
+      formRule.pattern,
+      formRule.replacement,
+      formRule.category,
+      formRule.tags,
+      formRule.description,
+      formRule.ignore,
+      formRule.notes,
+      formRule.googleSheetId,
+      formRule.forceRedRule,
+      formRule.advisoryRule
+    )
+  }
+
+  def toJson(dbRule: DbRule): JsValue = {
+    Json.toJson(
+      Map(
+        "id" -> Json.toJson(dbRule.id),
+        "ruleType" -> Json.toJson(dbRule.ruleType),
+        "pattern" -> Json.toJson(dbRule.pattern),
+        "replacement" -> Json.toJson(dbRule.replacement),
+        "category" -> Json.toJson(dbRule.category),
+        "tags" -> Json.toJson(dbRule.tags),
+        "description" -> Json.toJson(dbRule.description),
+        "ignore" -> Json.toJson(dbRule.ignore),
+        "notes" -> Json.toJson(dbRule.notes),
+        "googleSheetId" -> Json.toJson(dbRule.googleSheetId),
+        "forceRedRule" -> Json.toJson(dbRule.forceRedRule),
+        "advisoryRule" -> Json.toJson(dbRule.advisoryRule)
+      )
     )
   }
 
