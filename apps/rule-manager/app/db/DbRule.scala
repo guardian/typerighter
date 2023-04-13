@@ -152,55 +152,57 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   }
 
   def updateFromFormRule(formRule: UpdateRuleForm): Either[Result, DbRule] = {
-    val updatedRule = DbRule.find(formRule.id).toRight(NotFound("Rule not found matching ID"))
+    val updatedRule = DbRule
+      .find(formRule.id)
+      .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
-      new DbRule(
-        id = Some(formRule.id),
-        ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
-        pattern = formRule.pattern match {
-          case Some(string) => Some(string)
-          case None => existingRule.pattern
-        },
-        replacement = formRule.replacement match {
-          case Some(string) => Some(string)
-          case None => existingRule.replacement
-        },
-        category = formRule.category match {
-          case Some(string) => Some(string)
-          case None => existingRule.category
-        },
-        tags = formRule.tags match {
-          case Some(string) => Some(string)
-          case None => existingRule.tags
-        },
-        description = formRule.description match {
-          case Some(string) => Some(string)
-          case None => existingRule.description
-        },
-        ignore = formRule.ignore.getOrElse(existingRule.ignore),
-        notes = formRule.notes match {
-          case Some(string) => Some(string)
-          case None => existingRule.notes
-        },
-        googleSheetId = formRule.googleSheetId match {
-          case Some(bool) => Some(bool)
-          case None => existingRule.googleSheetId
-        },
-        forceRedRule = formRule.forceRedRule match {
-          case Some(bool) => Some(bool)
-          case None => existingRule.forceRedRule
-        },
-        advisoryRule = formRule.advisoryRule match {
-          case Some(bool) => Some(bool)
-          case None => existingRule.advisoryRule
-        },
+        new DbRule(
+          id = Some(formRule.id),
+          ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
+          pattern = formRule.pattern match {
+            case Some(string) => Some(string)
+            case None         => existingRule.pattern
+          },
+          replacement = formRule.replacement match {
+            case Some(string) => Some(string)
+            case None         => existingRule.replacement
+          },
+          category = formRule.category match {
+            case Some(string) => Some(string)
+            case None         => existingRule.category
+          },
+          tags = formRule.tags match {
+            case Some(string) => Some(string)
+            case None         => existingRule.tags
+          },
+          description = formRule.description match {
+            case Some(string) => Some(string)
+            case None         => existingRule.description
+          },
+          ignore = formRule.ignore.getOrElse(existingRule.ignore),
+          notes = formRule.notes match {
+            case Some(string) => Some(string)
+            case None         => existingRule.notes
+          },
+          googleSheetId = formRule.googleSheetId match {
+            case Some(bool) => Some(bool)
+            case None       => existingRule.googleSheetId
+          },
+          forceRedRule = formRule.forceRedRule match {
+            case Some(bool) => Some(bool)
+            case None       => existingRule.forceRedRule
+          },
+          advisoryRule = formRule.advisoryRule match {
+            case Some(bool) => Some(bool)
+            case None       => existingRule.advisoryRule
+          }
+        )
       )
-    )
     updatedRule match {
       case Right(dbRule) => {
         DbRule.save(dbRule).toEither match {
           case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
-          case Right(dbRule) => Right(dbRule)
+          case Right(dbRule)      => Right(dbRule)
         }
       }
       case Left(result) => Left(result)

@@ -7,7 +7,6 @@ import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 import play.api.libs.json.{JsValue, Json}
 
-
 import scala.util.Success
 
 class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
@@ -50,7 +49,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     created should not be (null)
   }
   it should "create a new record from a form rule" in { implicit session =>
-   val formRule = CreateRuleForm(
+    val formRule = CreateRuleForm(
       ruleType = "regex",
       pattern = None,
       replacement = None,

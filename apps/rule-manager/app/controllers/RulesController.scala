@@ -74,7 +74,7 @@ class RulesController(
         },
         formRule => {
           DbRule.updateFromFormRule(formRule) match {
-            case Left(result) => result
+            case Left(result)  => result
             case Right(dbRule) => Ok(DbRule.toJson(dbRule))
           }
         }
