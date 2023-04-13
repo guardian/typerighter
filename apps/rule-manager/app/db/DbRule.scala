@@ -135,7 +135,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     )
   }
 
-  def createFromFormRule(formRule: CreateRuleForm) = {
+  def createFromFormRule(formRule: CreateRuleForm)(implicit session: DBSession = autoSession) = {
     DbRule.create(
       formRule.ruleType,
       formRule.pattern,

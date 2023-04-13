@@ -49,24 +49,23 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
     created should not be (null)
   }
-  // TODO: Figure out why this test won't run
-//  it should "create a new record from a form rule" in { implicit session =>
-//   val formRule = CreateRuleForm(
-//      ruleType = "regex",
-//      pattern = None,
-//      replacement = None,
-//      category = None,
-//      tags = None,
-//      description = None,
-//      ignore = false,
-//      notes = None,
-//      googleSheetId = None,
-//      forceRedRule = None,
-//      advisoryRule = None
-//    )
-//    val dbRule = DbRule.createFromFormRule(formRule)
-//    dbRule should not be (null)
-//  }
+  it should "create a new record from a form rule" in { implicit session =>
+   val formRule = CreateRuleForm(
+      ruleType = "regex",
+      pattern = None,
+      replacement = None,
+      category = None,
+      tags = None,
+      description = None,
+      ignore = false,
+      notes = None,
+      googleSheetId = None,
+      forceRedRule = None,
+      advisoryRule = None
+    )
+    val dbRule = DbRule.createFromFormRule(formRule)
+    dbRule should not be (null)
+  }
   it should "save a record" in { implicit session =>
     val entity = DbRule.findAll().head
     val modified = entity.copy(pattern = Some("NotMyString"))
