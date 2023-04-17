@@ -8,10 +8,10 @@ ThisBuild / scalacOptions := Seq(
   "-encoding", "UTF-8", "-target:jvm-1.8", "-deprecation",
   "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps")
 
-val languageToolVersion = "5.9"
-val awsSdkVersion = "1.11.999"
-val capiModelsVersion = "17.4.0"
-val capiClientVersion = "19.1.0"
+val languageToolVersion = "6.0"
+val awsSdkVersion = "1.12.416"
+val capiModelsVersion = "17.5.1"
+val capiClientVersion = "19.2.1"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
@@ -64,7 +64,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     commonSettings,
     libraryDependencies ++= Seq(
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.8.11",
+      "com.typesafe.play" %% "play" % "2.8.19",
     )
   )
 
