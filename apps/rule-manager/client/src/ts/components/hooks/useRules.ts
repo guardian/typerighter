@@ -1,5 +1,4 @@
-import React, {useEffect, useState} from 'react';
-import {Promise as PromiseType} from 'es6-promise'
+import {useEffect, useState} from 'react';
 
 export function useRules() {
     const { location } = window;
@@ -7,14 +6,14 @@ export function useRules() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const fetchRules = async (): PromiseType<void> => {
+    const fetchRules = async (): Promise<void> => {
         setIsLoading(true);
         try {
             const response = await fetch(`${location}rules`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
             }
-            const { rules } = await response.json();
+            const rules = await response.json();
             setRules(rules);
         } catch (error) {
             setError(error);
@@ -22,7 +21,7 @@ export function useRules() {
         setIsLoading(false);
     }
 
-    const refreshRules = async (): PromiseType<void>  => {
+    const refreshRules = async (): Promise<void>  => {
         setIsRefreshing(true);
         try {
             const updatedRulesResponse = await fetch(`${location}refresh`, {

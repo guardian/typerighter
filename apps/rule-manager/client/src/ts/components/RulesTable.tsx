@@ -11,7 +11,7 @@ import {
     EuiButtonIcon,
     EuiFlexGrid,
 } from '@elastic/eui';
-import {useRules} from "./hooks/rules-hook";
+import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
 
 const sorting = {
@@ -41,33 +41,24 @@ export type Rule = {
 
 const columns: Array<EuiBasicTableColumn<Rule>> = [
     {
-        field: '_type',
+        field: 'ruleType',
         name: 'Type',
-        render: (_type: Rule['type']) => {
-            return <>{_type.split('.').pop()}</>
-        }
     },
     {
-        field: 'id',
+        field: 'googleSheetId',
         name: 'ID'
     },
     {
         field: 'category',
         name: 'Category',
-        render: (category: Rule['category']) => {
-            return <>{category?.name}</>
-        }
     },
     {
-        field: 'regex',
+        field: 'pattern',
         name: 'Match',
     },
     {
       field: 'replacement',
       name: 'Replacement',
-      render: (replacement: Rule['replacement']) => {
-        return <>{replacement?.text}</>
-      }
     },
     {
         field: 'description',
