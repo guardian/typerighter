@@ -108,6 +108,22 @@ object DbRuleManager extends Loggable {
     }
   }
 
+  def getRules(): List[DbRule] = DbRule.findAll()
+
+  def getRulesAsRuleResource() = {
+    val (failedDbRules, successfulDbRules) = getRules()
+      .map(dbRuleToBaseRule)
+      .partitionMap {
+        case l @ Left(_)  => l
+        case r @ Right(_) => r
+      }
+
+    failedDbRules match {
+      case Nil      => Right(RuleResource(successfulDbRules))
+      case failures => Left(failures)
+    }
+  }
+
   def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
     DbRule.destroyAll()
 
@@ -116,25 +132,16 @@ object DbRuleManager extends Loggable {
       .grouped(100)
       .foreach(DbRule.batchInsert)
 
-    val maybeAllDbRules = DbRule.findAll().map(dbRuleToBaseRule)
+    val maybeAllDbRules = getRulesAsRuleResource()
 
-    val (failedDbRules, successfulDbRules) = maybeAllDbRules.partitionMap {
-      case l @ Left(_)  => l
-      case r @ Right(_) => r
-    }
-
-    failedDbRules match {
-      case Nil =>
-        val persistedRules =
-          RuleResource(rules = successfulDbRules)
-
+    maybeAllDbRules.fold(
+      Left(_),
+      persistedRules => {
         if (persistedRules.rules == rules.rules) {
           Right(persistedRules)
         } else {
           val allRules = persistedRules.rules.zip(rules.rules)
           log.error(s"Persisted rules differ.")
-          val diffRules = allRules
-            .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
 
           allRules.take(10).foreach { case (persistedRule, expectedRule) =>
             log.error(s"Persisted rule: $persistedRule")
@@ -150,7 +157,7 @@ object DbRuleManager extends Loggable {
             )
           )
         }
-      case _ => Left(failedDbRules)
-    }
+      }
+    )
   }
 }
