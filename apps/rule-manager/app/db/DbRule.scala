@@ -1,7 +1,7 @@
 package db
 
 import model.{CreateRuleForm, UpdateRuleForm}
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, Reads, Writes}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
@@ -9,19 +9,19 @@ import scalikejdbc._
 import scala.util.{Failure, Try}
 
 case class DbRule(
-    id: Option[Int],
-    ruleType: String,
-    pattern: Option[String] = None,
-    replacement: Option[String] = None,
-    category: Option[String] = None,
-    tags: Option[String] = None,
-    description: Option[String] = None,
-    ignore: Boolean,
-    notes: Option[String] = None,
-    googleSheetId: Option[String] = None,
-    forceRedRule: Option[Boolean] = None,
-    advisoryRule: Option[Boolean] = None
-) {
+                   id: Option[Int],
+                   ruleType: String,
+                   pattern: Option[String] = None,
+                   replacement: Option[String] = None,
+                   category: Option[String] = None,
+                   tags: Option[String] = None,
+                   description: Option[String] = None,
+                   ignore: Boolean,
+                   notes: Option[String] = None,
+                   googleSheetId: Option[String] = None,
+                   forceRedRule: Option[Boolean] = None,
+                   advisoryRule: Option[Boolean] = None
+                 ) {
 
   def save()(implicit session: DBSession = DbRule.autoSession): Try[DbRule] =
     DbRule.save(this)(session)
@@ -31,6 +31,8 @@ case class DbRule(
 }
 
 object DbRule extends SQLSyntaxSupport[DbRule] {
+  implicit val reads: Reads[DbRule] = Json.reads[DbRule]
+  implicit val writes: Writes[DbRule] = Json.writes[DbRule]
 
   override val tableName = "rules"
 
@@ -49,8 +51,8 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     "advisory_rule"
   )
 
-  def apply(r: SyntaxProvider[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
-  def apply(r: ResultName[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
+  def fromSyntaxProvider(r: SyntaxProvider[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
+  def fromResultName(r: ResultName[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
 
   val r = DbRule.syntax("r")
 
@@ -59,11 +61,11 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRule] = {
     withSQL {
       select.from(DbRule as r).where.eq(r.id, id)
-    }.map(DbRule(r.resultName)).single.apply()
+    }.map(DbRule.fromResultName(r.resultName)).single.apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
-    withSQL(select.from(DbRule as r).orderBy(r.id)).map(DbRule(r.resultName)).list.apply()
+    withSQL(select.from(DbRule as r).orderBy(r.id)).map(DbRule.fromResultName(r.resultName)).list.apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
@@ -73,13 +75,13 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[DbRule] = {
     withSQL {
       select.from(DbRule as r).where.append(where)
-    }.map(DbRule(r.resultName)).single.apply()
+    }.map(DbRule.fromResultName(r.resultName)).single.apply()
   }
 
   def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[DbRule] = {
     withSQL {
       select.from(DbRule as r).where.append(where)
-    }.map(DbRule(r.resultName)).list.apply()
+    }.map(DbRule.fromResultName(r.resultName)).list.apply()
   }
 
   def countBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Long = {
