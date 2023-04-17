@@ -72,12 +72,12 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val formRule = UpdateRuleForm(
       id = existingId,
       ruleType = Some("regex"),
-      pattern = Some("NewString"),
+      pattern = Some("NewString")
     )
     val dbRule = DbRule.updateFromFormRule(formRule)
     val rule = dbRule.getOrElse(null)
-    rule.id should be (Some(existingId))
-    rule.pattern should be (Some("NewString"))
+    rule.id should be(Some(existingId))
+    rule.pattern should be(Some("NewString"))
   }
   it should "save a record" in { implicit session =>
     val entity = DbRule.findAll().head
