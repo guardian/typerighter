@@ -17,7 +17,7 @@ ThisBuild / scalacOptions := Seq(
 
 val languageToolVersion = "6.0"
 val awsSdkVersion = "1.12.416"
-val capiModelsVersion = "17.5.1"
+val capiModelsVersion = "17.5.2"
 val capiClientVersion = "19.2.3"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
