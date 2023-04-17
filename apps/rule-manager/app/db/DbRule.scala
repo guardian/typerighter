@@ -162,43 +162,16 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
         new DbRule(
           id = Some(id),
           ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
-          pattern = formRule.pattern match {
-            case Some(string) => Some(string)
-            case None         => existingRule.pattern
-          },
-          replacement = formRule.replacement match {
-            case Some(string) => Some(string)
-            case None         => existingRule.replacement
-          },
-          category = formRule.category match {
-            case Some(string) => Some(string)
-            case None         => existingRule.category
-          },
-          tags = formRule.tags match {
-            case Some(string) => Some(string)
-            case None         => existingRule.tags
-          },
-          description = formRule.description match {
-            case Some(string) => Some(string)
-            case None         => existingRule.description
-          },
+          pattern = formRule.pattern.orElse(existingRule.pattern),
+          replacement = formRule.replacement.orElse(existingRule.replacement),
+          category = formRule.category.orElse(existingRule.category),
+          tags = formRule.tags.orElse(existingRule.tags),
+          description = formRule.description.orElse(existingRule.description),
           ignore = formRule.ignore.getOrElse(existingRule.ignore),
-          notes = formRule.notes match {
-            case Some(string) => Some(string)
-            case None         => existingRule.notes
-          },
-          googleSheetId = formRule.googleSheetId match {
-            case Some(bool) => Some(bool)
-            case None       => existingRule.googleSheetId
-          },
-          forceRedRule = formRule.forceRedRule match {
-            case Some(bool) => Some(bool)
-            case None       => existingRule.forceRedRule
-          },
-          advisoryRule = formRule.advisoryRule match {
-            case Some(bool) => Some(bool)
-            case None       => existingRule.advisoryRule
-          }
+          notes = formRule.notes.orElse(existingRule.notes),
+          googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
+          forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
+          advisoryRule = formRule.advisoryRule.orElse(existingRule.advisoryRule)
         )
       )
     updatedRule match {
