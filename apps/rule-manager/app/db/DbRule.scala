@@ -151,7 +151,9 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     )
   }
 
-  def updateFromFormRule(formRule: UpdateRuleForm): Either[Result, DbRule] = {
+  def updateFromFormRule(
+      formRule: UpdateRuleForm
+  )(implicit session: DBSession = autoSession): Either[Result, DbRule] = {
     val updatedRule = DbRule
       .find(formRule.id)
       .toRight(NotFound("Rule not found matching ID"))

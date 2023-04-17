@@ -1,6 +1,7 @@
 package db
 
 import model.CreateRuleForm
+import model.UpdateRuleForm
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
@@ -64,6 +65,19 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     )
     val dbRule = DbRule.createFromFormRule(formRule)
     dbRule should not be (null)
+  }
+  it should "edit an existing record using a form rule" in { implicit session =>
+    val existingRule = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
+    val existingId = existingRule.id.get
+    val formRule = UpdateRuleForm(
+      id = existingId,
+      ruleType = Some("regex"),
+      pattern = Some("NewString"),
+    )
+    val dbRule = DbRule.updateFromFormRule(formRule)
+    val rule = dbRule.getOrElse(null)
+    rule.id should be (Some(existingId))
+    rule.pattern should be (Some("NewString"))
   }
   it should "save a record" in { implicit session =>
     val entity = DbRule.findAll().head
