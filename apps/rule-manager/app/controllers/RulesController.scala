@@ -64,7 +64,7 @@ class RulesController(
       )
   }
 
-  def update = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def update(id: Int) = ApiAuthAction { implicit request: Request[AnyContent] =>
     UpdateRuleForm.form
       .bindFromRequest()
       .fold(
@@ -73,7 +73,7 @@ class RulesController(
           BadRequest(Json.toJson(errors))
         },
         formRule => {
-          DbRule.updateFromFormRule(formRule) match {
+          DbRule.updateFromFormRule(formRule, id) match {
             case Left(result)  => result
             case Right(dbRule) => Ok(DbRule.toJson(dbRule))
           }

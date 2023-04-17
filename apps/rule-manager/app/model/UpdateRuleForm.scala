@@ -6,7 +6,6 @@ import play.api.data.Forms.{boolean, mapping, nonEmptyText, number, optional, te
 object UpdateRuleForm {
   val form = Form(
     mapping(
-      "id" -> number(),
       "ruleType" -> optional(text()),
       "pattern" -> optional(text()),
       "replacement" -> optional(text()),
@@ -23,7 +22,6 @@ object UpdateRuleForm {
 }
 
 case class UpdateRuleForm(
-    id: Int,
     ruleType: Option[String] = None,
     pattern: Option[String] = None,
     replacement: Option[String] = None,

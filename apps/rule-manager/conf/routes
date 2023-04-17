@@ -16,9 +16,8 @@ GET     /healthcheck                controllers.HomeController.healthcheck()
 +nocsrf
 POST    /refresh                    controllers.RulesController.refresh()
 +nocsrf
-POST    /create                     controllers.RulesController.create()
-+nocsrf
-POST    /update                     controllers.RulesController.update()
-+nocsrf
 GET     /rules                      controllers.RulesController.rules()
-
++nocsrf
+POST    /rules               controllers.RulesController.create()
++nocsrf
+POST    /rules/:id            controllers.RulesController.update(id: Int)

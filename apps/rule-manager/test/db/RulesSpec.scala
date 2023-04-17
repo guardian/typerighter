@@ -70,11 +70,10 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val existingRule = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
     val existingId = existingRule.id.get
     val formRule = UpdateRuleForm(
-      id = existingId,
       ruleType = Some("regex"),
       pattern = Some("NewString")
     )
-    val dbRule = DbRule.updateFromFormRule(formRule)
+    val dbRule = DbRule.updateFromFormRule(formRule, existingId)
     val rule = dbRule.getOrElse(null)
     rule.id should be(Some(existingId))
     rule.pattern should be(Some("NewString"))
