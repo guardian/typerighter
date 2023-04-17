@@ -9,19 +9,19 @@ import scalikejdbc._
 import scala.util.{Failure, Try}
 
 case class DbRule(
-    id: Option[Int],
-    ruleType: String,
-    pattern: Option[String] = None,
-    replacement: Option[String] = None,
-    category: Option[String] = None,
-    tags: Option[String] = None,
-    description: Option[String] = None,
-    ignore: Boolean,
-    notes: Option[String] = None,
-    googleSheetId: Option[String] = None,
-    forceRedRule: Option[Boolean] = None,
-    advisoryRule: Option[Boolean] = None
-) {
+                   id: Option[Int],
+                   ruleType: String,
+                   pattern: Option[String] = None,
+                   replacement: Option[String] = None,
+                   category: Option[String] = None,
+                   tags: Option[String] = None,
+                   description: Option[String] = None,
+                   ignore: Boolean,
+                   notes: Option[String] = None,
+                   googleSheetId: Option[String] = None,
+                   forceRedRule: Option[Boolean] = None,
+                   advisoryRule: Option[Boolean] = None
+                 ) {
 
   def save()(implicit session: DBSession = DbRule.autoSession): Try[DbRule] =
     DbRule.save(this)(session)
@@ -50,8 +50,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     "advisory_rule"
   )
 
-  def fromSyntaxProvider(r: SyntaxProvider[DbRule])(rs: WrappedResultSet): DbRule =
-    autoConstruct(rs, r)
   def fromResultName(r: ResultName[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
 
   val r = DbRule.syntax("r")
@@ -65,10 +63,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
-    withSQL(select.from(DbRule as r).orderBy(r.id))
-      .map(DbRule.fromResultName(r.resultName))
-      .list
-      .apply()
+    withSQL(select.from(DbRule as r).orderBy(r.id)).map(DbRule.fromResultName(r.resultName)).list.apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
