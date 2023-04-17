@@ -50,7 +50,7 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
+    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.3" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
