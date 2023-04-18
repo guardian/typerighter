@@ -59,7 +59,7 @@ class RulesController(
         },
         formRule => {
           DbRule.createFromFormRule(formRule, request.user.email) match {
-            case Success(rule)  => Ok(DbRule.toJson(rule))
+            case Success(rule)  => Ok(Json.toJson(rule))
             case Failure(error) => InternalServerError(error.getMessage())
           }
         }
@@ -77,7 +77,7 @@ class RulesController(
         formRule => {
           DbRule.updateFromFormRule(formRule, id, request.user.email) match {
             case Left(result)  => result
-            case Right(dbRule) => Ok(DbRule.toJson(dbRule))
+            case Right(dbRule) => Ok(Json.toJson(dbRule))
           }
         }
       )

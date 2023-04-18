@@ -6,8 +6,8 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
 
-import java.time.LocalDateTime
-import scala.util.{Try, Success, Failure}
+import java.time.{LocalDateTime, ZonedDateTime}
+import scala.util.{Failure, Success, Try}
 
 case class DbRule(
     id: Option[Int],
@@ -22,18 +22,11 @@ case class DbRule(
     googleSheetId: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
     advisoryRule: Option[Boolean] = None,
-    createdAt: LocalDateTime,
+    createdAt: ZonedDateTime,
     createdBy: String,
-    updatedAt: LocalDateTime,
+    updatedAt: ZonedDateTime,
     updatedBy: String
-) {
-
-  def save()(implicit session: DBSession = DbRule.autoSession): Try[DbRule] =
-    DbRule.save(this)(session)
-
-  def destroy()(implicit session: DBSession = DbRule.autoSession): Int =
-    DbRule.destroy(this)(session)
-}
+)
 
 object DbRule extends SQLSyntaxSupport[DbRule] {
   implicit val format: Format[DbRule] = Json.format[DbRule]
@@ -76,7 +69,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       advisoryRule: Option[Boolean] = None,
       user: String
   ) = {
-    val createdAt = LocalDateTime.now()
+    val createdAt = ZonedDateTime.now()
     DbRule(
       id,
       ruleType,
@@ -108,7 +101,10 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
-    withSQL(select.from(DbRule as r).orderBy(r.id)).map(DbRule.fromResultName(r.resultName)).list.apply()
+    withSQL(select.from(DbRule as r).orderBy(r.id))
+      .map(DbRule.fromResultName(r.resultName))
+      .list
+      .apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
@@ -147,7 +143,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       advisoryRule: Option[Boolean] = None,
       user: String
   )(implicit session: DBSession = autoSession): Try[DbRule] = {
-    val createdAt = LocalDateTime.now()
     val generatedKey = withSQL {
       insert
         .into(DbRule)
@@ -163,9 +158,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           column.googleSheetId -> googleSheetId,
           column.forceRedRule -> forceRedRule,
           column.advisoryRule -> advisoryRule,
-          column.createdAt -> createdAt,
           column.createdBy -> user,
-          column.updatedAt -> createdAt,
           column.updatedBy -> user
         )
     }.updateAndReturnGeneratedKey.apply()
@@ -209,7 +202,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       .find(id)
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
-        new DbRule(
+        existingRule.copy(
           id = Some(id),
           ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
           pattern = formRule.pattern.orElse(existingRule.pattern),
@@ -221,16 +214,12 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           notes = formRule.notes.orElse(existingRule.notes),
           googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
           forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
-          advisoryRule = formRule.advisoryRule.orElse(existingRule.advisoryRule),
-          createdAt = existingRule.createdAt,
-          createdBy = existingRule.createdBy,
-          updatedAt = LocalDateTime.now(),
-          updatedBy = user
+          advisoryRule = formRule.advisoryRule.orElse(existingRule.advisoryRule)
         )
       )
     updatedRule match {
       case Right(dbRule) => {
-        DbRule.save(dbRule).toEither match {
+        DbRule.save(dbRule, user).toEither match {
           case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
           case Right(dbRule)      => Right(dbRule)
         }
@@ -284,7 +273,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: DbRule)(implicit session: DBSession = autoSession): Try[DbRule] = {
+  def save(entity: DbRule, user: String)(implicit session: DBSession = autoSession): Try[DbRule] = {
     withSQL {
       update(DbRule)
         .set(
@@ -299,7 +288,11 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           column.notes -> entity.notes,
           column.googleSheetId -> entity.googleSheetId,
           column.forceRedRule -> entity.forceRedRule,
-          column.advisoryRule -> entity.advisoryRule
+          column.advisoryRule -> entity.advisoryRule,
+          column.createdAt -> entity.createdAt,
+          column.createdBy -> entity.createdBy,
+          column.updatedAt -> ZonedDateTime.now(),
+          column.updatedBy -> user
         )
         .where
         .eq(column.id, entity.id)
@@ -322,24 +315,5 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     withSQL {
       delete.from(DbRule)
     }.update.apply()
-  }
-
-  def toJson(dbRule: DbRule): JsValue = {
-    Json.toJson(
-      Map(
-        "id" -> Json.toJson(dbRule.id),
-        "ruleType" -> Json.toJson(dbRule.ruleType),
-        "pattern" -> Json.toJson(dbRule.pattern),
-        "replacement" -> Json.toJson(dbRule.replacement),
-        "category" -> Json.toJson(dbRule.category),
-        "tags" -> Json.toJson(dbRule.tags),
-        "description" -> Json.toJson(dbRule.description),
-        "ignore" -> Json.toJson(dbRule.ignore),
-        "notes" -> Json.toJson(dbRule.notes),
-        "googleSheetId" -> Json.toJson(dbRule.googleSheetId),
-        "forceRedRule" -> Json.toJson(dbRule.forceRedRule),
-        "advisoryRule" -> Json.toJson(dbRule.advisoryRule)
-      )
-    )
   }
 }
