@@ -11,6 +11,7 @@ import play.api.mvc._
 import service.DbRuleManager
 
 import scala.concurrent.ExecutionContext
+import scala.util.{Success, Failure}
 
 /** The controller that handles the management of matcher rules.
   */
@@ -48,7 +49,7 @@ class RulesController(
     )
   }
 
-  def create = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def create = ApiAuthAction { implicit request =>
     CreateRuleForm.form
       .bindFromRequest()
       .fold(
@@ -57,13 +58,15 @@ class RulesController(
           BadRequest(Json.toJson(errors))
         },
         formRule => {
-          val dbRule = DbRule.createFromFormRule(formRule)
-          Ok(DbRule.toJson(dbRule))
+          DbRule.createFromFormRule(formRule, request.user.email) match {
+            case Success(rule)  => Ok(DbRule.toJson(rule))
+            case Failure(error) => InternalServerError(error.getMessage())
+          }
         }
       )
   }
 
-  def update(id: Int) = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def update(id: Int) = ApiAuthAction { implicit request =>
     UpdateRuleForm.form
       .bindFromRequest()
       .fold(
@@ -72,7 +75,7 @@ class RulesController(
           BadRequest(Json.toJson(errors))
         },
         formRule => {
-          DbRule.updateFromFormRule(formRule, id) match {
+          DbRule.updateFromFormRule(formRule, id, request.user.email) match {
             case Left(result)  => result
             case Right(dbRule) => Ok(DbRule.toJson(dbRule))
           }

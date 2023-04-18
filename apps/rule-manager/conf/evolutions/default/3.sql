@@ -2,9 +2,9 @@
 
 ALTER TABLE rules
   ADD COLUMN created_by TEXT NOT NULL DEFAULT 'Google Sheet',
-  ADD COLUMN created_at timestamp DEFAULT current_timestamp,
+  ADD COLUMN created_at timestamptz DEFAULT now(),
   ADD COLUMN updated_by TEXT NOT NULL DEFAULT 'Google Sheet',
-  ADD COLUMN updated_at timestamp DEFAULT current_timestamp;
+  ADD COLUMN updated_at timestamptz DEFAULT now();
 
 -- !Downs
 

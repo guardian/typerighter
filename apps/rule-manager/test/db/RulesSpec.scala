@@ -47,7 +47,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     count should be > (0L)
   }
   it should "create new record" in { implicit session =>
-    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
+    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user")
     created should not be (null)
   }
   it should "create a new record from a form rule" in { implicit session =>
@@ -64,17 +64,18 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
       forceRedRule = None,
       advisoryRule = None
     )
-    val dbRule = DbRule.createFromFormRule(formRule)
+    val dbRule = DbRule.createFromFormRule(formRule, user = "test.user")
     dbRule should not be (null)
   }
-  it should "update an existing record using a form rule" in { implicit session =>
-    val existingRule = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
+
+  it should "edit an existing record using a form rule" in { implicit session =>
+    val existingRule = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user").get
     val existingId = existingRule.id.get
     val formRule = UpdateRuleForm(
       ruleType = Some("regex"),
       pattern = Some("NewString")
     )
-    val dbRule = DbRule.updateFromFormRule(formRule, existingId)
+    val dbRule = DbRule.updateFromFormRule(formRule, existingId, "test.user")
     val rule = dbRule.getOrElse(null)
     rule.id should be(Some(existingId))
     rule.pattern should be(Some("NewString"))
@@ -86,7 +87,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
         pattern = Some("NewString")
       )
       val nonExistentRuleId = 2000
-      val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId)
+      val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId, "test.user")
       dbRule should be(Left(NotFound("Rule not found matching ID")))
   }
   it should "save a record" in { implicit session =>
@@ -109,7 +110,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     batchInserted.size should be > (0)
   }
   it should "return a JSON representation of a rule" in { implicit session =>
-    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
+    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user").get
     val json = DbRule.toJson(created)
     val expected = Json.parse(s"""
     {
