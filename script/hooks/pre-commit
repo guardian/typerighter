@@ -12,7 +12,7 @@ else
   # Try the CLI version for performance.
   echo "Formatting code format via scalafmt..."
   echo "This step can be skipped by using the --no-verify flag for git commit."
-  $(command -v scalafmt >/dev/null 2>&1 && $(scalafmt --config "${SCALAFMT_CONFIG}" --exclude target --mode changed --non-interactive --quiet --test >/dev/null 2>&1) || $(sbt scalafmt >/dev/null 2>&1))
+  $(command -v scalafmt >/dev/null 2>&1 && $(scalafmt --config "${SCALAFMT_CONFIG}" --exclude target --mode changed --non-interactive --quiet --test >/dev/null 2>&1) || $(sbt scalafmtAll >/dev/null 2>&1))
   STATUS=$?
   if [ ! $STATUS -eq 0 ]; then
     echo ""
