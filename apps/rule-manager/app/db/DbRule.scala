@@ -243,7 +243,9 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
         Symbol("notes") -> entity.notes,
         Symbol("googleSheetId") -> entity.googleSheetId,
         Symbol("forceRedRule") -> entity.forceRedRule,
-        Symbol("advisoryRule") -> entity.advisoryRule
+        Symbol("advisoryRule") -> entity.advisoryRule,
+        Symbol("createdBy") -> entity.createdBy,
+        Symbol("updatedBy") -> entity.updatedBy
       )
     )
     SQL("""insert into rules(
@@ -257,7 +259,9 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       notes,
       google_sheet_id,
       force_red_rule,
-      advisory_rule
+      advisory_rule,
+      created_by,
+      updated_by
     ) values (
       {ruleType},
       {pattern},
@@ -269,7 +273,9 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       {notes},
       {googleSheetId},
       {forceRedRule},
-      {advisoryRule}
+      {advisoryRule},
+      {createdBy},
+      {updatedBy}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 

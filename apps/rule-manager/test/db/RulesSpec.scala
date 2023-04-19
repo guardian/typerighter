@@ -17,7 +17,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
 
   override def fixture(implicit session: DBSession) {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update.apply()
-    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false)".update
+    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user')".update
       .apply()
   }
 
