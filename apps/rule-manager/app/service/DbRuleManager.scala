@@ -113,10 +113,7 @@ object DbRuleManager extends Loggable {
   def getRulesAsRuleResource() = {
     val (failedDbRules, successfulDbRules) = getRules()
       .map(dbRuleToBaseRule)
-      .partitionMap {
-        case l @ Left(_)  => l
-        case r @ Right(_) => r
-      }
+      .partitionMap(identity)
 
     failedDbRules match {
       case Nil      => Right(RuleResource(successfulDbRules))
