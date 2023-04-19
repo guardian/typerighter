@@ -32,19 +32,23 @@ Matches contain the range that match applies to, a description of why the match 
 
 ```mermaid
 flowchart LR
-  checker[Checker]
+  checker[Checker service]
+  manager[Manager service]
   sheet[Google Sheet]
   client[Typerighter client]
   s3[(typerighter-rules.json)]
-  owner{{Rule owner}}
-  user{{Rule user}}
+  db[(Postgres DB)]
+  owner{{Rule owner role}}
+  user{{Rule user role}}
 
-  sheet--"Get rules"-->checker
-  checker--"Write rule artefact"-->s3
+  sheet--"Get rules"-->manager
+  manager--"Write rules"-->db
+  manager<--"Read rules"--db
+  manager--"Write rule artefact"-->s3
   s3--"Read rule artefact"-->checker
   client--"Request matches"-->checker
 
-  owner-."Force checker to re-fetch sheet".->checker
+  owner-."Force manager to re-fetch sheet".->manager
   user-."Request document check".->client
   owner-."Edit rules".->sheet
 ```
