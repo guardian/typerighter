@@ -1,8 +1,12 @@
 package db
 
+import model.{CreateRuleForm, UpdateRuleForm}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
+import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
 
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 case class DbRule(
     id: Option[Int],
@@ -24,7 +28,6 @@ case class DbRule(
 
   def destroy()(implicit session: DBSession = DbRule.autoSession): Int =
     DbRule.destroy(this)(session)
-
 }
 
 object DbRule extends SQLSyntaxSupport[DbRule] {
@@ -132,6 +135,56 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     )
   }
 
+  def createFromFormRule(formRule: CreateRuleForm)(implicit session: DBSession = autoSession) = {
+    DbRule.create(
+      formRule.ruleType,
+      formRule.pattern,
+      formRule.replacement,
+      formRule.category,
+      formRule.tags,
+      formRule.description,
+      formRule.ignore,
+      formRule.notes,
+      formRule.googleSheetId,
+      formRule.forceRedRule,
+      formRule.advisoryRule
+    )
+  }
+
+  def updateFromFormRule(
+      formRule: UpdateRuleForm,
+      id: Int
+  )(implicit session: DBSession = autoSession): Either[Result, DbRule] = {
+    val updatedRule = DbRule
+      .find(id)
+      .toRight(NotFound("Rule not found matching ID"))
+      .map(existingRule =>
+        new DbRule(
+          id = Some(id),
+          ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
+          pattern = formRule.pattern.orElse(existingRule.pattern),
+          replacement = formRule.replacement.orElse(existingRule.replacement),
+          category = formRule.category.orElse(existingRule.category),
+          tags = formRule.tags.orElse(existingRule.tags),
+          description = formRule.description.orElse(existingRule.description),
+          ignore = formRule.ignore.getOrElse(existingRule.ignore),
+          notes = formRule.notes.orElse(existingRule.notes),
+          googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
+          forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
+          advisoryRule = formRule.advisoryRule.orElse(existingRule.advisoryRule)
+        )
+      )
+    updatedRule match {
+      case Right(dbRule) => {
+        DbRule.save(dbRule).toEither match {
+          case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
+          case Right(dbRule)      => Right(dbRule)
+        }
+      }
+      case Left(result) => Left(result)
+    }
+  }
+
   def batchInsert(
       entities: collection.Seq[DbRule]
   )(implicit session: DBSession = autoSession): List[Int] = {
@@ -215,4 +268,22 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     }.update.apply()
   }
 
+  def toJson(dbRule: DbRule): JsValue = {
+    Json.toJson(
+      Map(
+        "id" -> Json.toJson(dbRule.id),
+        "ruleType" -> Json.toJson(dbRule.ruleType),
+        "pattern" -> Json.toJson(dbRule.pattern),
+        "replacement" -> Json.toJson(dbRule.replacement),
+        "category" -> Json.toJson(dbRule.category),
+        "tags" -> Json.toJson(dbRule.tags),
+        "description" -> Json.toJson(dbRule.description),
+        "ignore" -> Json.toJson(dbRule.ignore),
+        "notes" -> Json.toJson(dbRule.notes),
+        "googleSheetId" -> Json.toJson(dbRule.googleSheetId),
+        "forceRedRule" -> Json.toJson(dbRule.forceRedRule),
+        "advisoryRule" -> Json.toJson(dbRule.advisoryRule)
+      )
+    )
+  }
 }

@@ -3,7 +3,10 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
-import play.api.libs.json.Json
+import db.DbRule
+import model.{CreateRuleForm, UpdateRuleForm}
+import play.api.data.FormError
+import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
 import service.DbRuleManager
 
@@ -37,5 +40,44 @@ class RulesController(
       case Right((ruleResource, _)) => Ok(Json.toJson(ruleResource))
       case Left(error)              => InternalServerError(Json.toJson(error.getMessage))
     }
+  }
+
+  implicit object FormErrorWrites extends Writes[FormError] {
+    override def writes(o: FormError): JsValue = Json.obj(
+      "key" -> Json.toJson(o.key),
+      "message" -> Json.toJson(o.message)
+    )
+  }
+
+  def create = ApiAuthAction { implicit request: Request[AnyContent] =>
+    CreateRuleForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          val errors = formWithErrors.errors
+          BadRequest(Json.toJson(errors))
+        },
+        formRule => {
+          val dbRule = DbRule.createFromFormRule(formRule)
+          Ok(DbRule.toJson(dbRule))
+        }
+      )
+  }
+
+  def update(id: Int) = ApiAuthAction { implicit request: Request[AnyContent] =>
+    UpdateRuleForm.form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => {
+          val errors = formWithErrors.errors
+          BadRequest(Json.toJson(errors))
+        },
+        formRule => {
+          DbRule.updateFromFormRule(formRule, id) match {
+            case Left(result)  => result
+            case Right(dbRule) => Ok(DbRule.toJson(dbRule))
+          }
+        }
+      )
   }
 }
