@@ -1,7 +1,7 @@
 package db
 
 import model.{CreateRuleForm, UpdateRuleForm}
-import play.api.libs.json.{JsValue, Json, Reads, Writes}
+import play.api.libs.json.{Format, JsValue, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
@@ -31,8 +31,7 @@ case class DbRule(
 }
 
 object DbRule extends SQLSyntaxSupport[DbRule] {
-  implicit val reads: Reads[DbRule] = Json.reads[DbRule]
-  implicit val writes: Writes[DbRule] = Json.writes[DbRule]
+  implicit val format: Format[DbRule] = Json.format[DbRule]
 
   override val tableName = "rules"
 
