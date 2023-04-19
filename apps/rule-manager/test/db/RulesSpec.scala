@@ -7,6 +7,7 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Results.NotFound
 
 import scala.util.Success
 
@@ -66,7 +67,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val dbRule = DbRule.createFromFormRule(formRule)
     dbRule should not be (null)
   }
-  it should "edit an existing record using a form rule" in { implicit session =>
+  it should "update an existing record using a form rule" in { implicit session =>
     val existingRule = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
     val existingId = existingRule.id.get
     val formRule = UpdateRuleForm(
@@ -77,6 +78,15 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val rule = dbRule.getOrElse(null)
     rule.id should be(Some(existingId))
     rule.pattern should be(Some("NewString"))
+  }
+  it should "return an error when attempting to update a record that doesn't exist" in { implicit session =>
+    val formRule = UpdateRuleForm(
+      ruleType = Some("regex"),
+      pattern = Some("NewString")
+    )
+    val nonExistentRuleId = 2000
+    val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId)
+    dbRule should be(Left(NotFound("Rule not found matching ID")))
   }
   it should "save a record" in { implicit session =>
     val entity = DbRule.findAll().head
