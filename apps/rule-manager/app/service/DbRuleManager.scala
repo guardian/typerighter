@@ -5,6 +5,7 @@ import com.gu.typerighter.model.{
   BaseRule,
   Category,
   ComparableRegex,
+  LTRule,
   LTRuleCore,
   LTRuleXML,
   RegexRule,
@@ -55,6 +56,10 @@ object DbRuleManager extends Loggable {
           googleSheetId = Some(languageToolRuleId),
           ignore = false,
           user = "Google Sheet"
+        )
+      case _: LTRule =>
+        throw new Error(
+          "A languageTool-generated rule should not be available in the context of the manager service"
         )
     }
   }
