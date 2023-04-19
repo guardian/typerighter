@@ -25,21 +25,20 @@ class RulesController(
   def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
     val maybeWrittenRules = for {
       sheetRules <- sheetsRuleManager.getRules()
-      dbRules <- DbRuleManager.destructivelyDumpRuleResourceToDB(sheetRules)
-      _ <- bucketRuleManager.putRules(dbRules).left.map { l => List(l.toString) }
-    } yield dbRules
+      ruleResource <- DbRuleManager.destructivelyDumpRuleResourceToDB(sheetRules)
+      _ <- bucketRuleManager.putRules(ruleResource).left.map { l => List(l.toString) }
+    } yield {
+      DbRuleManager.getRules()
+    }
 
     maybeWrittenRules match {
-      case Right(ruleResource) => Ok(Json.toJson(ruleResource))
-      case Left(errors)        => InternalServerError(Json.toJson(errors))
+      case Right(rules) => Ok(Json.toJson(rules))
+      case Left(errors) => InternalServerError(Json.toJson(errors))
     }
   }
 
   def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
-    bucketRuleManager.getRules() match {
-      case Right((ruleResource, _)) => Ok(Json.toJson(ruleResource))
-      case Left(error)              => InternalServerError(Json.toJson(error.getMessage))
-    }
+    Ok(Json.toJson(DbRuleManager.getRules()))
   }
 
   implicit object FormErrorWrites extends Writes[FormError] {
