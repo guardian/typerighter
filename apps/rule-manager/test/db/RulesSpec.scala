@@ -79,14 +79,15 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     rule.id should be(Some(existingId))
     rule.pattern should be(Some("NewString"))
   }
-  it should "return an error when attempting to update a record that doesn't exist" in { implicit session =>
-    val formRule = UpdateRuleForm(
-      ruleType = Some("regex"),
-      pattern = Some("NewString")
-    )
-    val nonExistentRuleId = 2000
-    val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId)
-    dbRule should be(Left(NotFound("Rule not found matching ID")))
+  it should "return an error when attempting to update a record that doesn't exist" in {
+    implicit session =>
+      val formRule = UpdateRuleForm(
+        ruleType = Some("regex"),
+        pattern = Some("NewString")
+      )
+      val nonExistentRuleId = 2000
+      val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId)
+      dbRule should be(Left(NotFound("Rule not found matching ID")))
   }
   it should "save a record" in { implicit session =>
     val entity = DbRule.findAll().head
