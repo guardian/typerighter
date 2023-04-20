@@ -25,7 +25,8 @@ case class DbRule(
     createdAt: ZonedDateTime,
     createdBy: String,
     updatedAt: ZonedDateTime,
-    updatedBy: String
+    updatedBy: String,
+    revisionId: Int = 0
 )
 
 object DbRule extends SQLSyntaxSupport[DbRule] {
@@ -49,7 +50,8 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     "created_at",
     "created_by",
     "updated_at",
-    "updated_by"
+    "updated_by",
+    "revision_id"
   )
 
   def fromResultName(r: ResultName[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
@@ -298,7 +300,8 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           column.createdAt -> entity.createdAt,
           column.createdBy -> entity.createdBy,
           column.updatedAt -> ZonedDateTime.now(),
-          column.updatedBy -> user
+          column.updatedBy -> user,
+          column.revisionId -> sqls"${column.revisionId} + 1"
         )
         .where
         .eq(column.id, entity.id)
