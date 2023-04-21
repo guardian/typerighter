@@ -5,8 +5,9 @@
 We'd like to store a history of rule edits. The user stories we'd like to satisfy with this feature are:
 
 - As a rule owner, I'd like to be able to see the previous edits made to a rule, including
-  - what changed, and
-  - when.
+  - what changed,
+  - when,
+  - by whom. (PII may be subject to a retention period.)
 - As a rule owner, I'd like to be able to restore a previous version of a rule.
 
 There are a few ways we might model the data necessary to support these features in the database.
