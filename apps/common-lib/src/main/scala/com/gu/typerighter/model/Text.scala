@@ -11,7 +11,7 @@ object Text {
   }
 
   /** Get a snippet of text as a string to give the context of the matched text at a glance, e.g.
-    * "this text has a [[mistaek]]"
+    * "this text has a \[\[mistaek\]\]"
     */
   def getMatchTextSnippet(before: String, matchedText: String, after: String) =
     before + "[[" + matchedText + "]]" + after
