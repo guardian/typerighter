@@ -1,7 +1,6 @@
 import { EuiFlexItem } from "@elastic/eui"
 import { css } from "@emotion/react"
 import React from "react"
-import { ReactElement } from "react"
 
 export const RuleFormSection = ({title, children} : {title?: string, children: JSX.Element | JSX.Element[]}) => {
     return <EuiFlexItem css={css`
@@ -9,7 +8,7 @@ export const RuleFormSection = ({title, children} : {title?: string, children: J
             padding-top: 12px;
             padding-bottom: 12px;
             padding-left: 12px;
-            padding-right: 48px;
+            padding-right: 12px;
             border-radius: 4px;
         `}>
         {
@@ -17,7 +16,6 @@ export const RuleFormSection = ({title, children} : {title?: string, children: J
                 fontFamily: 'Open Sans',
                 color: '#1A1C21',
                 fontWeight: '700',
-                paddingBottom: '20px'
             }}>{title}</h2> : null
         }
         {children}

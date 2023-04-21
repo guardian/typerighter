@@ -2,6 +2,7 @@ import { EuiFormRow, EuiRadioGroup, EuiSwitch } from "@elastic/eui";
 import { css } from "@emotion/react";
 import React, { useState } from "react"
 import { RuleFormSection } from "./RuleFormSection"
+import {LineBreak} from "./LineBreak";
 
 export const RuleType = () => {
     const ruleTypeOptions = [
@@ -22,23 +23,24 @@ export const RuleType = () => {
     };
     
     return <RuleFormSection title="RULE TYPE">
-        <EuiFormRow
-            label="Pattern"
-        >
-            <EuiRadioGroup
-                options={ruleTypeOptions}
-                idSelected={ruleTypeSelected}
-                onChange={(id)=> {
-                    setRuleTypeSelected(id)
-                }}
-                css={css`
-                    flex-direction: row;
-                    display: flex;
-                    gap: 1rem;
-                    align-items: flex-end;
-                `}
-            />
-        </EuiFormRow>
+        <LineBreak/>
+
+        <EuiRadioGroup
+            options={ruleTypeOptions}
+            idSelected={ruleTypeSelected}
+            onChange={(id)=> {
+                setRuleTypeSelected(id)
+            }}
+            css={css`
+                flex-direction: row;
+                display: flex;
+                gap: 1rem;
+                align-items: flex-end;
+            `}
+        />
+
+        <LineBreak/>
+
         <EuiFormRow
             helpText="Flag only once per session"
         >
