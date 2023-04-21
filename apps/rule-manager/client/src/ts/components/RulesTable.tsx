@@ -10,6 +10,9 @@ import {
     EuiLoadingSpinner,
     EuiButtonIcon,
     EuiFlexGrid,
+    EuiForm,
+    EuiFormRow,
+    EuiFieldText,
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -122,16 +125,46 @@ const RulesTable = () => {
 
             }
         </EuiFlexGrid>
-        {rules &&
-            <EuiInMemoryTable
-                tableCaption="Demo of EuiInMemoryTable"
-                items={rules}
-                columns={columns}
-                pagination={true}
-                sorting={sorting}
-                search={search}
-            />
-        }
+
+        <EuiFlexGroup>
+            <EuiFlexItem grow={2}>
+                {rules &&
+                    <EuiInMemoryTable
+                        tableCaption="Demo of EuiInMemoryTable"
+                        items={rules}
+                        columns={columns}
+                        pagination={true}
+                        sorting={sorting}
+                        search={search}
+                    />
+                }
+            </EuiFlexItem>
+
+            <EuiFlexItem grow={1} css={css`
+                  background-color: #D3DAE6;
+                  padding-top: 12px;
+                  padding-bottom: 48px;
+                  padding-left: 12px;
+                  padding-right: 48px;
+                  border-radius: 4px;
+                `}>
+                <h2 style={{
+                    fontFamily: 'Open Sans',
+                    color: '#1A1C21',
+                    fontWeight: '700',
+                    paddingBottom: '20px'
+                }}>RULE CONTENT</h2>
+                <EuiForm component="form">
+                    <EuiFormRow
+                        label="Replacement"
+                        helpText="What is the ideal term as per the house style?"
+                    >
+                        <EuiFieldText/>
+                    </EuiFormRow>
+                </EuiForm>
+            </EuiFlexItem>
+        </EuiFlexGroup>
+
     </>
 }
 
