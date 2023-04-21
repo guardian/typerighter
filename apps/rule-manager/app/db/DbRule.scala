@@ -99,36 +99,36 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRule] = {
     withSQL {
       select.from(DbRule as r).where.eq(r.id, id)
-    }.map(DbRule.fromResultName(r.resultName)).single.apply()
+    }.map(DbRule.fromResultName(r.resultName)).single().apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
     withSQL(select.from(DbRule as r).orderBy(r.id))
       .map(DbRule.fromResultName(r.resultName))
-      .list
+      .list()
       .apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
-    withSQL(select(sqls.count).from(DbRule as r)).map(rs => rs.long(1)).single.apply().get
+    withSQL(select(sqls.count).from(DbRule as r)).map(rs => rs.long(1)).single().apply().get
   }
 
   def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[DbRule] = {
     withSQL {
       select.from(DbRule as r).where.append(where)
-    }.map(DbRule.fromResultName(r.resultName)).single.apply()
+    }.map(DbRule.fromResultName(r.resultName)).single().apply()
   }
 
   def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[DbRule] = {
     withSQL {
       select.from(DbRule as r).where.append(where)
-    }.map(DbRule.fromResultName(r.resultName)).list.apply()
+    }.map(DbRule.fromResultName(r.resultName)).list().apply()
   }
 
   def countBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Long = {
     withSQL {
       select(sqls.count).from(DbRule as r).where.append(where)
-    }.map(_.long(1)).single.apply().get
+    }.map(_.long(1)).single().apply().get
   }
 
   def create(
@@ -163,7 +163,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           column.createdBy -> user,
           column.updatedBy -> user
         )
-    }.updateAndReturnGeneratedKey.apply()
+    }.updateAndReturnGeneratedKey().apply()
 
     find(generatedKey.toInt) match {
       case Some(rule) => Success(rule)
@@ -305,7 +305,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
         )
         .where
         .eq(column.id, entity.id)
-    }.update.apply()
+    }.update().apply()
 
     find(entity.id.get)
       .toRight(
@@ -317,12 +317,12 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   def destroy(entity: DbRule)(implicit session: DBSession = autoSession): Int = {
     withSQL {
       delete.from(DbRule).where.eq(column.id, entity.id)
-    }.update.apply()
+    }.update().apply()
   }
 
   def destroyAll()(implicit session: DBSession = autoSession): Int = {
     withSQL {
       delete.from(DbRule)
-    }.update.apply()
+    }.update().apply()
   }
 }

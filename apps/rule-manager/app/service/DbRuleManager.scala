@@ -12,6 +12,8 @@ import com.gu.typerighter.model.{
   TextSuggestion
 }
 import db.DbRule
+import db.DbRule.autoSession
+import scalikejdbc.DBSession
 
 object DbRuleManager extends Loggable {
   object RuleType {
@@ -139,9 +141,9 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def getRules(): List[DbRule] = DbRule.findAll()
+  def getRules()(implicit session: DBSession = autoSession): List[DbRule] = DbRule.findAll()
 
-  def getRulesAsRuleResource() = {
+  def getRulesAsRuleResource()(implicit session: DBSession = autoSession) = {
     val (failedDbRules, successfulDbRules) = getRules()
       .map(dbRuleToBaseRule)
       .partitionMap(identity)
@@ -152,7 +154,9 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
+  def destructivelyDumpRuleResourceToDB(
+      rules: RuleResource
+  )(implicit session: DBSession = autoSession): Either[List[String], RuleResource] = {
     DbRule.destroyAll()
 
     rules.rules
