@@ -77,6 +77,7 @@ object DbRuleManager extends Loggable {
             _,
             _,
             _,
+            _,
             _
           ) =>
         Right(
@@ -105,6 +106,7 @@ object DbRuleManager extends Loggable {
             _,
             _,
             _,
+            _,
             _
           ) =>
         Right(
@@ -126,6 +128,7 @@ object DbRuleManager extends Loggable {
             _,
             _,
             Some(googleSheetId),
+            _,
             _,
             _,
             _,

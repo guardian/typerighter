@@ -51,15 +51,17 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val count = DbRule.countBy(sqls.eq(r.id, 1))
     count should be > (0L)
   }
-  it should "create new record and autofill createdAt and updatedAt" in { implicit session =>
-    val created = DbRule
-      .create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user")
-      .get
+  it should "create new record and autofill createdAt, updatedAt, and revisionId" in {
+    implicit session =>
+      val created = DbRule
+        .create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user")
+        .get
 
-    created.createdBy shouldBe "test.user"
-    created.updatedBy shouldBe "test.user"
-    assertDatesAreWithinRangeMs(created.createdAt, ZonedDateTime.now, 1000)
-    assertDatesAreWithinRangeMs(created.updatedAt, ZonedDateTime.now, 1000)
+      created.revisionId shouldBe 0
+      created.createdBy shouldBe "test.user"
+      created.updatedBy shouldBe "test.user"
+      assertDatesAreWithinRangeMs(created.createdAt, ZonedDateTime.now, 1000)
+      assertDatesAreWithinRangeMs(created.updatedAt, ZonedDateTime.now, 1000)
   }
   it should "create a new record from a form rule" in { implicit session =>
     val formRule = CreateRuleForm(
@@ -98,13 +100,15 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
       dbRule.updatedAt.toInstant.toEpochMilli should be > existingRule.updatedAt.toInstant.toEpochMilli
   }
 
-  it should "save a record, updating the modified fields" in { implicit session =>
-    val entity = DbRule.findAll().head
-    val modified = entity.copy(pattern = Some("NotMyString"))
-    val updated = DbRule.save(modified, "test.user").get
-    updated.pattern should equal(Some("NotMyString"))
-    updated.updatedBy should equal("test.user")
-    updated.updatedAt.toInstant.toEpochMilli should be > entity.updatedAt.toInstant.toEpochMilli
+  it should "save a record, updating the modified fields and incrementing the revisionId" in {
+    implicit session =>
+      val entity = DbRule.findAll().head
+      val modified = entity.copy(pattern = Some("NotMyString"))
+      val updated = DbRule.save(modified, "test.user").get
+      updated.pattern should equal(Some("NotMyString"))
+      updated.updatedBy should equal("test.user")
+      updated.updatedAt.toInstant.toEpochMilli should be > entity.updatedAt.toInstant.toEpochMilli
+      updated.revisionId should equal(entity.revisionId + 1)
   }
 
   it should "return an error when attempting to update a record that doesn't exist" in {
