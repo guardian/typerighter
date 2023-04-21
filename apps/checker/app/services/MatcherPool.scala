@@ -138,7 +138,7 @@ class MatcherPool(
     val totalJobCount = jobs.size
     val jobsCompleted = new AtomicInteger(0)
 
-    def percentageRequestComplete: Float =
+    def percentageRequestComplete: Int =
       Math.round(jobsCompleted.floatValue() / totalJobCount * 100)
 
     logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")

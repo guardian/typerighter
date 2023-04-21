@@ -181,6 +181,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     val in = new ByteArrayInputStream(credentialsJson.getBytes)
     GoogleCredential
       .fromStream(in)
-      .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS))
+      .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS)): @annotation.nowarn
   }
 }
