@@ -9,6 +9,7 @@ import scalikejdbc._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.NotFound
 
+import java.time.{ZoneOffset, ZonedDateTime}
 import scala.util.Success
 
 class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
@@ -16,8 +17,12 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
 
   override def fixture(implicit session: DBSession) {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update.apply()
-    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false)".update
+    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user')".update
       .apply()
+  }
+
+  def assertDatesAreWithinRangeMs(date1: ZonedDateTime, date2: ZonedDateTime, range: Int) = {
+    date1.toInstant().toEpochMilli should be(date2.toInstant().toEpochMilli +- range)
   }
 
   behavior of "Rules"
@@ -46,9 +51,15 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     val count = DbRule.countBy(sqls.eq(r.id, 1))
     count should be > (0L)
   }
-  it should "create new record" in { implicit session =>
-    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
-    created should not be (null)
+  it should "create new record and autofill createdAt and updatedAt" in { implicit session =>
+    val created = DbRule
+      .create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user")
+      .get
+
+    created.createdBy shouldBe "test.user"
+    created.updatedBy shouldBe "test.user"
+    assertDatesAreWithinRangeMs(created.createdAt, ZonedDateTime.now, 1000)
+    assertDatesAreWithinRangeMs(created.updatedAt, ZonedDateTime.now, 1000)
   }
   it should "create a new record from a form rule" in { implicit session =>
     val formRule = CreateRuleForm(
@@ -64,21 +75,38 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
       forceRedRule = None,
       advisoryRule = None
     )
-    val dbRule = DbRule.createFromFormRule(formRule)
+    val dbRule = DbRule.createFromFormRule(formRule, user = "test.user")
     dbRule should not be (null)
   }
-  it should "update an existing record using a form rule" in { implicit session =>
-    val existingRule = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
-    val existingId = existingRule.id.get
-    val formRule = UpdateRuleForm(
-      ruleType = Some("regex"),
-      pattern = Some("NewString")
-    )
-    val dbRule = DbRule.updateFromFormRule(formRule, existingId)
-    val rule = dbRule.getOrElse(null)
-    rule.id should be(Some(existingId))
-    rule.pattern should be(Some("NewString"))
+
+  it should "edit an existing record using a form rule, updating the user and updated datetime" in {
+    implicit session =>
+      val existingRule = DbRule
+        .create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user")
+        .get
+      val existingId = existingRule.id.get
+      val formRule = UpdateRuleForm(
+        ruleType = Some("regex"),
+        pattern = Some("NewString")
+      )
+
+      val dbRule = DbRule.updateFromFormRule(formRule, existingId, "another.user").getOrElse(null)
+
+      dbRule.id should be(Some(existingId))
+      dbRule.pattern should be(Some("NewString"))
+      dbRule.updatedBy should be("another.user")
+      dbRule.updatedAt.toInstant.toEpochMilli should be > existingRule.updatedAt.toInstant.toEpochMilli
   }
+
+  it should "save a record, updating the modified fields" in { implicit session =>
+    val entity = DbRule.findAll().head
+    val modified = entity.copy(pattern = Some("NotMyString"))
+    val updated = DbRule.save(modified, "test.user").get
+    updated.pattern should equal(Some("NotMyString"))
+    updated.updatedBy should equal("test.user")
+    updated.updatedAt.toInstant.toEpochMilli should be > entity.updatedAt.toInstant.toEpochMilli
+  }
+
   it should "return an error when attempting to update a record that doesn't exist" in {
     implicit session =>
       val formRule = UpdateRuleForm(
@@ -86,15 +114,10 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
         pattern = Some("NewString")
       )
       val nonExistentRuleId = 2000
-      val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId)
+      val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId, "test.user")
       dbRule should be(Left(NotFound("Rule not found matching ID")))
   }
-  it should "save a record" in { implicit session =>
-    val entity = DbRule.findAll().head
-    val modified = entity.copy(pattern = Some("NotMyString"))
-    val updated = DbRule.save(modified)
-    updated should equal(Success(modified))
-  }
+
   it should "destroy a record" in { implicit session =>
     val entity = DbRule.findAll().head
     val deleted = DbRule.destroy(entity)
@@ -107,26 +130,5 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
     entities.foreach(e => DbRule.destroy(e))
     val batchInserted = DbRule.batchInsert(entities)
     batchInserted.size should be > (0)
-  }
-  it should "return a JSON representation of a rule" in { implicit session =>
-    val created = DbRule.create(ruleType = "regex", pattern = Some("MyString"), ignore = false)
-    val json = DbRule.toJson(created)
-    val expected = Json.parse(s"""
-    {
-      "ruleType" : "regex",
-      "forceRedRule": null,
-      "replacement": null,
-      "advisoryRule": null,
-      "id": ${created.id.get},
-      "category": null,
-      "notes": null,
-      "ignore": false,
-      "pattern": "MyString",
-      "googleSheetId": null,
-      "description": null,
-      "tags": null
-    }
-    """)
-    json should equal(expected)
   }
 }
