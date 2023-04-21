@@ -85,7 +85,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private implicit val ec = ExecutionContext.global
   private implicit val system = ActorSystem()
 
-  private def getResponseRule(id: Int = 0) = RegexRule(
+  private def getResponseRule(id: Int) = RegexRule(
     id = "test-rule",
     description = "test-description",
     category = getCategory(id),

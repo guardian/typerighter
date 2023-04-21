@@ -2,11 +2,8 @@ package utils
 
 import com.gu.permissions._
 
-import scala.concurrent.duration._
 import com.gu.pandomainauth.model.User
 import com.gu.typerighter.lib.CommonConfig
-
-object PermissionDeniedError extends Throwable("Permission denied")
 
 trait PermissionsHandler {
   def config: CommonConfig

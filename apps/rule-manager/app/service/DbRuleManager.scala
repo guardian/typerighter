@@ -13,8 +13,6 @@ import com.gu.typerighter.model.{
 }
 import db.DbRule
 
-import java.time.LocalDateTime
-
 object DbRuleManager extends Loggable {
   object RuleType {
     val regex = "regex"

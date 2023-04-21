@@ -1,6 +1,6 @@
 package matchers
 
-import com.gu.typerighter.model.{Category, RegexRule, RuleMatch, TextBlock, TextRange}
+import com.gu.typerighter.model.{RegexRule, RuleMatch, TextBlock, TextRange}
 import services.MatcherRequest
 import utils.{Matcher, MatcherCompanion, RuleMatchHelpers}
 

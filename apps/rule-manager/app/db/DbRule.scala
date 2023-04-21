@@ -1,12 +1,12 @@
 package db
 
 import model.{CreateRuleForm, UpdateRuleForm}
-import play.api.libs.json.{Format, JsValue, Json}
+import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
 
-import java.time.{LocalDateTime, ZonedDateTime}
+import java.time.ZonedDateTime
 import scala.util.{Failure, Success, Try}
 
 case class DbRule(

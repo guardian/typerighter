@@ -4,7 +4,6 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import play.api.mvc._
 import services._
-import scala.concurrent.ExecutionContext
 
 /** The controller that handles the management of matcher rules.
   */
@@ -14,8 +13,7 @@ class RulesController(
     sheetId: String,
     val publicSettings: PublicSettings,
     val ruleManagerUrl: String
-)(implicit ec: ExecutionContext)
-    extends AbstractController(cc)
+) extends AbstractController(cc)
     with PandaAuthentication {
 
   def rules = ApiAuthAction { implicit request: Request[AnyContent] =>

@@ -6,11 +6,9 @@ import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.NotFound
 
-import java.time.{ZoneOffset, ZonedDateTime}
-import scala.util.Success
+import java.time.ZonedDateTime
 
 class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val r = DbRule.syntax("r")

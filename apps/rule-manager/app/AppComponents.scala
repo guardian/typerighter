@@ -1,9 +1,6 @@
 import play.api.ApplicationLoader.Context
 import play.filters.HttpFiltersComponents
 import play.api.BuiltInComponentsFromContext
-import play.api.http.PreferredMediaTypeHttpErrorHandler
-import play.api.http.JsonHttpErrorHandler
-import play.api.http.DefaultHttpErrorHandler
 import play.api.libs.ws.ahc.AhcWSComponents
 import controllers.{AssetsComponents, HomeController, RulesController}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
