@@ -31,7 +31,6 @@ export const RuleContent = () => {
             </EuiFormRow>
             <EuiFormRow
                 label="Pattern"
-                helpText=""
             >
                 <EuiFieldText/>
             </EuiFormRow>
