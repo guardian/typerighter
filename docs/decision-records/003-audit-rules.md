@@ -18,7 +18,7 @@ There are a few ways we might model the data necessary to support these features
 - (+) Reading and writing rules does not change – the `rules` table is canonical
 - (-) We must maintain a duplicate of the rules table. The schema of that table must be kept in sync with the `rules` table.
 - (-) The mechanism for writing rules into `rules_history` introduces complexity:
-  1. Use a trigger. There's a [pSQL implementation of the temporal tables DB extension](https://github.com/nearform/temporal_tables) which looks well-used and tested, but future users may encounter edge-cases which are hard to debug.
+  1. Use a trigger. There's a [PL/pgSQL implementation of the temporal tables DB extension](https://github.com/nearform/temporal_tables) which looks well-used and tested, but future users may encounter edge-cases which are hard to debug.
   2. Write rows manually via the application. This behaviour is more explicit, but must be maintained manually. We'd need to be careful to make sure a row was written for every possible change.
 
 ### 2. Modify the existing table to make rules immutable. 
