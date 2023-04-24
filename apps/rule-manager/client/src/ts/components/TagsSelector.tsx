@@ -1,5 +1,6 @@
 import {useState} from "react";
 import {EuiFormRow, EuiComboBox} from "@elastic/eui";
+import React from "react";
 
 export const TagsSelector = () => {
     const [options, updateOptions] = useState([
