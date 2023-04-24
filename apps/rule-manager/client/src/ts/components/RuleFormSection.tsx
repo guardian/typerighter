@@ -13,7 +13,7 @@ export const RuleFormSection = ({title, children} : {title?: string, children: J
         `}>
         {
             title ? <h2 style={{
-                fontFamily: 'Open Sans',
+                fontFamily: 'Guardian Agate Sans',
                 color: '#1A1C21',
                 fontWeight: '700',
             }}>{title}</h2> : null
