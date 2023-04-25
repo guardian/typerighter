@@ -21,8 +21,13 @@ export type RuleFormData = {
 
 export type PartiallyUpdateRuleData = (existing: RuleFormData, partialReplacement: Partial<RuleFormData>) => void;
 
+export type FormError = { id: string; value: string }
+
 export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
     const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
+    const [showErrors, setShowErrors] = useState(false);
+    const [errors, setErrors] = useState<FormError[]>([]);
+
     const openCreateRuleForm = () => {
         setCreateRuleFormOpen(true);
     }
@@ -37,7 +42,27 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
     }
     useEffect(() => console.log(ruleData), [ruleData])
 
+    useEffect(() => {
+        if(ruleData.pattern === '') {
+            setErrors([...errors, {id: 'pattern', value: 'A pattern is required'}]);
+        } else {
+            setErrors(errors.filter(error => !(error.id === 'pattern' && error.value === 'A pattern is required')));
+        }
+    }, [errors, ruleData])
+
+    // We need the errors at the form level, so that we can prevent save etc. when there are errors
+    // We need to be able to change the errors depending on which fields are invalid
+    // We need to be able to show errors on a field by field basis
+
     const saveRuleHandler = () => {
+
+        if(errors.length > 0) {
+            setShowErrors(true);
+            return;
+        } else {
+            setShowErrors(false);
+        }
+
         createRule(ruleData)
             .then(response => response.json())
             .then(data => {
@@ -52,7 +77,7 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
         <EuiButton isDisabled={createRuleFormOpen} onClick={openCreateRuleForm}>Create Rule</EuiButton>
         <EuiSpacer />
         {createRuleFormOpen ? <EuiFlexGroup  direction="column">   
-            <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={errors} showErrors={showErrors}/>
             <RuleType ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             <RuleMetadata />
             <EuiFlexGroup>
