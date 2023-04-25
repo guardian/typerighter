@@ -13,6 +13,6 @@ export const RuleMetadata = ({ruleData, partiallyUpdateRuleData}: {
     return <RuleFormSection title="RULE METADATA">
         <LineBreak/>
         <CategorySelector ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData}/>
-        <TagsSelector/>
+        <TagsSelector ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData}/>
     </RuleFormSection>
 }

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
 import {RuleMetadata} from "./RuleMetadata";
-import { createRule } from "./helpers/createRule";
+import { createRule, transformRuleFormData } from "./helpers/createRule";
 
 export type RuleType = 'regex' | 'languageTool';
 
@@ -40,7 +40,6 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
         setRuleData({...existing, ...partialReplacement});
     }
-    // useEffect(() => console.log(ruleData), [ruleData])
 
     useEffect(() => {
         const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
@@ -67,10 +66,9 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
             return;
         }
 
-        createRule(ruleData)
+        createRule(transformRuleFormData(ruleData))
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 setRuleData(baseForm);
                 fetchRules();
             })
