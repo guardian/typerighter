@@ -1,4 +1,4 @@
-import { EuiButton, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer } from "@elastic/eui";
+import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText } from "@elastic/eui";
 import React, { useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
@@ -40,15 +40,15 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
         setRuleData({...existing, ...partialReplacement});
     }
-    useEffect(() => console.log(ruleData), [ruleData])
+    // useEffect(() => console.log(ruleData), [ruleData])
 
     useEffect(() => {
-        if(ruleData.pattern === '') {
+        if(!ruleData.pattern) {
             setErrors([...errors, {id: 'pattern', value: 'A pattern is required'}]);
         } else {
             setErrors(errors.filter(error => !(error.id === 'pattern' && error.value === 'A pattern is required')));
         }
-    }, [errors, ruleData])
+    }, [ruleData])
 
     // We need the errors at the form level, so that we can prevent save etc. when there are errors
     // We need to be able to change the errors depending on which fields are invalid
@@ -91,6 +91,8 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
                     <EuiButton fill={true} onClick={saveRuleHandler}>Save Rule</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
+            {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
+            </EuiCallOut> : null}
         </EuiFlexGroup> : null}
     </EuiForm>
 }

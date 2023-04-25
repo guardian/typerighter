@@ -33,13 +33,13 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
         <EuiFlexItem>
             <EuiFormRow
                 label={<Label text='Pattern' required={true}/>}
-                isInvalid={showErrors && ruleData.pattern === ""}
+                isInvalid={showErrors && !ruleData.pattern}
             >
                 <EuiFieldText
                     value={ruleData.pattern}
                     onChange={(_ => partiallyUpdateRuleData(ruleData, {pattern: _.target.value}))}
                     required={true}
-                    isInvalid={showErrors && ruleData.pattern === ""}
+                    isInvalid={showErrors && !ruleData.pattern}
                 />
             </EuiFormRow>
             <EuiFormRow
