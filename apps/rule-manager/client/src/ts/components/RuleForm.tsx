@@ -43,12 +43,18 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
     // useEffect(() => console.log(ruleData), [ruleData])
 
     useEffect(() => {
+        const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
+        setErrors(errors.filter(error => !(error.id === emptyPatternFieldError.id && error.value === emptyPatternFieldError.value)));
         if(!ruleData.pattern) {
-            setErrors([...errors, {id: 'pattern', value: 'A pattern is required'}]);
-        } else {
-            setErrors(errors.filter(error => !(error.id === 'pattern' && error.value === 'A pattern is required')));
+            setErrors([...errors, emptyPatternFieldError]);
         }
     }, [ruleData])
+
+    useEffect(() => {
+        if(errors.length === 0) {
+            setShowErrors(false);
+        }
+    }, [errors])
 
     // We need the errors at the form level, so that we can prevent save etc. when there are errors
     // We need to be able to change the errors depending on which fields are invalid
@@ -59,8 +65,6 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
         if(errors.length > 0) {
             setShowErrors(true);
             return;
-        } else {
-            setShowErrors(false);
         }
 
         createRule(ruleData)
@@ -79,7 +83,7 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
         {createRuleFormOpen ? <EuiFlexGroup  direction="column">   
             <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={errors} showErrors={showErrors}/>
             <RuleType ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-            <RuleMetadata />
+            <RuleMetadata ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             <EuiFlexGroup>
                 <EuiFlexItem>
                     <EuiButton onClick={() => {
@@ -92,6 +96,7 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
+                { errors.map(error => <EuiText>{`${error.value}`}</EuiText>)}
             </EuiCallOut> : null}
         </EuiFlexGroup> : null}
     </EuiForm>
