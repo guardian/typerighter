@@ -135,7 +135,7 @@ class AppComponents(
     publicSettings,
     ruleManagerUrl
   )
-  val homeController = new HomeController(controllerComponents, publicSettings)
+  val homeController = new HomeController(controllerComponents, matcherPool, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
   val capiProxyController =
     new CapiProxyController(controllerComponents, contentClient, publicSettings)
