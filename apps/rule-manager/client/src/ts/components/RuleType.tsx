@@ -1,10 +1,11 @@
-import { EuiFormRow, EuiRadioGroup, EuiSwitch } from "@elastic/eui";
+import { EuiFormRow, EuiRadioGroup, EuiSwitch, EuiSwitchEvent } from "@elastic/eui";
 import { css } from "@emotion/react";
 import React, { useState } from "react"
 import { RuleFormSection } from "./RuleFormSection"
 import {LineBreak} from "./LineBreak";
+import { PartiallyUpdateRuleData, RuleFormData } from "./RuleForm";
 
-export const RuleType = () => {
+export const RuleType = ({ruleData, partiallyUpdateRuleData}: {ruleData: RuleFormData, partiallyUpdateRuleData: PartiallyUpdateRuleData}) => {
     const ruleTypeOptions = [
         {
             id: "actionable",
@@ -18,8 +19,9 @@ export const RuleType = () => {
     const [ruleTypeSelected, setRuleTypeSelected] = useState(ruleTypeOptions[0].id);
     const [isAdvisory, setIsAdvisory] = useState(false);
 
-    const onIsAdvisoryChange = (e) => {
+    const onIsAdvisoryChange = (e: EuiSwitchEvent) => {
         setIsAdvisory(e.target.checked);
+        partiallyUpdateRuleData(ruleData, {advisoryRule: e.target.checked})
     };
     
     return <RuleFormSection title="RULE TYPE">

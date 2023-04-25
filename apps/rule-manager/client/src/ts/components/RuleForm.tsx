@@ -42,7 +42,7 @@ export const RuleForm = () => {
         <EuiSpacer />
         {createRuleFormOpen ? <EuiFlexGroup  direction="column">   
             <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-            <RuleType />
+            <RuleType ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             <RuleMetadata />
             <EuiFlexGroup>
                 <EuiFlexItem>
