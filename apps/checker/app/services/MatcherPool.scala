@@ -217,7 +217,8 @@ class MatcherPool(
         failJobWith(job, s"Job failed because the queue is closed")
       case QueueFailure(err) =>
         failJobWith(job, s"Job failed, reason: ${err.getMessage}")
-      case _ => // Do nothing if job is accepted
+      case _ =>
+        logger.info(s"Job successfully queued")(job.toMarker)
     }
 
     job.promise.future.map { result =>
