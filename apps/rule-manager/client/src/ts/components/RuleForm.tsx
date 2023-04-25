@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
 import {RuleMetadata} from "./RuleMetadata";
+import { createRule } from "./helpers/createRule";
 
 export type RuleType = 'regex' | 'languageTool';
 
@@ -20,7 +21,7 @@ export type RuleFormData = {
 
 export type PartiallyUpdateRuleData = (existing: RuleFormData, partialReplacement: Partial<RuleFormData>) => void;
 
-export const RuleForm = () => {
+export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
     const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
     const openCreateRuleForm = () => {
         setCreateRuleFormOpen(true);
@@ -36,6 +37,16 @@ export const RuleForm = () => {
     }
     useEffect(() => console.log(ruleData), [ruleData])
 
+    const saveRuleHandler = () => {
+        createRule(ruleData)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                setRuleData(baseForm);
+                fetchRules();
+            })
+        setCreateRuleFormOpen(false);
+    }
 
     return <EuiForm component="form">
         <EuiButton isDisabled={createRuleFormOpen} onClick={openCreateRuleForm}>Create Rule</EuiButton>
@@ -52,7 +63,7 @@ export const RuleForm = () => {
                     }}>Discard Rule</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                    <EuiButton fill={true}>Save Rule</EuiButton>
+                    <EuiButton fill={true} onClick={saveRuleHandler}>Save Rule</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
         </EuiFlexGroup> : null}

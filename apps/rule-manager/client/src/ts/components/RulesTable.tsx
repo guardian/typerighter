@@ -71,7 +71,7 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
 ];
 
 const RulesTable = () => {
-    const {rules, isLoading, error, refreshRules, isRefreshing, setError} = useRules();
+    const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
     const search: EuiSearchBarProps = {
         box: {
             incremental: true,
@@ -141,7 +141,7 @@ const RulesTable = () => {
                 }
             </EuiFlexItem>
             <EuiFlexItem grow={1}>
-                <RuleForm />
+                <RuleForm fetchRules={fetchRules}/>
             </EuiFlexItem>
         </EuiFlexGroup>
 
