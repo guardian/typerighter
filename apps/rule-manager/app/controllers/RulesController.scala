@@ -41,6 +41,10 @@ class RulesController(
     Ok(Json.toJson(DbRuleManager.getRules()))
   }
 
+  def tags = ApiAuthAction { implicit request: Request[AnyContent] =>
+    Ok(Json.toJson(DbRuleManager.getTags()))
+  }
+
   implicit object FormErrorWrites extends Writes[FormError] {
     override def writes(o: FormError): JsValue = Json.obj(
       "key" -> Json.toJson(o.key),

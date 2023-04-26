@@ -121,6 +121,8 @@ object DbRuleManager extends Loggable {
     }
   }
 
+  def getTags(): List[String] = DbRule.findAllTags()
+
   def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
     DbRule.destroyAll()
 

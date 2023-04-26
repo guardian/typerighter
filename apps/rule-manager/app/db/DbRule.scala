@@ -5,6 +5,7 @@ import play.api.libs.json.{Format, JsValue, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
+import scalikejdbc.interpolation.SQLSyntax.distinct
 
 import scala.util.{Failure, Try}
 
@@ -66,9 +67,20 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
     withSQL(select.from(DbRule as r).orderBy(r.id))
+
       .map(DbRule.fromResultName(r.resultName))
       .list
       .apply()
+  }
+
+
+  def findAllTags()(implicit session: DBSession = autoSession): List[String] = {
+    val tags = withSQL(select(distinct(r.tags)).from(DbRule as r).orderBy(r.tags))
+      .map(DbRule.fromResultName(r.resultName))
+      .list
+      .apply()
+      .flatMap(_.tags.map(string => string.split(",").toList))
+    tags.flatten.distinct
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {

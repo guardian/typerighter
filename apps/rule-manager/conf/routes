@@ -18,6 +18,8 @@ POST    /refresh                    controllers.RulesController.refresh()
 +nocsrf
 GET     /rules                      controllers.RulesController.rules()
 +nocsrf
-POST    /rules               controllers.RulesController.create()
+POST    /rules                      controllers.RulesController.create()
 +nocsrf
-POST    /rules/:id            controllers.RulesController.update(id: Int)
+POST    /rules/:id                  controllers.RulesController.update(id: Int)
++nocsrf
+POST    /tags                       controllers.RulesController.tags()
