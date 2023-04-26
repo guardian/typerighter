@@ -3,9 +3,6 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /build/*file                controllers.Assets.versioned(path="/public/build", file: Asset)
-
 GET     /                           controllers.HomeController.index()
 GET     /oauthCallback              controllers.HomeController.oauthCallback()
 # A temporary endpoint to test permissions
@@ -21,3 +18,6 @@ GET     /rules                      controllers.RulesController.rules()
 POST    /rules               controllers.RulesController.create()
 +nocsrf
 POST    /rules/:id            controllers.RulesController.update(id: Int)
+
+# Map static resources from the /public folder to the correct URL path
+GET     /*file                controllers.Assets.versioned(path="/public/", file: Asset)

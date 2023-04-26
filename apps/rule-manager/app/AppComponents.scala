@@ -115,8 +115,8 @@ class AppComponents(
 
   lazy val router = new Routes(
     httpErrorHandler,
-    assets,
     homeController,
-    rulesController
+    rulesController,
+    assets
   )
 }
