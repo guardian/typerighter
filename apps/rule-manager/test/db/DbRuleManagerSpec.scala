@@ -17,7 +17,7 @@ import scala.util.Random
 
 class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
 
-  def createRandomRules(ruleCount: Int) =
+  def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
       DbRule.withUser(
         id = None,
@@ -26,15 +26,16 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         replacement = None,
         pattern =
           Some(s"\b(${Random.shuffle(List("some", "random", "things", "to", "match", "on")).mkString("|")}) by"),
-        ignore = false,
-        notes = Some(""),
+        ignore = ignore,
+        notes = Some(s"\b(${Random.shuffle(List("some", "random", "notes", "to", "test"))})"),
         googleSheetId = Some(s"rule-at-index-${ruleIndex}"),
-        forceRedRule = Some(false),
-        advisoryRule = Some(false),
+        forceRedRule = Some(math.random < 0.25),
+        advisoryRule = Some(math.random < 0.75),
         user = "Google Sheet",
         ruleType = "regex",
       )
     }.toList
+
 
   behavior of "DbRuleManager"
 
@@ -85,5 +86,13 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         DbRuleManager.destructivelyDumpRulesToDB(secondRules).map(_.map(_.copy(id = None)))
 
       secondRulesFromDb.shouldEqual(Right(secondRules))
+  }
+
+  "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
+    implicit session =>
+      val rulesToIgnore = createRandomRules(10, ignore = true)
+      val ruleResourceWithIgnoredRules = DbRuleManager.createRuleResourceFromDbRules(rulesToIgnore)
+
+      ruleResourceWithIgnoredRules.shouldEqual(Right(RuleResource(List())))
   }
 }
