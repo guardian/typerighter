@@ -145,6 +145,7 @@ object DbRuleManager extends Loggable {
 
   def createRuleResourceFromDbRules(dbRules: List[DbRule]): Either[List[String], RuleResource] = {
     val (failedDbRules, successfulDbRules) = dbRules
+      .filter(_.ignore == false)
       .map(dbRuleToBaseRule)
       .partitionMap(identity)
 
