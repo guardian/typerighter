@@ -45,7 +45,7 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
         name: 'Type',
     },
     {
-        field: 'googleSheetId',
+        field: 'externalId',
         name: 'ID'
     },
     {
