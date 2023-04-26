@@ -5,6 +5,7 @@ import com.gu.typerighter.model.{
   BaseRule,
   Category,
   ComparableRegex,
+  LTRule,
   LTRuleCore,
   LTRuleXML,
   RegexRule,
@@ -12,6 +13,8 @@ import com.gu.typerighter.model.{
   TextSuggestion
 }
 import db.DbRule
+import db.DbRule.autoSession
+import scalikejdbc.DBSession
 
 object DbRuleManager extends Loggable {
   object RuleType {
@@ -23,7 +26,7 @@ object DbRuleManager extends Loggable {
   def baseRuleToDbRule(rule: BaseRule): DbRule = {
     rule match {
       case RegexRule(id, category, description, _, replacement, regex) =>
-        DbRule(
+        DbRule.withUser(
           id = None,
           ruleType = RuleType.regex,
           pattern = Some(regex.toString()),
@@ -31,10 +34,11 @@ object DbRuleManager extends Loggable {
           description = Some(description),
           replacement = replacement.map(_.text),
           ignore = false,
-          googleSheetId = Some(id)
+          googleSheetId = Some(id),
+          user = "Google Sheet"
         )
       case LTRuleXML(id, xml, category, description) =>
-        DbRule(
+        DbRule.withUser(
           id = None,
           ruleType = RuleType.languageToolXML,
           pattern = Some(xml),
@@ -42,14 +46,20 @@ object DbRuleManager extends Loggable {
           description = Some(description),
           replacement = None,
           ignore = false,
-          googleSheetId = Some(id)
+          googleSheetId = Some(id),
+          user = "Google Sheet"
         )
       case LTRuleCore(_, languageToolRuleId) =>
-        DbRule(
+        DbRule.withUser(
           id = None,
           ruleType = RuleType.languageToolCore,
           googleSheetId = Some(languageToolRuleId),
-          ignore = false
+          ignore = false,
+          user = "Google Sheet"
+        )
+      case _: LTRule =>
+        throw new Error(
+          "A languageTool-generated rule should not be available in the context of the manager service"
         )
     }
   }
@@ -67,6 +77,11 @@ object DbRuleManager extends Loggable {
             _,
             _,
             Some(googleSheetId),
+            _,
+            _,
+            _,
+            _,
+            _,
             _,
             _
           ) =>
@@ -92,6 +107,11 @@ object DbRuleManager extends Loggable {
             _,
             Some(googleSheetId),
             _,
+            _,
+            _,
+            _,
+            _,
+            _,
             _
           ) =>
         Right(
@@ -102,13 +122,46 @@ object DbRuleManager extends Loggable {
             xml = pattern
           )
         )
-      case DbRule(_, RuleType.languageToolCore, _, _, _, _, _, _, _, Some(googleSheetId), _, _) =>
+      case DbRule(
+            _,
+            RuleType.languageToolCore,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            Some(googleSheetId),
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _
+          ) =>
         Right(LTRuleCore(googleSheetId, googleSheetId))
       case other => Left(s"Could not derive BaseRule from DbRule for: $other")
     }
   }
 
-  def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
+  def getRules()(implicit session: DBSession = autoSession): List[DbRule] = DbRule.findAll()
+
+  def getRulesAsRuleResource()(implicit session: DBSession = autoSession) = {
+    val (failedDbRules, successfulDbRules) = getRules()
+      .map(dbRuleToBaseRule)
+      .partitionMap(identity)
+
+    failedDbRules match {
+      case Nil      => Right(RuleResource(successfulDbRules))
+      case failures => Left(failures)
+    }
+  }
+
+  def destructivelyDumpRuleResourceToDB(
+      rules: RuleResource
+  )(implicit session: DBSession = autoSession): Either[List[String], RuleResource] = {
     DbRule.destroyAll()
 
     rules.rules
@@ -116,25 +169,16 @@ object DbRuleManager extends Loggable {
       .grouped(100)
       .foreach(DbRule.batchInsert)
 
-    val maybeAllDbRules = DbRule.findAll().map(dbRuleToBaseRule)
+    val maybeAllDbRules = getRulesAsRuleResource()
 
-    val (failedDbRules, successfulDbRules) = maybeAllDbRules.partitionMap {
-      case l @ Left(_)  => l
-      case r @ Right(_) => r
-    }
-
-    failedDbRules match {
-      case Nil =>
-        val persistedRules =
-          RuleResource(rules = successfulDbRules)
-
+    maybeAllDbRules.fold(
+      Left(_),
+      persistedRules => {
         if (persistedRules.rules == rules.rules) {
           Right(persistedRules)
         } else {
           val allRules = persistedRules.rules.zip(rules.rules)
           log.error(s"Persisted rules differ.")
-          val diffRules = allRules
-            .filter { case (persistedRule, expectedRule) => persistedRule != expectedRule }
 
           allRules.take(10).foreach { case (persistedRule, expectedRule) =>
             log.error(s"Persisted rule: $persistedRule")
@@ -150,7 +194,7 @@ object DbRuleManager extends Loggable {
             )
           )
         }
-      case _ => Left(failedDbRules)
-    }
+      }
+    )
   }
 }

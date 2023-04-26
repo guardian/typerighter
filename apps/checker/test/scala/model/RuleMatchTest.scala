@@ -1,7 +1,6 @@
 package scala.model
 
-import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, Text, TextRange}
-import model._
+import com.gu.typerighter.model.{Category, ComparableRegex, RegexRule, RuleMatch, TextRange}
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 

@@ -46,5 +46,5 @@ case class CheckResult(
     categoryIds: Set[String],
     blocks: List[TextBlock],
     matches: List[RuleMatch],
-    percentageRequestComplete: Option[Float] = None
+    percentageRequestComplete: Option[Int] = None
 )

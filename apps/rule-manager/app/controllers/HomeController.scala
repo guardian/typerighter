@@ -1,12 +1,9 @@
 package controllers
 
-import play.api._
 import play.api.mvc._
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
-import com.gu.pandomainauth.PublicSettings
-import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.lib.Loggable
 
 import _root_.db.DB
@@ -26,12 +23,12 @@ class HomeController(
     with AppAuthActions
     with PermissionsHandler {
 
-  def index() = AuthAction { implicit request: Request[AnyContent] =>
+  def index() = AuthAction {
     val devMode = config.stage == "dev"
     Ok(views.html.index(devMode))
   }
 
-  def healthcheck() = Action { implicit request: Request[AnyContent] =>
+  def healthcheck() = Action {
     try {
       db.connectionHealthy()
       Ok(Json.obj("healthy" -> true))
