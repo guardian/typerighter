@@ -87,7 +87,7 @@ class MatcherPool(
   private val supervisionStrategy = ActorAttributes.supervisionStrategy(Supervision.resumingDecider)
 
   private val queue = Source
-    .queue[MatcherJob](maxQueuedJobs, OverflowStrategy.dropNew)
+    .queue[MatcherJob](maxQueuedJobs)
     .mapAsyncUnordered(maxCurrentJobs)(getMatchesForJob)
     .withAttributes(supervisionStrategy)
     .to(Sink.ignore)
@@ -138,7 +138,7 @@ class MatcherPool(
     val totalJobCount = jobs.size
     val jobsCompleted = new AtomicInteger(0)
 
-    def percentageRequestComplete: Float =
+    def percentageRequestComplete: Int =
       Math.round(jobsCompleted.floatValue() / totalJobCount * 100)
 
     logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")
@@ -210,13 +210,15 @@ class MatcherPool(
   private def offerJobToQueue(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
     logger.info(s"Job has been offered to the queue")(job.toMarker)
 
-    queue.offer(job).collect {
+    queue.offer(job) match {
       case Dropped =>
         failJobWith(job, "Job was dropped from the queue, as the queue is full")
       case QueueClosed =>
         failJobWith(job, s"Job failed because the queue is closed")
       case QueueFailure(err) =>
         failJobWith(job, s"Job failed, reason: ${err.getMessage}")
+      case _ =>
+        logger.info(s"Job successfully queued")(job.toMarker)
     }
 
     job.promise.future.map { result =>

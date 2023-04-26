@@ -4,13 +4,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
-import com.gu.typerighter.model._
 import db.DbRule
 import play.api.Logging
 
 import java.io._
 import java.util.Collections
-import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
@@ -48,15 +46,13 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def getRules()(implicit ec: ExecutionContext): Either[List[String], List[DbRule]] = {
+  def getRules(): Either[List[String], List[DbRule]] = {
     getPatternRules()
   }
 
   /** Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
     */
-  private def getPatternRules()(implicit
-      ec: ExecutionContext
-  ): Either[List[String], List[DbRule]] = {
+  private def getPatternRules(): Either[List[String], List[DbRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
@@ -99,72 +95,44 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       val rowNumber = index + 1
 
       (maybeId, maybeIgnore, ruleType) match {
-        case (None, _, _)         => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
+        case (None, _, _) => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
         case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
-        case (Some(id), _, ruleType) if !Set("regex", "lt", "lt_core").contains(ruleType.toString) =>
+        case (Some(id), _, ruleType)
+            if !Set("regex", "lt", "lt_core").contains(ruleType.toString) =>
           Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
-        case (Some(id), Some(ignore), ruleType) => Success(Some(DbRule.withUser(
-          id = None,
-          ruleType = ruleType.asInstanceOf[String],
-          pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
-          replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
-          category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
-          tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
-          description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
-          ignore = if (ignore.toString == "TRUE") true else false,
-          notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
-          googleSheetId = Some(id),
-          forceRedRule = Some(row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")),
-          advisoryRule = Some(row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")),
-          user = "Google Sheet"
-        )))
+        case (Some(_), None, _) =>
+          Failure(new Exception(s"no Ignore column for rule (row: ${rowNumber})"))
+        case (Some(id), Some(ignore), ruleType) =>
+          Success(
+            Some(
+              DbRule.withUser(
+                id = None,
+                ruleType = ruleType.asInstanceOf[String],
+                pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
+                replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
+                tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
+                description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
+                ignore = if (ignore.toString == "TRUE") true else false,
+                notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                googleSheetId = Some(id),
+                forceRedRule = Some(
+                  row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")
+                ),
+                advisoryRule = Some(
+                  row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")
+                ),
+                user = "Google Sheet"
+              )
+            )
+          )
       }
 
     } catch {
       case e: Throwable => {
         Failure(new Exception(s"Error parsing rule at index ${index} – ${e.getMessage()}"))
       }
-    }
-  }
-
-  private def getRegexRule(
-      id: String,
-      pattern: String,
-      suggestion: String,
-      category: String,
-      description: Option[String]
-  ) = RegexRule(
-    id = id,
-    category = Category(category, category),
-    description = description.getOrElse(""),
-    replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
-    regex = new ComparableRegex(pattern)
-  )
-
-  private def getLTRuleXML(
-      id: String,
-      pattern: String,
-      category: String,
-      description: String
-  ) = {
-    LTRuleXML(id, pattern, Category(category, category), description)
-  }
-
-  private def getLTRuleFromRow(row: List[Any], index: Int): Try[Option[String]] = {
-    try {
-      val shouldInclude = row.lift(0)
-      shouldInclude match {
-        case Some("Y") => {
-          val ruleId = row(1).asInstanceOf[String]
-          Success(Some(ruleId))
-        }
-        case _ => Success(None)
-      }
-
-    } catch {
-      case e: Throwable =>
-        Failure(new Exception(s"Error parsing rule at index ${index} -- ${e.getMessage}"))
     }
   }
 
@@ -179,6 +147,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     val in = new ByteArrayInputStream(credentialsJson.getBytes)
     GoogleCredential
       .fromStream(in)
-      .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS))
+      .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS)): @annotation.nowarn
   }
 }

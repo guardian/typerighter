@@ -1,7 +1,6 @@
 package scala.model
 
-import com.gu.typerighter.model.{Text, TextBlock, TextRange}
-import model._
+import com.gu.typerighter.model.{TextBlock, TextRange}
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 
