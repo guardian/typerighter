@@ -10,9 +10,7 @@ import {
     EuiLoadingSpinner,
     EuiButtonIcon,
     EuiFlexGrid,
-    EuiForm,
-    EuiFormRow,
-    EuiFieldText,
+    EuiIcon
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -67,6 +65,18 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
     {
         field: 'description',
         name: 'Description'
+    },
+    {
+        name: <EuiIcon type="pencil"/>,
+        actions: [{
+            name: 'Edit',
+            isPrimary: true,
+            description: 'Edit this rule',
+            icon: 'pencil',
+            type: 'icon',
+            onClick: () => {},
+            'data-test-subj': 'action-edit',
+        }]
     }
 ];
 
@@ -137,6 +147,7 @@ const RulesTable = () => {
                         pagination={true}
                         sorting={sorting}
                         search={search}
+                        hasActions={true}
                     />
                 }
             </EuiFlexItem>
