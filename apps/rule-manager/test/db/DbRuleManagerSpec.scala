@@ -29,7 +29,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         ),
         ignore = ignore,
         notes = Some(s"\b(${Random.shuffle(List("some", "random", "notes", "to", "test"))})"),
-        googleSheetId = Some(s"rule-at-index-${ruleIndex}"),
+        externalId = s"rule-at-index-${ruleIndex}",
         forceRedRule = Some(math.random() < 0.25),
         advisoryRule = Some(math.random() < 0.75),
         user = "Google Sheet",
@@ -91,9 +91,10 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   }
 
   "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
-    val rulesToIgnore = createRandomRules(10, ignore = true)
-    val ruleResourceWithIgnoredRules = DbRuleManager.createRuleResourceFromDbRules(rulesToIgnore)
+    () =>
+      val rulesToIgnore = createRandomRules(10, ignore = true)
+      val ruleResourceWithIgnoredRules = DbRuleManager.createRuleResourceFromDbRules(rulesToIgnore)
 
-    ruleResourceWithIgnoredRules.shouldEqual(Right(RuleResource(List())))
+      ruleResourceWithIgnoredRules.shouldEqual(Right(RuleResource(List())))
   }
 }
