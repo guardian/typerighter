@@ -20,7 +20,6 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 
 import scala.jdk.CollectionConverters._
-import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 object PatternRuleCols {
@@ -53,7 +52,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def getRules()(implicit ec: ExecutionContext): Either[List[String], RuleResource] = {
+  def getRules(): Either[List[String], RuleResource] = {
     val maybeRules = getPatternRules()
 
     maybeRules.map(RuleResource(_))
@@ -61,9 +60,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
 
   /** Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
     */
-  private def getPatternRules()(implicit
-      ec: ExecutionContext
-  ): Either[List[String], List[BaseRule]] = {
+  private def getPatternRules(): Either[List[String], List[BaseRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
@@ -173,23 +170,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     LTRuleXML(id, pattern, Category(category, category), description)
   }
 
-  private def getLTRuleFromRow(row: List[Any], index: Int): Try[Option[String]] = {
-    try {
-      val shouldInclude = row.lift(0)
-      shouldInclude match {
-        case Some("Y") => {
-          val ruleId = row(1).asInstanceOf[String]
-          Success(Some(ruleId))
-        }
-        case _ => Success(None)
-      }
-
-    } catch {
-      case e: Throwable =>
-        Failure(new Exception(s"Error parsing rule at index ${index} -- ${e.getMessage}"))
-    }
-  }
-
   /** Creates an authorized Credential object.
     *
     * @param credentialsJson
@@ -201,6 +181,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     val in = new ByteArrayInputStream(credentialsJson.getBytes)
     GoogleCredential
       .fromStream(in)
-      .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS))
+      .createScoped(Collections.singleton(SheetsScopes.SPREADSHEETS)): @annotation.nowarn
   }
 }

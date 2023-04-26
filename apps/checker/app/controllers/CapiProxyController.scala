@@ -8,7 +8,7 @@ import com.gu.typerighter.lib.PandaAuthentication
 
 import services.ContentClient
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext}
 
 class CapiProxyController(
     cc: ControllerComponents,

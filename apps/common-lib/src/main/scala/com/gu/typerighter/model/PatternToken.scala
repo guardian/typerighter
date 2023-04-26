@@ -1,10 +1,7 @@
 package com.gu.typerighter.model
 
 import play.api.libs.json.{Json, Reads, Writes}
-import org.languagetool.rules.patterns.{
-  PatternRule => LTPatternRule,
-  PatternToken => LTPatternToken
-}
+import org.languagetool.rules.patterns.{PatternToken => LTPatternToken}
 
 /** The application's representation of a LanguageTool PatternToken, for display purposes only.
   */

@@ -1,7 +1,7 @@
 package model
 
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, nonEmptyText, number, optional, text}
+import play.api.data.Forms.{boolean, mapping, optional, text}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import service.DbRuleManager.RuleType
 

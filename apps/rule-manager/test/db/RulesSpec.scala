@@ -6,18 +6,17 @@ import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Results.NotFound
 
-import java.time.{ZoneOffset, ZonedDateTime}
-import scala.util.Success
+import java.time.ZonedDateTime
 
 class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val r = DbRule.syntax("r")
 
-  override def fixture(implicit session: DBSession) {
-    sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update.apply()
-    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user')".update
+  override def fixture(implicit session: DBSession) = {
+    sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
+    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user')"
+      .update()
       .apply()
   }
 

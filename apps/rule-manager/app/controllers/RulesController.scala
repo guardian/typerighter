@@ -10,7 +10,6 @@ import play.api.libs.json.{JsValue, Json, Writes}
 import play.api.mvc._
 import service.DbRuleManager
 
-import scala.concurrent.ExecutionContext
 import scala.util.{Success, Failure}
 
 /** The controller that handles the management of matcher rules.
@@ -20,10 +19,9 @@ class RulesController(
     sheetsRuleManager: SheetsRuleManager,
     bucketRuleManager: BucketRuleManager,
     val publicSettings: PublicSettings
-)(implicit ec: ExecutionContext)
-    extends AbstractController(cc)
+) extends AbstractController(cc)
     with PandaAuthentication {
-  def refresh = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
       sheetRules <- sheetsRuleManager.getRules()
       ruleResource <- DbRuleManager.destructivelyDumpRuleResourceToDB(sheetRules)
@@ -38,7 +36,7 @@ class RulesController(
     }
   }
 
-  def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def rules = ApiAuthAction {
     Ok(Json.toJson(DbRuleManager.getRules()))
   }
 

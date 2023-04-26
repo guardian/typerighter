@@ -5,7 +5,6 @@ import com.gu.AppIdentity
 import com.gu.AwsIdentity
 import com.gu.DevIdentity
 import com.amazonaws.auth.AWSCredentialsProvider
-import com.amazonaws.regions.Region
 
 /** A class to store configuration that's common across projects.
   *

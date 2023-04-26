@@ -5,6 +5,7 @@ import com.gu.typerighter.model.{
   BaseRule,
   Category,
   ComparableRegex,
+  LTRule,
   LTRuleCore,
   LTRuleXML,
   RegexRule,
@@ -12,8 +13,8 @@ import com.gu.typerighter.model.{
   TextSuggestion
 }
 import db.DbRule
-
-import java.time.LocalDateTime
+import db.DbRule.autoSession
+import scalikejdbc.DBSession
 
 object DbRuleManager extends Loggable {
   object RuleType {
@@ -55,6 +56,10 @@ object DbRuleManager extends Loggable {
           googleSheetId = Some(languageToolRuleId),
           ignore = false,
           user = "Google Sheet"
+        )
+      case _: LTRule =>
+        throw new Error(
+          "A languageTool-generated rule should not be available in the context of the manager service"
         )
     }
   }
@@ -141,9 +146,9 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def getRules(): List[DbRule] = DbRule.findAll()
+  def getRules()(implicit session: DBSession = autoSession): List[DbRule] = DbRule.findAll()
 
-  def getRulesAsRuleResource() = {
+  def getRulesAsRuleResource()(implicit session: DBSession = autoSession) = {
     val (failedDbRules, successfulDbRules) = getRules()
       .map(dbRuleToBaseRule)
       .partitionMap(identity)
@@ -154,7 +159,9 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def destructivelyDumpRuleResourceToDB(rules: RuleResource): Either[List[String], RuleResource] = {
+  def destructivelyDumpRuleResourceToDB(
+      rules: RuleResource
+  )(implicit session: DBSession = autoSession): Either[List[String], RuleResource] = {
     DbRule.destroyAll()
 
     rules.rules
