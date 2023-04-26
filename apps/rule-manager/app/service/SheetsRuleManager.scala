@@ -78,7 +78,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
             }
           }
 
-      if (errors.size != 0) {
+      if (errors.nonEmpty) {
         Left(errors)
       } else {
         Right(rules)
@@ -94,7 +94,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       val rowNumber = index + 1
 
       (maybeId, maybeIgnore, ruleType) match {
-        case (_, Some("TRUE"), _) => Success(None)
         case (None, _, _)         => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
         case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))

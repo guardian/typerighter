@@ -23,10 +23,13 @@ class RulesController(
     with PandaAuthentication {
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
-      sheetRules <- sheetsRuleManager.getRules()
-      dbRules <- DbRuleManager.destructivelyDumpRuleResourceToDB(sheetRules)
-      _ <- bucketRuleManager.putRules(dbRules).left.map { l => List(l.toString) }
-    } yield dbRules
+      dbRules <- sheetsRuleManager.getRules()
+      persistedDbRules <- DbRuleManager.destructivelyDumpRulesToDB(dbRules)
+      ruleResource <- DbRuleManager.createCheckerRuleResourceFromDbRules(persistedDbRules)
+      _ <- bucketRuleManager.putRules(ruleResource).left.map { l => List(l.toString) }
+    } yield {
+      DbRuleManager.getRules()
+    }
 
     maybeWrittenRules match {
       case Right(ruleResource) => Ok(Json.toJson(ruleResource))

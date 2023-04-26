@@ -148,47 +148,44 @@ object DbRuleManager extends Loggable {
 
   def getRules()(implicit session: DBSession = autoSession): List[DbRule] = DbRule.findAll()
 
-  def destructivelyDumpRuleResourceToDB(rules: List[DbRule]): Either[List[String], CheckerRuleResource] = {
+  def createCheckerRuleResourceFromDbRules(dbRules: List[DbRule]): Either[List[String], CheckerRuleResource] = {
+    val (failedDbRules, successfulDbRules) = dbRules
+      .filter(_.ignore == false)
+      .map(dbRuleToCheckerRule)
+      .partitionMap(identity)
+
+    failedDbRules match {
+      case Nil => Right(CheckerRuleResource(successfulDbRules))
+      case failures => Left(failures)
+    }
+  }
+
+  def destructivelyDumpRulesToDB(incomingRules: List[DbRule]): Either[List[String], List[DbRule]] = {
     DbRule.destroyAll()
 
-    rules
+    incomingRules
       .grouped(100)
       .foreach(DbRule.batchInsert)
 
-    val maybeAllDbRules = DbRule.findAll().map(dbRuleToCheckerRule)
+    val persistedRules = getRules()
+    val rulesToCompare = persistedRules.map(_.copy(id = None))
 
-    val (failedDbRules, successfulDbRules) = maybeAllDbRules.partitionMap {
-      case l @ Left(_)  => l
-      case r @ Right(_) => r
-    }
+    if (rulesToCompare == incomingRules) {
+      Right(persistedRules)
+    } else {
+      val allRules = rulesToCompare.zip(incomingRules)
+      log.error(s"Persisted rules differ.")
 
-    failedDbRules match {
-      case Nil =>
-        val persistedRules =
-          CheckerRuleResource(rules = successfulDbRules)
+      allRules.take(10).foreach { case (ruleToCompare, expectedRule) =>
+        log.error(s"Persisted rule: $ruleToCompare")
+        log.error(s"Expected rule: $expectedRule")
+      }
 
-        val incomingRules = rules.map(dbRuleToCheckerRule).flatMap(_.toOption)
-
-        if (persistedRules.rules == incomingRules) {
-          Right(persistedRules)
-        } else {
-          val allRules = persistedRules.rules.zip(incomingRules)
-          log.error(s"Persisted rules differ.")
-
-          allRules.take(10).foreach { case (persistedRule, expectedRule) =>
-            log.error(s"Persisted rule: $persistedRule")
-            log.error(s"Expected rule: $expectedRule")
-          }
-
-          log.info((persistedRules.rules == rules).toString)
-
-          Left(
-            List(
-              s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
-            )
-          )
-        }
-      case _ => Left(failedDbRules)
+      Left(
+        List(
+          s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
+        )
+      )
     }
   }
 }
