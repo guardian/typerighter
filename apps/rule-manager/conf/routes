@@ -22,4 +22,4 @@ POST    /rules                      controllers.RulesController.create()
 +nocsrf
 POST    /rules/:id                  controllers.RulesController.update(id: Int)
 +nocsrf
-POST    /tags                       controllers.RulesController.tags()
+GET     /tags                       controllers.RulesController.tags()

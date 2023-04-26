@@ -67,12 +67,10 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
     withSQL(select.from(DbRule as r).orderBy(r.id))
-
       .map(DbRule.fromResultName(r.resultName))
       .list
       .apply()
   }
-
 
   def findAllTags()(implicit session: DBSession = autoSession): List[String] = {
     val tags = withSQL(select(distinct(r.tags)).from(DbRule as r).orderBy(r.tags))
