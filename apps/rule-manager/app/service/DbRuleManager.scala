@@ -143,8 +143,8 @@ object DbRuleManager extends Loggable {
 
   def getRules(): List[DbRule] = DbRule.findAll()
 
-  def getRulesAsRuleResource() = {
-    val (failedDbRules, successfulDbRules) = getRules()
+  def createRuleResourceFromDbRules(dbRules: List[DbRule]): Either[List[String], RuleResource] = {
+    val (failedDbRules, successfulDbRules) = dbRules
       .map(dbRuleToBaseRule)
       .partitionMap(identity)
 
@@ -154,41 +154,32 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def destructivelyDumpRuleResourceToDB(rules: List[DbRule]): Either[List[String], RuleResource] = {
+  def destructivelyDumpRulesToDB(incomingRules: List[DbRule]): Either[List[String], List[DbRule]] = {
     DbRule.destroyAll()
 
-    rules
+    incomingRules
       .grouped(100)
       .foreach(DbRule.batchInsert)
 
-    val maybeAllDbRules = getRulesAsRuleResource()
+    val persistedRules = getRules()
+    val rulesToCompare = persistedRules.map(_.copy(id = None))
 
-    maybeAllDbRules.fold(
-      Left(_),
-      persistedRules => {
-        val incomingRules = rules.map(dbRuleToBaseRule).flatMap(_.toOption)
+    if (rulesToCompare == incomingRules) {
+      Right(persistedRules)
+    } else {
+      val allRules = rulesToCompare.zip(incomingRules)
+      log.error(s"Persisted rules differ.")
 
-        if (persistedRules.rules == incomingRules) {
-          Right(persistedRules)
-        } else {
-          val allRules = persistedRules.rules.zip(incomingRules)
-          log.error(s"Persisted rules differ.")
-
-          allRules.take(10).foreach { case (persistedRule, expectedRule) =>
-            log.error(s"Persisted rule: $persistedRule")
-            log.error(s"Expected rule: $expectedRule")
-          }
-
-          log.info((persistedRules.rules == incomingRules).toString)
-          log.info((persistedRules == incomingRules).toString)
-
-          Left(
-            List(
-              s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
-            )
-          )
-        }
+      allRules.take(10).foreach { case (ruleToCompare, expectedRule) =>
+        log.error(s"Persisted rule: $ruleToCompare")
+        log.error(s"Expected rule: $expectedRule")
       }
-    )
+
+      Left(
+        List(
+          s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
+        )
+      )
+    }
   }
 }

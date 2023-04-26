@@ -83,7 +83,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
             }
           }
 
-      if (errors.size != 0) {
+      if (errors.nonEmpty) {
         Left(errors)
       } else {
         Right(rules)
@@ -99,13 +99,12 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       val rowNumber = index + 1
 
       (maybeId, maybeIgnore, ruleType) match {
-        case (_, Some("TRUE"), _) => Success(None)
         case (None, _, _)         => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
         case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
         case (Some(id), _, ruleType) if !Set("regex", "lt", "lt_core").contains(ruleType.toString) =>
           Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
-        case (Some(id), Some(ignore), ruleType) => Success(Some(DbRule(
+        case (Some(id), Some(ignore), ruleType) => Success(Some(DbRule.withUser(
           id = None,
           ruleType = ruleType.asInstanceOf[String],
           pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
@@ -117,7 +116,8 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
           notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
           googleSheetId = Some(id),
           forceRedRule = Some(row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")),
-          advisoryRule = Some(row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y"))
+          advisoryRule = Some(row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")),
+          user = "Google Sheet"
         )))
       }
 
