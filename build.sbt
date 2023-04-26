@@ -106,7 +106,7 @@ val checker = (project in file(s"$appsFolder/checker"))
       "io.circe" %% "circe-generic",
       "io.circe" %% "circe-parser"
     ).map(_ % circeVersion),
-    libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
+    libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.6" % "test,it",
     libraryDependencies += "io.gatling" % "gatling-test-framework" % "3.7.6" % "test,it"
   )
 
