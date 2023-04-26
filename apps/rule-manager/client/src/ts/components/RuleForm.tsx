@@ -45,9 +45,11 @@ export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) =>
 
     useEffect(() => {
         const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
-        setErrors(errors.filter(error => !(error.id === emptyPatternFieldError.id && error.value === emptyPatternFieldError.value)));
+
         if(!ruleData.pattern) {
-            setErrors([...errors, emptyPatternFieldError]);
+            setErrors([emptyPatternFieldError]);
+        } else {
+            setErrors([]);
         }
     }, [ruleData])
 
