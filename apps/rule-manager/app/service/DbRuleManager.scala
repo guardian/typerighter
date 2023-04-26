@@ -34,7 +34,7 @@ object DbRuleManager extends Loggable {
           description = Some(description),
           replacement = replacement.map(_.text),
           ignore = false,
-          googleSheetId = Some(id),
+          googleSheetId = id,
           user = "Google Sheet"
         )
       case LTRuleXML(id, xml, category, description) =>
@@ -46,14 +46,14 @@ object DbRuleManager extends Loggable {
           description = Some(description),
           replacement = None,
           ignore = false,
-          googleSheetId = Some(id),
+          googleSheetId = id,
           user = "Google Sheet"
         )
       case LTRuleCore(_, languageToolRuleId) =>
         DbRule.withUser(
           id = None,
           ruleType = RuleType.languageToolCore,
-          googleSheetId = Some(languageToolRuleId),
+          googleSheetId = languageToolRuleId,
           ignore = false,
           user = "Google Sheet"
         )
@@ -76,7 +76,7 @@ object DbRuleManager extends Loggable {
             description,
             _,
             _,
-            Some(googleSheetId),
+            googleSheetId,
             _,
             _,
             _,
@@ -105,7 +105,7 @@ object DbRuleManager extends Loggable {
             description,
             _,
             _,
-            Some(googleSheetId),
+            googleSheetId,
             _,
             _,
             _,
@@ -132,7 +132,7 @@ object DbRuleManager extends Loggable {
             _,
             _,
             _,
-            Some(googleSheetId),
+            googleSheetId,
             _,
             _,
             _,

@@ -35,7 +35,6 @@ object CreateRuleForm {
       "description" -> optional(text()),
       "ignore" -> boolean,
       "notes" -> optional(text()),
-      "googleSheetId" -> optional(text()),
       "forceRedRule" -> optional(boolean),
       "advisoryRule" -> optional(boolean)
     )(CreateRuleForm.apply)(CreateRuleForm.unapply)
@@ -51,7 +50,6 @@ case class CreateRuleForm(
     description: Option[String] = None,
     ignore: Boolean,
     notes: Option[String] = None,
-    googleSheetId: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
     advisoryRule: Option[Boolean] = None
 )

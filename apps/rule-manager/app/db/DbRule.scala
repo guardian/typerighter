@@ -7,6 +7,7 @@ import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
 
 import java.time.ZonedDateTime
+import java.util.UUID
 import scala.util.{Failure, Success, Try}
 
 case class DbRule(
@@ -19,7 +20,7 @@ case class DbRule(
     description: Option[String] = None,
     ignore: Boolean,
     notes: Option[String] = None,
-    googleSheetId: Option[String] = None,
+    googleSheetId: String,
     forceRedRule: Option[Boolean] = None,
     advisoryRule: Option[Boolean] = None,
     createdAt: ZonedDateTime,
@@ -66,7 +67,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       description: Option[String] = None,
       ignore: Boolean,
       notes: Option[String] = None,
-      googleSheetId: Option[String] = None,
+      googleSheetId: String,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
       user: String
@@ -140,7 +141,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       description: Option[String] = None,
       ignore: Boolean,
       notes: Option[String] = None,
-      googleSheetId: Option[String] = None,
+      googleSheetId: String = UUID.randomUUID().toString(),
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
       user: String
@@ -161,7 +162,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           column.forceRedRule -> forceRedRule,
           column.advisoryRule -> advisoryRule,
           column.createdBy -> user,
-          column.updatedBy -> user
+          column.updatedBy -> user,
         )
     }.updateAndReturnGeneratedKey().apply()
 
@@ -180,18 +181,17 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       session: DBSession = autoSession
   ) = {
     DbRule.create(
-      formRule.ruleType,
-      formRule.pattern,
-      formRule.replacement,
-      formRule.category,
-      formRule.tags,
-      formRule.description,
-      formRule.ignore,
-      formRule.notes,
-      formRule.googleSheetId,
-      formRule.forceRedRule,
-      formRule.advisoryRule,
-      user
+      ruleType = formRule.ruleType,
+      pattern = formRule.pattern,
+      replacement = formRule.replacement,
+      category = formRule.category,
+      tags = formRule.tags,
+      description = formRule.description,
+      ignore = formRule.ignore,
+      notes = formRule.notes,
+      forceRedRule = formRule.forceRedRule,
+      advisoryRule = formRule.advisoryRule,
+      user = user
     )
   }
 
@@ -214,7 +214,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           description = formRule.description.orElse(existingRule.description),
           ignore = formRule.ignore.getOrElse(existingRule.ignore),
           notes = formRule.notes.orElse(existingRule.notes),
-          googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
           forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
           advisoryRule = formRule.advisoryRule.orElse(existingRule.advisoryRule)
         )
