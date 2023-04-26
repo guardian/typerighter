@@ -2,7 +2,7 @@ import com.gu.riffraff.artifact.BuildInfo
 
 name := "typerighter"
 ThisBuild / organization := "com.gu"
-ThisBuild / scalaVersion := "2.13.7"
+ThisBuild / scalaVersion := "2.13.10"
 ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
   "-encoding",
