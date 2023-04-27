@@ -1,6 +1,5 @@
 package db
 
-import org.scalatest.flatspec.FixtureAnyFlatSpec
 import scalikejdbc.scalatest.AutoRollback
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.flatspec.FixtureAnyFlatSpec

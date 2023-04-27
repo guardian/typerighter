@@ -89,10 +89,10 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   }
 
   "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
-    implicit session =>
+    () =>
       val rulesToIgnore = createRandomRules(10, ignore = true)
-      val ruleResourceWithIgnoredRules = DbRuleManager.createRuleResourceFromDbRules(rulesToIgnore)
+      val ruleResourceWithIgnoredRules = DbRuleManager.createCheckerRuleResourceFromDbRules(rulesToIgnore)
 
-      ruleResourceWithIgnoredRules.shouldEqual(Right(RuleResource(List())))
+      ruleResourceWithIgnoredRules.shouldEqual(Right(CheckerRuleResource(List())))
   }
 }
