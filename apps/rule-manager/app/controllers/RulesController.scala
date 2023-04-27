@@ -43,10 +43,8 @@ class RulesController(
   }
 
   def rule(id: Int) = ApiAuthAction { implicit request: Request[AnyContent] =>
-    val result = DbRuleManager.getRule(id)
-
-    result match {
-      case None  => NotFound("Rule not found matching ID")
+    DbRuleManager.getRule(id) match {
+      case None         => NotFound("Rule not found matching ID")
       case Some(result) => Ok(Json.toJson(result))
     }
   }
