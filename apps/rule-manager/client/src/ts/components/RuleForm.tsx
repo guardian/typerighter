@@ -89,6 +89,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
                     setRuleData(baseForm);
                     onRuleUpdate();
                 })
+            setCreateRuleFormOpen(false);
         } else {
             createRule(transformRuleFormData(ruleData))
                 .then(response => response.json())
