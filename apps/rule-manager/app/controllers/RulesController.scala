@@ -8,7 +8,6 @@ import db.DbRuleDraft
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{JsValue, Json, Writes}
-import play.api.mvc.Results.NotFound
 import play.api.mvc._
 import service.{DbRuleManager, SheetsRuleManager}
 import scala.util.{Success, Failure}
@@ -42,7 +41,7 @@ class RulesController(
     Ok(Json.toJson(DbRuleManager.getDraftRules()))
   }
 
-  def rule(id: Int) = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def rule(id: Int) = ApiAuthAction {
     DbRuleManager.getRule(id) match {
       case None         => NotFound("Rule not found matching ID")
       case Some(result) => Ok(Json.toJson(result))
