@@ -2,14 +2,14 @@ package service
 
 import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
-  BaseRule,
+  CheckerRule,
   Category,
   ComparableRegex,
   LTRule,
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  RuleResource,
+  CheckerRuleResource,
   TextSuggestion
 }
 import db.DbRule
@@ -23,7 +23,7 @@ object DbRuleManager extends Loggable {
     val languageToolCore = "languageToolCore"
   }
 
-  def baseRuleToDbRule(rule: BaseRule): DbRule = {
+  def checkerRuleToDbRule(rule: CheckerRule): DbRule = {
     rule match {
       case RegexRule(id, category, description, _, replacement, regex) =>
         DbRule.withUser(
@@ -64,7 +64,7 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def dbRuleToBaseRule(rule: DbRule): Either[String, BaseRule] = {
+  def dbRuleToCheckerRule(rule: DbRule): Either[String, CheckerRule] = {
     rule match {
       case DbRule(
             _,
@@ -150,22 +150,22 @@ object DbRuleManager extends Loggable {
 
   def getRulesAsRuleResource()(implicit session: DBSession = autoSession) = {
     val (failedDbRules, successfulDbRules) = getRules()
-      .map(dbRuleToBaseRule)
+      .map(dbRuleToCheckerRule)
       .partitionMap(identity)
 
     failedDbRules match {
-      case Nil      => Right(RuleResource(successfulDbRules))
+      case Nil      => Right(CheckerRuleResource(successfulDbRules))
       case failures => Left(failures)
     }
   }
 
   def destructivelyDumpRuleResourceToDB(
-      rules: RuleResource
-  )(implicit session: DBSession = autoSession): Either[List[String], RuleResource] = {
+      rules: CheckerRuleResource
+  )(implicit session: DBSession = autoSession): Either[List[String], CheckerRuleResource] = {
     DbRule.destroyAll()
 
     rules.rules
-      .map(baseRuleToDbRule)
+      .map(checkerRuleToDbRule)
       .grouped(100)
       .foreach(DbRule.batchInsert)
 

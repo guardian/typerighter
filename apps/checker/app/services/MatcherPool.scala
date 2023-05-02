@@ -4,7 +4,7 @@ import akka.NotUsed
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import com.gu.typerighter.model.{BaseRule, Category, RuleMatch, TextBlock}
+import com.gu.typerighter.model.{CheckerRule, Category, RuleMatch, TextBlock}
 import model._
 import net.logstash.logback.marker.Markers
 import play.api.Logging
@@ -187,7 +187,7 @@ class MatcherPool(
   def getCurrentCategories: Set[Category] =
     matchers.values.flatMap { _.getCategories() }.toSet
 
-  def getCurrentRules: List[BaseRule] = {
+  def getCurrentRules: List[CheckerRule] = {
     matchers.values.flatMap { matcher => matcher.getRules() }.toList
   }
 

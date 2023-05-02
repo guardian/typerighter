@@ -6,7 +6,7 @@ import com.gu.typerighter.model.{
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  RuleResource
+  CheckerRuleResource
 }
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -56,7 +56,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = RuleResource(rules = rulesFromSheet)
+      val rules = CheckerRuleResource(rules = rulesFromSheet)
       val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
       rulesFromDb.shouldEqual(Right(rules))
@@ -66,7 +66,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     implicit session =>
       val rulesFromSheet = createRandomRules(1000)
 
-      val rules = RuleResource(rules = rulesFromSheet)
+      val rules = CheckerRuleResource(rules = rulesFromSheet)
       val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
 
       rulesFromDb.shouldEqual(Right(rules))
@@ -75,12 +75,12 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   "destructivelyDumpRuleResourceToDB" should "remove old rules before adding new ones" in {
     implicit session =>
       val firstRules = createRandomRules(10)
-      DbRuleManager.destructivelyDumpRuleResourceToDB(RuleResource(firstRules))
+      DbRuleManager.destructivelyDumpRuleResourceToDB(CheckerRuleResource(firstRules))
 
       val secondRules = createRandomRules(10)
       val secondRulesFromDb =
-        DbRuleManager.destructivelyDumpRuleResourceToDB(RuleResource(secondRules))
+        DbRuleManager.destructivelyDumpRuleResourceToDB(CheckerRuleResource(secondRules))
 
-      secondRulesFromDb.shouldEqual(Right(RuleResource(secondRules)))
+      secondRulesFromDb.shouldEqual(Right(CheckerRuleResource(secondRules)))
   }
 }

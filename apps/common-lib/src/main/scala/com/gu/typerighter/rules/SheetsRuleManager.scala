@@ -1,13 +1,13 @@
 package com.gu.typerighter.rules
 
 import com.gu.typerighter.model.{
-  BaseRule,
+  CheckerRule,
   Category,
   ComparableRegex,
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  RuleResource,
+  CheckerRuleResource,
   TextSuggestion
 }
 import play.api.Logging
@@ -52,15 +52,15 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def getRules(): Either[List[String], RuleResource] = {
+  def getRules(): Either[List[String], CheckerRuleResource] = {
     val maybeRules = getPatternRules()
 
-    maybeRules.map(RuleResource(_))
+    maybeRules.map(CheckerRuleResource(_))
   }
 
   /** Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
     */
-  private def getPatternRules(): Either[List[String], List[BaseRule]] = {
+  private def getPatternRules(): Either[List[String], List[CheckerRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
@@ -95,7 +95,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     }
   }
 
-  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[BaseRule]] = {
+  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[CheckerRule]] = {
     try {
       val ruleType = row(PatternRuleCols.Type)
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
