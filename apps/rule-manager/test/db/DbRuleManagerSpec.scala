@@ -24,18 +24,18 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         category = Some("Check this"),
         description = Some("A random rule description. " * Random.between(0, 100)),
         replacement = None,
-        pattern =
-          Some(s"\b(${Random.shuffle(List("some", "random", "things", "to", "match", "on")).mkString("|")}) by"),
+        pattern = Some(
+          s"\b(${Random.shuffle(List("some", "random", "things", "to", "match", "on")).mkString("|")}) by"
+        ),
         ignore = ignore,
         notes = Some(s"\b(${Random.shuffle(List("some", "random", "notes", "to", "test"))})"),
         googleSheetId = Some(s"rule-at-index-${ruleIndex}"),
         forceRedRule = Some(true),
         advisoryRule = Some(true),
         user = "Google Sheet",
-        ruleType = "regex",
+        ruleType = "regex"
       )
     }.toList
-
 
   behavior of "DbRuleManager"
 
@@ -63,7 +63,8 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
 
       val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDbRule)
-      val rulesFromDb = DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
+      val rulesFromDb =
+        DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 
       rulesFromDb.shouldEqual(Right(rules))
   }
@@ -71,27 +72,28 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   "destructivelyDumpRulesToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
     () =>
       val rules = createRandomRules(1000)
-      val rulesFromDb = DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
+      val rulesFromDb =
+        DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 
       rulesFromDb.shouldEqual(Right(rules))
   }
 
-  "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in {
-    () =>
-      val firstRules = createRandomRules(10)
-      DbRuleManager.destructivelyDumpRulesToDB(firstRules)
+  "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in { () =>
+    val firstRules = createRandomRules(10)
+    DbRuleManager.destructivelyDumpRulesToDB(firstRules)
 
-      val secondRules = createRandomRules(10)
-      val secondRulesFromDb =
-        DbRuleManager.destructivelyDumpRulesToDB(secondRules).map(_.map(_.copy(id = None)))
+    val secondRules = createRandomRules(10)
+    val secondRulesFromDb =
+      DbRuleManager.destructivelyDumpRulesToDB(secondRules).map(_.map(_.copy(id = None)))
 
-      secondRulesFromDb.shouldEqual(Right(secondRules))
+    secondRulesFromDb.shouldEqual(Right(secondRules))
   }
 
   "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
     () =>
       val rulesToIgnore = createRandomRules(10, ignore = true)
-      val ruleResourceWithIgnoredRules = DbRuleManager.createCheckerRuleResourceFromDbRules(rulesToIgnore)
+      val ruleResourceWithIgnoredRules =
+        DbRuleManager.createCheckerRuleResourceFromDbRules(rulesToIgnore)
 
       ruleResourceWithIgnoredRules.shouldEqual(Right(CheckerRuleResource(List())))
   }

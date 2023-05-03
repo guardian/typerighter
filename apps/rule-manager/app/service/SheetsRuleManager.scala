@@ -103,7 +103,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
         case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
         case (Some(id), _, None) =>
-        Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
+          Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
         case (Some(_), None, _) =>
           Failure(new Exception(s"no Ignore column for rule (row: ${rowNumber})"))
         case (Some(id), Some(ignore), Some(ruleType)) =>
