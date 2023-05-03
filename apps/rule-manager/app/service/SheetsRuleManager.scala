@@ -92,28 +92,44 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
       val maybeId = row.lift(PatternRuleCols.Id).asInstanceOf[Option[String]]
       val rowNumber = index + 1
+      val maybeRuleType = Map(
+        "regex" -> "regex",
+        "lt" -> "languageToolXML",
+        "lt_core" -> "languageToolCore"
+      ).get(ruleType.asInstanceOf[String])
 
-      (maybeId, maybeIgnore, ruleType) match {
-        case (None, _, _)         => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
+      (maybeId, maybeIgnore, maybeRuleType) match {
+        case (None, _, _) => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
         case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
-        case (Some(id), _, ruleType) if !Set("regex", "lt", "lt_core").contains(ruleType.toString) =>
-          Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
-        case (Some(id), Some(ignore), ruleType) => Success(Some(DbRule.withUser(
-          id = None,
-          ruleType = ruleType.asInstanceOf[String],
-          pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
-          replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
-          category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
-          tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
-          description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
-          ignore = if (ignore.toString == "TRUE") true else false,
-          notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
-          googleSheetId = Some(id),
-          forceRedRule = Some(row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")),
-          advisoryRule = Some(row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")),
-          user = "Google Sheet"
-        )))
+        case (Some(id), _, None) =>
+        Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
+        case (Some(_), None, _) =>
+          Failure(new Exception(s"no Ignore column for rule (row: ${rowNumber})"))
+        case (Some(id), Some(ignore), Some(ruleType)) =>
+          Success(
+            Some(
+              DbRule.withUser(
+                id = None,
+                ruleType = ruleType,
+                pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
+                replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
+                tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
+                description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
+                ignore = if (ignore.toString == "TRUE") true else false,
+                notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                googleSheetId = Some(id),
+                forceRedRule = Some(
+                  row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")
+                ),
+                advisoryRule = Some(
+                  row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")
+                ),
+                user = "Google Sheet"
+              )
+            )
+          )
       }
 
     } catch {
