@@ -17,7 +17,6 @@ case class DbRule(
     category: Option[String] = None,
     tags: Option[String] = None,
     description: Option[String] = None,
-    ignore: Boolean,
     notes: Option[String] = None,
     googleSheetId: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
@@ -32,7 +31,7 @@ case class DbRule(
 object DbRule extends SQLSyntaxSupport[DbRule] {
   implicit val format: Format[DbRule] = Json.format[DbRule]
 
-  override val tableName = "rules"
+  override val tableName = "rules_draft"
 
   override val columns = Seq(
     "id",
@@ -42,7 +41,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     "category",
     "tags",
     "description",
-    "ignore",
     "notes",
     "google_sheet_id",
     "force_red_rule",
@@ -64,7 +62,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       category: Option[String] = None,
       tags: Option[String] = None,
       description: Option[String] = None,
-      ignore: Boolean,
       notes: Option[String] = None,
       googleSheetId: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
@@ -80,7 +77,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       category,
       tags,
       description,
-      ignore,
       notes,
       googleSheetId,
       forceRedRule,
@@ -138,7 +134,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       category: Option[String] = None,
       tags: Option[String] = None,
       description: Option[String] = None,
-      ignore: Boolean,
       notes: Option[String] = None,
       googleSheetId: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
@@ -155,7 +150,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           column.category -> category,
           column.tags -> tags,
           column.description -> description,
-          column.ignore -> ignore,
           column.notes -> notes,
           column.googleSheetId -> googleSheetId,
           column.forceRedRule -> forceRedRule,
@@ -186,7 +180,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       formRule.category,
       formRule.tags,
       formRule.description,
-      formRule.ignore,
       formRule.notes,
       formRule.googleSheetId,
       formRule.forceRedRule,
@@ -212,7 +205,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           category = formRule.category.orElse(existingRule.category),
           tags = formRule.tags.orElse(existingRule.tags),
           description = formRule.description.orElse(existingRule.description),
-          ignore = formRule.ignore.getOrElse(existingRule.ignore),
           notes = formRule.notes.orElse(existingRule.notes),
           googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
           forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
@@ -241,7 +233,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
         Symbol("category") -> entity.category,
         Symbol("tags") -> entity.tags,
         Symbol("description") -> entity.description,
-        Symbol("ignore") -> entity.ignore,
         Symbol("notes") -> entity.notes,
         Symbol("googleSheetId") -> entity.googleSheetId,
         Symbol("forceRedRule") -> entity.forceRedRule,
@@ -252,14 +243,13 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
         Symbol("updatedAt") -> entity.updatedAt
       )
     )
-    SQL("""insert into rules(
+    SQL(s"""insert into $tableName(
       rule_type,
       pattern,
       replacement,
       category,
       tags,
       description,
-      ignore,
       notes,
       google_sheet_id,
       force_red_rule,
@@ -275,7 +265,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       {category},
       {tags},
       {description},
-      {ignore},
       {notes},
       {googleSheetId},
       {forceRedRule},
@@ -298,7 +287,6 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
           column.category -> entity.category,
           column.tags -> entity.tags,
           column.description -> entity.description,
-          column.ignore -> entity.ignore,
           column.notes -> entity.notes,
           column.googleSheetId -> entity.googleSheetId,
           column.forceRedRule -> entity.forceRedRule,

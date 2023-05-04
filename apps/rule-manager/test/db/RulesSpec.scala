@@ -15,7 +15,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
 
   override def fixture(implicit session: DBSession) = {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
-    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, ignore, notes, google_sheet_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user')"
+    sql"insert into rules (rule_type, pattern, replacement, category, tags, description, notes, google_sheet_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user')"
       .update()
       .apply()
   }
@@ -53,7 +53,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
   it should "create new record and autofill createdAt, updatedAt, and revisionId" in {
     implicit session =>
       val created = DbRule
-        .create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user")
+        .create(ruleType = "regex", pattern = Some("MyString"), user = "test.user")
         .get
 
       created.revisionId shouldBe 0
@@ -70,7 +70,6 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
       category = None,
       tags = None,
       description = None,
-      ignore = false,
       notes = None,
       googleSheetId = None,
       forceRedRule = None,
@@ -83,7 +82,7 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
   it should "edit an existing record using a form rule, updating the user and updated datetime" in {
     implicit session =>
       val existingRule = DbRule
-        .create(ruleType = "regex", pattern = Some("MyString"), ignore = false, user = "test.user")
+        .create(ruleType = "regex", pattern = Some("MyString"), user = "test.user")
         .get
       val existingId = existingRule.id.get
       val formRule = UpdateRuleForm(
