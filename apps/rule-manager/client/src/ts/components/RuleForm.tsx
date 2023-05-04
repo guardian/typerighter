@@ -5,7 +5,7 @@ import { RuleType } from "./RuleType";
 import {RuleMetadata} from "./RuleMetadata";
 import { createRule, transformRuleFormData } from "./helpers/createRule";
 
-export type RuleType = 'regex' | 'languageTool';
+export type RuleType = 'regex' | 'languageToolXML';
 
 export type RuleFormData = {
     ruleType: RuleType,

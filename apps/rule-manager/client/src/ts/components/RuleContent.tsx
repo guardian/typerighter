@@ -19,11 +19,11 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
     const ruleTypeOptions: RuleTypeOption[] = [
         {
             id: "regex",
-            label: 'Regex',
+            label: "Regex",
         },
         {
-            id: "languageTool",
-            label: 'LanguageTool',
+            id: "languageToolXML",
+            label: "LanguageTool",
         },
     ]
     const [ruleTypeSelected, setRuleTypeSelected] = useState(ruleTypeOptions[0].id);
