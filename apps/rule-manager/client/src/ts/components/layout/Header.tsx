@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "@emotion/styled";
 import { Logo } from "./Logo";
 import { colors } from "../../constants/constants";
@@ -6,6 +6,7 @@ import { withEuiTheme, WithEuiThemeProps } from "@elastic/eui";
 import { DownChevron } from "../icons/downChevron";
 import { ProfileMenu } from "./ProfileMenu";
 import { EuiPopover } from "@elastic/eui";
+import { PageContext } from "../../utils/window";
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -32,12 +33,13 @@ const UserActionMenu = withEuiTheme(styled.div<WithEuiThemeProps>`
 
 export const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const pageData = useContext(PageContext)
 
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 
   const ProfileMenuButton = (
     <UserActionMenu onClick={toggleProfileMenu}>
-      Jonathon Herbert &nbsp;
+      {pageData?.firstName} {pageData?.lastName} &nbsp;
       <DownChevron />
     </UserActionMenu>
   );

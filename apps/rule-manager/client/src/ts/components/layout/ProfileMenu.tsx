@@ -9,6 +9,7 @@ import {
   FeatureSwitch,
   FeatureSwitchesContext,
 } from "../context/featureSwitches";
+import { PageContext } from "../../utils/window";
 
 export const ProfileMenu = () => {
   const { featureSwitches, toggleFeatureSwitch, getFeatureSwitchValue } =
@@ -56,8 +57,9 @@ export const ProfileMenu = () => {
     {
       id: 1,
       title: "Feature switches",
+      width: 400,
       content: (
-        <EuiBasicTable columns={featureColumns} items={featureSwitches} />
+        <EuiBasicTable columns={featureColumns} items={featureSwitches} tableLayout="auto" />
       ),
     },
   ];

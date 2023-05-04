@@ -6,6 +6,7 @@ import { euiThemeOverrides } from "../../constants/euiTheme";
 
 import createCache from "@emotion/cache";
 import { FeatureSwitchesProvider } from "../context/featureSwitches";
+import { PageDataProvider } from "../../utils/window";
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -15,14 +16,16 @@ const cache = createCache({
 });
 
 export const Page = () => (
-  <FeatureSwitchesProvider>
-    <EuiProvider modify={euiThemeOverrides} cache={cache}>
-      <EuiPageTemplate>
-        <Header />
-        <EuiPageTemplate.Section color="subdued">
-          <Rules />
-        </EuiPageTemplate.Section>
-      </EuiPageTemplate>
-    </EuiProvider>
-  </FeatureSwitchesProvider>
+  <PageDataProvider>
+    <FeatureSwitchesProvider>
+      <EuiProvider modify={euiThemeOverrides} cache={cache}>
+        <EuiPageTemplate>
+          <Header />
+          <EuiPageTemplate.Section color="subdued">
+            <Rules />
+          </EuiPageTemplate.Section>
+        </EuiPageTemplate>
+      </EuiProvider>
+    </FeatureSwitchesProvider>
+  </PageDataProvider>
 );
