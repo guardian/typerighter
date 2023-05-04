@@ -1,9 +1,11 @@
 import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText } from "@elastic/eui";
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
+
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
+import { FeatureSwitchesContext } from "./context/featureSwitches";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -75,10 +77,12 @@ export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) =>
         setCreateRuleFormOpen(false);
     }
 
+    const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
+
     return <EuiForm component="form">
-        <EuiButton isDisabled={createRuleFormOpen} onClick={openCreateRuleForm}>Create Rule</EuiButton>
+        {getFeatureSwitchValue("create-and-edit") && <EuiButton isDisabled={createRuleFormOpen} onClick={openCreateRuleForm}>Create Rule</EuiButton>}
         <EuiSpacer />
-        {createRuleFormOpen ? <EuiFlexGroup  direction="column">   
+        {createRuleFormOpen ? <EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={errors} showErrors={showErrors}/>
             <RuleType ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             <RuleMetadata ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
