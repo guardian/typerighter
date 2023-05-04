@@ -1,11 +1,11 @@
-import React from "react";
+import styled from "@emotion/styled";
 
-export const LineBreak = () => <hr style={{
-    height: '1px',
-    width: '100%',
-    borderStyle: 'solid',
-    borderColor: '#F1F4FA',
-    borderBottom: 'none',
-    marginTop: '8px',
-    marginBottom: '8px'
-}}/>;
+export const LineBreak = styled.hr`
+    height: 1px;
+    width: 100%;
+    border-style: solid;
+    border-color: #F1F4FA;
+    border-bottom: none;
+    margin-top: 8px;
+    margin-bottom: 8px;
+`
