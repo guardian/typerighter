@@ -5,7 +5,7 @@ type FormDataForApiEndpoint =  {
     pattern?: string,
     replacement?: string,
     category?: string,
-    tags: string,
+    tags?: string,
     description?: string,
     ignore: boolean,
     forceRedRule?: boolean,
@@ -13,7 +13,7 @@ type FormDataForApiEndpoint =  {
 }
 
 export const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {
-    return {...ruleForm, tags: ruleForm.tags.toString()};
+    return {...ruleForm, tags: ruleForm.tags ? ruleForm.tags.toString() : undefined};
 }
 
 export const createRule = async (ruleForm: FormDataForApiEndpoint) => {
