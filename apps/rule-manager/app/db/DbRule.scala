@@ -247,7 +247,9 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
         Symbol("forceRedRule") -> entity.forceRedRule,
         Symbol("advisoryRule") -> entity.advisoryRule,
         Symbol("createdBy") -> entity.createdBy,
-        Symbol("updatedBy") -> entity.updatedBy
+        Symbol("createdAt") -> entity.createdAt,
+        Symbol("updatedBy") -> entity.updatedBy,
+        Symbol("updatedAt") -> entity.updatedAt
       )
     )
     SQL("""insert into rules(
@@ -263,7 +265,9 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       force_red_rule,
       advisory_rule,
       created_by,
-      updated_by
+      created_at,
+      updated_by,
+      updated_at
     ) values (
       {ruleType},
       {pattern},
@@ -277,7 +281,9 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       {forceRedRule},
       {advisoryRule},
       {createdBy},
-      {updatedBy}
+      {createdAt},
+      {updatedBy},
+      {updatedAt}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 

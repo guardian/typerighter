@@ -17,24 +17,30 @@ import scala.util.Random
 
 class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
 
-  def createRandomRules(ruleCount: Int) =
+  def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
-      RegexRule(
-        s"rule-at-index-${ruleIndex}",
-        Category("Check this", "Check this"),
-        "A random rule description. " * Random.between(0, 100),
-        List(),
-        None,
-        new ComparableRegex(
+      DbRule.withUser(
+        id = None,
+        category = Some("Check this"),
+        description = Some("A random rule description. " * Random.between(0, 100)),
+        replacement = None,
+        pattern = Some(
           s"\b(${Random.shuffle(List("some", "random", "things", "to", "match", "on")).mkString("|")}) by"
-        )
+        ),
+        ignore = ignore,
+        notes = Some(s"\b(${Random.shuffle(List("some", "random", "notes", "to", "test"))})"),
+        googleSheetId = Some(s"rule-at-index-${ruleIndex}"),
+        forceRedRule = Some(true),
+        advisoryRule = Some(true),
+        user = "Google Sheet",
+        ruleType = "regex"
       )
     }.toList
 
   behavior of "DbRuleManager"
 
   "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
-    implicit session =>
+    () =>
       val rulesFromSheet = List(
         RegexRule(
           "faef1f8a-4ee2-4b97-8783-0566e27851da",
@@ -56,31 +62,39 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = CheckerRuleResource(rules = rulesFromSheet)
-      val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
+      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDbRule)
+      val rulesFromDb =
+        DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 
       rulesFromDb.shouldEqual(Right(rules))
   }
 
-  "destructivelyDumpRuleResourceToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
-    implicit session =>
-      val rulesFromSheet = createRandomRules(1000)
-
-      val rules = CheckerRuleResource(rules = rulesFromSheet)
-      val rulesFromDb = DbRuleManager.destructivelyDumpRuleResourceToDB(rules)
+  "destructivelyDumpRulesToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
+    () =>
+      val rules = createRandomRules(1000)
+      val rulesFromDb =
+        DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 
       rulesFromDb.shouldEqual(Right(rules))
   }
 
-  "destructivelyDumpRuleResourceToDB" should "remove old rules before adding new ones" in {
-    implicit session =>
-      val firstRules = createRandomRules(10)
-      DbRuleManager.destructivelyDumpRuleResourceToDB(CheckerRuleResource(firstRules))
+  "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in { () =>
+    val firstRules = createRandomRules(10)
+    DbRuleManager.destructivelyDumpRulesToDB(firstRules)
 
-      val secondRules = createRandomRules(10)
-      val secondRulesFromDb =
-        DbRuleManager.destructivelyDumpRuleResourceToDB(CheckerRuleResource(secondRules))
+    val secondRules = createRandomRules(10)
+    val secondRulesFromDb =
+      DbRuleManager.destructivelyDumpRulesToDB(secondRules).map(_.map(_.copy(id = None)))
 
-      secondRulesFromDb.shouldEqual(Right(CheckerRuleResource(secondRules)))
+    secondRulesFromDb.shouldEqual(Right(secondRules))
+  }
+
+  "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
+    () =>
+      val rulesToIgnore = createRandomRules(10, ignore = true)
+      val ruleResourceWithIgnoredRules =
+        DbRuleManager.createCheckerRuleResourceFromDbRules(rulesToIgnore)
+
+      ruleResourceWithIgnoredRules.shouldEqual(Right(CheckerRuleResource(List())))
   }
 }

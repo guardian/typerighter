@@ -1,36 +1,29 @@
-package com.gu.typerighter.rules
+package service
 
-import com.gu.typerighter.model.{
-  CheckerRule,
-  Category,
-  ComparableRegex,
-  LTRuleCore,
-  LTRuleXML,
-  RegexRule,
-  CheckerRuleResource,
-  TextSuggestion
-}
 import play.api.Logging
-
 import java.io._
 import java.util.Collections
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
-
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
+import db.DbRule
 
 object PatternRuleCols {
   val Type = 0
   val Pattern = 1
-  val Suggestion = 2
+  val Replacement = 2
   val Colour = 3
   val Category = 4
   val Description = 6
+  val Tags = 7
   val ShouldIgnore = 8
+  val Notes = 9
   val Id = 10
+  val ForceRed = 11
+  val Advisory = 13
 }
 
 /** A resource that gets rules from the given Google Sheet.
@@ -52,15 +45,13 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def getRules(): Either[List[String], CheckerRuleResource] = {
-    val maybeRules = getPatternRules()
-
-    maybeRules.map(CheckerRuleResource(_))
+  def getRules(): Either[List[String], List[DbRule]] = {
+    getPatternRules()
   }
 
   /** Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
     */
-  private def getPatternRules(): Either[List[String], List[CheckerRule]] = {
+  private def getPatternRules(): Either[List[String], List[DbRule]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
@@ -87,7 +78,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
             }
           }
 
-      if (errors.size != 0) {
+      if (errors.nonEmpty) {
         Left(errors)
       } else {
         Right(rules)
@@ -95,49 +86,50 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     }
   }
 
-  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[CheckerRule]] = {
+  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[DbRule]] = {
     try {
       val ruleType = row(PatternRuleCols.Type)
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
       val maybeId = row.lift(PatternRuleCols.Id).asInstanceOf[Option[String]]
       val rowNumber = index + 1
+      val maybeRuleType = Map(
+        "regex" -> "regex",
+        "lt" -> "languageToolXML",
+        "lt_core" -> "languageToolCore"
+      ).get(ruleType.asInstanceOf[String])
 
-      (maybeId, maybeIgnore, ruleType) match {
-        case (_, Some("TRUE"), _) => Success(None)
-        case (None, _, _)         => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
-        case (Some(id), _, _) if id.length == 0 =>
+      (maybeId, maybeIgnore, maybeRuleType) match {
+        case (None, _, _) => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
+        case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
-        case (Some(id), _, "regex") =>
-          Success(
-            Some(
-              getRegexRule(
-                id,
-                row(PatternRuleCols.Pattern).asInstanceOf[String],
-                row(PatternRuleCols.Suggestion).asInstanceOf[String],
-                row(PatternRuleCols.Category).asInstanceOf[String],
-                row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]]
-              )
-            )
-          )
-        case (Some(id), _, "lt") =>
-          Success(
-            Some(
-              getLTRuleXML(
-                id,
-                row(PatternRuleCols.Pattern).asInstanceOf[String],
-                row(PatternRuleCols.Category).asInstanceOf[String],
-                row(PatternRuleCols.Description).asInstanceOf[String]
-              )
-            )
-          )
-        case (Some(id), _, "lt_core") =>
-          Success(
-            Some(
-              LTRuleCore(id, id)
-            )
-          )
-        case (Some(id), _, ruleType) =>
+        case (Some(id), _, None) =>
           Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
+        case (Some(_), None, _) =>
+          Failure(new Exception(s"no Ignore column for rule (row: ${rowNumber})"))
+        case (Some(id), Some(ignore), Some(ruleType)) =>
+          Success(
+            Some(
+              DbRule.withUser(
+                id = None,
+                ruleType = ruleType,
+                pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
+                replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
+                tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
+                description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
+                ignore = if (ignore.toString == "TRUE") true else false,
+                notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                googleSheetId = Some(id),
+                forceRedRule = Some(
+                  row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")
+                ),
+                advisoryRule = Some(
+                  row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")
+                ),
+                user = "Google Sheet"
+              )
+            )
+          )
       }
 
     } catch {
@@ -145,29 +137,6 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
         Failure(new Exception(s"Error parsing rule at index ${index} – ${e.getMessage()}"))
       }
     }
-  }
-
-  private def getRegexRule(
-      id: String,
-      pattern: String,
-      suggestion: String,
-      category: String,
-      description: Option[String]
-  ) = RegexRule(
-    id = id,
-    category = Category(category, category),
-    description = description.getOrElse(""),
-    replacement = if (suggestion.isEmpty) None else Some(TextSuggestion(suggestion)),
-    regex = new ComparableRegex(pattern)
-  )
-
-  private def getLTRuleXML(
-      id: String,
-      pattern: String,
-      category: String,
-      description: String
-  ) = {
-    LTRuleXML(id, pattern, Category(category, category), description)
   }
 
   /** Creates an authorized Credential object.
