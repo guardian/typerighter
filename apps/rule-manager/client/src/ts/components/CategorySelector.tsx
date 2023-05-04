@@ -4,6 +4,7 @@ import React from "react";
 import { PartiallyUpdateRuleData, RuleFormData } from "./RuleForm";
 
 export type MetadataOption = {label: string}
+const singleSelectionOptions = { asPlainText: true };
 export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
     ruleData: RuleFormData,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
@@ -70,7 +71,7 @@ export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
         <EuiFormRow label='Categories'>
             <EuiComboBox
                 options={options}
-                singleSelection={{ asPlainText: true }}
+                singleSelection={singleSelectionOptions}
                 selectedOptions={selectedCategory}
                 onChange={onChange}
                 onCreateOption={onCreateOption}
