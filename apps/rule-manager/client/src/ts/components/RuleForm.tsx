@@ -23,7 +23,7 @@ export type PartiallyUpdateRuleData = (existing: RuleFormData, partialReplacemen
 
 export type FormError = { id: string; value: string }
 
-export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
+export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) => {
     const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
     const [showErrors, setShowErrors] = useState(false);
     const [errors, setErrors] = useState<FormError[]>([]);
@@ -70,7 +70,7 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
             .then(response => response.json())
             .then(data => {
                 setRuleData(baseForm);
-                fetchRules();
+                onRuleUpdate();
             })
         setCreateRuleFormOpen(false);
     }

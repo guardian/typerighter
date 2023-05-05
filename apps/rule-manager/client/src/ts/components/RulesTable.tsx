@@ -141,7 +141,7 @@ const RulesTable = () => {
                 }
             </EuiFlexItem>
             <EuiFlexItem grow={1}>
-                <RuleForm fetchRules={fetchRules}/>
+                <RuleForm onRuleUpdate={fetchRules}/>
             </EuiFlexItem>
         </EuiFlexGroup>
 
