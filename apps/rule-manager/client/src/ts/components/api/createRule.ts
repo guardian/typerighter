@@ -12,17 +12,18 @@ type FormDataForApiEndpoint =  {
     advisoryRule?: boolean
 }
 
-export const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {
-    return {...ruleForm, tags: ruleForm.tags ? ruleForm.tags.toString() : undefined};
+const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {
+    return {...ruleForm, tags: ruleForm.tags ? ruleForm.tags.join(",") : undefined};
 }
 
-export const createRule = async (ruleForm: FormDataForApiEndpoint) => {
-   const createRuleResponse = fetch(`${location}rules`, {
+export const createRule = async (ruleForm: RuleFormData) => {
+    const transformedRuleFormData = transformRuleFormData(ruleForm);
+    const createRuleResponse = fetch(`${location}rules`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(ruleForm)
+        body: JSON.stringify(transformedRuleFormData)
     });
     return createRuleResponse
 }

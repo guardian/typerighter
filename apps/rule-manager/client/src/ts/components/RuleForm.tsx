@@ -2,8 +2,8 @@ import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, E
 import React, { useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
-import {RuleMetadata} from "./RuleMetadata";
-import { createRule, transformRuleFormData } from "./helpers/createRule";
+import { RuleMetadata } from "./RuleMetadata";
+import { createRule } from "./api/createRule";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -66,7 +66,7 @@ export const RuleForm = ({fetchRules}: {fetchRules: () => Promise<void>}) => {
             return;
         }
 
-        createRule(transformRuleFormData(ruleData))
+        createRule(ruleData)
             .then(response => response.json())
             .then(data => {
                 setRuleData(baseForm);
