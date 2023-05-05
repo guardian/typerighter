@@ -28,7 +28,7 @@ class RulesController(
       ruleResource <- DbRuleManager.createCheckerRuleResourceFromDbRules(persistedDbRules)
       _ <- bucketRuleManager.putRules(ruleResource).left.map { l => List(l.toString) }
     } yield {
-      DbRuleManager.getRules()
+      DbRuleManager.getDraftRules()
     }
 
     maybeWrittenRules match {
@@ -38,7 +38,7 @@ class RulesController(
   }
 
   def rules = ApiAuthAction {
-    Ok(Json.toJson(DbRuleManager.getRules()))
+    Ok(Json.toJson(DbRuleManager.getDraftRules()))
   }
 
   implicit object FormErrorWrites extends Writes[FormError] {

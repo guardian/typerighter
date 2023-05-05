@@ -1,5 +1,6 @@
 package db
 
+import db.DbRule._
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
@@ -17,6 +18,7 @@ case class DraftDbRule(
     category: Option[String] = None,
     tags: Option[String] = None,
     description: Option[String] = None,
+    ignore: Boolean,
     notes: Option[String] = None,
     googleSheetId: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
@@ -26,31 +28,37 @@ case class DraftDbRule(
     updatedAt: ZonedDateTime,
     updatedBy: String,
     revisionId: Int = 0
-) extends DbRuleFields
+) extends DbRuleFields {
+
+  def toLive(reason: String): LiveDbRule = {
+    LiveDbRule(
+      id = this.id,
+      ruleType = this.ruleType,
+      pattern = this.pattern,
+      replacement = this.replacement,
+      category = this.category,
+      tags = this.tags,
+      description = this.description,
+      notes = this.notes,
+      googleSheetId = this.googleSheetId,
+      forceRedRule = this.forceRedRule,
+      advisoryRule = this.advisoryRule,
+      revisionId = this.revisionId,
+      createdAt = this.createdAt,
+      createdBy = this.createdBy,
+      updatedAt = this.updatedAt,
+      updatedBy = this.updatedBy,
+      reason = reason
+    )
+  }
+}
 
 object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
   implicit val format: Format[DraftDbRule] = Json.format[DraftDbRule]
 
   override val tableName = "rules_draft"
 
-  override val columns = Seq(
-    "id",
-    "rule_type",
-    "pattern",
-    "replacement",
-    "category",
-    "tags",
-    "description",
-    "notes",
-    "google_sheet_id",
-    "force_red_rule",
-    "advisory_rule",
-    "created_at",
-    "created_by",
-    "updated_at",
-    "updated_by",
-    "revision_id"
-  )
+  override val columns: Seq[String] = draftDbColumns
 
   def fromResultName(r: ResultName[DraftDbRule])(rs: WrappedResultSet): DraftDbRule =
     autoConstruct(rs, r)
@@ -63,6 +71,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
       category: Option[String] = None,
       tags: Option[String] = None,
       description: Option[String] = None,
+      ignore: Boolean,
       notes: Option[String] = None,
       googleSheetId: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
@@ -78,6 +87,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
       category,
       tags,
       description,
+      ignore,
       notes,
       googleSheetId,
       forceRedRule,
@@ -135,6 +145,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
       category: Option[String] = None,
       tags: Option[String] = None,
       description: Option[String] = None,
+      ignore: Boolean,
       notes: Option[String] = None,
       googleSheetId: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
@@ -151,6 +162,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
           column.category -> category,
           column.tags -> tags,
           column.description -> description,
+          column.ignore -> ignore,
           column.notes -> notes,
           column.googleSheetId -> googleSheetId,
           column.forceRedRule -> forceRedRule,
@@ -181,6 +193,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
       formRule.category,
       formRule.tags,
       formRule.description,
+      formRule.ignore,
       formRule.notes,
       formRule.googleSheetId,
       formRule.forceRedRule,
@@ -206,6 +219,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
           category = formRule.category.orElse(existingRule.category),
           tags = formRule.tags.orElse(existingRule.tags),
           description = formRule.description.orElse(existingRule.description),
+          ignore = formRule.ignore.getOrElse(existingRule.ignore),
           notes = formRule.notes.orElse(existingRule.notes),
           googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
           forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
@@ -234,6 +248,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
         Symbol("category") -> entity.category,
         Symbol("tags") -> entity.tags,
         Symbol("description") -> entity.description,
+        Symbol("ignore") -> entity.ignore,
         Symbol("notes") -> entity.notes,
         Symbol("googleSheetId") -> entity.googleSheetId,
         Symbol("forceRedRule") -> entity.forceRedRule,
@@ -251,6 +266,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
       category,
       tags,
       description,
+      ignore,
       notes,
       google_sheet_id,
       force_red_rule,
@@ -266,6 +282,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
       {category},
       {tags},
       {description},
+      {ignore},
       {notes},
       {googleSheetId},
       {forceRedRule},
@@ -290,6 +307,7 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
           column.category -> entity.category,
           column.tags -> entity.tags,
           column.description -> entity.description,
+          column.ignore -> entity.ignore,
           column.notes -> entity.notes,
           column.googleSheetId -> entity.googleSheetId,
           column.forceRedRule -> entity.forceRedRule,

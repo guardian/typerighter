@@ -14,13 +14,7 @@ ALTER TABLE rules_live
 ALTER TABLE rules
     RENAME TO rules_draft;
 
-ALTER TABLE rules_draft
-    DROP COLUMN ignore;
-
 -- !Downs
-
-ALTER TABLE rules_draft
-    ADD COLUMN ignore BOOLEAN NOT NULL DEFAULT false;
 
 ALTER TABLE rules_draft
     RENAME TO rules;

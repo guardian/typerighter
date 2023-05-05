@@ -2,17 +2,17 @@ package service
 
 import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
-  CheckerRule,
   Category,
+  CheckerRule,
+  CheckerRuleResource,
   ComparableRegex,
   LTRule,
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  CheckerRuleResource,
   TextSuggestion
 }
-import db.DraftDbRule
+import db.{DraftDbRule, LiveDbRule}
 import db.DraftDbRule.autoSession
 import scalikejdbc.DBSession
 
@@ -23,7 +23,7 @@ object DbRuleManager extends Loggable {
     val languageToolCore = "languageToolCore"
   }
 
-  def checkerRuleToDbRule(rule: CheckerRule): DraftDbRule = {
+  def checkerRuleToDraftDbRule(rule: CheckerRule): DraftDbRule = {
     rule match {
       case RegexRule(id, category, description, _, replacement, regex) =>
         DraftDbRule.withUser(
@@ -32,6 +32,7 @@ object DbRuleManager extends Loggable {
           pattern = Some(regex.toString()),
           category = Some(category.name),
           description = Some(description),
+          ignore = false,
           replacement = replacement.map(_.text),
           googleSheetId = Some(id),
           user = "Google Sheet"
@@ -43,6 +44,7 @@ object DbRuleManager extends Loggable {
           pattern = Some(xml),
           category = Some(category.name),
           description = Some(description),
+          ignore = false,
           replacement = None,
           googleSheetId = Some(id),
           user = "Google Sheet"
@@ -52,6 +54,7 @@ object DbRuleManager extends Loggable {
           id = None,
           ruleType = RuleType.languageToolCore,
           googleSheetId = Some(languageToolRuleId),
+          ignore = false,
           user = "Google Sheet"
         )
       case _: LTRule =>
@@ -61,7 +64,7 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def dbRuleToCheckerRule(rule: DraftDbRule): Either[String, CheckerRule] = {
+  def draftDbRuleToCheckerRule(rule: DraftDbRule): Either[String, CheckerRule] = {
     rule match {
       case DraftDbRule(
             _,
@@ -71,6 +74,7 @@ object DbRuleManager extends Loggable {
             Some(category),
             _,
             description,
+            _,
             _,
             Some(googleSheetId),
             _,
@@ -100,6 +104,7 @@ object DbRuleManager extends Loggable {
             _,
             description,
             _,
+            _,
             Some(googleSheetId),
             _,
             _,
@@ -126,6 +131,7 @@ object DbRuleManager extends Loggable {
             _,
             _,
             _,
+            _,
             Some(googleSheetId),
             _,
             _,
@@ -140,15 +146,15 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def getRules()(implicit session: DBSession = autoSession): List[DraftDbRule] =
+  def getDraftRules()(implicit session: DBSession = autoSession): List[DraftDbRule] =
     DraftDbRule.findAll()
 
-  def createCheckerRuleResourceFromDbRules(
-      dbRules: List[DraftDbRule]
-  ): Either[List[String], CheckerRuleResource] = {
-    val (failedDbRules, successfulDbRules) = dbRules
-      .filter(_.ignore == false)
-      .map(dbRuleToCheckerRule)
+  def getLiveRules()(implicit session: DBSession = autoSession): List[LiveDbRule] =
+    LiveDbRule.findAll()
+
+  def getDraftRulesAsRuleResource()(implicit session: DBSession = autoSession) = {
+    val (failedDbRules, successfulDbRules) = getDraftRules()
+      .map(draftDbRuleToCheckerRule)
       .partitionMap(identity)
 
     failedDbRules match {
@@ -166,7 +172,13 @@ object DbRuleManager extends Loggable {
       .grouped(100)
       .foreach(DraftDbRule.batchInsert)
 
-    val persistedRules = getRules()
+    val liveRules = incomingRules.filter(!_.ignore).map(_.toLive("Imported from Google Sheet"))
+
+    liveRules
+      .grouped(100)
+      .foreach(LiveDbRule.batchInsert)
+
+    val persistedRules = getDraftRules()
     val rulesToCompare = persistedRules.map(_.copy(id = None))
 
     if (rulesToCompare == incomingRules) {

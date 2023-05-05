@@ -24,3 +24,32 @@ trait DbRuleFields {
 trait LiveDbRuleFields {
   def reason: String
 }
+
+object DbRule {
+  val dbColumns: Seq[String] = Seq(
+    "id",
+    "rule_type",
+    "pattern",
+    "replacement",
+    "category",
+    "tags",
+    "description",
+    "notes",
+    "google_sheet_id",
+    "force_red_rule",
+    "advisory_rule",
+    "created_at",
+    "created_by",
+    "updated_at",
+    "updated_by",
+    "revision_id"
+  )
+
+  val draftDbColumns: Seq[String] = dbColumns ++ Seq(
+    "ignore"
+  )
+
+  val liveDbColumns: Seq[String] = dbColumns ++ Seq(
+    "reason"
+  )
+}
