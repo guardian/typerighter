@@ -10,9 +10,13 @@ import {
     EuiLoadingSpinner,
     EuiButtonIcon,
     EuiFlexGrid,
+    EuiForm,
+    EuiFormRow,
+    EuiFieldText,
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
+import { RuleForm } from './RuleForm';
 
 const sorting = {
     sort: {
@@ -67,7 +71,7 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
 ];
 
 const RulesTable = () => {
-    const {rules, isLoading, error, refreshRules, isRefreshing, setError} = useRules();
+    const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
     const search: EuiSearchBarProps = {
         box: {
             incremental: true,
@@ -122,16 +126,25 @@ const RulesTable = () => {
 
             }
         </EuiFlexGrid>
-        {rules &&
-            <EuiInMemoryTable
-                tableCaption="Demo of EuiInMemoryTable"
-                items={rules}
-                columns={columns}
-                pagination={true}
-                sorting={sorting}
-                search={search}
-            />
-        }
+
+        <EuiFlexGroup>
+            <EuiFlexItem grow={2}>
+                {rules &&
+                    <EuiInMemoryTable
+                        tableCaption="Demo of EuiInMemoryTable"
+                        items={rules}
+                        columns={columns}
+                        pagination={true}
+                        sorting={sorting}
+                        search={search}
+                    />
+                }
+            </EuiFlexItem>
+            <EuiFlexItem grow={1}>
+                <RuleForm onRuleUpdate={fetchRules}/>
+            </EuiFlexItem>
+        </EuiFlexGroup>
+
     </>
 }
 

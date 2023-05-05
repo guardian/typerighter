@@ -46,5 +46,5 @@ export function useRules() {
         fetchRules();
     }, []);
 
-    return { rules, isLoading, error, refreshRules, isRefreshing, setError };
+    return { rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules };
 }
