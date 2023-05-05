@@ -4,47 +4,42 @@ import React from "react";
 import { MetadataOption } from "./CategorySelector";
 import { PartiallyUpdateRuleData, RuleFormData } from "./RuleForm";
 
+const existingTags = [
+    "SG",
+    "General",
+    "US spelling",
+    "Unnecessary contraction?",
+    "Swearword!",
+    "13?",
+    "Offensive?",
+    "US term",
+    "Taste?",
+    "Names",
+    "Coronavirus",
+    "Poss typo",
+    "SG ",
+    "Guardian convention",
+    "Legal",
+    "Tokyo 2020",
+    "Names",
+    "MP",
+    "LanguageTool",
+    "dates",
+    "Semantics",
+    "Typography",
+    "Typos"
+];
+
 export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
     ruleData: RuleFormData,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
-    const [options, updateOptions] = useState([
-        {
-            label: 'Tag A',
-        },
-        {
-            label: 'Tag B',
-        }
-    ]);
+    const options = existingTags.map(tag => {return {label: tag}});
 
     const [selectedTags, setSelectedTags] = useState<MetadataOption[]>([]);
 
     const onChange = (selectedTags) => {
         setSelectedTags(selectedTags);
-    };
-
-    const onCreateOption = (searchValue, flattenedOptions) => {
-        const normalizedSearchValue = searchValue.trim().toLowerCase();
-
-        if (!normalizedSearchValue) {
-            return;
-        }
-
-        const newOption = {
-            label: searchValue,
-        };
-
-        // Create the option if it doesn't exist.
-        if (
-            flattenedOptions.findIndex(
-                (option) => option.label.trim().toLowerCase() === normalizedSearchValue
-            ) === -1
-        ) {
-            updateOptions([...options, newOption]);
-        }
-
-        // Select the option.
-        setSelectedTags((prevSelected) => [...prevSelected, newOption]);
     };
 
     useEffect(() => {
@@ -62,7 +57,6 @@ export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
                 options={options}
                 selectedOptions={selectedTags}
                 onChange={onChange}
-                onCreateOption={onCreateOption}
                 isClearable={true}
                 isCaseSensitive
             />

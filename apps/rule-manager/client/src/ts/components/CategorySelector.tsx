@@ -29,7 +29,6 @@ export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
         {label: "Dates"},
         {label: "Style Guide"}
     ]
-    const [options, updateOptions] = useState(categories);
     // This is an array in order to match the expected type for EuiComboBox, but 
     // it will never have more than one category selected
     const [selectedCategory, setSelectedCategory] = useState<MetadataOption[]>([]);
@@ -38,43 +37,18 @@ export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
         setSelectedCategory(selectedOption);
     };
 
-    const onCreateOption = (searchValue: string, flattenedOptions) => {
-        const normalizedSearchValue = searchValue.trim().toLowerCase();
-
-        if (!normalizedSearchValue) {
-            return;
-        }
-
-        const newOption = {
-            label: searchValue,
-        };
-
-        // Create the option if it doesn't exist.
-        if (
-            flattenedOptions.findIndex(
-                (option) => option.label.trim().toLowerCase() === normalizedSearchValue
-            ) === -1
-        ) {
-            updateOptions([...options, newOption]);
-        }
-
-        // Select the option.
-        setSelectedCategory([newOption]);
-    };
-
     useEffect(() => {
         const newCategory = selectedCategory.length ? selectedCategory[0].label : undefined;
         partiallyUpdateRuleData(ruleData, {category: newCategory})
     }, [selectedCategory])
 
     return (
-        <EuiFormRow label='Categories'>
+        <EuiFormRow label='Category'>
             <EuiComboBox
-                options={options}
+                options={categories}
                 singleSelection={singleSelectionOptions}
                 selectedOptions={selectedCategory}
                 onChange={onChange}
-                onCreateOption={onCreateOption}
                 isClearable={true}
                 isCaseSensitive
             />
