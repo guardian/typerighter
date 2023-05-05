@@ -113,12 +113,12 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
                 id = None,
                 ruleType = ruleType,
                 pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
-                replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                replacement = cellToOptionalString(row, PatternRuleCols.Replacement),
                 category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
-                tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
+                tags = cellToOptionalString(row, PatternRuleCols.Tags),
                 description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
                 ignore = if (ignore.toString == "TRUE") true else false,
-                notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                notes = cellToOptionalString(row, PatternRuleCols.Replacement),
                 googleSheetId = Some(id),
                 forceRedRule = Some(
                   row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")
@@ -138,6 +138,12 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       }
     }
   }
+
+  private def cellToOptionalString(row: List[Any], col: Int): Option[String] =
+    row(col).asInstanceOf[String] match {
+      case "" => None
+      case s  => Some(s)
+    }
 
   /** Creates an authorized Credential object.
     *
