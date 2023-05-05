@@ -9,7 +9,7 @@ import scalikejdbc._
 import java.time.ZonedDateTime
 import scala.util.{Failure, Success, Try}
 
-case class DbRule(
+case class DraftDbRule(
     id: Option[Int],
     ruleType: String,
     pattern: Option[String] = None,
@@ -26,10 +26,10 @@ case class DbRule(
     updatedAt: ZonedDateTime,
     updatedBy: String,
     revisionId: Int = 0
-)
+) extends DbRuleFields
 
-object DbRule extends SQLSyntaxSupport[DbRule] {
-  implicit val format: Format[DbRule] = Json.format[DbRule]
+object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
+  implicit val format: Format[DraftDbRule] = Json.format[DraftDbRule]
 
   override val tableName = "rules_draft"
 
@@ -52,7 +52,8 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     "revision_id"
   )
 
-  def fromResultName(r: ResultName[DbRule])(rs: WrappedResultSet): DbRule = autoConstruct(rs, r)
+  def fromResultName(r: ResultName[DraftDbRule])(rs: WrappedResultSet): DraftDbRule =
+    autoConstruct(rs, r)
 
   def withUser(
       id: Option[Int],
@@ -69,7 +70,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       user: String
   ) = {
     val createdAt = ZonedDateTime.now()
-    DbRule(
+    DraftDbRule(
       id,
       ruleType,
       pattern,
@@ -88,42 +89,42 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     )
   }
 
-  val r = DbRule.syntax("r")
+  val r = DraftDbRule.syntax("r")
 
   override val autoSession = AutoSession
 
-  def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRule] = {
+  def find(id: Int)(implicit session: DBSession = autoSession): Option[DraftDbRule] = {
     withSQL {
-      select.from(DbRule as r).where.eq(r.id, id)
-    }.map(DbRule.fromResultName(r.resultName)).single().apply()
+      select.from(DraftDbRule as r).where.eq(r.id, id)
+    }.map(DraftDbRule.fromResultName(r.resultName)).single().apply()
   }
 
-  def findAll()(implicit session: DBSession = autoSession): List[DbRule] = {
-    withSQL(select.from(DbRule as r).orderBy(r.id))
-      .map(DbRule.fromResultName(r.resultName))
+  def findAll()(implicit session: DBSession = autoSession): List[DraftDbRule] = {
+    withSQL(select.from(DraftDbRule as r).orderBy(r.id))
+      .map(DraftDbRule.fromResultName(r.resultName))
       .list()
       .apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
-    withSQL(select(sqls.count).from(DbRule as r)).map(rs => rs.long(1)).single().apply().get
+    withSQL(select(sqls.count).from(DraftDbRule as r)).map(rs => rs.long(1)).single().apply().get
   }
 
-  def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[DbRule] = {
+  def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[DraftDbRule] = {
     withSQL {
-      select.from(DbRule as r).where.append(where)
-    }.map(DbRule.fromResultName(r.resultName)).single().apply()
+      select.from(DraftDbRule as r).where.append(where)
+    }.map(DraftDbRule.fromResultName(r.resultName)).single().apply()
   }
 
-  def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[DbRule] = {
+  def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[DraftDbRule] = {
     withSQL {
-      select.from(DbRule as r).where.append(where)
-    }.map(DbRule.fromResultName(r.resultName)).list().apply()
+      select.from(DraftDbRule as r).where.append(where)
+    }.map(DraftDbRule.fromResultName(r.resultName)).list().apply()
   }
 
   def countBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Long = {
     withSQL {
-      select(sqls.count).from(DbRule as r).where.append(where)
+      select(sqls.count).from(DraftDbRule as r).where.append(where)
     }.map(_.long(1)).single().apply().get
   }
 
@@ -139,10 +140,10 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
       user: String
-  )(implicit session: DBSession = autoSession): Try[DbRule] = {
+  )(implicit session: DBSession = autoSession): Try[DraftDbRule] = {
     val generatedKey = withSQL {
       insert
-        .into(DbRule)
+        .into(DraftDbRule)
         .namedValues(
           column.ruleType -> ruleType,
           column.pattern -> pattern,
@@ -173,7 +174,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   def createFromFormRule(formRule: CreateRuleForm, user: String)(implicit
       session: DBSession = autoSession
   ) = {
-    DbRule.create(
+    DraftDbRule.create(
       formRule.ruleType,
       formRule.pattern,
       formRule.replacement,
@@ -192,8 +193,8 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       formRule: UpdateRuleForm,
       id: Int,
       user: String
-  )(implicit session: DBSession = autoSession): Either[Result, DbRule] = {
-    val updatedRule = DbRule
+  )(implicit session: DBSession = autoSession): Either[Result, DraftDbRule] = {
+    val updatedRule = DraftDbRule
       .find(id)
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
@@ -213,7 +214,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       )
     updatedRule match {
       case Right(dbRule) => {
-        DbRule.save(dbRule, user).toEither match {
+        DraftDbRule.save(dbRule, user).toEither match {
           case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
           case Right(dbRule)      => Right(dbRule)
         }
@@ -223,7 +224,7 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
   }
 
   def batchInsert(
-      entities: collection.Seq[DbRule]
+      entities: collection.Seq[DraftDbRule]
   )(implicit session: DBSession = autoSession): List[Int] = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
@@ -276,9 +277,11 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: DbRule, user: String)(implicit session: DBSession = autoSession): Try[DbRule] = {
+  def save(entity: DraftDbRule, user: String)(implicit
+      session: DBSession = autoSession
+  ): Try[DraftDbRule] = {
     withSQL {
-      update(DbRule)
+      update(DraftDbRule)
         .set(
           column.id -> entity.id,
           column.ruleType -> entity.ruleType,
@@ -308,15 +311,15 @@ object DbRule extends SQLSyntaxSupport[DbRule] {
       .toTry
   }
 
-  def destroy(entity: DbRule)(implicit session: DBSession = autoSession): Int = {
+  def destroy(entity: DraftDbRule)(implicit session: DBSession = autoSession): Int = {
     withSQL {
-      delete.from(DbRule).where.eq(column.id, entity.id)
+      delete.from(DraftDbRule).where.eq(column.id, entity.id)
     }.update().apply()
   }
 
   def destroyAll()(implicit session: DBSession = autoSession): Int = {
     withSQL {
-      delete.from(DbRule)
+      delete.from(DraftDbRule)
     }.update().apply()
   }
 }

@@ -11,7 +11,7 @@ import play.api.mvc.Results.NotFound
 import java.time.ZonedDateTime
 
 class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
-  val r = DbRule.syntax("r")
+  val r = DraftDbRule.syntax("r")
 
   override def fixture(implicit session: DBSession) = {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
@@ -27,32 +27,32 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
   behavior of "Rules"
 
   it should "find by primary keys" in { implicit session =>
-    val maybeFound = DbRule.find(1)
+    val maybeFound = DraftDbRule.find(1)
     maybeFound.isDefined should be(true)
   }
   it should "find by where clauses" in { implicit session =>
-    val maybeFound = DbRule.findBy(sqls.eq(r.id, 1))
+    val maybeFound = DraftDbRule.findBy(sqls.eq(r.id, 1))
     maybeFound.isDefined should be(true)
   }
   it should "find all records" in { implicit session =>
-    val allResults = DbRule.findAll()
+    val allResults = DraftDbRule.findAll()
     allResults.size should be > (0)
   }
   it should "count all records" in { implicit session =>
-    val count = DbRule.countAll()
+    val count = DraftDbRule.countAll()
     count should be > (0L)
   }
   it should "find all by where clauses" in { implicit session =>
-    val results = DbRule.findAllBy(sqls.eq(r.id, 1))
+    val results = DraftDbRule.findAllBy(sqls.eq(r.id, 1))
     results.size should be > (0)
   }
   it should "count by where clauses" in { implicit session =>
-    val count = DbRule.countBy(sqls.eq(r.id, 1))
+    val count = DraftDbRule.countBy(sqls.eq(r.id, 1))
     count should be > (0L)
   }
   it should "create new record and autofill createdAt, updatedAt, and revisionId" in {
     implicit session =>
-      val created = DbRule
+      val created = DraftDbRule
         .create(ruleType = "regex", pattern = Some("MyString"), user = "test.user")
         .get
 
@@ -75,13 +75,13 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
       forceRedRule = None,
       advisoryRule = None
     )
-    val dbRule = DbRule.createFromFormRule(formRule, user = "test.user")
+    val dbRule = DraftDbRule.createFromFormRule(formRule, user = "test.user")
     dbRule should not be (null)
   }
 
   it should "edit an existing record using a form rule, updating the user and updated datetime" in {
     implicit session =>
-      val existingRule = DbRule
+      val existingRule = DraftDbRule
         .create(ruleType = "regex", pattern = Some("MyString"), user = "test.user")
         .get
       val existingId = existingRule.id.get
@@ -90,7 +90,8 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
         pattern = Some("NewString")
       )
 
-      val dbRule = DbRule.updateFromFormRule(formRule, existingId, "another.user").getOrElse(null)
+      val dbRule =
+        DraftDbRule.updateFromFormRule(formRule, existingId, "another.user").getOrElse(null)
 
       dbRule.id should be(Some(existingId))
       dbRule.pattern should be(Some("NewString"))
@@ -100,9 +101,9 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
 
   it should "save a record, updating the modified fields and incrementing the revisionId" in {
     implicit session =>
-      val entity = DbRule.findAll().head
+      val entity = DraftDbRule.findAll().head
       val modified = entity.copy(pattern = Some("NotMyString"))
-      val updated = DbRule.save(modified, "test.user").get
+      val updated = DraftDbRule.save(modified, "test.user").get
       updated.pattern should equal(Some("NotMyString"))
       updated.updatedBy should equal("test.user")
       updated.updatedAt.toInstant.toEpochMilli should be > entity.updatedAt.toInstant.toEpochMilli
@@ -116,21 +117,21 @@ class RulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with 
         pattern = Some("NewString")
       )
       val nonExistentRuleId = 2000
-      val dbRule = DbRule.updateFromFormRule(formRule, nonExistentRuleId, "test.user")
+      val dbRule = DraftDbRule.updateFromFormRule(formRule, nonExistentRuleId, "test.user")
       dbRule should be(Left(NotFound("Rule not found matching ID")))
   }
 
   it should "destroy a record" in { implicit session =>
-    val entity = DbRule.findAll().head
-    val deleted = DbRule.destroy(entity)
+    val entity = DraftDbRule.findAll().head
+    val deleted = DraftDbRule.destroy(entity)
     deleted should be(1)
-    val shouldBeNone = DbRule.find(123)
+    val shouldBeNone = DraftDbRule.find(123)
     shouldBeNone.isDefined should be(false)
   }
   it should "perform batch insert" in { implicit session =>
-    val entities = DbRule.findAll()
-    entities.foreach(e => DbRule.destroy(e))
-    val batchInserted = DbRule.batchInsert(entities)
+    val entities = DraftDbRule.findAll()
+    entities.foreach(e => DraftDbRule.destroy(e))
+    val batchInserted = DraftDbRule.batchInsert(entities)
     batchInserted.size should be > (0)
   }
 }
