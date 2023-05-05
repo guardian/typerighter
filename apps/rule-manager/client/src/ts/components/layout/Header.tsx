@@ -1,7 +1,12 @@
-import React from "react";
-import styled from "@emotion/styled"
-import {Logo} from "./Logo";
-import {colors} from "../../constants/constants";
+import React, { useContext, useState } from "react";
+import styled from "@emotion/styled";
+import { Logo } from "./Logo";
+import { colors } from "../../constants/constants";
+import { withEuiTheme, WithEuiThemeProps } from "@elastic/eui";
+import { DownChevron } from "../icons/downChevron";
+import { ProfileMenu } from "./ProfileMenu";
+import { EuiPopover } from "@elastic/eui";
+import { PageContext } from "../../utils/window";
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -19,6 +24,39 @@ const HeaderLogo = styled.div`
   justify-content: center;
 `;
 
-export const Header = () => <HeaderContainer>
-  <HeaderLogo><Logo/></HeaderLogo>
-</HeaderContainer>;
+const UserActionMenu = withEuiTheme(styled.div<WithEuiThemeProps>`
+  height: 50px;
+  line-height: 50px;
+  padding: 0 ${({ theme }) => theme.euiTheme.base}px;
+  cursor: pointer;
+`);
+
+export const Header = () => {
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const pageData = useContext(PageContext)
+
+  const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
+
+  const ProfileMenuButton = (
+    <UserActionMenu onClick={toggleProfileMenu}>
+      {pageData?.firstName} {pageData?.lastName} &nbsp;
+      <DownChevron />
+    </UserActionMenu>
+  );
+
+  return (
+    <HeaderContainer>
+      <HeaderLogo>
+        <Logo />
+      </HeaderLogo>
+      <EuiPopover
+        button={ProfileMenuButton}
+        isOpen={isProfileMenuOpen}
+        closePopover={() => setIsProfileMenuOpen(false)}
+        panelPaddingSize="none"
+      >
+        <ProfileMenu />
+      </EuiPopover>
+    </HeaderContainer>
+  );
+};

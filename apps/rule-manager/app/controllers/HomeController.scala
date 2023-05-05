@@ -23,8 +23,8 @@ class HomeController(
     with AppAuthActions
     with PermissionsHandler {
 
-  def index() = AuthAction {
-    Ok(views.html.index(config.stage))
+  def index() = AuthAction { request =>
+    Ok(views.html.index(config.stage, request.user))
   }
 
   def healthcheck() = Action {

@@ -29,7 +29,7 @@ export const existingTags = [
   "Typos"
 ];
 
-export const existingCategories = [  
+export const existingCategories = [
   "Check this",
   "Guardian convention",
   "Style guide and names",

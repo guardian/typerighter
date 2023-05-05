@@ -11,6 +11,9 @@ import { icon as cross } from "@elastic/eui/es/components/icon/assets/cross";
 import { icon as empty } from "@elastic/eui/es/components/icon/assets/empty";
 import { icon as search } from "./search";
 import { icon as error } from "@elastic/eui/es/components/icon/assets/error";
+import { icon as exit } from "@elastic/eui/es/components/icon/assets/exit";
+import { icon as starEmptySpace } from "@elastic/eui/es/components/icon/assets/star_empty";
+import { icon as starFilled } from "@elastic/eui/es/components/icon/assets/star_filled";
 
 type IconComponentNameType = ValuesType<typeof ICON_TYPES>;
 type IconComponentCacheType = Partial<Record<IconComponentNameType, unknown>>;
@@ -26,6 +29,9 @@ const cachedIcons: IconComponentCacheType = {
     cross,
     check,
     error,
+    exit,
+    starEmptySpace,
+    starFilled
 };
 
 appendIconComponentCache(cachedIcons);
