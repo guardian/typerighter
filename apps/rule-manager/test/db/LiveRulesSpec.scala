@@ -6,7 +6,7 @@ import scalikejdbc._
 import scalikejdbc.scalatest.AutoRollback
 
 class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
-  val r = LiveDbRule.syntax("r")
+  val r = DbRuleLive.syntax("r")
 
   override def fixture(implicit session: DBSession) = {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
@@ -18,20 +18,20 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
   behavior of "Live rules"
 
   it should "find by primary keys" in { implicit session =>
-    val maybeFound = LiveDbRule.find(1)
+    val maybeFound = DbRuleLive.find(1)
     maybeFound.isDefined should be(true)
   }
 
   it should "find all records" in { implicit session =>
-    val maybeFound = LiveDbRule.find(1)
-    val allResults = LiveDbRule.findAll()
+    val maybeFound = DbRuleLive.find(1)
+    val allResults = DbRuleLive.findAll()
     allResults should be(List(maybeFound.get))
   }
 
   it should "perform batch insert" in { implicit session =>
-    val entities = LiveDbRule.findAll()
-    LiveDbRule.destroyAll()
-    val batchInserted = LiveDbRule.batchInsert(entities)
+    val entities = DbRuleLive.findAll()
+    DbRuleLive.destroyAll()
+    val batchInserted = DbRuleLive.batchInsert(entities)
     batchInserted.size should be > (0)
   }
 }

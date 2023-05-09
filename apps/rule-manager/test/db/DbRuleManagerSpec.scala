@@ -21,7 +21,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
-      DraftDbRule.withUser(
+      DbRuleDraft.withUser(
         id = None,
         category = Some("Check this"),
         description = Some("A random rule description. " * Random.between(0, 100)),
@@ -109,8 +109,8 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
       DbRuleManager.destructivelyDumpRulesToDB(allRules)
 
-      DraftDbRule.findAll().map(_.copy(id = None)) shouldMatchTo allRules
-      LiveDbRule.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
+      DbRuleDraft.findAll().map(_.copy(id = None)) shouldMatchTo allRules
+      DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
         _.toLive("Imported from Google Sheet")
       )
   }

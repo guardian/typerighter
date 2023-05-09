@@ -1,16 +1,16 @@
 package db
 
-import db.DbRuleHelpers._
+import db.DbRule._
 import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
 import java.time.ZonedDateTime
 
-trait LiveDbRuleFields {
+trait DbRuleLiveFields {
   def reason: String
 }
 
-case class LiveDbRule(
+case class DbRuleLive(
     id: Option[Int],
     ruleType: String,
     pattern: Option[String] = None,
@@ -28,11 +28,11 @@ case class LiveDbRule(
     updatedBy: String,
     revisionId: Int = 0,
     reason: String
-) extends DbRule
-    with LiveDbRuleFields
+) extends DbRuleCommon
+    with DbRuleLiveFields
 
-object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
-  implicit val format: Format[LiveDbRule] = Json.format[LiveDbRule]
+object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
+  implicit val format: Format[DbRuleLive] = Json.format[DbRuleLive]
 
   override val tableName = "rules_live"
 
@@ -40,28 +40,28 @@ object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
     "reason"
   )
 
-  def fromResultName(r: ResultName[LiveDbRule])(rs: WrappedResultSet): LiveDbRule =
+  def fromResultName(r: ResultName[DbRuleLive])(rs: WrappedResultSet): DbRuleLive =
     autoConstruct(rs, r)
 
-  val r = LiveDbRule.syntax("r")
+  val r = DbRuleLive.syntax("r")
 
   override val autoSession = AutoSession
 
-  def find(id: Int)(implicit session: DBSession = autoSession): Option[LiveDbRule] = {
+  def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleLive] = {
     withSQL {
-      select.from(LiveDbRule as r).where.eq(r.id, id)
-    }.map(LiveDbRule.fromResultName(r.resultName)).single().apply()
+      select.from(DbRuleLive as r).where.eq(r.id, id)
+    }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
-  def findAll()(implicit session: DBSession = autoSession): List[LiveDbRule] = {
-    withSQL(select.from(LiveDbRule as r).orderBy(r.id))
-      .map(LiveDbRule.fromResultName(r.resultName))
+  def findAll()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    withSQL(select.from(DbRuleLive as r).orderBy(r.id))
+      .map(DbRuleLive.fromResultName(r.resultName))
       .list()
       .apply()
   }
 
   def batchInsert(
-      entities: collection.Seq[LiveDbRule]
+      entities: collection.Seq[DbRuleLive]
   )(implicit session: DBSession = autoSession): List[Int] = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
@@ -119,7 +119,7 @@ object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
 
   def destroyAll()(implicit session: DBSession = autoSession): Int = {
     withSQL {
-      delete.from(LiveDbRule)
+      delete.from(DbRuleLive)
     }.update().apply()
   }
 }

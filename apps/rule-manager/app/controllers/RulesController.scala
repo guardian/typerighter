@@ -4,7 +4,7 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleManager
 import play.api.libs.json.Json
-import db.DraftDbRule
+import db.DbRuleDraft
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{JsValue, Writes}
@@ -57,7 +57,7 @@ class RulesController(
           BadRequest(Json.toJson(errors))
         },
         formRule => {
-          DraftDbRule.createFromFormRule(formRule, request.user.email) match {
+          DbRuleDraft.createFromFormRule(formRule, request.user.email) match {
             case Success(rule)  => Ok(Json.toJson(rule))
             case Failure(error) => InternalServerError(error.getMessage())
           }
@@ -74,7 +74,7 @@ class RulesController(
           BadRequest(Json.toJson(errors))
         },
         formRule => {
-          DraftDbRule.updateFromFormRule(formRule, id, request.user.email) match {
+          DbRuleDraft.updateFromFormRule(formRule, id, request.user.email) match {
             case Left(result)  => result
             case Right(dbRule) => Ok(Json.toJson(dbRule))
           }

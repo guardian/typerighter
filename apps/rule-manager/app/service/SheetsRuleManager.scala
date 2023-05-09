@@ -9,7 +9,7 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
-import db.DraftDbRule
+import db.DbRuleDraft
 
 object PatternRuleCols {
   val Type = 0
@@ -45,13 +45,13 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  def getRules(): Either[List[String], List[DraftDbRule]] = {
+  def getRules(): Either[List[String], List[DbRuleDraft]] = {
     getPatternRules()
   }
 
   /** Get rules that match using patterns, e.g. `RegexRule`, `LTRule`.
     */
-  private def getPatternRules(): Either[List[String], List[DraftDbRule]] = {
+  private def getPatternRules(): Either[List[String], List[DbRuleDraft]] = {
     getRulesFromSheet("regexRules", "A:N", getRuleFromRow)
   }
 
@@ -86,7 +86,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
     }
   }
 
-  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[DraftDbRule]] = {
+  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[DbRuleDraft]] = {
     try {
       val ruleType = row(PatternRuleCols.Type)
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
@@ -109,7 +109,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
         case (Some(id), Some(ignore), Some(ruleType)) =>
           Success(
             Some(
-              DraftDbRule.withUser(
+              DbRuleDraft.withUser(
                 id = None,
                 ruleType = ruleType,
                 pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
