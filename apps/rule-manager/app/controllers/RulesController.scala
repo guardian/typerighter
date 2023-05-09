@@ -7,7 +7,8 @@ import play.api.libs.json.Json
 import db.DbRuleDraft
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
-import play.api.libs.json.{JsValue, Writes}
+import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.mvc.Results.NotFound
 import play.api.mvc._
 import service.{DbRuleManager, SheetsRuleManager}
 import scala.util.{Success, Failure}
@@ -39,6 +40,15 @@ class RulesController(
 
   def rules = ApiAuthAction {
     Ok(Json.toJson(DbRuleManager.getDraftRules()))
+  }
+
+  def rule(id: Int) = ApiAuthAction { implicit request: Request[AnyContent] =>
+    val result = DbRuleManager.getRule(id)
+
+    result match {
+      case None  => NotFound("Rule not found matching ID")
+      case Some(result) => Ok(Json.toJson(result))
+    }
   }
 
   implicit object FormErrorWrites extends Writes[FormError] {
