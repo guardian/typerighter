@@ -167,6 +167,7 @@ object DbRuleManager extends Loggable {
     incomingRules: List[DraftDbRule]
   ): Either[List[String], List[DraftDbRule]] = {
     DraftDbRule.destroyAll()
+    LiveDbRule.destroyAll()
 
     incomingRules
       .grouped(100)
