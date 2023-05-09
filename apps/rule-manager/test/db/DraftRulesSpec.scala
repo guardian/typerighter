@@ -24,7 +24,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
     date1.toInstant().toEpochMilli should be(date2.toInstant().toEpochMilli +- range)
   }
 
-  behavior of "Rules"
+  behavior of "Draft rules"
 
   it should "find by primary keys" in { implicit session =>
     val maybeFound = DraftDbRule.find(1)
@@ -129,6 +129,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
     val shouldBeNone = DraftDbRule.find(123)
     shouldBeNone.isDefined should be(false)
   }
+
   it should "perform batch insert" in { implicit session =>
     val entities = DraftDbRule.findAll()
     entities.foreach(e => DraftDbRule.destroy(e))

@@ -110,4 +110,10 @@ object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
       {reason}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
+
+  def destroyAll()(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete.from(LiveDbRule)
+    }.update().apply()
+  }
 }
