@@ -18,12 +18,8 @@ export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
     };
 
     useEffect(() => {
-        if (selectedTags.length) {
-            const newTags = selectedTags.map(tag => tag.label)
-            partiallyUpdateRuleData(ruleData, {tags: newTags})
-        } else {
-            partiallyUpdateRuleData(ruleData, {tags: undefined})
-        }
+        const newTags = selectedTags.map(tag => tag.label)
+        partiallyUpdateRuleData(ruleData, {tags: newTags})
     }, [selectedTags])
 
     return (

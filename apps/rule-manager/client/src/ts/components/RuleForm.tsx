@@ -46,9 +46,9 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     const [errors, setErrors] = useState<FormError[]>([]);
 
     const openCreateRuleForm = () => {
+        setRuleData(baseForm);
         setCreateRuleFormOpen(true);
         setUpdateMode(false);
-        setRuleData(baseForm);
     }
     
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
@@ -57,7 +57,6 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
 
     useEffect(() => {
         const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
-
         if(!ruleData.pattern) {
             setErrors([emptyPatternFieldError]);
         } else {
@@ -84,18 +83,39 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
 
         if (updateMode){
             updateRule(transformRuleFormData(ruleData))
-                .then(response => response.json())
-                .then(data => {
-                    setRuleData(baseForm);
-                    onRuleUpdate();
+                .then(async response => {
+                    return {
+                        rule: await response.json(),
+                        status: response.status,
+                        statusText: response.statusText
+                    }
                 })
-            setCreateRuleFormOpen(false);
-        } else {
-            createRule(transformRuleFormData(ruleData))
-                .then(response => response.json())
                 .then(data => {
-                    setRuleData(baseForm);
-                    onRuleUpdate();
+                    if (data.status === 200){
+                        setRuleData(baseForm);
+                        onRuleUpdate();
+                        setCreateRuleFormOpen(false);
+                    } else {
+                        setErrors([...errors, {id: `${data.status} error`, value: `${data.statusText} - try again or contact the Editorial Tools team.`}])
+                    }
+                })
+        } else {
+            // Create new rule rather than updating existing rule
+            createRule(transformRuleFormData(ruleData))
+                .then(async response => {
+                    return {
+                        rule: await response.json(),
+                        status: response.status,
+                        statusText: response.statusText
+                    }
+                })
+                .then(data => {
+                    if (data.status === 200) {
+                        setRuleData(baseForm);
+                        onRuleUpdate();
+                    } else {
+                        setErrors([...errors, {id: `${data.status} error`, value: `${data.statusText} - try again or contact the Editorial Tools team.`}])
+                    }
                 })
             setCreateRuleFormOpen(false);
         }

@@ -91,7 +91,7 @@ const RulesTable = () => {
             schema: true,
         }
     };
-    const openEditRulePanel =(ruleId: number) => {
+    const openEditRulePanel = (ruleId: number) => {
         getRule(ruleId)
             .then(async response => {
                 return {
