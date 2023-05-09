@@ -1,10 +1,11 @@
 -- !Ups
 
 -- Add live rules table, dropping rules marked as ignore
-CREATE TABLE rules_live
-    AS SELECT * FROM rules WHERE ignore = false;
+CREATE TABLE rules_live (LIKE rules INCLUDING DEFAULTS);
 
 ALTER TABLE rules_live
+    DROP COLUMN id,
+    ADD COLUMN id SERIAL PRIMARY KEY,
     ADD COLUMN reason TEXT DEFAULT 'First published';
 
 ALTER TABLE rules_live
