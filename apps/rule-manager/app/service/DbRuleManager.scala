@@ -173,7 +173,7 @@ object DbRuleManager extends Loggable {
       .grouped(100)
       .foreach(DraftDbRule.batchInsert)
 
-    val liveRules = incomingRules.filter(!_.ignore).map(_.toLive("Imported from Google Sheet"))
+    val liveRules = incomingRules.filterNot(_.ignore).map(_.toLive("Imported from Google Sheet"))
 
     liveRules
       .grouped(100)

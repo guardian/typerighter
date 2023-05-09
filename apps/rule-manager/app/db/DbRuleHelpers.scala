@@ -2,7 +2,7 @@ package db
 
 import java.time.ZonedDateTime
 
-trait DbRuleFields {
+trait DbRule {
   def id: Option[Int]
   def ruleType: String
   def pattern: Option[String]
@@ -21,7 +21,7 @@ trait DbRuleFields {
   def revisionId: Int
 }
 
-object DbRule {
+object DbRuleHelpers {
   val dbColumns: Seq[String] = Seq(
     "id",
     "rule_type",

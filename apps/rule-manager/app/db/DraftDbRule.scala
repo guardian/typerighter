@@ -1,6 +1,6 @@
 package db
 
-import db.DbRule._
+import db.DbRuleHelpers._
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
@@ -28,7 +28,7 @@ case class DraftDbRule(
     updatedAt: ZonedDateTime,
     updatedBy: String,
     revisionId: Int = 0
-) extends DbRuleFields {
+) extends DbRule {
 
   def toLive(reason: String): LiveDbRule = {
     LiveDbRule(

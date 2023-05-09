@@ -1,6 +1,6 @@
 package db
 
-import db.DbRule._
+import db.DbRuleHelpers._
 import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
@@ -28,7 +28,7 @@ case class LiveDbRule(
     updatedBy: String,
     revisionId: Int = 0,
     reason: String
-) extends DbRuleFields
+) extends DbRule
     with LiveDbRuleFields
 
 object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
@@ -76,7 +76,9 @@ object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
         Symbol("forceRedRule") -> entity.forceRedRule,
         Symbol("advisoryRule") -> entity.advisoryRule,
         Symbol("createdBy") -> entity.createdBy,
+        Symbol("createdAt") -> entity.createdAt,
         Symbol("updatedBy") -> entity.updatedBy,
+        Symbol("updatedAt") -> entity.updatedAt,
         Symbol("reason") -> entity.reason
       )
     )
@@ -91,7 +93,9 @@ object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
       google_sheet_id,
       force_red_rule,
       advisory_rule,
+      created_at,
       created_by,
+      updated_at,
       updated_by,
       reason
     ) values (
@@ -105,7 +109,9 @@ object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
       {googleSheetId},
       {forceRedRule},
       {advisoryRule},
+      {createdAt},
       {createdBy},
+      {updatedAt},
       {updatedBy},
       {reason}
     )""").batchByName(params.toSeq: _*).apply[List]()

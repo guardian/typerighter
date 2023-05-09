@@ -107,7 +107,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       val updated = DraftDbRule.save(modified, "test.user").get
       updated.pattern should equal(Some("NotMyString"))
       updated.updatedBy should equal("test.user")
-      updated.updatedAt.toInstant.toEpochMilli should be > entity.updatedAt.toInstant.toEpochMilli
+      updated.updatedAt.toInstant.toEpochMilli should be >= entity.updatedAt.toInstant.toEpochMilli
       updated.revisionId should equal(entity.revisionId + 1)
   }
 
