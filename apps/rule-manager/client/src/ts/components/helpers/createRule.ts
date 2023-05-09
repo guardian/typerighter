@@ -9,7 +9,8 @@ export type FormDataForApiEndpoint =  {
     description?: string,
     ignore: boolean,
     forceRedRule?: boolean,
-    advisoryRule?: boolean
+    advisoryRule?: boolean,
+    id?: number
 }
 
 export const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {

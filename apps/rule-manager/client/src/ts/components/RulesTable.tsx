@@ -101,6 +101,7 @@ const RulesTable = () => {
             })
             .then(data => {
                 if (data.status === 200){
+                    setUpdateMode(true);
                     setCreateRuleFormOpen(true);
                     setRuleData(data.rule);
                 } else {
@@ -111,7 +112,7 @@ const RulesTable = () => {
     const columns = createColumns(openEditRulePanel);
     const [ruleData, setRuleData] = useState<RuleFormData>(baseForm);
     const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
-    const [editMode, setEditMode] = useState(false);
+    const [updateMode, setUpdateMode] = useState(false);
 
     return <>
         <EuiFlexGroup>
@@ -182,6 +183,8 @@ const RulesTable = () => {
                     setRuleData={setRuleData}
                     createRuleFormOpen={createRuleFormOpen}
                     setCreateRuleFormOpen={setCreateRuleFormOpen}
+                    updateMode={updateMode}
+                    setUpdateMode={setUpdateMode}
                 />
             </EuiFlexItem>
         </EuiFlexGroup>

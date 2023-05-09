@@ -6,6 +6,7 @@ import { RuleMetadata } from "./RuleMetadata";
 import { createRule, transformRuleFormData } from "./helpers/createRule";
 import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
+import { updateRule } from "./helpers/updateRule";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -18,7 +19,8 @@ export type RuleFormData = {
     description?: string,
     ignore: boolean,
     forceRedRule?: boolean,
-    advisoryRule?: boolean
+    advisoryRule?: boolean,
+    id?: number
 }
 
 export type PartiallyUpdateRuleData = (existing: RuleFormData, partialReplacement: Partial<RuleFormData>) => void;
@@ -31,18 +33,22 @@ export const baseForm = {
     ignore: false,
 }
 
-export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpen, setCreateRuleFormOpen}: {
+export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpen, setCreateRuleFormOpen, updateMode, setUpdateMode}: {
         onRuleUpdate: () => Promise<void>, 
         ruleData: RuleFormData,
         setRuleData: Dispatch<SetStateAction<RuleFormData>>,
         createRuleFormOpen: boolean, 
-        setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>
+        setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>,
+        updateMode: boolean, 
+        setUpdateMode: Dispatch<SetStateAction<boolean>>
     }) => {
     const [showErrors, setShowErrors] = useState(false);
     const [errors, setErrors] = useState<FormError[]>([]);
 
     const openCreateRuleForm = () => {
         setCreateRuleFormOpen(true);
+        setUpdateMode(false);
+        setRuleData(baseForm);
     }
     
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
@@ -76,13 +82,22 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
             return;
         }
 
-        createRule(ruleData)
-            .then(response => response.json())
-            .then(data => {
-                setRuleData(baseForm);
-                onRuleUpdate();
-            })
-        setCreateRuleFormOpen(false);
+        if (updateMode){
+            updateRule(transformRuleFormData(ruleData))
+                .then(response => response.json())
+                .then(data => {
+                    setRuleData(baseForm);
+                    onRuleUpdate();
+                })
+        } else {
+            createRule(transformRuleFormData(ruleData))
+                .then(response => response.json())
+                .then(data => {
+                    setRuleData(baseForm);
+                    onRuleUpdate();
+                })
+            setCreateRuleFormOpen(false);
+        }
     }
 
     const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
@@ -99,10 +114,10 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
                     <EuiButton onClick={() => {
                         setCreateRuleFormOpen(false);
                         setRuleData(baseForm);
-                    }}>Discard Rule</EuiButton>
+                    }}>{updateMode ? "Discard Changes" : "Discard Rule"}</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                    <EuiButton fill={true} onClick={saveRuleHandler}>Save Rule</EuiButton>
+                    <EuiButton fill={true} onClick={saveRuleHandler}>{updateMode ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
