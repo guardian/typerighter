@@ -58,7 +58,9 @@ object DraftDbRule extends SQLSyntaxSupport[DraftDbRule] {
 
   override val tableName = "rules_draft"
 
-  override val columns: Seq[String] = draftDbColumns
+  override val columns: Seq[String] = dbColumns ++ Seq(
+    "ignore"
+  )
 
   def fromResultName(r: ResultName[DraftDbRule])(rs: WrappedResultSet): DraftDbRule =
     autoConstruct(rs, r)

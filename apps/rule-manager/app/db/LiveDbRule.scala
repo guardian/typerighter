@@ -6,6 +6,10 @@ import scalikejdbc._
 
 import java.time.ZonedDateTime
 
+trait LiveDbRuleFields {
+  def reason: String
+}
+
 case class LiveDbRule(
     id: Option[Int],
     ruleType: String,
@@ -32,7 +36,9 @@ object LiveDbRule extends SQLSyntaxSupport[LiveDbRule] {
 
   override val tableName = "rules_live"
 
-  override val columns: Seq[String] = liveDbColumns
+  override val columns: Seq[String] = dbColumns ++ Seq(
+    "reason"
+  )
 
   def fromResultName(r: ResultName[LiveDbRule])(rs: WrappedResultSet): LiveDbRule =
     autoConstruct(rs, r)

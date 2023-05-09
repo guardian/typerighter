@@ -21,10 +21,6 @@ trait DbRuleFields {
   def revisionId: Int
 }
 
-trait LiveDbRuleFields {
-  def reason: String
-}
-
 object DbRule {
   val dbColumns: Seq[String] = Seq(
     "id",
@@ -43,13 +39,5 @@ object DbRule {
     "updated_at",
     "updated_by",
     "revision_id"
-  )
-
-  val draftDbColumns: Seq[String] = dbColumns ++ Seq(
-    "ignore"
-  )
-
-  val liveDbColumns: Seq[String] = dbColumns ++ Seq(
-    "reason"
   )
 }
