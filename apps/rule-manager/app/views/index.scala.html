@@ -1,11 +1,13 @@
-@(devMode: Boolean)
+@import com.gu.pandomainauth.model.User
+
+@(stage: String, user: User)
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
     <title>Typerighter</title>
 
-    @if(devMode) {
+    @if(stage == "dev") {
       <!-- Connect directly to Vite dev server in development -->
       <!-- See https://vitejs.dev/guide/backend-integration.html -->
       <script type="module">
@@ -23,8 +25,11 @@
       <link rel="stylesheet" type="text/css" href="/build/index.css">
       <script defer type="module" src="/build/index.js"></script>
     }
+
+    <link rel="icon" href="static/favicon.@{stage.toUpperCase}.svg">
   </head>
   <body>
+    <script id="data" type="application/json">@{Html(user.toJson)}</script>
     <div id="rule-manager-app"></div>
   </body>
 </html>

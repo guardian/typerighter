@@ -2,14 +2,14 @@ package service
 
 import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
-  BaseRule,
+  CheckerRule,
   Category,
   ComparableRegex,
   LTRule,
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  RuleResource,
+  CheckerRuleResource,
   TextSuggestion
 }
 import db.DbRule
@@ -23,7 +23,7 @@ object DbRuleManager extends Loggable {
     val languageToolCore = "languageToolCore"
   }
 
-  def baseRuleToDbRule(rule: BaseRule): DbRule = {
+  def checkerRuleToDbRule(rule: CheckerRule): DbRule = {
     rule match {
       case RegexRule(id, category, description, _, replacement, regex) =>
         DbRule.withUser(
@@ -64,7 +64,7 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def dbRuleToBaseRule(rule: DbRule): Either[String, BaseRule] = {
+  def dbRuleToCheckerRule(rule: DbRule): Either[String, CheckerRule] = {
     rule match {
       case DbRule(
             _,
@@ -148,21 +148,23 @@ object DbRuleManager extends Loggable {
 
   def getRules()(implicit session: DBSession = autoSession): List[DbRule] = DbRule.findAll()
 
-  def createRuleResourceFromDbRules(dbRules: List[DbRule]): Either[List[String], RuleResource] = {
+  def createCheckerRuleResourceFromDbRules(
+      dbRules: List[DbRule]
+  ): Either[List[String], CheckerRuleResource] = {
     val (failedDbRules, successfulDbRules) = dbRules
       .filter(_.ignore == false)
-      .map(dbRuleToBaseRule)
+      .map(dbRuleToCheckerRule)
       .partitionMap(identity)
 
     failedDbRules match {
-      case Nil      => Right(RuleResource(successfulDbRules))
+      case Nil      => Right(CheckerRuleResource(successfulDbRules))
       case failures => Left(failures)
     }
   }
 
   def destructivelyDumpRulesToDB(
       incomingRules: List[DbRule]
-  )(implicit session: DBSession = autoSession): Either[List[String], List[DbRule]] = {
+  ): Either[List[String], List[DbRule]] = {
     DbRule.destroyAll()
 
     incomingRules

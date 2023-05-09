@@ -1,14 +1,14 @@
 package service
 
+import play.api.Logging
+import java.io._
+import java.util.Collections
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 import db.DbRule
-import play.api.Logging
 
-import java.io._
-import java.util.Collections
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
@@ -93,29 +93,33 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
       val maybeId = row.lift(PatternRuleCols.Id).asInstanceOf[Option[String]]
       val rowNumber = index + 1
+      val maybeRuleType = Map(
+        "regex" -> "regex",
+        "lt" -> "languageToolXML",
+        "lt_core" -> "languageToolCore"
+      ).get(ruleType.asInstanceOf[String])
 
-      (maybeId, maybeIgnore, ruleType) match {
+      (maybeId, maybeIgnore, maybeRuleType) match {
         case (None, _, _) => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
         case (Some(id), _, _) if id.isEmpty =>
           Failure(new Exception(s"empty id for rule (row: ${rowNumber})"))
-        case (Some(id), _, ruleType)
-            if !Set("regex", "lt", "lt_core").contains(ruleType.toString) =>
+        case (Some(id), _, None) =>
           Failure(new Exception(s"Rule type ${ruleType} for rule with id ${id} not supported"))
         case (Some(_), None, _) =>
           Failure(new Exception(s"no Ignore column for rule (row: ${rowNumber})"))
-        case (Some(id), Some(ignore), ruleType) =>
+        case (Some(id), Some(ignore), Some(ruleType)) =>
           Success(
             Some(
               DbRule.withUser(
                 id = None,
-                ruleType = ruleType.asInstanceOf[String],
+                ruleType = ruleType,
                 pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
-                replacement = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                replacement = cellToOptionalString(row, PatternRuleCols.Replacement),
                 category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
-                tags = row.lift(PatternRuleCols.Tags).asInstanceOf[Option[String]],
+                tags = cellToOptionalString(row, PatternRuleCols.Tags),
                 description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
                 ignore = if (ignore.toString == "TRUE") true else false,
-                notes = row.lift(PatternRuleCols.Replacement).asInstanceOf[Option[String]],
+                notes = cellToOptionalString(row, PatternRuleCols.Replacement),
                 externalId = id,
                 forceRedRule = Some(
                   row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")
@@ -135,6 +139,12 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
       }
     }
   }
+
+  private def cellToOptionalString(row: List[Any], col: Int): Option[String] =
+    row(col).asInstanceOf[String] match {
+      case "" => None
+      case s  => Some(s)
+    }
 
   /** Creates an authorized Credential object.
     *

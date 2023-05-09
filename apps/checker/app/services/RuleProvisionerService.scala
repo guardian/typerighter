@@ -2,7 +2,7 @@ package services
 
 import java.util.Date
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{LTRuleCore, LTRuleXML, RegexRule, RuleResource}
+import com.gu.typerighter.model.{LTRuleCore, LTRuleXML, RegexRule, CheckerRuleResource}
 import com.gu.typerighter.rules.BucketRuleManager
 import matchers.RegexMatcher
 import play.api.Logging
@@ -26,7 +26,7 @@ class RuleProvisionerService(
 
   /** Update the rules in our matcherPool, given a ruleResource.
     */
-  def updateRules(ruleResource: RuleResource, date: Date): Either[List[Throwable], Unit] = {
+  def updateRules(ruleResource: CheckerRuleResource, date: Date): Either[List[Throwable], Unit] = {
     matcherPool.removeAllMatchers()
 
     val coreRules = ruleResource.rules.collect { case r: LTRuleCore => r }
