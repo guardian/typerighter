@@ -19,7 +19,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
-      DbRule.withUser(
+      DraftDbRule.withUser(
         id = None,
         category = Some("Check this"),
         description = Some("A random rule description. " * Random.between(0, 100)),
@@ -62,7 +62,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDbRule)
+      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDraftDbRule)
       val rulesFromDb =
         DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 

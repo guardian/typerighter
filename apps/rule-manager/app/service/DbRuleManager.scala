@@ -149,11 +149,11 @@ object DbRuleManager extends Loggable {
   def getDraftRules()(implicit session: DBSession = autoSession): List[DraftDbRule] =
     DraftDbRule.findAll()
 
-  def getLiveRules()(implicit session: DBSession = autoSession): List[LiveDbRule] =
-    LiveDbRule.findAll()
-
-  def getDraftRulesAsRuleResource()(implicit session: DBSession = autoSession) = {
-    val (failedDbRules, successfulDbRules) = getDraftRules()
+  def createCheckerRuleResourceFromDbRules(
+      dbRules: List[DraftDbRule]
+  ): Either[List[String], CheckerRuleResource] = {
+    val (failedDbRules, successfulDbRules) = dbRules
+      .filter(_.ignore == false)
       .map(draftDbRuleToCheckerRule)
       .partitionMap(identity)
 
@@ -164,7 +164,7 @@ object DbRuleManager extends Loggable {
   }
 
   def destructivelyDumpRulesToDB(
-    incomingRules: List[DraftDbRule]
+      incomingRules: List[DraftDbRule]
   ): Either[List[String], List[DraftDbRule]] = {
     DraftDbRule.destroyAll()
     LiveDbRule.destroyAll()
