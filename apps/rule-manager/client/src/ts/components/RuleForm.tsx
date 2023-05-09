@@ -98,7 +98,7 @@ export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) =>
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
-                { errors.map(error => <EuiText>{`${error.value}`}</EuiText>)}
+                { errors.map((error, index) => <EuiText key={index}>{`${error.value}`}</EuiText>)}
             </EuiCallOut> : null}
         </EuiFlexGroup> : null}
     </EuiForm>
