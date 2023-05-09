@@ -1,10 +1,10 @@
 import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText } from "@elastic/eui";
-import React, { useContext, useEffect, useState } from "react"
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
-
 import { RuleMetadata } from "./RuleMetadata";
-import { createRule } from "./api/createRule";
+import { createRule, transformRuleFormData } from "./helpers/createRule";
+import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
 
 export type RuleType = 'regex' | 'languageToolXML';
@@ -25,20 +25,26 @@ export type PartiallyUpdateRuleData = (existing: RuleFormData, partialReplacemen
 
 export type FormError = { id: string; value: string }
 
-export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) => {
-    const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
+export const baseForm = {
+    ruleType: 'regex' as RuleType,
+    tags: [] as string[],
+    ignore: false,
+}
+
+export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpen, setCreateRuleFormOpen}: {
+        onRuleUpdate: () => Promise<void>, 
+        ruleData: RuleFormData,
+        setRuleData: Dispatch<SetStateAction<RuleFormData>>,
+        createRuleFormOpen: boolean, 
+        setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>
+    }) => {
     const [showErrors, setShowErrors] = useState(false);
     const [errors, setErrors] = useState<FormError[]>([]);
 
     const openCreateRuleForm = () => {
         setCreateRuleFormOpen(true);
     }
-    const baseForm = {
-        ruleType: 'regex' as RuleType,
-        tags: [] as string[],
-        ignore: false,
-    }
-    const [ruleData, setRuleData] = useState<RuleFormData>(baseForm);
+    
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
         setRuleData({...existing, ...partialReplacement});
     }

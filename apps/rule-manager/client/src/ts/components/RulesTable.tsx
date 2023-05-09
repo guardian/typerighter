@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     EuiSearchBarProps,
     EuiBasicTableColumn,
@@ -14,7 +14,8 @@ import {
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
-import { RuleForm } from './RuleForm';
+import { baseForm, RuleForm, RuleFormData } from './RuleForm';
+import { getRule } from './helpers/getRule';
 
 const sorting = {
     sort: {
@@ -41,7 +42,7 @@ export type Rule = {
     regex: string;
 }
 
-const columns: Array<EuiBasicTableColumn<Rule>> = [
+const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => [
     {
         field: 'ruleType',
         name: 'Type',
@@ -74,7 +75,9 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
             description: 'Edit this rule',
             icon: 'pencil',
             type: 'icon',
-            onClick: () => {},
+            onClick: (rule) => {
+                editRule(Number(rule.id))
+            },
             'data-test-subj': 'action-edit',
         }]
     }
@@ -88,6 +91,27 @@ const RulesTable = () => {
             schema: true,
         }
     };
+    const openEditRulePanel =(ruleId: number) => {
+        getRule(ruleId)
+            .then(async response => {
+                return {
+                    rule: await response.json(),
+                    status: response.status
+                }
+            })
+            .then(data => {
+                if (data.status === 200){
+                    setCreateRuleFormOpen(true);
+                    setRuleData(data.rule);
+                } else {
+                    console.error(data);
+                }
+            })
+    }
+    const columns = createColumns(openEditRulePanel);
+    const [ruleData, setRuleData] = useState<RuleFormData>(baseForm);
+    const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
+    const [editMode, setEditMode] = useState(false);
 
     return <>
         <EuiFlexGroup>
@@ -152,7 +176,13 @@ const RulesTable = () => {
                 }
             </EuiFlexItem>
             <EuiFlexItem grow={1}>
-                <RuleForm onRuleUpdate={fetchRules}/>
+                <RuleForm 
+                    onRuleUpdate={fetchRules}
+                    ruleData={ruleData}
+                    setRuleData={setRuleData}
+                    createRuleFormOpen={createRuleFormOpen}
+                    setCreateRuleFormOpen={setCreateRuleFormOpen}
+                />
             </EuiFlexItem>
         </EuiFlexGroup>
 
