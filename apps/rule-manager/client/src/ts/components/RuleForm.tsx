@@ -7,6 +7,7 @@ import { createRule } from "./api/createRule";
 import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
 import { updateRule } from "./api/updateRule";
+import { responseHandler } from "./api/parseResponse";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -75,50 +76,21 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     // We need to be able to show errors on a field by field basis
 
     const saveRuleHandler = () => {
-
         if(errors.length > 0) {
             setShowErrors(true);
             return;
         }
 
-        if (updateMode){
-            updateRule(ruleData)
-                .then(async response => {
-                    return {
-                        rule: await response.json(),
-                        status: response.status,
-                        statusText: response.statusText
-                    }
-                })
-                .then(data => {
-                    if (data.status === 200){
-                        setRuleData(baseForm);
-                        onRuleUpdate();
-                        setCreateRuleFormOpen(false);
-                    } else {
-                        setErrors([...errors, {id: `${data.status} error`, value: `${data.statusText} - try again or contact the Editorial Tools team.`}])
-                    }
-                })
-        } else {
-            // Create new rule rather than updating existing rule
-            createRule(ruleData)
-                .then(async response => {
-                    return {
-                        rule: await response.json(),
-                        status: response.status,
-                        statusText: response.statusText
-                    }
-                })
-                .then(data => {
-                    if (data.status === 200) {
-                        setRuleData(baseForm);
-                        onRuleUpdate();
-                    } else {
-                        setErrors([...errors, {id: `${data.status} error`, value: `${data.statusText} - try again or contact the Editorial Tools team.`}])
-                    }
-                })
-            setCreateRuleFormOpen(false);
-        }
+        updateMode ? updateRule(ruleData) : createRule(ruleData)
+            .then(data => {
+                if (data.status === 'ok'){
+                    setRuleData(baseForm);
+                    onRuleUpdate();
+                    setCreateRuleFormOpen(false);
+                } else {
+                    setErrors([...errors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                }
+            })
     }
 
     const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);

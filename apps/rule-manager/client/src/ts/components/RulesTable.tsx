@@ -16,6 +16,7 @@ import { useRules } from "./hooks/useRules";
 import { css } from "@emotion/react";
 import { baseForm, RuleForm, RuleFormData } from './RuleForm';
 import { getRule } from './api/getRule';
+import { responseHandler } from './api/parseResponse';
 
 const sorting = {
     sort: {
@@ -93,14 +94,8 @@ const RulesTable = () => {
     };
     const openEditRulePanel = (ruleId: number) => {
         getRule(ruleId)
-            .then(async response => {
-                return {
-                    rule: await response.json(),
-                    status: response.status
-                }
-            })
             .then(data => {
-                if (data.status === 200){
+                if (data.status === 'ok'){
                     setUpdateMode(true);
                     setCreateRuleFormOpen(true);
                     setRuleData(data.rule);

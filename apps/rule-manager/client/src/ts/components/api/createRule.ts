@@ -1,4 +1,5 @@
 import { RuleFormData } from "../RuleForm";
+import { responseHandler } from "./parseResponse";
 
 type FormDataForApiEndpoint =  {
     ruleType: string,
@@ -24,6 +25,6 @@ export const createRule = async (ruleForm: RuleFormData) => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(transformedRuleFormData)
-    });
+    }).then(response => responseHandler(response));
     return createRuleResponse
 }
