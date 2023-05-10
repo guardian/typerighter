@@ -3,7 +3,7 @@ package services
 import java.util.Date
 import akka.actor.Scheduler
 import com.gu.typerighter.model.{LTRuleCore, LTRuleXML, RegexRule, CheckerRuleResource}
-import com.gu.typerighter.rules.BucketRuleManager
+import com.gu.typerighter.rules.BucketRuleResource
 import matchers.RegexMatcher
 import play.api.Logging
 
@@ -14,7 +14,7 @@ import utils.CloudWatchClient
 import utils.Metrics
 
 class RuleProvisionerService(
-    bucketRuleManager: BucketRuleManager,
+    bucketRuleManager: BucketRuleResource,
     matcherPool: MatcherPool,
     languageToolFactory: LanguageToolFactory,
     cloudWatchClient: CloudWatchClient

@@ -2,7 +2,7 @@ package controllers
 
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
-import com.gu.typerighter.rules.BucketRuleManager
+import com.gu.typerighter.rules.BucketRuleResource
 
 import play.api.libs.json.Json
 

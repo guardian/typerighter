@@ -32,7 +32,7 @@ import play.filters.cors.CORSComponents
 import router.Routes
 import services._
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.rules.{BucketRuleManager}
+import com.gu.typerighter.rules.BucketRuleResource
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 import utils.CheckerConfig
@@ -111,7 +111,7 @@ class AppComponents(
     maybeCloudWatchClient = Some(cloudWatchClient)
   )(matcherPoolDispatcher, materializer)
 
-  val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket, stage)
+  val bucketRuleManager = new BucketRuleResource(s3Client, typerighterBucket, stage)
   val ruleProvisioner = new RuleProvisionerService(
     bucketRuleManager,
     matcherPool,
