@@ -29,6 +29,7 @@ val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps"
 
 val commonSettings = Seq(
+  Test / fork := false, // Enables attaching debugger in tests
   Universal / javaOptions ++= Seq(
     s"-Dpidfile.path=/dev/null",
     "-J-XX:MaxRAMFraction=2",
