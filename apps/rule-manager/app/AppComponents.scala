@@ -15,7 +15,7 @@ import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
-import com.gu.typerighter.rules.BucketRuleManager
+import com.gu.typerighter.rules.BucketRuleResource
 import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
@@ -97,7 +97,7 @@ class AppComponents(
   val typerighterBucket = s"typerighter-app-${stage}"
 
   val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
-  val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket, stage)
+  val bucketRuleManager = new BucketRuleResource(s3Client, typerighterBucket, stage)
 
   val homeController = new HomeController(
     controllerComponents,

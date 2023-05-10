@@ -12,6 +12,7 @@ import com.gu.typerighter.model.{
   RegexRule,
   TextSuggestion
 }
+import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive}
 import db.DbRuleDraft.autoSession
 import scalikejdbc.DBSession
