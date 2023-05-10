@@ -14,6 +14,9 @@ import { icon as error } from "@elastic/eui/es/components/icon/assets/error";
 import { icon as exit } from "@elastic/eui/es/components/icon/assets/exit";
 import { icon as starEmptySpace } from "@elastic/eui/es/components/icon/assets/star_empty";
 import { icon as starFilled } from "@elastic/eui/es/components/icon/assets/star_filled";
+import { icon as pencil } from "@elastic/eui/es/components/icon/assets/pencil";
+import { icon as returnKey } from "@elastic/eui/es/components/icon/assets/return_key";
+import { icon as warning } from "@elastic/eui/es/components/icon/assets/warning";
 
 type IconComponentNameType = ValuesType<typeof ICON_TYPES>;
 type IconComponentCacheType = Partial<Record<IconComponentNameType, unknown>>;
@@ -31,7 +34,10 @@ const cachedIcons: IconComponentCacheType = {
     error,
     exit,
     starEmptySpace,
-    starFilled
+    starFilled,
+    pencil,
+    returnKey,
+    warning
 };
 
 appendIconComponentCache(cachedIcons);

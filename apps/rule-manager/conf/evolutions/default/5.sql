@@ -1,20 +1,23 @@
 -- !Ups
 
-ALTER TABLE rules
-  RENAME COLUMN google_sheet_id TO external_id;
+-- Add live rules table, dropping rules marked as ignore
+CREATE TABLE rules_live (LIKE rules INCLUDING DEFAULTS);
 
-ALTER TABLE rules
-  ALTER COLUMN external_id SET DEFAULT gen_random_uuid()::text,
-  ALTER COLUMN external_id SET NOT NULL;
+ALTER TABLE rules_live
+    DROP COLUMN id,
+    ADD COLUMN id SERIAL PRIMARY KEY,
+    ADD COLUMN reason TEXT DEFAULT 'First published';
 
-CREATE UNIQUE INDEX rules_external_id_index ON rules(external_id);
+ALTER TABLE rules_live
+    DROP COLUMN ignore;
+
+-- Rename existing table to draft rules table
+ALTER TABLE rules
+    RENAME TO rules_draft;
 
 -- !Downs
 
-DROP INDEX rules_external_id_index;
+ALTER TABLE rules_draft
+    RENAME TO rules;
 
-ALTER TABLE rules
-  ALTER COLUMN external_id drop NOT NULL;
-
-ALTER TABLE rules
-  RENAME COLUMN external_id TO google_sheet_id;
+DROP TABLE rules_live;
