@@ -11,8 +11,9 @@ import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc._
-import service.{DbRuleManager, SheetsRuleManager}
-import scala.util.{Failure, Success}
+
+import service.{RuleManagement, SheetsRuleManager}
+import scala.util.{Success, Failure}
 
 /** The controller that handles the management of matcher rules.
   */
@@ -26,11 +27,11 @@ class RulesController(
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
       dbRules <- sheetsRuleManager.getRules()
-      persistedDbRules <- DbRuleManager.destructivelyDumpRulesToDB(dbRules)
-      ruleResource <- DbRuleManager.createCheckerRuleResourceFromDbRules(persistedDbRules)
+      persistedDbRules <- RuleManagement.destructivelyDumpRulesToDB(dbRules)
+      ruleResource <- RuleManagement.createCheckerRuleResourceFromDbRules(persistedDbRules)
       _ <- bucketRuleManager.putRules(ruleResource).left.map { l => List(l.toString) }
     } yield {
-      DbRuleManager.getDraftRules()
+      RuleManagement.getDraftRules()
     }
 
     maybeWrittenRules match {
@@ -40,11 +41,11 @@ class RulesController(
   }
 
   def rules = ApiAuthAction {
-    Ok(Json.toJson(DbRuleManager.getDraftRules()))
+    Ok(Json.toJson(RuleManagement.getDraftRules()))
   }
 
   def rule(id: Int) = ApiAuthAction {
-    DbRuleManager.getRule(id) match {
+    DbRuleDraft.find(id) match {
       case None         => NotFound("Rule not found matching ID")
       case Some(result) => Ok(Json.toJson(result))
     }

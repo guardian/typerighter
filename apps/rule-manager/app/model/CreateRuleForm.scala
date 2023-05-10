@@ -3,7 +3,7 @@ package model
 import play.api.data.Form
 import play.api.data.Forms.{boolean, mapping, nonEmptyText, optional, text}
 import play.api.data.validation.{Constraint, ValidationError, Valid, Invalid}
-import service.DbRuleManager.RuleType
+import service.RuleManagement.RuleType
 
 object CreateRuleForm {
   val ruleTypeConstraint: Constraint[String] = Constraint("constraints.ruleType")({ text =>

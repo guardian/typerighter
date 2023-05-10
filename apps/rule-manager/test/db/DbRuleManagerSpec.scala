@@ -63,9 +63,9 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDraftDbRule)
+      val rules = rulesFromSheet.map(RuleManagement.checkerRuleToDraftDbRule)
       val rulesFromDb =
-        DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
+        RuleManagement.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 
       rulesFromDb.shouldEqual(Right(rules))
   }
@@ -74,18 +74,18 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     () =>
       val rules = createRandomRules(1000)
       val rulesFromDb =
-        DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
+        RuleManagement.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 
       rulesFromDb.shouldEqual(Right(rules))
   }
 
   "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in { () =>
     val firstRules = createRandomRules(10)
-    DbRuleManager.destructivelyDumpRulesToDB(firstRules)
+    RuleManagement.destructivelyDumpRulesToDB(firstRules)
 
     val secondRules = createRandomRules(10)
     val secondRulesFromDb =
-      DbRuleManager.destructivelyDumpRulesToDB(secondRules).map(_.map(_.copy(id = None)))
+      RuleManagement.destructivelyDumpRulesToDB(secondRules).map(_.map(_.copy(id = None)))
 
     secondRulesFromDb.shouldEqual(Right(secondRules))
   }
@@ -95,7 +95,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       val rulesToIgnore = createRandomRules(10, ignore = true)
 
       val ruleResourceWithIgnoredRules =
-        DbRuleManager.createCheckerRuleResourceFromDbRules(rulesToIgnore)
+        RuleManagement.createCheckerRuleResourceFromDbRules(rulesToIgnore)
 
       ruleResourceWithIgnoredRules.shouldEqual(Right(CheckerRuleResource(List())))
   }
@@ -107,7 +107,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       }
       val unignoredRules = allRules.filterNot(_.ignore)
 
-      DbRuleManager.destructivelyDumpRulesToDB(allRules)
+      RuleManagement.destructivelyDumpRulesToDB(allRules)
 
       DbRuleDraft.findAll().map(_.copy(id = None)) shouldMatchTo allRules
       DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
@@ -130,7 +130,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
       .get
 
-    val publishedRule = DbRuleManager.publishRule(ruleToPublish.id.get, user, reason).get
+    val publishedRule = RuleManagement.publishRule(ruleToPublish.id.get, user, reason).get
 
     DbRuleLive.find(publishedRule.id.get) match {
       case Some(liveRule) =>
@@ -147,7 +147,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     val reason = "Some important update"
     val ruleToPublish = DbRuleDraft.create(ruleType = "regex", user = user, ignore = false).get
 
-    DbRuleManager.publishRule(ruleToPublish.id.get, user, reason) match {
+    RuleManagement.publishRule(ruleToPublish.id.get, user, reason) match {
       case Success(_)         => fail("This rule should not be publishable")
       case Failure(exception) => exception.getMessage should include("CheckerRule")
     }
