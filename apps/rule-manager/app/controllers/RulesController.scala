@@ -10,7 +10,7 @@ import play.api.mvc._
 import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import utils.{PermissionsHandler, RuleManagerConfig}
-import service.{RuleManagement, SheetsRuleManager}
+import service.{RuleManager, SheetsRuleResource}
 
 import scala.util.{Failure, Success}
 
@@ -18,7 +18,7 @@ import scala.util.{Failure, Success}
   */
 class RulesController(
     cc: ControllerComponents,
-    sheetsRuleManager: SheetsRuleManager,
+    sheetsRuleResource: SheetsRuleResource,
     bucketRuleResource: BucketRuleResource,
     val publicSettings: PublicSettings,
     override val config: RuleManagerConfig
@@ -27,10 +27,10 @@ class RulesController(
     with PermissionsHandler {
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
-      dbRules <- sheetsRuleManager.getRules()
-      _ <- RuleManagement.destructivelyPublishRules(dbRules, bucketRuleResource)
+      dbRules <- sheetsRuleResource.getRules()
+      _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
     } yield {
-      RuleManagement.getDraftRules()
+      RuleManager.getDraftRules()
     }
 
     maybeWrittenRules match {
@@ -40,7 +40,7 @@ class RulesController(
   }
 
   def rules = ApiAuthAction {
-    Ok(Json.toJson(RuleManagement.getDraftRules()))
+    Ok(Json.toJson(RuleManager.getDraftRules()))
   }
 
   def get(id: Int) = ApiAuthAction {
@@ -56,10 +56,10 @@ class RulesController(
       .fold(
         form => BadRequest(Json.toJson(form.errors)),
         form =>
-          RuleManagement
+          RuleManager
             .publishRule(id, request.user.email, form.reason, bucketRuleResource) match {
             case Success(result) => Ok(Json.toJson(result))
-            case Failure(error) => BadRequest(error.getMessage)
+            case Failure(error)  => BadRequest(error.getMessage)
           }
       )
   }
