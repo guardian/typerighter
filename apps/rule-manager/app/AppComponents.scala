@@ -14,7 +14,7 @@ import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
-import service.SheetsRuleManager
+import service.SheetsRuleResource
 import utils.{LocalStack, RuleManagerConfig}
 
 class AppComponents(
@@ -79,7 +79,7 @@ class AppComponents(
   }
   val typerighterBucket = s"typerighter-app-${stage}"
 
-  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
+  val sheetsRuleResource = new SheetsRuleResource(config.credentials, config.spreadsheetId)
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
 
   val homeController = new HomeController(
@@ -92,7 +92,7 @@ class AppComponents(
 
   val rulesController = new RulesController(
     controllerComponents,
-    sheetsRuleManager,
+    sheetsRuleResource,
     bucketRuleResource,
     publicSettings
   )

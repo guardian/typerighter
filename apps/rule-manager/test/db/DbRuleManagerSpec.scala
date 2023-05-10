@@ -27,7 +27,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   def toCheckerRules(rules: List[DbRuleDraft]) =
     rules
       .map(_.toLive("Imported from Google Sheet"))
-      .map(RuleManagement.liveDbRuleToCheckerRule(_).toOption.get)
+      .map(RuleManager.liveDbRuleToCheckerRule(_).toOption.get)
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
       DbRuleDraft.withUser(
@@ -73,9 +73,9 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = rulesFromSheet.map(RuleManagement.checkerRuleToDraftDbRule)
+      val rules = rulesFromSheet.map(RuleManager.checkerRuleToDraftDbRule)
       val publishedRules =
-        RuleManagement.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
+        RuleManager.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
 
       publishedRules.rules shouldMatchTo rulesFromSheet
   }
@@ -85,21 +85,21 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       val rules = createRandomRules(1)
       val rulesAsPublished = rules
         .map(_.toLive("Imported from Google Sheet"))
-        .map(RuleManagement.liveDbRuleToCheckerRule(_).toOption.get)
+        .map(RuleManager.liveDbRuleToCheckerRule(_).toOption.get)
 
       val rulesFromDb =
-        RuleManagement.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
+        RuleManager.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
 
       rulesFromDb.rules shouldMatchTo rulesAsPublished
   }
 
   "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in { () =>
     val firstRules = createRandomRules(10)
-    RuleManagement.destructivelyPublishRules(firstRules, bucketRuleResource)
+    RuleManager.destructivelyPublishRules(firstRules, bucketRuleResource)
 
     val secondRules = createRandomRules(10)
     val secondRulesFromDb =
-      RuleManagement.destructivelyPublishRules(secondRules, bucketRuleResource).toOption.get
+      RuleManager.destructivelyPublishRules(secondRules, bucketRuleResource).toOption.get
 
     secondRulesFromDb.rules shouldMatchTo toCheckerRules(secondRules)
   }
@@ -109,7 +109,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       val rulesToIgnore = createRandomRules(10, ignore = true)
 
       val ruleResourceWithIgnoredRules =
-        RuleManagement.destructivelyPublishRules(rulesToIgnore, bucketRuleResource).toOption.get
+        RuleManager.destructivelyPublishRules(rulesToIgnore, bucketRuleResource).toOption.get
 
       ruleResourceWithIgnoredRules.shouldEqual(CheckerRuleResource(List()))
   }
@@ -121,7 +121,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       }
       val unignoredRules = allRules.filterNot(_.ignore)
 
-      RuleManagement.destructivelyPublishRules(allRules, bucketRuleResource)
+      RuleManager.destructivelyPublishRules(allRules, bucketRuleResource)
 
       DbRuleDraft.findAll().map(_.copy(id = None)) shouldMatchTo allRules
       DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
@@ -143,7 +143,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
       .get
 
-    val publishedRule = RuleManagement.publishRule(ruleToPublish.id.get, user, reason).get
+    val publishedRule = RuleManager.publishRule(ruleToPublish.id.get, user, reason).get
 
     DbRuleLive.find(publishedRule.id.get) match {
       case Some(liveRule) =>
@@ -160,7 +160,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     val reason = "Some important update"
     val ruleToPublish = DbRuleDraft.create(ruleType = "regex", user = user, ignore = false).get
 
-    RuleManagement.publishRule(ruleToPublish.id.get, user, reason) match {
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason) match {
       case Success(_)         => fail("This rule should not be publishable")
       case Failure(exception) => exception.getMessage should include("CheckerRule")
     }
