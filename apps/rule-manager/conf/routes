@@ -13,7 +13,7 @@ GET     /healthcheck                controllers.HomeController.healthcheck()
 +nocsrf
 POST    /refresh                    controllers.RulesController.refresh()
 +nocsrf
-GET     /rules                      controllers.RulesController.rules()
+GET     /rules                      controllers.RulesController.list()
 +nocsrf
 POST    /rules                      controllers.RulesController.create()
 +nocsrf

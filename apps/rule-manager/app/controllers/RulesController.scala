@@ -35,7 +35,7 @@ class RulesController(
     }
   }
 
-  def rules = ApiAuthAction {
+  def list = ApiAuthAction {
     Ok(Json.toJson(RuleManager.getDraftRules()))
   }
 
