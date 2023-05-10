@@ -12,10 +12,10 @@ import {
     EuiFlexGrid,
     EuiIcon
 } from '@elastic/eui';
-import {useRules} from "./hooks/useRules";
-import {css} from "@emotion/react";
+import { useRules } from "./hooks/useRules";
+import { css } from "@emotion/react";
 import { baseForm, RuleForm, RuleFormData } from './RuleForm';
-import { getRule } from './helpers/getRule';
+import { getRule } from './api/getRule';
 
 const sorting = {
     sort: {

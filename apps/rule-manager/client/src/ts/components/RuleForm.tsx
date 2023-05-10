@@ -3,10 +3,10 @@ import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
 import { RuleMetadata } from "./RuleMetadata";
-import { createRule, transformRuleFormData } from "./helpers/createRule";
+import { createRule } from "./api/createRule";
 import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
-import { updateRule } from "./helpers/updateRule";
+import { updateRule } from "./api/updateRule";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -82,7 +82,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
         }
 
         if (updateMode){
-            updateRule(transformRuleFormData(ruleData))
+            updateRule(ruleData)
                 .then(async response => {
                     return {
                         rule: await response.json(),
@@ -101,7 +101,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
                 })
         } else {
             // Create new rule rather than updating existing rule
-            createRule(transformRuleFormData(ruleData))
+            createRule(ruleData)
                 .then(async response => {
                     return {
                         rule: await response.json(),

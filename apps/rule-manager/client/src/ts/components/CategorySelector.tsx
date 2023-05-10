@@ -4,7 +4,7 @@ import React from "react";
 import { PartiallyUpdateRuleData, RuleFormData } from "./RuleForm";
 import { existingCategories } from "../constants/constants";
 
-export type MetadataOption = {label: string}
+export type MetadataOption = {label: string};
 const singleSelectionOptions = { asPlainText: true };
 export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
     ruleData: RuleFormData,

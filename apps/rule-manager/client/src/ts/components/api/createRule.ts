@@ -12,7 +12,7 @@ type FormDataForApiEndpoint =  {
     advisoryRule?: boolean
 }
 
-const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {
+export const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {
     return {...ruleForm, tags: ruleForm.tags ? ruleForm.tags.join(",") : undefined};
 }
 
