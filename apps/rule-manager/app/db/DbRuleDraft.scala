@@ -208,8 +208,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       formRule: UpdateRuleForm,
       id: Int,
       user: String
-  )(implicit session: DBSession = autoSession): Either[Result, DbRule] = {
-    val updatedRule = DbRule
+  )(implicit session: DBSession = autoSession): Either[Result, DbRuleDraft] = {
+    val updatedRule = DbRuleDraft
       .find(id)
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
@@ -226,7 +226,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       )
     updatedRule match {
       case Right(dbRule) => {
-        DbRule.save(dbRule, user).toEither match {
+        DbRuleDraft.save(dbRule, user).toEither match {
           case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
           case Right(dbRule)      => Right(dbRule)
         }
