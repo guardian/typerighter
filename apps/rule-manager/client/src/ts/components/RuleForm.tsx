@@ -1,11 +1,13 @@
 import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText } from "@elastic/eui";
-import React, { useContext, useEffect, useState } from "react"
+import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
-
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
+import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
+import { updateRule } from "./api/updateRule";
+import { responseHandler } from "./api/parseResponse";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -18,36 +20,48 @@ export type RuleFormData = {
     description?: string,
     ignore: boolean,
     forceRedRule?: boolean,
-    advisoryRule?: boolean
+    advisoryRule?: boolean,
+    id?: number
 }
 
 export type PartiallyUpdateRuleData = (existing: RuleFormData, partialReplacement: Partial<RuleFormData>) => void;
 
 export type FormError = { id: string; value: string }
 
-export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) => {
-    const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
+export const baseForm = {
+    ruleType: 'regex' as RuleType,
+    tags: [] as string[],
+    ignore: false,
+}
+
+export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpen, setCreateRuleFormOpen, updateMode, setUpdateMode}: {
+        onRuleUpdate: () => Promise<void>, 
+        ruleData: RuleFormData,
+        setRuleData: Dispatch<SetStateAction<RuleFormData>>,
+        createRuleFormOpen: boolean, 
+        setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>,
+        updateMode: boolean, 
+        setUpdateMode: Dispatch<SetStateAction<boolean>>
+    }) => {
     const [showErrors, setShowErrors] = useState(false);
     const [errors, setErrors] = useState<FormError[]>([]);
 
     const openCreateRuleForm = () => {
+        setRuleData(baseForm);
         setCreateRuleFormOpen(true);
+        setUpdateMode(false);
     }
-    const baseForm = {
-        ruleType: 'regex' as RuleType,
-        tags: [] as string[],
-        ignore: false,
-    }
-    const [ruleData, setRuleData] = useState<RuleFormData>(baseForm);
+    
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
         setRuleData({...existing, ...partialReplacement});
     }
 
     useEffect(() => {
         const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
-        setErrors(errors.filter(error => !(error.id === emptyPatternFieldError.id && error.value === emptyPatternFieldError.value)));
         if(!ruleData.pattern) {
-            setErrors([...errors, emptyPatternFieldError]);
+            setErrors([emptyPatternFieldError]);
+        } else {
+            setErrors([]);
         }
     }, [ruleData])
 
@@ -62,19 +76,21 @@ export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) =>
     // We need to be able to show errors on a field by field basis
 
     const saveRuleHandler = () => {
-
         if(errors.length > 0) {
             setShowErrors(true);
             return;
         }
 
-        createRule(ruleData)
-            .then(response => response.json())
+        (updateMode ? updateRule(ruleData) : createRule(ruleData))
             .then(data => {
-                setRuleData(baseForm);
-                onRuleUpdate();
+                if (data.status === 'ok'){
+                    setRuleData(baseForm);
+                    onRuleUpdate();
+                    setCreateRuleFormOpen(false);
+                } else {
+                    setErrors([...errors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                }
             })
-        setCreateRuleFormOpen(false);
     }
 
     const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
@@ -91,14 +107,14 @@ export const RuleForm = ({onRuleUpdate}: {onRuleUpdate: () => Promise<void>}) =>
                     <EuiButton onClick={() => {
                         setCreateRuleFormOpen(false);
                         setRuleData(baseForm);
-                    }}>Discard Rule</EuiButton>
+                    }}>{updateMode ? "Discard Changes" : "Discard Rule"}</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                    <EuiButton fill={true} onClick={saveRuleHandler}>Save Rule</EuiButton>
+                    <EuiButton fill={true} onClick={saveRuleHandler}>{updateMode ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
-                { errors.map(error => <EuiText>{`${error.value}`}</EuiText>)}
+                { errors.map((error, index) => <EuiText key={index}>{`${error.value}`}</EuiText>)}
             </EuiCallOut> : null}
         </EuiFlexGroup> : null}
     </EuiForm>

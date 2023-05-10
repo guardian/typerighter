@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     EuiSearchBarProps,
     EuiBasicTableColumn,
@@ -10,13 +10,13 @@ import {
     EuiLoadingSpinner,
     EuiButtonIcon,
     EuiFlexGrid,
-    EuiForm,
-    EuiFormRow,
-    EuiFieldText,
+    EuiIcon
 } from '@elastic/eui';
-import {useRules} from "./hooks/useRules";
-import {css} from "@emotion/react";
-import { RuleForm } from './RuleForm';
+import { useRules } from "./hooks/useRules";
+import { css } from "@emotion/react";
+import { baseForm, RuleForm, RuleFormData } from './RuleForm';
+import { getRule } from './api/getRule';
+import { responseHandler } from './api/parseResponse';
 
 const sorting = {
     sort: {
@@ -43,7 +43,7 @@ export type Rule = {
     regex: string;
 }
 
-const columns: Array<EuiBasicTableColumn<Rule>> = [
+const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => [
     {
         field: 'ruleType',
         name: 'Type',
@@ -67,6 +67,20 @@ const columns: Array<EuiBasicTableColumn<Rule>> = [
     {
         field: 'description',
         name: 'Description'
+    },
+    {
+        name: <EuiIcon type="pencil"/>,
+        actions: [{
+            name: 'Edit',
+            isPrimary: true,
+            description: 'Edit this rule',
+            icon: 'pencil',
+            type: 'icon',
+            onClick: (rule) => {
+                editRule(Number(rule.id))
+            },
+            'data-test-subj': 'action-edit',
+        }]
     }
 ];
 
@@ -78,6 +92,22 @@ const RulesTable = () => {
             schema: true,
         }
     };
+    const openEditRulePanel = (ruleId: number) => {
+        getRule(ruleId)
+            .then(data => {
+                if (data.status === 'ok'){
+                    setUpdateMode(true);
+                    setCreateRuleFormOpen(true);
+                    setRuleData(data.rule);
+                } else {
+                    console.error(data);
+                }
+            })
+    }
+    const columns = createColumns(openEditRulePanel);
+    const [ruleData, setRuleData] = useState<RuleFormData>(baseForm);
+    const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
+    const [updateMode, setUpdateMode] = useState(false);
 
     return <>
         <EuiFlexGroup>
@@ -137,11 +167,20 @@ const RulesTable = () => {
                         pagination={true}
                         sorting={sorting}
                         search={search}
+                        hasActions={true}
                     />
                 }
             </EuiFlexItem>
             <EuiFlexItem grow={1}>
-                <RuleForm onRuleUpdate={fetchRules}/>
+                <RuleForm 
+                    onRuleUpdate={fetchRules}
+                    ruleData={ruleData}
+                    setRuleData={setRuleData}
+                    createRuleFormOpen={createRuleFormOpen}
+                    setCreateRuleFormOpen={setCreateRuleFormOpen}
+                    updateMode={updateMode}
+                    setUpdateMode={setUpdateMode}
+                />
             </EuiFlexItem>
         </EuiFlexGroup>
 

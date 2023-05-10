@@ -216,16 +216,12 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         existingRule.copy(
           id = Some(id),
           ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
-          pattern = formRule.pattern.orElse(existingRule.pattern),
-          replacement = formRule.replacement.orElse(existingRule.replacement),
-          category = formRule.category.orElse(existingRule.category),
-          tags = formRule.tags.orElse(existingRule.tags),
-          description = formRule.description.orElse(existingRule.description),
-          ignore = formRule.ignore.getOrElse(existingRule.ignore),
-          notes = formRule.notes.orElse(existingRule.notes),
-          googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
-          forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
-          advisoryRule = formRule.advisoryRule.orElse(existingRule.advisoryRule)
+          pattern = formRule.pattern,
+          replacement = formRule.replacement,
+          category = formRule.category,
+          tags = formRule.tags,
+          description = formRule.description,
+          advisoryRule = formRule.advisoryRule
         )
       )
     updatedRule match {

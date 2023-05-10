@@ -4,7 +4,7 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleManager
 import play.api.libs.json.Json
-import db.DbRuleDraft
+import db.{DbRuleDraft}
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{JsValue, Writes}
@@ -39,6 +39,13 @@ class RulesController(
 
   def rules = ApiAuthAction {
     Ok(Json.toJson(DbRuleManager.getDraftRules()))
+  }
+
+  def rule(id: Int) = ApiAuthAction {
+    DbRuleManager.getRule(id) match {
+      case None         => NotFound("Rule not found matching ID")
+      case Some(result) => Ok(Json.toJson(result))
+    }
   }
 
   implicit object FormErrorWrites extends Writes[FormError] {

@@ -149,6 +149,8 @@ object DbRuleManager extends Loggable {
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
 
+  def getRule(id: Int): Option[DbRuleDraft] = DbRuleDraft.find(id)
+
   def createCheckerRuleResourceFromDbRules(
       dbRules: List[DbRuleDraft]
   ): Either[List[String], CheckerRuleResource] = {
