@@ -18,7 +18,7 @@ import scalikejdbc.DBSession
 
 import scala.util.Try
 
-object DbRuleManager extends Loggable {
+object RuleManagement extends Loggable {
   object RuleType {
     val regex = "regex"
     val languageToolXML = "languageToolXML"
