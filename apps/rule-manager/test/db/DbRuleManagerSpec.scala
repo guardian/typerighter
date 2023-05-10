@@ -143,7 +143,8 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
       .get
 
-    val publishedRule = RuleManager.publishRule(ruleToPublish.id.get, user, reason).get
+    val publishedRule =
+      RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).get
 
     DbRuleLive.find(publishedRule.id.get) match {
       case Some(liveRule) =>
@@ -160,7 +161,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     val reason = "Some important update"
     val ruleToPublish = DbRuleDraft.create(ruleType = "regex", user = user, ignore = false).get
 
-    RuleManager.publishRule(ruleToPublish.id.get, user, reason) match {
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
       case Success(_)         => fail("This rule should not be publishable")
       case Failure(exception) => exception.getMessage should include("CheckerRule")
     }
