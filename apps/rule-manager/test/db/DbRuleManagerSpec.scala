@@ -2,14 +2,16 @@ package db
 
 import com.gu.typerighter.model.{
   Category,
+  CheckerRuleResource,
   ComparableRegex,
   LTRuleCore,
   LTRuleXML,
-  RegexRule,
-  CheckerRuleResource
+  RegexRule
 }
+import com.softwaremill.diffx.generic.auto.diffForCaseClass
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import scalikejdbc.scalatest.AutoRollback
 import service.DbRuleManager
 
@@ -19,7 +21,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
-      DbRule.withUser(
+      DbRuleDraft.withUser(
         id = None,
         category = Some("Check this"),
         description = Some("A random rule description. " * Random.between(0, 100)),
@@ -62,7 +64,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDbRule)
+      val rules = rulesFromSheet.map(DbRuleManager.checkerRuleToDraftDbRule)
       val rulesFromDb =
         DbRuleManager.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
 
@@ -96,5 +98,20 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         DbRuleManager.createCheckerRuleResourceFromDbRules(rulesToIgnore)
 
       ruleResourceWithIgnoredRules.shouldEqual(Right(CheckerRuleResource(List())))
+  }
+
+  "destructivelyDumpRuleResourceToDB" should "write all rules to draft, and only write unignored rules to live" in {
+    implicit session =>
+      val allRules = createRandomRules(2).zipWithIndex.map { case (rule, index) =>
+        if (index % 2 == 0) rule.copy(ignore = true) else rule
+      }
+      val unignoredRules = allRules.filterNot(_.ignore)
+
+      DbRuleManager.destructivelyDumpRulesToDB(allRules)
+
+      DbRuleDraft.findAll().map(_.copy(id = None)) shouldMatchTo allRules
+      DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
+        _.toLive("Imported from Google Sheet")
+      )
   }
 }
