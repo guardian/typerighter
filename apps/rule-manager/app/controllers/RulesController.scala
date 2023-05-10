@@ -4,14 +4,11 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleResource
-
 import play.api.libs.json.Json
-import play.api.data.FormError
-import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc._
 
 import db.DbRuleDraft
-import model.{CreateRuleForm, UpdateRuleForm}
+import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import utils.{PermissionsHandler, RuleManagerConfig}
 import service.{RuleManagement, SheetsRuleManager}
 
@@ -46,18 +43,25 @@ class RulesController(
     Ok(Json.toJson(RuleManagement.getDraftRules()))
   }
 
-  def rule(id: Int) = ApiAuthAction {
+  def get(id: Int) = ApiAuthAction {
     DbRuleDraft.find(id) match {
       case None         => NotFound("Rule not found matching ID")
       case Some(result) => Ok(Json.toJson(result))
     }
   }
 
-  implicit object FormErrorWrites extends Writes[FormError] {
-    override def writes(o: FormError): JsValue = Json.obj(
-      "key" -> Json.toJson(o.key),
-      "message" -> Json.toJson(o.message)
-    )
+  def publish(id: Int) = ApiAuthAction { implicit request =>
+    PublishRuleForm.form
+      .bindFromRequest()
+      .fold(
+        form => BadRequest(Json.toJson(form.errors)),
+        form =>
+          RuleManagement
+            .publishRule(id, request.user.email, form.reason, bucketRuleResource) match {
+            case Success(result) => Ok(Json.toJson(result))
+            case Failure(error) => BadRequest(error.getMessage)
+          }
+      )
   }
 
   def create = ApiAuthAction { implicit request =>

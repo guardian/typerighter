@@ -152,8 +152,8 @@ object RuleManagement extends Loggable {
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
 
-  def publishRule(id: Int, user: String, reason: String)(implicit
-      session: DBSession = autoSession
+  def publishRule(id: Int, user: String, reason: String, bucketRuleResource: BucketRuleResource)(
+      implicit session: DBSession = autoSession
   ): Try[DbRuleLive] = {
     for {
       draftRule <- DbRuleDraft
@@ -167,15 +167,18 @@ object RuleManagement extends Loggable {
       liveRule = draftRule.toLive(reason)
       _ <- liveDbRuleToCheckerRule(liveRule).left.map(new Exception(_)).toTry
       persistedLiveRule <- DbRuleLive.create(liveRule, user)
+      _ <- publishLiveRules(bucketRuleResource).left
+        .map(errs => new Exception(errs.mkString(",")))
+        .toTry
     } yield persistedLiveRule
   }
 
   def publishLiveRules(
-      ruleManager: BucketRuleResource
+      bucketRuleResource: BucketRuleResource
   ): Either[List[String], CheckerRuleResource] = {
     for {
       ruleResource <- getRuleResourceFromLiveRules()
-      _ <- ruleManager.putRules(ruleResource).left.map { l => List(l.toString) }
+      _ <- bucketRuleResource.putRules(ruleResource).left.map { l => List(l.toString) }
     } yield ruleResource
   }
 
