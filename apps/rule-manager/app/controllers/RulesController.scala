@@ -20,16 +20,14 @@ import scala.util.{Success, Failure}
 class RulesController(
     cc: ControllerComponents,
     sheetsRuleManager: SheetsRuleManager,
-    bucketRuleManager: BucketRuleManager,
+    bucketRuleResource: BucketRuleResource,
     val publicSettings: PublicSettings
 ) extends AbstractController(cc)
     with PandaAuthentication {
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
       dbRules <- sheetsRuleManager.getRules()
-      persistedDbRules <- RuleManagement.destructivelyDumpRulesToDB(dbRules)
-      ruleResource <- RuleManagement.createCheckerRuleResourceFromDbRules(persistedDbRules)
-      _ <- bucketRuleManager.putRules(ruleResource).left.map { l => List(l.toString) }
+      _ <- RuleManagement.destructivelyPublishRules(dbRules, bucketRuleResource)
     } yield {
       RuleManagement.getDraftRules()
     }

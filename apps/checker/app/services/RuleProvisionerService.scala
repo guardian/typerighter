@@ -14,7 +14,7 @@ import utils.CloudWatchClient
 import utils.Metrics
 
 class RuleProvisionerService(
-    bucketRuleManager: BucketRuleResource,
+    bucketRuleResource: BucketRuleResource,
     matcherPool: MatcherPool,
     languageToolFactory: LanguageToolFactory,
     cloudWatchClient: CloudWatchClient
@@ -57,7 +57,7 @@ class RuleProvisionerService(
   /** Update our matcherPool rules from the S3 bucket.
     */
   def updateRulesFromBucket(): Unit = {
-    bucketRuleManager.getRules().map { case (ruleResource, date) =>
+    bucketRuleResource.getRules().map { case (ruleResource, date) =>
       updateRules(ruleResource, date)
     }
   }
@@ -66,7 +66,7 @@ class RuleProvisionerService(
     * in memory.
     */
   def maybeUpdateRulesFromBucket(): Unit = {
-    bucketRuleManager.getRulesLastModified match {
+    bucketRuleResource.getRulesLastModified match {
       case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket()
       case Right(_)                                        => logger.info("No rule update needed")
       case Left(error) =>

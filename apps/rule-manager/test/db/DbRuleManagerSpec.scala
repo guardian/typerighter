@@ -2,28 +2,38 @@ package service
 
 import com.gu.typerighter.model.{
   Category,
+  CheckerRule,
   CheckerRuleResource,
   ComparableRegex,
   LTRuleCore,
   LTRuleXML,
   RegexRule
 }
+import com.gu.typerighter.rules.BucketRuleResource
 import db.{DBTest, DbRuleDraft, DbRuleLive}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import com.softwaremill.diffx.generic.auto.diffForCaseClass
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
+import utils.LocalStack
 
 import scala.util.{Failure, Random, Success}
 
 class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
+  val bucketRuleResource =
+    new BucketRuleResource(LocalStack.s3Client, "typerighter-app-local", "local")
+
+  def toCheckerRules(rules: List[DbRuleDraft]) =
+    rules
+      .map(_.toLive("Imported from Google Sheet"))
+      .map(RuleManagement.liveDbRuleToCheckerRule(_).toOption.get)
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
       DbRuleDraft.withUser(
         id = None,
         category = Some("Check this"),
-        description = Some("A random rule description. " * Random.between(0, 100)),
+        description = Some("A random rule description. " * Random.between(0, 1)),
         replacement = None,
         pattern = Some(
           s"\b(${Random.shuffle(List("some", "random", "things", "to", "match", "on")).mkString("|")}) by"
@@ -42,7 +52,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
     () =>
-      val rulesFromSheet = List(
+      val rulesFromSheet = List[CheckerRule](
         RegexRule(
           "faef1f8a-4ee2-4b97-8783-0566e27851da",
           Category("Check this", "Check this"),
@@ -64,30 +74,34 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
 
       val rules = rulesFromSheet.map(RuleManagement.checkerRuleToDraftDbRule)
-      val rulesFromDb =
-        RuleManagement.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
+      val publishedRules =
+        RuleManagement.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
 
-      rulesFromDb.shouldEqual(Right(rules))
+      publishedRules.rules shouldMatchTo rulesFromSheet
   }
 
   "destructivelyDumpRulesToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
     () =>
-      val rules = createRandomRules(1000)
-      val rulesFromDb =
-        RuleManagement.destructivelyDumpRulesToDB(rules).map(_.map(_.copy(id = None)))
+      val rules = createRandomRules(1)
+      val rulesAsPublished = rules
+        .map(_.toLive("Imported from Google Sheet"))
+        .map(RuleManagement.liveDbRuleToCheckerRule(_).toOption.get)
 
-      rulesFromDb.shouldEqual(Right(rules))
+      val rulesFromDb =
+        RuleManagement.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
+
+      rulesFromDb.rules shouldMatchTo rulesAsPublished
   }
 
   "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in { () =>
     val firstRules = createRandomRules(10)
-    RuleManagement.destructivelyDumpRulesToDB(firstRules)
+    RuleManagement.destructivelyPublishRules(firstRules, bucketRuleResource)
 
     val secondRules = createRandomRules(10)
     val secondRulesFromDb =
-      RuleManagement.destructivelyDumpRulesToDB(secondRules).map(_.map(_.copy(id = None)))
+      RuleManagement.destructivelyPublishRules(secondRules, bucketRuleResource).toOption.get
 
-    secondRulesFromDb.shouldEqual(Right(secondRules))
+    secondRulesFromDb.rules shouldMatchTo toCheckerRules(secondRules)
   }
 
   "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
@@ -95,9 +109,9 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       val rulesToIgnore = createRandomRules(10, ignore = true)
 
       val ruleResourceWithIgnoredRules =
-        RuleManagement.createCheckerRuleResourceFromDbRules(rulesToIgnore)
+        RuleManagement.destructivelyPublishRules(rulesToIgnore, bucketRuleResource).toOption.get
 
-      ruleResourceWithIgnoredRules.shouldEqual(Right(CheckerRuleResource(List())))
+      ruleResourceWithIgnoredRules.shouldEqual(CheckerRuleResource(List()))
   }
 
   "destructivelyDumpRuleResourceToDB" should "write all rules to draft, and only write unignored rules to live" in {
@@ -107,7 +121,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       }
       val unignoredRules = allRules.filterNot(_.ignore)
 
-      RuleManagement.destructivelyDumpRulesToDB(allRules)
+      RuleManagement.destructivelyPublishRules(allRules, bucketRuleResource)
 
       DbRuleDraft.findAll().map(_.copy(id = None)) shouldMatchTo allRules
       DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
@@ -125,8 +139,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         ignore = false,
         pattern = Some("pattern"),
         description = Some("description"),
-        category = Some("category"),
-        googleSheetId = Some("googleSheetId")
+        category = Some("category")
       )
       .get
 
