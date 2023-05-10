@@ -118,7 +118,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
                 tags = cellToOptionalString(row, PatternRuleCols.Tags),
                 description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
                 ignore = if (ignore.toString == "TRUE") true else false,
-                notes = cellToOptionalString(row, PatternRuleCols.Replacement),
+                notes = cellToOptionalString(row, PatternRuleCols.Notes),
                 googleSheetId = Some(id),
                 forceRedRule = Some(
                   row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")
