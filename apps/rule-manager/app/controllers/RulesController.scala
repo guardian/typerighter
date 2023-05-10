@@ -3,17 +3,14 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleResource
-
-import play.api.libs.json.Json
-
+import play.api.libs.json.{JsValue, Json, Writes}
 import db.DbRuleDraft
-import model.{CreateRuleForm, UpdateRuleForm}
+import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.data.FormError
-import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc._
-
 import service.{RuleManagement, SheetsRuleManager}
-import scala.util.{Success, Failure}
+
+import scala.util.{Failure, Success}
 
 /** The controller that handles the management of matcher rules.
   */
@@ -42,7 +39,7 @@ class RulesController(
     Ok(Json.toJson(RuleManagement.getDraftRules()))
   }
 
-  def rule(id: Int) = ApiAuthAction {
+  def get(id: Int) = ApiAuthAction {
     DbRuleDraft.find(id) match {
       case None         => NotFound("Rule not found matching ID")
       case Some(result) => Ok(Json.toJson(result))
@@ -54,6 +51,20 @@ class RulesController(
       "key" -> Json.toJson(o.key),
       "message" -> Json.toJson(o.message)
     )
+  }
+
+  def publish(id: Int) = ApiAuthAction { implicit request =>
+    PublishRuleForm.form
+      .bindFromRequest()
+      .fold(
+        form => BadRequest(Json.toJson(form.errors)),
+        form =>
+          RuleManagement
+            .publishRule(id, request.user.email, form.reason, bucketRuleResource) match {
+            case Success(result) => Ok(Json.toJson(result))
+            case Failure(error) => BadRequest(error.getMessage)
+          }
+      )
   }
 
   def create = ApiAuthAction { implicit request =>
