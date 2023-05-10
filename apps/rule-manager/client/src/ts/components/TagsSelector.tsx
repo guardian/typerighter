@@ -11,7 +11,7 @@ export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
 }) => {
     const options = existingTags.map(tag => {return {label: tag}});
 
-    const [selectedTags, setSelectedTags] = useState<MetadataOption[]>([]);
+    const [selectedTags, setSelectedTags] = useState<MetadataOption[]>(ruleData.tags ? ruleData.tags.map(tag => ({label: tag})) : []);
 
     const onChange = (selectedTags) => {
         setSelectedTags(selectedTags);
@@ -26,7 +26,7 @@ export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
         <EuiFormRow label='Tags'>
             <EuiComboBox
                 options={options}
-                selectedOptions={selectedTags}
+                selectedOptions={ruleData.tags ? ruleData.tags.map(tag => ({label: tag})) : undefined}
                 onChange={onChange}
                 isClearable={true}
                 isCaseSensitive

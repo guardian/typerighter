@@ -208,29 +208,25 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       formRule: UpdateRuleForm,
       id: Int,
       user: String
-  )(implicit session: DBSession = autoSession): Either[Result, DbRuleDraft] = {
-    val updatedRule = DbRuleDraft
+  )(implicit session: DBSession = autoSession): Either[Result, DbRule] = {
+    val updatedRule = DbRule
       .find(id)
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
         existingRule.copy(
           id = Some(id),
           ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
-          pattern = formRule.pattern.orElse(existingRule.pattern),
-          replacement = formRule.replacement.orElse(existingRule.replacement),
-          category = formRule.category.orElse(existingRule.category),
-          tags = formRule.tags.orElse(existingRule.tags),
-          description = formRule.description.orElse(existingRule.description),
-          ignore = formRule.ignore.getOrElse(existingRule.ignore),
-          notes = formRule.notes.orElse(existingRule.notes),
-          googleSheetId = formRule.googleSheetId.orElse(existingRule.googleSheetId),
-          forceRedRule = formRule.forceRedRule.orElse(existingRule.forceRedRule),
-          advisoryRule = formRule.advisoryRule.orElse(existingRule.advisoryRule)
+          pattern = formRule.pattern,
+          replacement = formRule.replacement,
+          category = formRule.category,
+          tags = formRule.tags,
+          description = formRule.description,
+          advisoryRule = formRule.advisoryRule
         )
       )
     updatedRule match {
       case Right(dbRule) => {
-        DbRuleDraft.save(dbRule, user).toEither match {
+        DbRule.save(dbRule, user).toEither match {
           case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
           case Right(dbRule)      => Right(dbRule)
         }

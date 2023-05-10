@@ -81,7 +81,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
             return;
         }
 
-        updateMode ? updateRule(ruleData) : createRule(ruleData)
+        (updateMode ? updateRule(ruleData) : createRule(ruleData))
             .then(data => {
                 if (data.status === 'ok'){
                     setRuleData(baseForm);

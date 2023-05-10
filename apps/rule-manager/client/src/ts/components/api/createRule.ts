@@ -1,7 +1,7 @@
 import { RuleFormData } from "../RuleForm";
 import { responseHandler } from "./parseResponse";
 
-type FormDataForApiEndpoint =  {
+export type FormDataForApiEndpoint =  {
     ruleType: string,
     pattern?: string,
     replacement?: string,
@@ -14,7 +14,7 @@ type FormDataForApiEndpoint =  {
 }
 
 export const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {
-    return {...ruleForm, tags: ruleForm.tags ? ruleForm.tags.join(",") : undefined};
+    return {...ruleForm, tags: ruleForm.tags && ruleForm.tags.length ? ruleForm.tags.join(",") : undefined};
 }
 
 export const createRule = async (ruleForm: RuleFormData) => {
@@ -25,6 +25,6 @@ export const createRule = async (ruleForm: RuleFormData) => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(transformedRuleFormData)
-    }).then(response => responseHandler(response));
+    }).then(responseHandler);
     return createRuleResponse
 }

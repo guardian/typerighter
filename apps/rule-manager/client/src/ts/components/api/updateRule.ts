@@ -1,5 +1,5 @@
 import { RuleFormData } from "../RuleForm";
-import { transformRuleFormData } from "../api/createRule";
+import { transformRuleFormData } from "./createRule";
 import { ErrorIResponse, OkIResponse, responseHandler } from "./parseResponse";
 
 export const updateRule = async (ruleForm: RuleFormData): Promise<ErrorIResponse | OkIResponse> => {
@@ -11,7 +11,7 @@ export const updateRule = async (ruleForm: RuleFormData): Promise<ErrorIResponse
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(ruleForm)
-    }).then(response => responseHandler(response))
+        body: JSON.stringify(formDataForApi)
+    }).then(responseHandler)
     return updateRuleResponse
 }
