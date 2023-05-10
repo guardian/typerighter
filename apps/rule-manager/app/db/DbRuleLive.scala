@@ -5,6 +5,7 @@ import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
 import java.time.ZonedDateTime
+import scala.util.{Failure, Success, Try}
 
 trait DbRuleLiveFields {
   def reason: String
@@ -58,6 +59,40 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       .map(DbRuleLive.fromResultName(r.resultName))
       .list()
       .apply()
+  }
+
+  def create(liveRule: DbRuleLive, user: String)(implicit
+      session: DBSession = autoSession
+  ): Try[DbRuleLive] = {
+    val generatedKey = withSQL {
+      insert
+        .into(DbRuleLive)
+        .namedValues(
+          column.ruleType -> liveRule.ruleType,
+          column.pattern -> liveRule.pattern,
+          column.replacement -> liveRule.replacement,
+          column.category -> liveRule.category,
+          column.tags -> liveRule.tags,
+          column.description -> liveRule.description,
+          column.notes -> liveRule.notes,
+          column.googleSheetId -> liveRule.googleSheetId,
+          column.forceRedRule -> liveRule.forceRedRule,
+          column.advisoryRule -> liveRule.advisoryRule,
+          column.reason -> liveRule.reason,
+          column.createdBy -> user,
+          column.updatedBy -> user
+        )
+    }.update().apply()
+
+    find(generatedKey) match {
+      case Some(rule) => Success(rule)
+      case None =>
+        Failure(
+          new Exception(
+            s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
+          )
+        )
+    }
   }
 
   def batchInsert(

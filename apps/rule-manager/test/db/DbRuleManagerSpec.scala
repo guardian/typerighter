@@ -1,4 +1,4 @@
-package db
+package service
 
 import com.gu.typerighter.model.{
   Category,
@@ -8,17 +8,16 @@ import com.gu.typerighter.model.{
   LTRuleXML,
   RegexRule
 }
-import com.softwaremill.diffx.generic.auto.diffForCaseClass
+import db.{DBTest, DbRuleDraft, DbRuleLive}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import scalikejdbc.scalatest.AutoRollback
-import service.DbRuleManager
+import com.softwaremill.diffx.generic.auto.diffForCaseClass
+import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 
-import scala.util.Random
+import scala.util.{Failure, Random, Success}
 
 class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
-
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
       DbRuleDraft.withUser(
@@ -114,5 +113,43 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
         _.toLive("Imported from Google Sheet")
       )
+  }
+
+  "publishRule" should "add an identical rule to the live rules table" in { () =>
+    val user = "example.user@guardian.co.uk"
+    val reason = "Some important update"
+    val ruleToPublish = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        user = user,
+        ignore = false,
+        pattern = Some("pattern"),
+        description = Some("description"),
+        category = Some("category"),
+        googleSheetId = Some("googleSheetId")
+      )
+      .get
+
+    val publishedRule = DbRuleManager.publishRule(ruleToPublish.id.get, user, reason).get
+
+    DbRuleLive.find(publishedRule.id.get) match {
+      case Some(liveRule) =>
+        liveRule.ruleType shouldBe ruleToPublish.ruleType
+        liveRule.pattern shouldBe ruleToPublish.pattern
+        liveRule.description shouldBe ruleToPublish.description
+        liveRule.reason shouldBe reason
+      case None => fail(s"Could not find published rule with id: ${ruleToPublish.id.get}")
+    }
+  }
+
+  "publishRule" should "not publish rules that cannot be transformed into checker rules" in { () =>
+    val user = "example.user@guardian.co.uk"
+    val reason = "Some important update"
+    val ruleToPublish = DbRuleDraft.create(ruleType = "regex", user = user, ignore = false).get
+
+    DbRuleManager.publishRule(ruleToPublish.id.get, user, reason) match {
+      case Success(_)         => fail("This rule should not be publishable")
+      case Failure(exception) => exception.getMessage should include("CheckerRule")
+    }
   }
 }

@@ -21,10 +21,11 @@ trait DBTest extends BeforeAndAfter { self: Suite =>
     )
   )
 
-  val scalikejdbcDb = new DB(url, user, password)
+  var scalikejdbcDb = new DB(url, user, password)
 
   before {
     try {
+      scalikejdbcDb = new DB(url, user, password)
       Evolutions.applyEvolutions(playDb)
     } catch {
       case fail: InconsistentDatabase =>
@@ -35,5 +36,6 @@ trait DBTest extends BeforeAndAfter { self: Suite =>
 
   after {
     Evolutions.cleanupEvolutions(playDb)
+    scalikejdbcDb.closeAll
   }
 }

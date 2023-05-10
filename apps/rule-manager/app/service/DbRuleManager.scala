@@ -16,6 +16,8 @@ import db.{DbRuleDraft, DbRuleLive}
 import db.DbRuleDraft.autoSession
 import scalikejdbc.DBSession
 
+import scala.util.Try
+
 object DbRuleManager extends Loggable {
   object RuleType {
     val regex = "regex"
@@ -142,14 +144,29 @@ object DbRuleManager extends Loggable {
             _
           ) =>
         Right(LTRuleCore(externalId, externalId))
-      case other => Left(s"Could not derive BaseRule from DbRule for: $other")
+      case other => Left(s"Could not create a CheckerRule for the following DBRule: $other")
     }
   }
 
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
 
-  def getRule(id: Int): Option[DbRuleDraft] = DbRuleDraft.find(id)
+  def publishRule(id: Int, user: String, reason: String)(implicit
+      session: DBSession = autoSession
+  ): Try[DbRuleLive] = {
+    for {
+      draftRule <- DbRuleDraft
+        .find(id)
+        .toRight(
+          new Exception(
+            s"Attempted to publish rule with id $id for user $user, but could not find a draft rule with that id"
+          )
+        )
+        .toTry
+      _ <- draftDbRuleToCheckerRule(draftRule).left.map(new Exception(_)).toTry
+      liveRule <- DbRuleLive.create(draftRule.toLive(reason), user)
+    } yield liveRule
+  }
 
   def createCheckerRuleResourceFromDbRules(
       dbRules: List[DbRuleDraft]
