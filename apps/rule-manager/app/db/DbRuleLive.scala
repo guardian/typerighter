@@ -75,7 +75,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
           column.tags -> liveRule.tags,
           column.description -> liveRule.description,
           column.notes -> liveRule.notes,
-          column.googleSheetId -> liveRule.googleSheetId,
+          column.externalId -> liveRule.externalId,
           column.forceRedRule -> liveRule.forceRedRule,
           column.advisoryRule -> liveRule.advisoryRule,
           column.reason -> liveRule.reason,

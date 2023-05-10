@@ -67,9 +67,9 @@ object RuleManagement extends Loggable {
     }
   }
 
-  def draftDbRuleToCheckerRule(rule: DbRuleDraft): Either[String, CheckerRule] = {
+  def liveDbRuleToCheckerRule(rule: DbRuleLive): Either[String, CheckerRule] = {
     rule match {
-      case DbRuleDraft(
+      case DbRuleLive(
             _,
             RuleType.regex,
             Some(pattern),
@@ -78,8 +78,8 @@ object RuleManagement extends Loggable {
             _,
             description,
             _,
-            _,
             Some(externalId),
+            _,
             _,
             _,
             _,
@@ -98,7 +98,7 @@ object RuleManagement extends Loggable {
             regex = new ComparableRegex(pattern)
           )
         )
-      case DbRuleDraft(
+      case DbRuleLive(
             _,
             RuleType.languageToolXML,
             Some(pattern),
@@ -107,8 +107,8 @@ object RuleManagement extends Loggable {
             _,
             description,
             _,
-            _,
             Some(externalId),
+            _,
             _,
             _,
             _,
@@ -125,7 +125,7 @@ object RuleManagement extends Loggable {
             xml = pattern
           )
         )
-      case DbRuleDraft(
+      case DbRuleLive(
             _,
             RuleType.languageToolCore,
             _,
@@ -134,8 +134,8 @@ object RuleManagement extends Loggable {
             _,
             _,
             _,
-            _,
             Some(externalId),
+            _,
             _,
             _,
             _,
@@ -164,18 +164,28 @@ object RuleManagement extends Loggable {
           )
         )
         .toTry
-      _ <- draftDbRuleToCheckerRule(draftRule).left.map(new Exception(_)).toTry
-      liveRule <- DbRuleLive.create(draftRule.toLive(reason), user)
-    } yield liveRule
+      liveRule = draftRule.toLive(reason)
+      _ <- liveDbRuleToCheckerRule(liveRule).left.map(new Exception(_)).toTry
+      persistedLiveRule <- DbRuleLive.create(liveRule, user)
+    } yield persistedLiveRule
   }
 
-  def createCheckerRuleResourceFromDbRules(
-      dbRules: List[DbRuleDraft]
+  def publishLiveRules(
+      ruleManager: BucketRuleResource
   ): Either[List[String], CheckerRuleResource] = {
-    val (failedDbRules, successfulDbRules) = dbRules
-      .filter(_.ignore == false)
-      .map(draftDbRuleToCheckerRule)
-      .partitionMap(identity)
+    for {
+      ruleResource <- getRuleResourceFromLiveRules()
+      _ <- ruleManager.putRules(ruleResource).left.map { l => List(l.toString) }
+    } yield ruleResource
+  }
+
+  private def getRuleResourceFromLiveRules(
+  ): Either[List[String], CheckerRuleResource] = {
+    val (failedDbRules, successfulDbRules) =
+      DbRuleLive
+        .findAll()
+        .map(liveDbRuleToCheckerRule)
+        .partitionMap(identity)
 
     failedDbRules match {
       case Nil      => Right(CheckerRuleResource(successfulDbRules))
@@ -183,9 +193,10 @@ object RuleManagement extends Loggable {
     }
   }
 
-  def destructivelyDumpRulesToDB(
-      incomingRules: List[DbRuleDraft]
-  ): Either[List[String], List[DbRuleDraft]] = {
+  def destructivelyPublishRules(
+      incomingRules: List[DbRuleDraft],
+      bucketRuleResource: BucketRuleResource
+  ): Either[List[String], CheckerRuleResource] = {
     DbRuleDraft.destroyAll()
     DbRuleLive.destroyAll()
 
@@ -203,7 +214,7 @@ object RuleManagement extends Loggable {
     val rulesToCompare = persistedRules.map(_.copy(id = None))
 
     if (rulesToCompare == incomingRules) {
-      Right(persistedRules)
+      publishLiveRules(bucketRuleResource)
     } else {
       val allRules = rulesToCompare.zip(incomingRules)
       log.error(s"Persisted rules differ.")

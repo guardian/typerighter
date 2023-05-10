@@ -111,9 +111,9 @@ class AppComponents(
     maybeCloudWatchClient = Some(cloudWatchClient)
   )(matcherPoolDispatcher, materializer)
 
-  val bucketRuleManager = new BucketRuleResource(s3Client, typerighterBucket, stage)
+  val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
   val ruleProvisioner = new RuleProvisionerService(
-    bucketRuleManager,
+    bucketRuleResource,
     matcherPool,
     languageToolFactory,
     cloudWatchClient
