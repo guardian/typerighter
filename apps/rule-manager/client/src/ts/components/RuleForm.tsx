@@ -1,4 +1,4 @@
-import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText } from "@elastic/eui";
+import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText, EuiToolTip } from "@elastic/eui";
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
@@ -97,7 +97,14 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 
     return <EuiForm component="form">
-        {getFeatureSwitchValue("create-and-edit") && <EuiButton isDisabled={createRuleFormOpen || (pageData ? !hasCreateEditPermissions(pageData.permissions) : true)} onClick={openCreateRuleForm}>Create Rule</EuiButton>}
+        {getFeatureSwitchValue("create-and-edit") && 
+            <EuiToolTip content={pageData && hasCreateEditPermissions(pageData.permissions) ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
+                <EuiButton 
+                    isDisabled={createRuleFormOpen || (pageData ? !hasCreateEditPermissions(pageData.permissions) : true)} 
+                    onClick={openCreateRuleForm}
+                >Create Rule</EuiButton>
+            </EuiToolTip>
+        }
         <EuiSpacer />
         {createRuleFormOpen ? <EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={errors} showErrors={showErrors}/>

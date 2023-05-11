@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     EuiSearchBarProps,
     EuiBasicTableColumn,
@@ -10,12 +10,15 @@ import {
     EuiLoadingSpinner,
     EuiButtonIcon,
     EuiFlexGrid,
-    EuiIcon
+    EuiIcon,
+    EuiToolTip
 } from '@elastic/eui';
 import { useRules } from "./hooks/useRules";
 import { css } from "@emotion/react";
 import { baseForm, RuleForm, RuleFormData } from './RuleForm';
 import { getRule } from './api/getRule';
+import { PageContext, PageDataProvider } from '../utils/window';
+import { hasCreateEditPermissions } from './helpers/hasCreateEditPermissions';
 
 const sorting = {
     sort: {
@@ -42,7 +45,7 @@ export type Rule = {
     regex: string;
 }
 
-const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => [
+const createColumns = (editRule: (ruleId: number) => void, editIsEnabled: boolean): Array<EuiBasicTableColumn<Rule>> => [
     {
         field: 'ruleType',
         name: 'Type',
@@ -68,7 +71,9 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
         name: 'Description'
     },
     {
-        name: <EuiIcon type="pencil"/>,
+        name: <EuiToolTip content={editIsEnabled ? "" : "You do not have the correct permissions to edit a rule. Please contact Central Production if you need to edit rules."}>
+            <EuiIcon type="pencil"/>
+        </EuiToolTip>,
         actions: [{
             name: 'Edit',
             isPrimary: true,
@@ -78,6 +83,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
             onClick: (rule) => {
                 editRule(Number(rule.id))
             },
+            enabled: () => editIsEnabled,  
             'data-test-subj': 'action-edit',
         }]
     }
@@ -103,7 +109,8 @@ const RulesTable = () => {
                 }
             })
     }
-    const columns = createColumns(openEditRulePanel);
+    const pageData = useContext(PageContext);
+    const columns = createColumns(openEditRulePanel, pageData ? hasCreateEditPermissions(pageData.permissions) : false);
     const [ruleData, setRuleData] = useState<RuleFormData>(baseForm);
     const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
     const [updateMode, setUpdateMode] = useState(false);
