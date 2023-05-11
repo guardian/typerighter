@@ -23,34 +23,22 @@ const sorting = {
         field: 'description',
         direction: 'desc' as const,
     },
-};
-
-type Category = {
-    name: string;
-    id: string;
-}
+} as const;
 
 export type Rule = {
     type: string;
     id: string;
     description: string;
-    replacement: {
-      type: 'TEXT_SUGGESTION',
-      text: string,
-    };
-    category: Category;
-    enabled: boolean;
+    replacement: string;
+    category: string;
     regex: string;
+    isPublished: boolean;
 }
 
 const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => [
     {
         field: 'ruleType',
         name: 'Type',
-    },
-    {
-        field: 'externalId',
-        name: 'ID'
     },
     {
         field: 'category',
@@ -67,6 +55,11 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     {
         field: 'description',
         name: 'Description'
+    },
+    {
+      field: 'isPublished',
+      name: 'Status',
+      render: value =>  value ? "Live" : "Draft"
     },
     {
         name: <EuiIcon type="pencil"/>,
@@ -160,7 +153,7 @@ const RulesTable = () => {
         <EuiFlexGroup>
             <EuiFlexItem grow={2}>
                 {rules &&
-                    <EuiInMemoryTable
+                    <EuiInMemoryTable<Rule>
                         tableCaption="Demo of EuiInMemoryTable"
                         items={rules}
                         columns={columns}
@@ -172,7 +165,7 @@ const RulesTable = () => {
                 }
             </EuiFlexItem>
             <EuiFlexItem grow={1}>
-                <RuleForm 
+                <RuleForm
                     onRuleUpdate={fetchRules}
                     ruleData={ruleData}
                     setRuleData={setRuleData}

@@ -35,12 +35,12 @@ export const baseForm = {
 }
 
 export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpen, setCreateRuleFormOpen, updateMode, setUpdateMode}: {
-        onRuleUpdate: () => Promise<void>, 
+        onRuleUpdate: () => Promise<void>,
         ruleData: RuleFormData,
         setRuleData: Dispatch<SetStateAction<RuleFormData>>,
-        createRuleFormOpen: boolean, 
+        createRuleFormOpen: boolean,
         setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>,
-        updateMode: boolean, 
+        updateMode: boolean,
         setUpdateMode: Dispatch<SetStateAction<boolean>>
     }) => {
     const [showErrors, setShowErrors] = useState(false);
@@ -51,7 +51,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
         setCreateRuleFormOpen(true);
         setUpdateMode(false);
     }
-    
+
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
         setRuleData({...existing, ...partialReplacement});
     }
