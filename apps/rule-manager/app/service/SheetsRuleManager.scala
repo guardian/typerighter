@@ -7,6 +7,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
+
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 import db.DbRuleDraft
@@ -119,7 +120,7 @@ class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends 
                 description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
                 ignore = if (ignore.toString == "TRUE") true else false,
                 notes = cellToOptionalString(row, PatternRuleCols.Notes),
-                googleSheetId = Some(id),
+                externalId = Some(id),
                 forceRedRule = Some(
                   row.lift(PatternRuleCols.ForceRed).asInstanceOf[Option[String]].contains("y")
                 ),

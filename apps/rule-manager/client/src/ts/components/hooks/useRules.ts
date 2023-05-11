@@ -33,7 +33,7 @@ export function useRules() {
             if (!updatedRulesResponse.ok) {
                 throw new Error(`Failed to refresh rules: ${updatedRulesResponse.status} ${updatedRulesResponse.statusText}`);
             }
-            const {rules} = await updatedRulesResponse.json();
+            const rules = await updatedRulesResponse.json();
             setRules(rules);
         } catch (e) {
             setError(e);

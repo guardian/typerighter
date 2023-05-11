@@ -3,14 +3,16 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleManager
+
 import play.api.libs.json.Json
-import db.{DbRuleDraft}
+
+import db.DbRuleDraft
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc._
 import service.{DbRuleManager, SheetsRuleManager}
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 
 /** The controller that handles the management of matcher rules.
   */

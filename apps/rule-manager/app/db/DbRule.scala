@@ -11,7 +11,7 @@ trait DbRuleCommon {
   def tags: Option[String]
   def description: Option[String]
   def notes: Option[String]
-  def googleSheetId: Option[String]
+  def externalId: Option[String]
   def forceRedRule: Option[Boolean]
   def advisoryRule: Option[Boolean]
   def createdAt: ZonedDateTime
@@ -31,7 +31,7 @@ object DbRule {
     "tags",
     "description",
     "notes",
-    "google_sheet_id",
+    "external_id",
     "force_red_rule",
     "advisory_rule",
     "created_at",

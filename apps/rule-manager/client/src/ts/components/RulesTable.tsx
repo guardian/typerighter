@@ -49,7 +49,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
         name: 'Type',
     },
     {
-        field: 'googleSheetId',
+        field: 'externalId',
         name: 'ID'
     },
     {

@@ -34,7 +34,7 @@ object DbRuleManager extends Loggable {
           description = Some(description),
           ignore = false,
           replacement = replacement.map(_.text),
-          googleSheetId = Some(id),
+          externalId = Some(id),
           user = "Google Sheet"
         )
       case LTRuleXML(id, xml, category, description) =>
@@ -46,14 +46,14 @@ object DbRuleManager extends Loggable {
           description = Some(description),
           ignore = false,
           replacement = None,
-          googleSheetId = Some(id),
+          externalId = Some(id),
           user = "Google Sheet"
         )
       case LTRuleCore(_, languageToolRuleId) =>
         DbRuleDraft.withUser(
           id = None,
           ruleType = RuleType.languageToolCore,
-          googleSheetId = Some(languageToolRuleId),
+          externalId = Some(languageToolRuleId),
           ignore = false,
           user = "Google Sheet"
         )
@@ -76,7 +76,7 @@ object DbRuleManager extends Loggable {
             description,
             _,
             _,
-            Some(googleSheetId),
+            Some(externalId),
             _,
             _,
             _,
@@ -87,7 +87,7 @@ object DbRuleManager extends Loggable {
           ) =>
         Right(
           RegexRule(
-            id = googleSheetId,
+            id = externalId,
             category = Category(id = category, name = category),
             description = description.getOrElse(""),
             suggestions = List.empty,
@@ -105,7 +105,7 @@ object DbRuleManager extends Loggable {
             description,
             _,
             _,
-            Some(googleSheetId),
+            Some(externalId),
             _,
             _,
             _,
@@ -116,7 +116,7 @@ object DbRuleManager extends Loggable {
           ) =>
         Right(
           LTRuleXML(
-            id = googleSheetId,
+            id = externalId,
             category = Category(id = category, name = category),
             description = description.getOrElse(""),
             xml = pattern
@@ -132,7 +132,7 @@ object DbRuleManager extends Loggable {
             _,
             _,
             _,
-            Some(googleSheetId),
+            Some(externalId),
             _,
             _,
             _,
@@ -141,7 +141,7 @@ object DbRuleManager extends Loggable {
             _,
             _
           ) =>
-        Right(LTRuleCore(googleSheetId, googleSheetId))
+        Right(LTRuleCore(externalId, externalId))
       case other => Left(s"Could not derive BaseRule from DbRule for: $other")
     }
   }
