@@ -214,7 +214,7 @@ object RuleManager extends Loggable {
       .foreach(DbRuleLive.batchInsert)
 
     val persistedRules = getDraftRules()
-    val rulesToCompare = persistedRules.map(_.copy(id = None))
+    val rulesToCompare = persistedRules.map(_.copy(id = None, isPublished = false))
 
     if (rulesToCompare == incomingRules) {
       publishLiveRules(bucketRuleResource)

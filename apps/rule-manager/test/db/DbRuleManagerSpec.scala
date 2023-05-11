@@ -50,7 +50,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   behavior of "DbRuleManager"
 
-  "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
+  "destructivelyPublishRules" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
     () =>
       val rulesFromSheet = List[CheckerRule](
         RegexRule(
@@ -74,13 +74,15 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
 
       val rules = rulesFromSheet.map(RuleManager.checkerRuleToDraftDbRule)
-      val publishedRules =
-        RuleManager.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
 
-      publishedRules.rules shouldMatchTo rulesFromSheet
+      RuleManager.destructivelyPublishRules(rules, bucketRuleResource) match {
+        case Right(publishedResource) =>
+          publishedResource.rules shouldMatchTo rulesFromSheet
+        case Left(err) => fail(err.mkString)
+      }
   }
 
-  "destructivelyDumpRulesToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
+  "destructivelyPublishRules" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
     () =>
       val rules = createRandomRules(1)
       val rulesAsPublished = rules
@@ -93,7 +95,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       rulesFromDb.rules shouldMatchTo rulesAsPublished
   }
 
-  "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in { () =>
+  "destructivelyPublishRules" should "remove old rules before adding new ones" in { () =>
     val firstRules = createRandomRules(10)
     RuleManager.destructivelyPublishRules(firstRules, bucketRuleResource)
 
@@ -114,10 +116,10 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       ruleResourceWithIgnoredRules.shouldEqual(CheckerRuleResource(List()))
   }
 
-  "destructivelyDumpRuleResourceToDB" should "write all rules to draft, and only write unignored rules to live" in {
+  "destructivelyPublishRules" should "write all rules to draft, and only write unignored rules to live" in {
     () =>
       val allRules = createRandomRules(2).zipWithIndex.map { case (rule, index) =>
-        if (index % 2 == 0) rule.copy(ignore = true) else rule
+        if (index % 2 == 0) rule.copy(ignore = true) else rule.copy(isPublished = true)
       }
       val unignoredRules = allRules.filterNot(_.ignore)
 
