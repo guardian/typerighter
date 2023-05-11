@@ -40,3 +40,8 @@ trap teardownDependencies EXIT
 checkCredentials
 setupDependencies
 runRuleManager
+
+# catches script exit events and kills the `npm run watch` process and its children
+# https://stackoverflow.com/a/22644006
+trap "exit" INT TERM
+trap "kill 0" EXIT
