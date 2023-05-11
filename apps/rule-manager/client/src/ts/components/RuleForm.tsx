@@ -4,10 +4,8 @@ import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
-import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
 import { updateRule } from "./api/updateRule";
-import { responseHandler } from "./api/parseResponse";
 import { PageContext } from "../utils/window";
 import { hasCreateEditPermissions } from "./helpers/hasCreateEditPermissions";
 

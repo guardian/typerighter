@@ -13,11 +13,8 @@ import play.api.data.FormError
 import play.api.libs.json.{JsValue, Writes}
 import play.api.mvc._
 import service.{DbRuleManager, SheetsRuleManager}
-<<<<<<< HEAD
-=======
 import utils.{PermissionsHandler, RuleManagerConfig}
 
->>>>>>> 31ceff7 (Check for permissions before creating or editing rules on backend)
 import scala.util.{Failure, Success}
 
 /** The controller that handles the management of matcher rules.

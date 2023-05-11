@@ -16,7 +16,6 @@ import { useRules } from "./hooks/useRules";
 import { css } from "@emotion/react";
 import { baseForm, RuleForm, RuleFormData } from './RuleForm';
 import { getRule } from './api/getRule';
-import { responseHandler } from './api/parseResponse';
 
 const sorting = {
     sort: {
