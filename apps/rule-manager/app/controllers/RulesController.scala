@@ -3,12 +3,12 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleResource
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.Json
 import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
-import play.api.data.FormError
 import play.api.mvc._
 import service.{RuleManager, SheetsRuleResource}
+import utils.FormHelpers
 
 import scala.util.{Failure, Success}
 
@@ -20,7 +20,8 @@ class RulesController(
     bucketRuleResource: BucketRuleResource,
     val publicSettings: PublicSettings
 ) extends AbstractController(cc)
-    with PandaAuthentication {
+    with PandaAuthentication
+    with FormHelpers {
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
       dbRules <- sheetsRuleResource.getRules()
@@ -46,21 +47,14 @@ class RulesController(
     }
   }
 
-  implicit object FormErrorWrites extends Writes[FormError] {
-    override def writes(o: FormError): JsValue = Json.obj(
-      "key" -> Json.toJson(o.key),
-      "message" -> Json.toJson(o.message)
-    )
-  }
-
   def publish(id: Int) = ApiAuthAction { implicit request =>
     PublishRuleForm.form
       .bindFromRequest()
       .fold(
         form => BadRequest(Json.toJson(form.errors)),
-        form =>
+        reason =>
           RuleManager
-            .publishRule(id, request.user.email, form.reason, bucketRuleResource) match {
+            .publishRule(id, request.user.email, reason, bucketRuleResource) match {
             case Success(result) => Ok(Json.toJson(result))
             case Failure(error)  => BadRequest(error.getMessage)
           }

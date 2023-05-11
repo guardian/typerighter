@@ -1,16 +1,12 @@
 package model
 
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText}
+import play.api.data.Forms.{nonEmptyText, single}
 
 object PublishRuleForm {
   val form = Form(
-    mapping(
+    single(
       "reason" -> nonEmptyText()
-    )(PublishRuleForm.apply)(PublishRuleForm.unapply)
+    )
   )
 }
-
-case class PublishRuleForm(
-    reason: String
-)
