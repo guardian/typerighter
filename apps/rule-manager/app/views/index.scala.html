@@ -1,6 +1,7 @@
 @import com.gu.pandomainauth.model.User
 
-@(stage: String, user: User)
+@import play.api.libs.json.JsValue
+@(stage: String, user: User, userWithPermissions: JsValue)
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -29,7 +30,7 @@
     <link rel="icon" href="static/favicon.@{stage.toUpperCase}.svg">
   </head>
   <body>
-    <script id="data" type="application/json">@{Html(user.toJson)}</script>
+    <script id="data" type="application/json">@{Html(userWithPermissions.toString())}</script>
     <div id="rule-manager-app"></div>
   </body>
 </html>

@@ -8,6 +8,8 @@ import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
 import { updateRule } from "./api/updateRule";
 import { responseHandler } from "./api/parseResponse";
+import { PageContext } from "../utils/window";
+import { hasCreateEditPermissions } from "./helpers/hasCreateEditPermissions";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -45,6 +47,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     }) => {
     const [showErrors, setShowErrors] = useState(false);
     const [errors, setErrors] = useState<FormError[]>([]);
+    const pageData = useContext(PageContext)
 
     const openCreateRuleForm = () => {
         setRuleData(baseForm);
@@ -96,7 +99,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 
     return <EuiForm component="form">
-        {getFeatureSwitchValue("create-and-edit") && <EuiButton isDisabled={createRuleFormOpen} onClick={openCreateRuleForm}>Create Rule</EuiButton>}
+        {getFeatureSwitchValue("create-and-edit") && <EuiButton isDisabled={createRuleFormOpen || (pageData ? !hasCreateEditPermissions(pageData.permissions) : true)} onClick={openCreateRuleForm}>Create Rule</EuiButton>}
         <EuiSpacer />
         {createRuleFormOpen ? <EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={errors} showErrors={showErrors}/>

@@ -1,10 +1,18 @@
 import React, { createContext } from "react";
 
+export type Permission = {
+  permission: string,
+  active: boolean
+}
+
 type PageData = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  avatarUrl: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatarUrl: string;
+  },
+  permissions: Permission[]
 };
 
 const getPageData = (): PageData | undefined => {

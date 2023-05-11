@@ -24,7 +24,7 @@ class HomeController(
     with PermissionsHandler {
 
   def index() = AuthAction { request =>
-    Ok(views.html.index(config.stage, request.user))
+    Ok(views.html.index(config.stage, request.user, userAndPermissionsToJson(request.user, List(PermissionDefinition("manage_rules", "typerighter")))))
   }
 
   def healthcheck() = Action {

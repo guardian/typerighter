@@ -39,7 +39,7 @@ export const Header = () => {
 
   const ProfileMenuButton = (
     <UserActionMenu onClick={toggleProfileMenu}>
-      {pageData?.firstName} {pageData?.lastName} &nbsp;
+      {pageData?.user.firstName} {pageData?.user.lastName} &nbsp;
       <DownChevron />
     </UserActionMenu>
   );

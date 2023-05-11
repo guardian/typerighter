@@ -111,7 +111,8 @@ class AppComponents(
     controllerComponents,
     sheetsRuleManager,
     bucketRuleManager,
-    publicSettings
+    publicSettings,
+    config
   )
 
   lazy val router = new Routes(
