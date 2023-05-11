@@ -11,6 +11,7 @@ import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import utils.{PermissionsHandler, RuleManagerConfig}
 import service.{RuleManager, SheetsRuleResource}
+import utils.FormHelpers
 
 import scala.util.{Failure, Success}
 
@@ -24,7 +25,8 @@ class RulesController(
     override val config: RuleManagerConfig
 ) extends AbstractController(cc)
     with PandaAuthentication
-    with PermissionsHandler {
+    with PermissionsHandler
+    with FormHelpers {
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
       dbRules <- sheetsRuleResource.getRules()
@@ -55,9 +57,9 @@ class RulesController(
       .bindFromRequest()
       .fold(
         form => BadRequest(Json.toJson(form.errors)),
-        form =>
+        reason =>
           RuleManager
-            .publishRule(id, request.user.email, form.reason, bucketRuleResource) match {
+            .publishRule(id, request.user.email, reason, bucketRuleResource) match {
             case Success(result) => Ok(Json.toJson(result))
             case Failure(error)  => BadRequest(error.getMessage)
           }
