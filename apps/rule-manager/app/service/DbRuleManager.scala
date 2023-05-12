@@ -1,18 +1,8 @@
 package service
 
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.model.{
-  Category,
-  CheckerRule,
-  CheckerRuleResource,
-  ComparableRegex,
-  LTRule,
-  LTRuleCore,
-  LTRuleXML,
-  RegexRule,
-  TextSuggestion
-}
-import db.{DbRuleDraft, DbRuleLive}
+import com.gu.typerighter.model.{Category, CheckerRule, CheckerRuleResource, ComparableRegex, LTRule, LTRuleCore, LTRuleXML, RegexRule, TextSuggestion}
+import db.{DbRuleDraft, DbRuleLive, WithId}
 import db.DbRuleDraft.autoSession
 import scalikejdbc.DBSession
 
@@ -146,10 +136,10 @@ object DbRuleManager extends Loggable {
     }
   }
 
-  def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
+  def getDraftRules()(implicit session: DBSession = autoSession): List[WithId[DbRuleDraft]] =
     DbRuleDraft.findAll()
 
-  def getRule(id: Int): Option[DbRuleDraft] = DbRuleDraft.find(id)
+  def getRule(id: Int): Option[WithId[DbRuleDraft]] = DbRuleDraft.find(id)
 
   def createCheckerRuleResourceFromDbRules(
       dbRules: List[DbRuleDraft]
@@ -181,7 +171,7 @@ object DbRuleManager extends Loggable {
       .grouped(100)
       .foreach(DbRuleLive.batchInsert)
 
-    val persistedRules = getDraftRules()
+    val persistedRules = getDraftRules().map(_.entity)
     val rulesToCompare = persistedRules.map(_.copy(id = None))
 
     if (rulesToCompare == incomingRules) {

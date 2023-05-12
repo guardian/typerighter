@@ -110,7 +110,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
       DbRuleManager.destructivelyDumpRulesToDB(allRules)
 
-      DbRuleDraft.findAll().map(_.copy(id = None)) shouldMatchTo allRules
+      DbRuleDraft.findAll().map(_.entity.copy(id = None)) shouldMatchTo allRules
       DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
         _.toLive("Imported from Google Sheet")
       )

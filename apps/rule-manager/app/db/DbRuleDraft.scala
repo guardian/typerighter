@@ -2,7 +2,7 @@ package db
 
 import db.DbRule._
 import model.{CreateRuleForm, UpdateRuleForm}
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
@@ -54,7 +54,7 @@ case class DbRuleDraft(
 }
 
 object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
-  implicit val format: Format[DbRuleDraft] = Json.format[DbRuleDraft]
+  implicit val format: OFormat[DbRuleDraft] = Json.format[DbRuleDraft]
 
   override val tableName = "rules_draft"
 
@@ -62,8 +62,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     "ignore"
   )
 
-  def fromResultName(r: ResultName[DbRuleDraft])(rs: WrappedResultSet): DbRuleDraft =
-    autoConstruct(rs, r)
+  def fromResultName(r: ResultName[DbRuleDraft])(rs: WrappedResultSet): WithId[DbRuleDraft] =
+    WithId(autoConstruct(rs, r), rs.int("id"))
 
   def withUser(
       id: Option[Int],
@@ -105,13 +105,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   override val autoSession = AutoSession
 
-  def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
+  def find(id: Int)(implicit session: DBSession = autoSession): Option[WithId[DbRuleDraft]] = {
     withSQL {
       select.from(DbRuleDraft as r).where.eq(r.id, id)
     }.map(DbRuleDraft.fromResultName(r.resultName)).single().apply()
   }
 
-  def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+  def findAll()(implicit session: DBSession = autoSession): List[WithId[DbRuleDraft]] = {
     withSQL(select.from(DbRuleDraft as r).orderBy(r.id))
       .map(DbRuleDraft.fromResultName(r.resultName))
       .list()
@@ -122,13 +122,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     withSQL(select(sqls.count).from(DbRuleDraft as r)).map(rs => rs.long(1)).single().apply().get
   }
 
-  def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
+  def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[WithId[DbRuleDraft]] = {
     withSQL {
       select.from(DbRuleDraft as r).where.append(where)
     }.map(DbRuleDraft.fromResultName(r.resultName)).single().apply()
   }
 
-  def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+  def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[WithId[DbRuleDraft]] = {
     withSQL {
       select.from(DbRuleDraft as r).where.append(where)
     }.map(DbRuleDraft.fromResultName(r.resultName)).list().apply()
@@ -152,7 +152,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
       user: String
-  )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
+  )(implicit session: DBSession = autoSession): Try[WithId[DbRuleDraft]] = {
     val generatedKey = withSQL {
       insert
         .into(DbRuleDraft)
@@ -205,14 +205,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       formRule: UpdateRuleForm,
       id: Int,
       user: String
-  )(implicit session: DBSession = autoSession): Either[Result, DbRuleDraft] = {
+  )(implicit session: DBSession = autoSession): Either[Result, WithId[DbRuleDraft]] = {
     val updatedRule = DbRuleDraft
       .find(id)
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
-        existingRule.copy(
+        existingRule.entity.copy(
           id = Some(id),
-          ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
+          ruleType = formRule.ruleType.getOrElse(existingRule.entity.ruleType),
           pattern = formRule.pattern,
           replacement = formRule.replacement,
           category = formRule.category,
@@ -223,7 +223,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       )
     updatedRule match {
       case Right(dbRule) => {
-        DbRuleDraft.save(dbRule, user).toEither match {
+        DbRuleDraft.save(WithId(dbRule, id), user).toEither match {
           case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
           case Right(dbRule)      => Right(dbRule)
         }
@@ -289,9 +289,10 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: DbRuleDraft, user: String)(implicit
+  def save(entityWithId: WithId[DbRuleDraft], user: String)(implicit
       session: DBSession = autoSession
-  ): Try[DbRuleDraft] = {
+  ): Try[WithId[DbRuleDraft]] = {
+    val entity = entityWithId.entity
     withSQL {
       update(DbRuleDraft)
         .set(
@@ -317,14 +318,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .eq(column.id, entity.id)
     }.update().apply()
 
-    find(entity.id.get)
+    find(entityWithId.id)
       .toRight(
         new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
       )
       .toTry
   }
 
-  def destroy(entity: DbRuleDraft)(implicit session: DBSession = autoSession): Int = {
+  def destroy(entity: WithId[DbRuleDraft])(implicit session: DBSession = autoSession): Int = {
     withSQL {
       delete.from(DbRuleDraft).where.eq(column.id, entity.id)
     }.update().apply()
