@@ -19,6 +19,7 @@ import { baseForm, RuleForm, RuleFormData } from './RuleForm';
 import { getRule } from './api/getRule';
 import { PageContext, PageDataProvider } from '../utils/window';
 import { hasCreateEditPermissions } from './helpers/hasCreateEditPermissions';
+import styled from '@emotion/styled';
 
 const sorting = {
     sort: {
@@ -71,23 +72,39 @@ const createColumns = (editRule: (ruleId: number) => void, editIsEnabled: boolea
         name: 'Description'
     },
     {
-        name: <EuiToolTip content={editIsEnabled ? "" : "You do not have the correct permissions to edit a rule. Please contact Central Production if you need to edit rules."}>
-            <EuiIcon type="pencil"/>
-        </EuiToolTip>,
+        name: <EuiIcon type="pencil"/>,
         actions: [{
             name: 'Edit',
+            render: (item, enabled) => <EditRule editIsEnabled={enabled} editRule={editRule} rule={item}/>,
             isPrimary: true,
             description: 'Edit this rule',
-            icon: 'pencil',
-            type: 'icon',
             onClick: (rule) => {
                 editRule(Number(rule.id))
             },
-            enabled: () => editIsEnabled,  
+            enabled: (item) => editIsEnabled,
             'data-test-subj': 'action-edit',
         }]
     }
 ];
+
+// We use our own button rather than an EuiIconButton because that component won't allow us to
+// show a tooltip on hover when the button is disabled
+const EditRule = ({editIsEnabled, editRule, rule}: {editIsEnabled: boolean, editRule: (ruleId: number) => void, rule: Rule}) => {
+    return <EuiToolTip content={editIsEnabled ? "" : "You do not have the correct permissions to edit a rule. Please contact Central Production if you need to edit rules."}>
+        <EditRuleButton editIsEnabled={editIsEnabled} onClick={() => (editIsEnabled ? editRule(Number(rule.id)) : () => null)}>
+            <EuiIcon type="pencil"/>
+        </EditRuleButton>
+    </EuiToolTip>
+}
+
+type EditRuleButtonProps = {
+    editIsEnabled: boolean;
+}
+
+const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
+    width: '16px',
+    cursor: props.editIsEnabled ? 'pointer' : 'not-allowed',
+}))
 
 const RulesTable = () => {
     const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
