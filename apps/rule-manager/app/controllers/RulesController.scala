@@ -62,24 +62,25 @@ class RulesController(
     )
   }
 
-  def create = ApiAuthAction { implicit request => {
-    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
-      case false => Unauthorized("You don't have permission to create rules")
-      case true =>
-        CreateRuleForm.form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              val errors = formWithErrors.errors
-              BadRequest(Json.toJson(errors))
-            },
-            formRule => {
-              DbRuleDraft.createFromFormRule(formRule, request.user.email) match {
-                case Success(rule) => Ok(Json.toJson(rule))
-                case Failure(error) => InternalServerError(error.getMessage())
+  def create = ApiAuthAction { implicit request =>
+    {
+      hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+        case false => Unauthorized("You don't have permission to create rules")
+        case true =>
+          CreateRuleForm.form
+            .bindFromRequest()
+            .fold(
+              formWithErrors => {
+                val errors = formWithErrors.errors
+                BadRequest(Json.toJson(errors))
+              },
+              formRule => {
+                DbRuleDraft.createFromFormRule(formRule, request.user.email) match {
+                  case Success(rule)  => Ok(Json.toJson(rule))
+                  case Failure(error) => InternalServerError(error.getMessage())
+                }
               }
-            }
-          )
+            )
       }
     }
   }
@@ -97,7 +98,7 @@ class RulesController(
             },
             formRule => {
               DbRuleDraft.updateFromFormRule(formRule, id, request.user.email) match {
-                case Left(result) => result
+                case Left(result)  => result
                 case Right(dbRule) => Ok(Json.toJson(dbRule))
               }
             }

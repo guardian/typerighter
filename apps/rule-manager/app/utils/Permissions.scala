@@ -34,21 +34,25 @@ trait PermissionsHandler {
     JsObject(
       Seq(
         "permissions" -> JsArray(
-          permissions.map(permission =>
-            JsObject(
-              Seq(
-                "permission" -> JsString(permission.name),
-                "active" -> JsBoolean(hasPermission(user, permission))
+          permissions
+            .map(permission =>
+              JsObject(
+                Seq(
+                  "permission" -> JsString(permission.name),
+                  "active" -> JsBoolean(hasPermission(user, permission))
+                )
               )
             )
-          ).toIndexedSeq
+            .toIndexedSeq
         ),
-        "user" -> JsObject(Seq(
+        "user" -> JsObject(
+          Seq(
             "firstName" -> JsString(user.firstName),
             "lastName" -> JsString(user.lastName),
             "email" -> JsString(user.email),
             "avatarUrl" -> JsString(user.avatarUrl.getOrElse(""))
-        ))
+          )
+        )
       )
     )
   }
