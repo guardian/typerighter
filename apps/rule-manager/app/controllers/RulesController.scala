@@ -58,10 +58,14 @@ class RulesController(
       .fold(
         form => BadRequest(Json.toJson(form.errors)),
         reason =>
-          RuleManager
-            .publishRule(id, request.user.email, reason, bucketRuleResource) match {
-            case Success(result) => Ok(Json.toJson(result))
-            case Failure(error)  => BadRequest(error.getMessage)
+          DbRuleDraft.find(id) match {
+            case None => NotFound
+            case _ =>
+              RuleManager
+                .publishRule(id, request.user.email, reason, bucketRuleResource) match {
+                case Success(result) => Ok(Json.toJson(result))
+                case Failure(error)  => BadRequest(error.getMessage)
+              }
           }
       )
   }
