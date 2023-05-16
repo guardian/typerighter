@@ -1,6 +1,6 @@
 -- !Ups
 
--- Add live rules table, dropping rules marked as ignore
+-- Add live rules table
 CREATE TABLE rules_live (LIKE rules INCLUDING DEFAULTS);
 
 ALTER TABLE rules_live
