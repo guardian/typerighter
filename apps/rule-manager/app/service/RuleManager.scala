@@ -2,19 +2,17 @@ package service
 
 import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
-  Category,
   CheckerRule,
   CheckerRuleResource,
-  ComparableRegex,
   LTRule,
   LTRuleCore,
   LTRuleXML,
-  RegexRule,
-  TextSuggestion
+  RegexRule
 }
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive}
 import db.DbRuleDraft.autoSession
+import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import scalikejdbc.DBSession
 
 import scala.util.Try
@@ -69,82 +67,44 @@ object RuleManager extends Loggable {
 
   def liveDbRuleToCheckerRule(rule: DbRuleLive): Either[String, CheckerRule] = {
     rule match {
-      case DbRuleLive(
-            _,
-            RuleType.regex,
-            Some(pattern),
-            replacement,
-            Some(category),
-            _,
-            description,
-            _,
-            Some(externalId),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        Right(
-          RegexRule(
-            id = externalId,
-            category = Category(id = category, name = category),
-            description = description.getOrElse(""),
-            suggestions = List.empty,
-            replacement = replacement.map(TextSuggestion(_)),
-            regex = new ComparableRegex(pattern)
+      case r: DbRuleLive if r.ruleType == RuleType.regex =>
+        RegexRuleForm.form
+          .fill(
+            (
+              r.pattern.getOrElse(""),
+              r.replacement,
+              r.category.getOrElse(""),
+              r.description.getOrElse(""),
+              r.externalId.getOrElse(""),
+            )
           )
-        )
-      case DbRuleLive(
-            _,
-            RuleType.languageToolXML,
-            Some(pattern),
-            _,
-            Some(category),
-            _,
-            description,
-            _,
-            Some(externalId),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        Right(
-          LTRuleXML(
-            id = externalId,
-            category = Category(id = category, name = category),
-            description = description.getOrElse(""),
-            xml = pattern
+          .fold(
+            err => Left(err.errors.map(_.message).mkString(", ")),
+            form => Right((RegexRuleForm.toRegexRule _).tupled(form))
           )
-        )
-      case DbRuleLive(
-            _,
-            RuleType.languageToolCore,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            Some(externalId),
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _,
-            _
-          ) =>
-        Right(LTRuleCore(externalId, externalId))
+      case r: DbRuleLive if r.ruleType == RuleType.languageToolXML =>
+        LTRuleXMLForm.form
+          .fill(
+            (
+              r.pattern.getOrElse(""),
+              r.category.getOrElse(""),
+              r.description.getOrElse(""),
+              r.externalId.getOrElse(""),
+            )
+          )
+          .fold(
+            err => Left(err.errors.map(_.message).mkString(", ")),
+            form => Right((LTRuleXMLForm.toLTRuleXML _).tupled(form))
+          )
+      case r: DbRuleLive if r.ruleType == RuleType.languageToolXML =>
+        LTRuleCoreForm.form
+          .fill(
+            r.externalId.getOrElse("")
+          )
+          .fold(
+            err => Left(err.errors.map(_.message).mkString(", ")),
+            form => Right(LTRuleCoreForm.toLTRuleCore(form))
+          )
       case other => Left(s"Could not create a CheckerRule for the following DBRule: $other")
     }
   }
