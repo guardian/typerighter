@@ -82,9 +82,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
           column.createdBy -> user,
           column.updatedBy -> user
         )
-    }.update().apply()
+    }.updateAndReturnGeneratedKey("id").apply()
 
-    find(generatedKey) match {
+    find(generatedKey.toInt) match {
       case Some(rule) => Success(rule)
       case None =>
         Failure(
