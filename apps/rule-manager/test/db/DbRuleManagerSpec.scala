@@ -50,6 +50,12 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   behavior of "DbRuleManager"
 
+  "liveDbRuleToCheckerRule" should "create a checker rule from a live rule" in {}
+
+  "liveDbRuleToCheckerRule" should "give a sensible error message when parsing regex rules" in {}
+
+  "liveDbRuleToCheckerRule" should "give a sensible error message when parsing regex rules" in {}
+
   "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
     () =>
       val rulesFromSheet = List[CheckerRule](
