@@ -6,7 +6,7 @@ export type Permission = {
 }
 
 type PageData = {
-  user: {
+  user?: {
     firstName: string;
     lastName: string;
     email: string;
@@ -15,13 +15,13 @@ type PageData = {
   permissions: Permission[]
 };
 
-const getPageData = (): PageData | undefined => {
+const getPageData = (): PageData => {
   const scriptId = "data";
   const pageData = document.getElementById(scriptId);
   return JSON.parse(pageData?.innerHTML!);
 };
 
-export const PageContext = createContext<PageData | undefined>(undefined);
+export const PageContext = createContext<PageData>({permissions: []});
 
 export const PageDataProvider: React.FC = ({ children }) => {
   const pageData = getPageData();

@@ -6,8 +6,7 @@ import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
 import { updateRule } from "./api/updateRule";
-import { PageContext } from "../utils/window";
-import { hasCreateEditPermissions } from "./helpers/hasCreateEditPermissions";
+import { useCreateEditPermissions } from "./RulesTable";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -41,11 +40,10 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
         createRuleFormOpen: boolean, 
         setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>,
         updateMode: boolean, 
-        setUpdateMode: Dispatch<SetStateAction<boolean>>
+        setUpdateMode: Dispatch<SetStateAction<boolean>>,
     }) => {
     const [showErrors, setShowErrors] = useState(false);
     const [errors, setErrors] = useState<FormError[]>([]);
-    const pageData = useContext(PageContext)
 
     const openCreateRuleForm = () => {
         setRuleData(baseForm);
@@ -95,12 +93,13 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     }
 
     const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
+    const hasCreatePermissions = useCreateEditPermissions();
 
     return <EuiForm component="form">
         {getFeatureSwitchValue("create-and-edit") && 
-            <EuiToolTip content={pageData && hasCreateEditPermissions(pageData.permissions) ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
-                <EuiButton 
-                    isDisabled={createRuleFormOpen || (pageData ? !hasCreateEditPermissions(pageData.permissions) : true)} 
+            <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
+                <EuiButton
+                    isDisabled={createRuleFormOpen || !hasCreatePermissions} 
                     onClick={openCreateRuleForm}
                 >Create Rule</EuiButton>
             </EuiToolTip>

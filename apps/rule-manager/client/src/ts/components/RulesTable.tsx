@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
     EuiSearchBarProps,
     EuiBasicTableColumn,
@@ -17,7 +17,7 @@ import { useRules } from "./hooks/useRules";
 import { css } from "@emotion/react";
 import { baseForm, RuleForm, RuleFormData } from './RuleForm';
 import { getRule } from './api/getRule';
-import { PageContext, PageDataProvider } from '../utils/window';
+import { PageContext, PageDataProvider, Permission } from '../utils/window';
 import { hasCreateEditPermissions } from './helpers/hasCreateEditPermissions';
 import styled from '@emotion/styled';
 
@@ -46,46 +46,55 @@ export type Rule = {
     regex: string;
 }
 
-const createColumns = (editRule: (ruleId: number) => void, editIsEnabled: boolean): Array<EuiBasicTableColumn<Rule>> => [
-    {
-        field: 'ruleType',
-        name: 'Type',
-    },
-    {
-        field: 'externalId',
-        name: 'ID'
-    },
-    {
-        field: 'category',
-        name: 'Category',
-    },
-    {
-        field: 'pattern',
-        name: 'Match',
-    },
-    {
-      field: 'replacement',
-      name: 'Replacement',
-    },
-    {
-        field: 'description',
-        name: 'Description'
-    },
-    {
-        name: <EuiIcon type="pencil"/>,
-        actions: [{
-            name: 'Edit',
-            render: (item, enabled) => <EditRule editIsEnabled={enabled} editRule={editRule} rule={item}/>,
-            isPrimary: true,
-            description: 'Edit this rule',
-            onClick: (rule) => {
-                editRule(Number(rule.id))
-            },
-            enabled: (item) => editIsEnabled,
-            'data-test-subj': 'action-edit',
-        }]
+export const useCreateEditPermissions = () => {
+    const permissions = useContext(PageContext).permissions;
+    // Do not recalculate permissions if the permissions list has not changed
+    return useMemo(() => hasCreateEditPermissions(permissions), [permissions]);
+}
+
+const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => {
+    const hasEditPermissions = useCreateEditPermissions();
+    return [
+        {
+            field: 'ruleType',
+            name: 'Type',
+        },
+        {
+            field: 'externalId',
+            name: 'ID'
+        },
+        {
+            field: 'category',
+            name: 'Category',
+        },
+        {
+            field: 'pattern',
+            name: 'Match',
+        },
+        {
+        field: 'replacement',
+        name: 'Replacement',
+        },
+        {
+            field: 'description',
+            name: 'Description'
+        },
+        {
+            name: <EuiIcon type="pencil"/>,
+            actions: [{
+                name: 'Edit',
+                render: (item, enabled) => <EditRule editIsEnabled={enabled} editRule={editRule} rule={item}/>,
+                isPrimary: true,
+                description: 'Edit this rule',
+                onClick: (rule) => {
+                    editRule(Number(rule.id))
+                },
+                enabled: (item) => hasEditPermissions,
+                'data-test-subj': 'action-edit',
+            }]
     }
-];
+]
+}
 
 // We use our own button rather than an EuiIconButton because that component won't allow us to
 // show a tooltip on hover when the button is disabled
@@ -126,8 +135,7 @@ const RulesTable = () => {
                 }
             })
     }
-    const pageData = useContext(PageContext);
-    const columns = createColumns(openEditRulePanel, pageData ? hasCreateEditPermissions(pageData.permissions) : false);
+    const columns = createColumns(openEditRulePanel);
     const [ruleData, setRuleData] = useState<RuleFormData>(baseForm);
     const [createRuleFormOpen, setCreateRuleFormOpen] = useState(false);
     const [updateMode, setUpdateMode] = useState(false);
