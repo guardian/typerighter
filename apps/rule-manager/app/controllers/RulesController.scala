@@ -11,7 +11,7 @@ import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import utils.{PermissionsHandler, RuleManagerConfig}
 import service.{RuleManager, SheetsRuleResource}
-import utils.FormHelpers
+import utils.{FormErrorEnvelope, FormHelpers}
 
 import scala.util.{Failure, Success}
 
@@ -29,7 +29,10 @@ class RulesController(
     with FormHelpers {
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
-      dbRules <- sheetsRuleResource.getRules()
+      dbRules <- sheetsRuleResource
+        .getRules()
+        .left
+        .map(toFormError("Error getting rules from Google Sheet"))
       _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
     } yield {
       RuleManager.getDraftRules()
@@ -56,15 +59,15 @@ class RulesController(
     PublishRuleForm.form
       .bindFromRequest()
       .fold(
-        form => BadRequest(Json.toJson(form.errors)),
+        form => BadRequest(Json.toJson(FormErrorEnvelope(form.errors))),
         reason => {
           DbRuleDraft.find(id) match {
             case None => NotFound
             case _ =>
               RuleManager
                 .publishRule(id, request.user.email, reason, bucketRuleResource) match {
-                case Success(result) => Ok(Json.toJson(result))
-                case Failure(error)  => BadRequest(error.getMessage)
+                case Right(result) => Ok(Json.toJson(result))
+                case Left(errors)  => BadRequest(Json.toJson(FormErrorEnvelope(errors)))
               }
           }
         }

@@ -13,9 +13,8 @@ import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive}
 import db.DbRuleDraft.autoSession
 import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
+import play.api.data.FormError
 import scalikejdbc.DBSession
-
-import scala.util.Try
 
 object RuleManager extends Loggable {
   object RuleType {
@@ -65,11 +64,11 @@ object RuleManager extends Loggable {
     }
   }
 
-  def liveDbRuleToCheckerRule(rule: DbRuleLive): Either[String, CheckerRule] = {
+  def liveDbRuleToCheckerRule(rule: DbRuleLive): Either[Seq[FormError], CheckerRule] = {
     rule match {
       case r: DbRuleLive if r.ruleType == RuleType.regex =>
         RegexRuleForm.form
-          .fill(
+          .fillAndValidate(
             (
               r.pattern.getOrElse(""),
               r.replacement,
@@ -79,12 +78,12 @@ object RuleManager extends Loggable {
             )
           )
           .fold(
-            err => Left(err.errors.map(_.message).mkString(", ")),
+            err => Left(err.errors),
             form => Right((RegexRuleForm.toRegexRule _).tupled(form))
           )
       case r: DbRuleLive if r.ruleType == RuleType.languageToolXML =>
         LTRuleXMLForm.form
-          .fill(
+          .fillAndValidate(
             (
               r.pattern.getOrElse(""),
               r.category.getOrElse(""),
@@ -93,19 +92,27 @@ object RuleManager extends Loggable {
             )
           )
           .fold(
-            err => Left(err.errors.map(_.message).mkString(", ")),
+            err => Left(err.errors),
             form => Right((LTRuleXMLForm.toLTRuleXML _).tupled(form))
           )
-      case r: DbRuleLive if r.ruleType == RuleType.languageToolXML =>
+      case r: DbRuleLive if r.ruleType == RuleType.languageToolCore =>
         LTRuleCoreForm.form
-          .fill(
+          .fillAndValidate(
             r.externalId.getOrElse("")
           )
           .fold(
-            err => Left(err.errors.map(_.message).mkString(", ")),
+            err => Left(err.errors),
             form => Right(LTRuleCoreForm.toLTRuleCore(form))
           )
-      case other => Left(s"Could not create a CheckerRule for the following DBRule: $other")
+      case other =>
+        Left(
+          Seq(
+            FormError(
+              s"Could not create a CheckerRule for DBRule $other",
+              "Rule type not recognised"
+            )
+          )
+        )
     }
   }
 
@@ -114,36 +121,42 @@ object RuleManager extends Loggable {
 
   def publishRule(id: Int, user: String, reason: String, bucketRuleResource: BucketRuleResource)(
       implicit session: DBSession = autoSession
-  ): Try[DbRuleLive] = {
+  ): Either[Seq[FormError], DbRuleLive] = {
     for {
       draftRule <- DbRuleDraft
         .find(id)
         .toRight(
-          new Exception(
-            s"Attempted to publish rule with id $id for user $user, but could not find a draft rule with that id"
+          Seq(
+            FormError(
+              "Finding existing rule",
+              s"Attempted to publish rule with id $id for user $user, but could not find a draft rule with that id"
+            )
           )
         )
-        .toTry
       liveRule = draftRule.toLive(reason)
-      _ <- liveDbRuleToCheckerRule(liveRule).left.map(new Exception(_)).toTry
-      persistedLiveRule <- DbRuleLive.create(liveRule, user)
-      _ <- publishLiveRules(bucketRuleResource).left
-        .map(errs => new Exception(errs.mkString(",")))
-        .toTry
+      _ <- liveDbRuleToCheckerRule(liveRule)
+      persistedLiveRule <- DbRuleLive
+        .create(liveRule, user)
+        .toEither
+        .left
+        .map(e => Seq(FormError("Error writing rule to live table", e.getMessage)))
+      _ <- publishLiveRules(bucketRuleResource)
     } yield persistedLiveRule
   }
 
   def publishLiveRules(
       bucketRuleResource: BucketRuleResource
-  ): Either[List[String], CheckerRuleResource] = {
+  ): Either[Seq[FormError], CheckerRuleResource] = {
     for {
       ruleResource <- getRuleResourceFromLiveRules()
-      _ <- bucketRuleResource.putRules(ruleResource).left.map { l => List(l.toString) }
+      _ <- bucketRuleResource.putRules(ruleResource).left.map { l =>
+        Seq(FormError("Error writing rules to the artefact bucket", l.toString))
+      }
     } yield ruleResource
   }
 
   private def getRuleResourceFromLiveRules(
-  ): Either[List[String], CheckerRuleResource] = {
+  ): Either[Seq[FormError], CheckerRuleResource] = {
     val (failedDbRules, successfulDbRules) =
       DbRuleLive
         .findAll()
@@ -152,14 +165,14 @@ object RuleManager extends Loggable {
 
     failedDbRules match {
       case Nil      => Right(CheckerRuleResource(successfulDbRules))
-      case failures => Left(failures)
+      case failures => Left(failures.flatten)
     }
   }
 
   def destructivelyPublishRules(
       incomingRules: List[DbRuleDraft],
       bucketRuleResource: BucketRuleResource
-  ): Either[List[String], CheckerRuleResource] = {
+  ): Either[Seq[FormError], CheckerRuleResource] = {
     DbRuleDraft.destroyAll()
     DbRuleLive.destroyAll()
 
@@ -189,7 +202,10 @@ object RuleManager extends Loggable {
 
       Left(
         List(
-          s"Rules were persisted, but the persisted rules differ from the rules we received from the sheet."
+          FormError(
+            "Error publishing rules",
+            s"Rules were written to the live table, but the persisted rules differ from the rules we received from the sheet."
+          )
         )
       )
     }

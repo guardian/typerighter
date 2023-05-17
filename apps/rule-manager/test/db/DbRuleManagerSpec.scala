@@ -7,7 +7,8 @@ import com.gu.typerighter.model.{
   ComparableRegex,
   LTRuleCore,
   LTRuleXML,
-  RegexRule
+  RegexRule,
+  TextSuggestion
 }
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DBTest, DbRuleDraft, DbRuleLive}
@@ -16,9 +17,10 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import com.softwaremill.diffx.generic.auto.diffForCaseClass
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
+import play.api.data.FormError
 import utils.LocalStack
 
-import scala.util.{Failure, Random, Success}
+import scala.util.Random
 
 class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val bucketRuleResource =
@@ -28,12 +30,13 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     rules
       .map(_.toLive("Imported from Google Sheet"))
       .map(RuleManager.liveDbRuleToCheckerRule(_).toOption.get)
+
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
       DbRuleDraft.withUser(
         id = None,
         category = Some("Check this"),
-        description = Some("A random rule description. " * Random.between(0, 1)),
+        description = Some("A random rule description. " * Random.between(1, 100)),
         replacement = None,
         pattern = Some(
           s"\b(${Random.shuffle(List("some", "random", "things", "to", "match", "on")).mkString("|")}) by"
@@ -50,11 +53,71 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
   behavior of "DbRuleManager"
 
-  "liveDbRuleToCheckerRule" should "create a checker rule from a live rule" in {}
+  "liveDbRuleToCheckerRule" should "create a checker rule from a live rule" in { () =>
+    val rule = createRandomRules(1).head.toLive("reason")
+    val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
 
-  "liveDbRuleToCheckerRule" should "give a sensible error message when parsing regex rules" in {}
+    maybeCheckerRule shouldBe Right(
+      RegexRule(
+        id = rule.externalId.get,
+        regex = new ComparableRegex(rule.pattern.get),
+        description = rule.description.get,
+        replacement = rule.replacement.map(r => TextSuggestion(r)),
+        category = Category(rule.category.get, rule.category.get)
+      )
+    )
+  }
 
-  "liveDbRuleToCheckerRule" should "give a sensible error message when parsing regex rules" in {}
+  "liveDbRuleToCheckerRule" should "give a sensible error message when parsing regex rules" in {
+    () => () =>
+      val rule = DbRuleDraft
+        .withUser(id = None, ruleType = "regex", user = "example.user", ignore = false)
+        .toLive("reason")
+
+      val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
+
+      maybeCheckerRule shouldBe Left(
+        List(
+          FormError("pattern", List("error.required"), List()),
+          FormError("category", List("error.required"), List()),
+          FormError("description", List("error.required"), List()),
+          FormError("externalId", List("error.required"), List())
+        )
+      )
+  }
+
+  "liveDbRuleToCheckerRule" should "give a sensible error message when parsing ltXML rules" in {
+    () =>
+      val rule = DbRuleDraft
+        .withUser(id = None, ruleType = "languageToolXML", user = "example.user", ignore = false)
+        .toLive("reason")
+
+      val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
+
+      maybeCheckerRule shouldBe Left(
+        List(
+          FormError("pattern", List("error.required"), List()),
+          FormError("category", List("error.required"), List()),
+          FormError("description", List("error.required"), List()),
+          FormError("externalId", List("error.required"), List())
+        )
+      )
+  }
+
+  "liveDbRuleToCheckerRule" should "give a sensible error message when parsing ltCore rules" in {
+    () =>
+      val rule = DbRuleDraft
+        .withUser(id = None, ruleType = "languageToolCore", user = "example.user", ignore = false)
+        .toLive("reason")
+
+      val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
+
+      maybeCheckerRule shouldBe Left(
+        List(
+          FormError("externalId", List("error.required"), List())
+        )
+      )
+  }
 
   "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
     () =>
@@ -80,10 +143,12 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
 
       val rules = rulesFromSheet.map(RuleManager.checkerRuleToDraftDbRule)
-      val publishedRules =
-        RuleManager.destructivelyPublishRules(rules, bucketRuleResource).toOption.get
+      val maybePublishedRules =
+        RuleManager.destructivelyPublishRules(rules, bucketRuleResource)
 
-      publishedRules.rules shouldMatchTo rulesFromSheet
+      println(maybePublishedRules)
+
+      maybePublishedRules.toOption.get.rules shouldMatchTo rulesFromSheet
   }
 
   "destructivelyDumpRulesToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
@@ -150,7 +215,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       .get
 
     val publishedRule =
-      RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).get
+      RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
 
     DbRuleLive.find(publishedRule.id.get) match {
       case Some(liveRule) =>
@@ -168,8 +233,8 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     val ruleToPublish = DbRuleDraft.create(ruleType = "regex", user = user, ignore = false).get
 
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
-      case Success(_)         => fail("This rule should not be publishable")
-      case Failure(exception) => exception.getMessage should include("CheckerRule")
+      case Right(_)         => fail("This rule should not be publishable")
+      case Left(formErrors) => formErrors.head.message should include("error.required")
     }
   }
 }
