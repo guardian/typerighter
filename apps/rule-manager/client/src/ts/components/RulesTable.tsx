@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import {
     EuiSearchBarProps,
     EuiBasicTableColumn,
@@ -10,13 +10,16 @@ import {
     EuiLoadingSpinner,
     EuiButtonIcon,
     EuiFlexGrid,
-    EuiIcon
+    EuiIcon,
+    EuiToolTip
 } from '@elastic/eui';
 import { useRules } from "./hooks/useRules";
 import { css } from "@emotion/react";
 import { baseForm, RuleForm, RuleFormData } from './RuleForm';
 import { getRule } from './api/getRule';
-import { responseHandler } from './api/parseResponse';
+import { PageContext, PageDataProvider, Permission } from '../utils/window';
+import { hasCreateEditPermissions } from './helpers/hasCreateEditPermissions';
+import styled from '@emotion/styled';
 
 const sorting = {
     sort: {
@@ -43,46 +46,74 @@ export type Rule = {
     regex: string;
 }
 
-const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => [
-    {
-        field: 'ruleType',
-        name: 'Type',
-    },
-    {
-        field: 'externalId',
-        name: 'ID'
-    },
-    {
-        field: 'category',
-        name: 'Category',
-    },
-    {
-        field: 'pattern',
-        name: 'Match',
-    },
-    {
-      field: 'replacement',
-      name: 'Replacement',
-    },
-    {
-        field: 'description',
-        name: 'Description'
-    },
-    {
-        name: <EuiIcon type="pencil"/>,
-        actions: [{
-            name: 'Edit',
-            isPrimary: true,
-            description: 'Edit this rule',
-            icon: 'pencil',
-            type: 'icon',
-            onClick: (rule) => {
-                editRule(Number(rule.id))
-            },
-            'data-test-subj': 'action-edit',
-        }]
+export const useCreateEditPermissions = () => {
+    const permissions = useContext(PageContext).permissions;
+    // Do not recalculate permissions if the permissions list has not changed
+    return useMemo(() => hasCreateEditPermissions(permissions), [permissions]);
+}
+
+const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => {
+    const hasEditPermissions = useCreateEditPermissions();
+    return [
+        {
+            field: 'ruleType',
+            name: 'Type',
+        },
+        {
+            field: 'externalId',
+            name: 'ID'
+        },
+        {
+            field: 'category',
+            name: 'Category',
+        },
+        {
+            field: 'pattern',
+            name: 'Match',
+        },
+        {
+        field: 'replacement',
+        name: 'Replacement',
+        },
+        {
+            field: 'description',
+            name: 'Description'
+        },
+        {
+            name: <EuiIcon type="pencil"/>,
+            actions: [{
+                name: 'Edit',
+                render: (item, enabled) => <EditRule editIsEnabled={enabled} editRule={editRule} rule={item}/>,
+                isPrimary: true,
+                description: 'Edit this rule',
+                onClick: (rule) => {
+                    editRule(Number(rule.id))
+                },
+                enabled: (item) => hasEditPermissions,
+                'data-test-subj': 'action-edit',
+            }]
     }
-];
+]
+}
+
+// We use our own button rather than an EuiIconButton because that component won't allow us to
+// show a tooltip on hover when the button is disabled
+const EditRule = ({editIsEnabled, editRule, rule}: {editIsEnabled: boolean, editRule: (ruleId: number) => void, rule: Rule}) => {
+    return <EuiToolTip content={editIsEnabled ? "" : "You do not have the correct permissions to edit a rule. Please contact Central Production if you need to edit rules."}>
+        <EditRuleButton editIsEnabled={editIsEnabled} onClick={() => (editIsEnabled ? editRule(Number(rule.id)) : () => null)}>
+            <EuiIcon type="pencil"/>
+        </EditRuleButton>
+    </EuiToolTip>
+}
+
+type EditRuleButtonProps = {
+    editIsEnabled: boolean;
+}
+
+const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
+    width: '16px',
+    cursor: props.editIsEnabled ? 'pointer' : 'not-allowed',
+}))
 
 const RulesTable = () => {
     const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();

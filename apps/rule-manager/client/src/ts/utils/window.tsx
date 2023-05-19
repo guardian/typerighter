@@ -1,19 +1,27 @@
 import React, { createContext } from "react";
 
+export type Permission = {
+  permission: string,
+  active: boolean
+}
+
 type PageData = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  avatarUrl: string;
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    avatarUrl: string;
+  },
+  permissions: Permission[]
 };
 
-const getPageData = (): PageData | undefined => {
+const getPageData = (): PageData => {
   const scriptId = "data";
   const pageData = document.getElementById(scriptId);
   return JSON.parse(pageData?.innerHTML!);
 };
 
-export const PageContext = createContext<PageData | undefined>(undefined);
+export const PageContext = createContext<PageData>({permissions: []});
 
 export const PageDataProvider: React.FC = ({ children }) => {
   const pageData = getPageData();

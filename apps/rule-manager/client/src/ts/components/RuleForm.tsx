@@ -1,13 +1,12 @@
-import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText } from "@elastic/eui";
+import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText, EuiToolTip } from "@elastic/eui";
 import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleType } from "./RuleType";
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
-import { Rule } from "./RulesTable";
 import { FeatureSwitchesContext } from "./context/featureSwitches";
 import { updateRule } from "./api/updateRule";
-import { responseHandler } from "./api/parseResponse";
+import { useCreateEditPermissions } from "./RulesTable";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -41,7 +40,7 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
         createRuleFormOpen: boolean, 
         setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>,
         updateMode: boolean, 
-        setUpdateMode: Dispatch<SetStateAction<boolean>>
+        setUpdateMode: Dispatch<SetStateAction<boolean>>,
     }) => {
     const [showErrors, setShowErrors] = useState(false);
     const [errors, setErrors] = useState<FormError[]>([]);
@@ -94,9 +93,17 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     }
 
     const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
+    const hasCreatePermissions = useCreateEditPermissions();
 
     return <EuiForm component="form">
-        {getFeatureSwitchValue("create-and-edit") && <EuiButton isDisabled={createRuleFormOpen} onClick={openCreateRuleForm}>Create Rule</EuiButton>}
+        {getFeatureSwitchValue("create-and-edit") && 
+            <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
+                <EuiButton
+                    isDisabled={createRuleFormOpen || !hasCreatePermissions} 
+                    onClick={openCreateRuleForm}
+                >Create Rule</EuiButton>
+            </EuiToolTip>
+        }
         <EuiSpacer />
         {createRuleFormOpen ? <EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={errors} showErrors={showErrors}/>
