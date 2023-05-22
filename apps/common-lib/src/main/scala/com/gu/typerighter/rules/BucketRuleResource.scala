@@ -8,7 +8,7 @@ import play.api.libs.json.Json
 
 import java.util.Date
 
-class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
+class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules.json"
 
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {

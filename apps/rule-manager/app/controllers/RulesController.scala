@@ -3,17 +3,15 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.lib.PandaAuthentication
-import com.gu.typerighter.rules.BucketRuleManager
-
+import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.Json
+import play.api.mvc._
 
 import db.DbRuleDraft
-import model.{CreateRuleForm, UpdateRuleForm}
-import play.api.data.FormError
-import play.api.libs.json.{JsValue, Writes}
-import play.api.mvc._
-import service.{DbRuleManager, SheetsRuleManager}
+import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import utils.{PermissionsHandler, RuleManagerConfig}
+import service.{RuleManager, SheetsRuleResource}
+import utils.{FormErrorEnvelope, FormHelpers}
 
 import scala.util.{Failure, Success}
 
@@ -21,21 +19,23 @@ import scala.util.{Failure, Success}
   */
 class RulesController(
     cc: ControllerComponents,
-    sheetsRuleManager: SheetsRuleManager,
-    bucketRuleManager: BucketRuleManager,
+    sheetsRuleResource: SheetsRuleResource,
+    bucketRuleResource: BucketRuleResource,
     val publicSettings: PublicSettings,
     override val config: RuleManagerConfig
 ) extends AbstractController(cc)
     with PandaAuthentication
-    with PermissionsHandler {
+    with PermissionsHandler
+    with FormHelpers {
   def refresh = ApiAuthAction {
     val maybeWrittenRules = for {
-      dbRules <- sheetsRuleManager.getRules()
-      persistedDbRules <- DbRuleManager.destructivelyDumpRulesToDB(dbRules)
-      ruleResource <- DbRuleManager.createCheckerRuleResourceFromDbRules(persistedDbRules)
-      _ <- bucketRuleManager.putRules(ruleResource).left.map { l => List(l.toString) }
+      dbRules <- sheetsRuleResource
+        .getRules()
+        .left
+        .map(toFormError("Error getting rules from Google Sheet"))
+      _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
     } yield {
-      DbRuleManager.getDraftRules()
+      RuleManager.getDraftRules()
     }
 
     maybeWrittenRules match {
@@ -44,22 +44,34 @@ class RulesController(
     }
   }
 
-  def rules = ApiAuthAction {
-    Ok(Json.toJson(DbRuleManager.getDraftRules()))
+  def list = ApiAuthAction {
+    Ok(Json.toJson(RuleManager.getDraftRules()))
   }
 
-  def rule(id: Int) = ApiAuthAction {
-    DbRuleManager.getRule(id) match {
+  def get(id: Int) = ApiAuthAction {
+    DbRuleDraft.find(id) match {
       case None         => NotFound("Rule not found matching ID")
       case Some(result) => Ok(Json.toJson(result))
     }
   }
 
-  implicit object FormErrorWrites extends Writes[FormError] {
-    override def writes(o: FormError): JsValue = Json.obj(
-      "key" -> Json.toJson(o.key),
-      "message" -> Json.toJson(o.message)
-    )
+  def publish(id: Int) = ApiAuthAction { implicit request =>
+    PublishRuleForm.form
+      .bindFromRequest()
+      .fold(
+        form => BadRequest(Json.toJson(FormErrorEnvelope(form.errors))),
+        reason => {
+          DbRuleDraft.find(id) match {
+            case None => NotFound
+            case _ =>
+              RuleManager
+                .publishRule(id, request.user.email, reason, bucketRuleResource) match {
+                case Right(result) => Ok(Json.toJson(result))
+                case Left(errors)  => BadRequest(Json.toJson(FormErrorEnvelope(errors)))
+              }
+          }
+        }
+      )
   }
 
   def create = ApiAuthAction { implicit request =>

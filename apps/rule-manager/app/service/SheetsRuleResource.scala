@@ -34,7 +34,7 @@ object PatternRuleCols {
   * @param spreadsheetId
   *   Available in the sheet URL
   */
-class SheetsRuleManager(credentialsJson: String, spreadsheetId: String) extends Logging {
+class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends Logging {
   private val APPLICATION_NAME = "Typerighter"
   private val JSON_FACTORY = GsonFactory.getDefaultInstance()
 

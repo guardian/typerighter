@@ -32,7 +32,7 @@ case class DbRuleDraft(
 
   def toLive(reason: String): DbRuleLive = {
     DbRuleLive(
-      id = this.id,
+      id = None,
       ruleType = this.ruleType,
       pattern = this.pattern,
       replacement = this.replacement,

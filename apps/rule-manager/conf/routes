@@ -13,12 +13,15 @@ GET     /healthcheck                controllers.HomeController.healthcheck()
 +nocsrf
 POST    /refresh                    controllers.RulesController.refresh()
 +nocsrf
-GET     /rules                      controllers.RulesController.rules()
+GET     /rules                      controllers.RulesController.list()
 +nocsrf
 POST    /rules                      controllers.RulesController.create()
 +nocsrf
-GET     /rules/:id                  controllers.RulesController.rule(id: Int)
+GET     /rules/:id                  controllers.RulesController.get(id: Int)
 +nocsrf
 POST    /rules/:id                  controllers.RulesController.update(id: Int)
++nocsrf
+POST    /rules/:id/publish          controllers.RulesController.publish(id: Int)
+
 # Map static resources from the /public folder to the correct URL path
 GET     /*file                      controllers.Assets.versioned(path="/public/", file: Asset)
