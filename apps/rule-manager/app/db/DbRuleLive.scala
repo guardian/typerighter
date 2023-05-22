@@ -5,7 +5,7 @@ import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
 import java.time.ZonedDateTime
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 trait DbRuleLiveFields {
   def reason: String
@@ -71,11 +71,21 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       .apply()
   }
 
+  def findAllActive()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    withSQL(
+      select.from(DbRuleLive as r)
+        .where.eq(r.isActive, true)
+        .orderBy(r.ruleOrder))
+      .map(DbRuleLive.fromResultName(r.resultName))
+      .list()
+      .apply()
+  }
+
   /** Create a new live rule. This rule will supercede the previous active live rule.
     */
   def create(liveRule: DbRuleLive, user: String)(implicit
       session: DBSession = autoSession
-  ): Try[DbRuleLive] = {
+  ): Try[DbRuleLive] = Try {
     withSQL {
       update(DbRuleLive)
         .set(column.isActive -> false)
@@ -108,12 +118,10 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     }.map(_.string(column.externalId)).single().apply()
 
     find(generatedKey.get, liveRule.revisionId) match {
-      case Some(rule) => Success(rule)
+      case Some(rule) => rule
       case None =>
-        Failure(
-          new Exception(
-            s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
-          )
+        throw new Exception(
+          s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
         )
     }
   }

@@ -13,6 +13,8 @@ DROP INDEX rules_live_external_id_index;
 
 -- !Downs
 
+DELETE FROM rules_live WHERE is_active != true; -- non-active rules would not be present in the old schema
+
 DROP INDEX rules_live_composite_pkey;
 DROP INDEX rules_live_is_active;
 DROP INDEX rules_live_unique_order;

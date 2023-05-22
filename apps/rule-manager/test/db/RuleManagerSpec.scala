@@ -196,8 +196,6 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       val ruleResourceWithIgnoredRules =
         RuleManager.destructivelyPublishRules(rulesToIgnore, bucketRuleResource)
 
-      println(ruleResourceWithIgnoredRules)
-
       ruleResourceWithIgnoredRules.toOption.get.shouldEqual(CheckerRuleResource(List()))
   }
 
@@ -216,20 +214,24 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       )
   }
 
+  val user = "example.user@guardian.co.uk"
+  val reason = "Some important update"
+
+  def getPublishableRule =
+    DbRuleDraft
+      .create(
+        ruleType = "regex",
+        user = user,
+        ignore = false,
+        pattern = Some("pattern"),
+        description = Some("description"),
+        category = Some("category")
+      )
+      .get
+
   "publishRule" should "add an identical rule to the live rules table, and make it active" in {
     () =>
-      val user = "example.user@guardian.co.uk"
-      val reason = "Some important update"
-      val ruleToPublish = DbRuleDraft
-        .create(
-          ruleType = "regex",
-          user = user,
-          ignore = false,
-          pattern = Some("pattern"),
-          description = Some("description"),
-          category = Some("category")
-        )
-        .get
+      val ruleToPublish = getPublishableRule
 
       val publishedRule =
         RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
@@ -253,6 +255,30 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
       case Right(_)         => fail("This rule should not be publishable")
       case Left(formErrors) => formErrors.head.message should include("error.required")
+    }
+  }
+
+  "publishRule" should "make previous revisions of that rule inactive" in { () =>
+    val ruleToPublish = getPublishableRule
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+
+    DbRuleDraft.save(ruleToPublish.copy(revisionId = 2), user)
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+
+    val allLiveRules = DbRuleLive.findAll()
+    allLiveRules(0).isActive shouldBe false
+    allLiveRules(1).isActive shouldBe true
+  }
+
+  "publishRule" should "should not be able to publish the same revision of a rule" in { () =>
+    val ruleToPublish = getPublishableRule
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
+      case Right(rule) => fail("This rule should not be publishable")
+      case Left(formErrors) => formErrors.head.message should include("duplicate key value violates unique constraint \"rules_live_composite_pkey\"")
     }
   }
 }

@@ -35,6 +35,7 @@ trait DBTest extends BeforeAndAfter { self: Suite =>
   }
 
   after {
+
     Evolutions.cleanupEvolutions(playDb)
     scalikejdbcDb.closeAll
   }

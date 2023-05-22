@@ -159,7 +159,7 @@ object RuleManager extends Loggable {
   ): Either[Seq[FormError], CheckerRuleResource] = {
     val (failedDbRules, successfulDbRules) =
       DbRuleLive
-        .findAll()
+        .findAllActive()
         .map(liveDbRuleToCheckerRule)
         .partitionMap(identity)
 
