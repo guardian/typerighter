@@ -180,19 +180,23 @@ object RuleManager extends Loggable {
       .grouped(100)
       .foreach(DbRuleDraft.batchInsert)
 
-    val liveRules = incomingRules.filterNot(_.ignore).map(_.toLive("Imported from Google Sheet"))
+    val liveRules = incomingRules
+      .filterNot(_.ignore)
+      .map(_.toLive("Imported from Google Sheet").copy(isActive = true))
 
     liveRules
       .grouped(100)
       .foreach(DbRuleLive.batchInsert)
 
     val persistedRules = getDraftRules()
-    val rulesToCompare = persistedRules.map(_.copy(id = None))
 
-    if (rulesToCompare == incomingRules) {
+    val persistedRulesToCompare = persistedRules.map(_.copy(id = None))
+    val incomingRulesToCompare = incomingRules.map(_.copy(id = None))
+
+    if (persistedRulesToCompare == incomingRulesToCompare) {
       publishLiveRules(bucketRuleResource)
     } else {
-      val allRules = rulesToCompare.zip(incomingRules)
+      val allRules = persistedRulesToCompare.zip(incomingRulesToCompare)
       log.error(s"Persisted rules differ.")
 
       allRules.take(10).foreach { case (ruleToCompare, expectedRule) =>
