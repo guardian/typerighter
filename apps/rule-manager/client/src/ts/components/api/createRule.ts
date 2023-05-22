@@ -1,23 +1,11 @@
-import { RuleFormData } from "../RuleForm";
 import { responseHandler } from "./parseResponse";
+import {DraftRule, DraftRuleFromServer} from "../hooks/useRule";
 
-export type FormDataForApiEndpoint =  {
-    ruleType: string,
-    pattern?: string,
-    replacement?: string,
-    category?: string,
-    tags?: string,
-    description?: string,
-    ignore: boolean,
-    forceRedRule?: boolean,
-    advisoryRule?: boolean
+export const transformRuleFormData = (ruleForm: DraftRule): DraftRuleFromServer => {
+    return {...ruleForm, tags: ruleForm?.tags?.length ? ruleForm.tags.join(",") : undefined};
 }
 
-export const transformRuleFormData = (ruleForm: RuleFormData): FormDataForApiEndpoint => {
-    return {...ruleForm, tags: ruleForm.tags && ruleForm.tags.length ? ruleForm.tags.join(",") : undefined};
-}
-
-export const createRule = async (ruleForm: RuleFormData) => {
+export const createRule = async (ruleForm: DraftRule) => {
     const transformedRuleFormData = transformRuleFormData(ruleForm);
     const createRuleResponse = fetch(`${location}rules`, {
         method: 'POST',

@@ -1,10 +1,8 @@
-import { RuleFormData } from "../RuleForm";
-import { Rule } from "../RulesTable";
-import { FormDataForApiEndpoint } from "./createRule";
+import {DraftRule, DraftRuleFromServer} from "../hooks/useRule";
 
 export interface OkIResponse {
     status: 'ok'
-    rule: RuleFormData
+    data: DraftRule
 }
 
 export interface ErrorIResponse {
@@ -13,8 +11,8 @@ export interface ErrorIResponse {
     statusCode?: number;
 }
 
-const transformApiFormData = (apiFormData: FormDataForApiEndpoint) => (
-    {...apiFormData, tags: apiFormData.tags ? apiFormData.tags.split(",") : []} as RuleFormData
+export const transformApiFormData = (draftRule: DraftRuleFromServer): DraftRule => (
+    {...draftRule, tags: draftRule.tags ? draftRule.tags.split(",") : []}
 )
 
 export const createErrorResponse = (errorMessage: string, statusCode: number): ErrorIResponse => ({
@@ -23,9 +21,9 @@ export const createErrorResponse = (errorMessage: string, statusCode: number): E
     statusCode
 });
 
-export const createOkResponse = (apiRule: FormDataForApiEndpoint): OkIResponse => ({
+export const createOkResponse = (apiRule: DraftRuleFromServer): OkIResponse => ({
     status: 'ok',
-    rule: transformApiFormData(apiRule)
+    data: transformApiFormData(apiRule)
 })
 
 export const responseHandler = async (response: Response) => {

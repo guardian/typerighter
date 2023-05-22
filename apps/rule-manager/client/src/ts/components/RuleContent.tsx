@@ -7,7 +7,7 @@ import {FormError, PartiallyUpdateRuleData, RuleFormData, RuleType} from "./Rule
 import {Label} from "./Label";
 
 export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErrors}: {
-        ruleData: RuleFormData,
+        ruleData: RuleFormData['draft'],
         partiallyUpdateRuleData: PartiallyUpdateRuleData,
         errors: FormError[],
         showErrors: boolean
@@ -37,7 +37,7 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
             >
                 <EuiFieldText
                     value={ruleData.pattern}
-                    onChange={(_ => partiallyUpdateRuleData(ruleData, {pattern: _.target.value}))}
+                    onChange={(_ => partiallyUpdateRuleData({pattern: _.target.value}))}
                     required={true}
                     isInvalid={showErrors && !ruleData.pattern}
                 />
@@ -47,21 +47,21 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
                 helpText="What is the ideal term as per the house style?"
             >
                 <EuiFieldText value={ruleData.replacement}
-                              onChange={(_ => partiallyUpdateRuleData(ruleData, {replacement: _.target.value}))}/>
+                              onChange={(_ => partiallyUpdateRuleData({replacement: _.target.value}))}/>
             </EuiFormRow>
             <EuiFormRow
                 label="Description"
                 helpText="What will the users see in Composer?"
             >
                 <EuiFieldText value={ruleData.description}
-                              onChange={(_ => partiallyUpdateRuleData(ruleData, {description: _.target.value}))}/>
+                              onChange={(_ => partiallyUpdateRuleData({description: _.target.value}))}/>
             </EuiFormRow>
             <EuiRadioGroup
                 options={ruleTypeOptions}
                 idSelected={ruleTypeSelected}
                 onChange={(ruleType) => {
                     setRuleTypeSelected(ruleType as RuleType);
-                    partiallyUpdateRuleData(ruleData, {ruleType: ruleType as RuleType});
+                    partiallyUpdateRuleData({ruleType: ruleType as RuleType});
                 }}
                 css={css`
                         flex-direction: row;

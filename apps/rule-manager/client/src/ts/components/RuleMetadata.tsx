@@ -3,10 +3,11 @@ import {LineBreak} from "./LineBreak";
 import {TagsSelector} from "./TagsSelector";
 import {CategorySelector} from "./CategorySelector";
 import React from "react";
-import { PartiallyUpdateRuleData, RuleFormData } from "./RuleForm";
+import { PartiallyUpdateRuleData } from "./RuleForm";
+import {DraftRule} from "./hooks/useRule";
 
 export const RuleMetadata = ({ruleData, partiallyUpdateRuleData}: {
-    ruleData: RuleFormData,
+    ruleData: DraftRule,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
 
