@@ -124,7 +124,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       )
   }
 
-  "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
+  "destructivelyPublishRules" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
     () =>
       val rulesFromSheet = List[CheckerRule](
         RegexRule(
@@ -199,7 +199,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       ruleResourceWithIgnoredRules.toOption.get.shouldEqual(CheckerRuleResource(List()))
   }
 
-  "destructivelyDumpRuleResourceToDB" should "write all rules to draft, and only write unignored rules to live" in {
+  "destructivelyPublishRules" should "write all rules to draft, and only write unignored rules to live" in {
     () =>
       val allRules = createRandomRules(2).zipWithIndex.map { case (rule, index) =>
         if (index % 2 == 0) rule.copy(ignore = true) else rule
@@ -217,7 +217,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   val user = "example.user@guardian.co.uk"
   val reason = "Some important update"
 
-  def getPublishableRule =
+  def createPublishableRule =
     DbRuleDraft
       .create(
         ruleType = "regex",
@@ -231,7 +231,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
   "publishRule" should "add an identical rule to the live rules table, and make it active" in {
     () =>
-      val ruleToPublish = getPublishableRule
+      val ruleToPublish = createPublishableRule
 
       val publishedRule =
         RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
@@ -259,7 +259,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   }
 
   "publishRule" should "make previous revisions of that rule inactive" in { () =>
-    val ruleToPublish = getPublishableRule
+    val ruleToPublish = createPublishableRule
 
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
 
@@ -273,12 +273,46 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   }
 
   "publishRule" should "should not be able to publish the same revision of a rule" in { () =>
-    val ruleToPublish = getPublishableRule
+    val ruleToPublish = createPublishableRule
 
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
       case Right(rule) => fail("This rule should not be publishable")
-      case Left(formErrors) => formErrors.head.message should include("duplicate key value violates unique constraint \"rules_live_composite_pkey\"")
+      case Left(formErrors) =>
+        formErrors.head.message should include(
+          "duplicate key value violates unique constraint \"rules_live_composite_pkey\""
+        )
     }
+  }
+
+  "getRuleAndRevisions" should "return the current draft rule" in { () =>
+    val ruleToPublish = createPublishableRule
+
+    RuleManager.getAllRuleData(ruleToPublish.id.get) match {
+      case None => fail("Rule should exist")
+      case Some((draftRule, liveRule, history)) =>
+        draftRule shouldMatchTo ruleToPublish
+        liveRule shouldMatchTo None
+        history shouldMatchTo List.empty
+    }
+  }
+
+  "getRuleAndRevisions" should "return the current draft rule, the live rule if it exists, and the publication history" in {
+    () =>
+      val ruleToPublish = createPublishableRule
+
+      val firstLiveRule =
+        RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
+      val revisedRuleToPublish = DbRuleDraft.save(ruleToPublish.copy(revisionId = 2), user).get
+      val secondLiveRule =
+        RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
+
+      RuleManager.getAllRuleData(ruleToPublish.id.get) match {
+        case None => fail("Rule should exist")
+        case Some((draftRule, liveRule, history)) =>
+          draftRule shouldMatchTo revisedRuleToPublish
+          liveRule shouldMatchTo Some(secondLiveRule)
+          history shouldMatchTo List(firstLiveRule.copy(isActive = false))
+      }
   }
 }

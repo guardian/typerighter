@@ -119,6 +119,19 @@ object RuleManager extends Loggable {
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
 
+  def getAllRuleData(id: Int)(implicit
+      session: DBSession = autoSession
+  ): Option[(DbRuleDraft, Option[DbRuleLive], List[DbRuleLive])] = {
+    DbRuleDraft.find(id).map { draftRule =>
+      val liveRules = draftRule.externalId match {
+        case Some(externalId) => DbRuleLive.findByExternalId(externalId)
+        case None             => List.empty
+      }
+
+      (draftRule, liveRules.find(_.isActive), liveRules.filter(!_.isActive))
+    }
+  }
+
   def publishRule(id: Int, user: String, reason: String, bucketRuleResource: BucketRuleResource)(
       implicit session: DBSession = autoSession
   ): Either[Seq[FormError], DbRuleLive] = {

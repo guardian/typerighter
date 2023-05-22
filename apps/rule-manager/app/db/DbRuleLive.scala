@@ -64,6 +64,17 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
+  def findByExternalId(
+      externalId: String
+  )(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    withSQL {
+      select
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.externalId, externalId)
+    }.map(DbRuleLive.fromResultName(r.resultName)).list().apply()
+  }
+
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
     withSQL(select.from(DbRuleLive as r).orderBy(r.ruleOrder))
       .map(DbRuleLive.fromResultName(r.resultName))
@@ -73,9 +84,12 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   def findAllActive()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
     withSQL(
-      select.from(DbRuleLive as r)
-        .where.eq(r.isActive, true)
-        .orderBy(r.ruleOrder))
+      select
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.isActive, true)
+        .orderBy(r.ruleOrder)
+    )
       .map(DbRuleLive.fromResultName(r.resultName))
       .list()
       .apply()
