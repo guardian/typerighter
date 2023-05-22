@@ -31,25 +31,32 @@ case class DbRuleDraft(
 ) extends DbRuleCommon {
 
   def toLive(reason: String): DbRuleLive = {
-    DbRuleLive(
-      id = None,
-      ruleType = this.ruleType,
-      pattern = this.pattern,
-      replacement = this.replacement,
-      category = this.category,
-      tags = this.tags,
-      description = this.description,
-      notes = this.notes,
-      externalId = this.externalId,
-      forceRedRule = this.forceRedRule,
-      advisoryRule = this.advisoryRule,
-      revisionId = this.revisionId,
-      createdAt = this.createdAt,
-      createdBy = this.createdBy,
-      updatedAt = this.updatedAt,
-      updatedBy = this.updatedBy,
-      reason = reason
-    )
+    id match {
+      case None =>
+        throw new Exception(
+          s"Attempted to make live rule for rule with externalId $externalId, but the rule did not have an id"
+        )
+      case Some(id) =>
+        DbRuleLive(
+          ruleType = ruleType,
+          pattern = pattern,
+          replacement = replacement,
+          category = category,
+          tags = tags,
+          description = description,
+          notes = notes,
+          externalId = externalId,
+          forceRedRule = forceRedRule,
+          advisoryRule = advisoryRule,
+          revisionId = revisionId,
+          createdAt = createdAt,
+          createdBy = createdBy,
+          updatedAt = updatedAt,
+          updatedBy = updatedBy,
+          reason = reason,
+          ruleOrder = id
+        )
+    }
   }
 }
 
@@ -59,7 +66,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   override val tableName = "rules_draft"
 
   override val columns: Seq[String] = dbColumns ++ Seq(
-    "ignore"
+    "ignore",
+    "id"
   )
 
   def fromResultName(r: ResultName[DbRuleDraft])(rs: WrappedResultSet): DbRuleDraft =
@@ -211,7 +219,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
         existingRule.copy(
-          id = Some(id),
           ruleType = formRule.ruleType.getOrElse(existingRule.ruleType),
           pattern = formRule.pattern,
           replacement = formRule.replacement,
@@ -295,7 +302,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     withSQL {
       update(DbRuleDraft)
         .set(
-          column.id -> entity.id,
           column.ruleType -> entity.ruleType,
           column.pattern -> entity.pattern,
           column.replacement -> entity.replacement,

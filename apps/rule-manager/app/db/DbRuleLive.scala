@@ -12,7 +12,6 @@ trait DbRuleLiveFields {
 }
 
 case class DbRuleLive(
-    id: Option[Int],
     ruleType: String,
     pattern: Option[String] = None,
     replacement: Option[String] = None,
@@ -28,6 +27,8 @@ case class DbRuleLive(
     updatedAt: ZonedDateTime,
     updatedBy: String,
     revisionId: Int = 0,
+    ruleOrder: Int = 0,
+    isActive: Boolean = false,
     reason: String
 ) extends DbRuleCommon
     with DbRuleLiveFields
@@ -38,7 +39,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   override val tableName = "rules_live"
 
   override val columns: Seq[String] = dbColumns ++ Seq(
-    "reason"
+    "reason",
+    "is_active",
+    "rule_order"
   )
 
   def fromResultName(r: ResultName[DbRuleLive])(rs: WrappedResultSet): DbRuleLive =
@@ -48,22 +51,38 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   override val autoSession = AutoSession
 
-  def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleLive] = {
+  def find(externalId: String, revisionId: Int)(implicit
+      session: DBSession = autoSession
+  ): Option[DbRuleLive] = {
     withSQL {
-      select.from(DbRuleLive as r).where.eq(r.id, id)
+      select
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.externalId, externalId)
+        .and
+        .eq(r.revisionId, revisionId)
     }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
-    withSQL(select.from(DbRuleLive as r).orderBy(r.id))
+    withSQL(select.from(DbRuleLive as r).orderBy(r.ruleOrder))
       .map(DbRuleLive.fromResultName(r.resultName))
       .list()
       .apply()
   }
 
+  /** Create a new live rule. This rule will supercede the previous active live rule.
+    */
   def create(liveRule: DbRuleLive, user: String)(implicit
       session: DBSession = autoSession
   ): Try[DbRuleLive] = {
+    withSQL {
+      update(DbRuleLive)
+        .set(column.isActive -> false)
+        .where
+        .eq(column.isActive, true)
+    }.update().apply()
+
     val generatedKey = withSQL {
       insert
         .into(DbRuleLive)
@@ -79,12 +98,16 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
           column.forceRedRule -> liveRule.forceRedRule,
           column.advisoryRule -> liveRule.advisoryRule,
           column.reason -> liveRule.reason,
+          column.revisionId -> liveRule.revisionId,
           column.createdBy -> user,
-          column.updatedBy -> user
+          column.updatedBy -> user,
+          column.ruleOrder -> liveRule.ruleOrder,
+          column.isActive -> true
         )
-    }.updateAndReturnGeneratedKey("id").apply()
+        .returning(column.externalId)
+    }.map(_.string(column.externalId)).single().apply()
 
-    find(generatedKey.toInt) match {
+    find(generatedKey.get, liveRule.revisionId) match {
       case Some(rule) => Success(rule)
       case None =>
         Failure(
@@ -114,7 +137,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         Symbol("createdAt") -> entity.createdAt,
         Symbol("updatedBy") -> entity.updatedBy,
         Symbol("updatedAt") -> entity.updatedAt,
-        Symbol("reason") -> entity.reason
+        Symbol("reason") -> entity.reason,
+        Symbol("isActive") -> entity.isActive,
+        Symbol("ruleOrder") -> entity.ruleOrder
       )
     )
     SQL(s"""insert into $tableName(
@@ -132,7 +157,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       created_by,
       updated_at,
       updated_by,
-      reason
+      reason,
+      is_active,
+      rule_order
     ) values (
       {ruleType},
       {pattern},
@@ -148,7 +175,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {createdBy},
       {updatedAt},
       {updatedBy},
-      {reason}
+      {reason},
+      {isActive},
+      {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
