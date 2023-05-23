@@ -83,10 +83,9 @@ object Tags extends SQLSyntaxSupport[Tag] {
       )
     )
     SQL(s"""insert into $tableName(
-        name
-      ) values (
-        {name},
-      )
+      name
+    ) values (
+      {name}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
