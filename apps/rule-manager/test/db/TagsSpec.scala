@@ -43,21 +43,19 @@ class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with D
     val count = Tags.countBy(sqls.eq(t.id, 1))
     count should be > (0L)
   }
-  it should "create new tag" in {
-    implicit session =>
-      val created = Tags
-        .create(name = "foo")
-        .get
+  it should "create new tag" in { implicit session =>
+    val created = Tags
+      .create(name = "foo")
+      .get
 
-      created.name shouldBe "foo"
+    created.name shouldBe "foo"
   }
 
-  it should "save a record, updating the modified fields" in {
-    implicit session =>
-      val entity = Tags.findAll().head
-      val modified = entity.copy(name = "bar")
-      val updated = Tags.save(modified).get
-      updated.name should equal("bar")
+  it should "save a record, updating the modified fields" in { implicit session =>
+    val entity = Tags.findAll().head
+    val modified = entity.copy(name = "bar")
+    val updated = Tags.save(modified).get
+    updated.name should equal("bar")
   }
 
   it should "destroy a record" in { implicit session =>
@@ -77,4 +75,3 @@ class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with D
     batchInserted.size should be > (0)
   }
 }
-

@@ -17,7 +17,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
 
   def fromResultName(r: ResultName[Tag])(rs: WrappedResultSet): Tag =
     autoConstruct(rs, r)
-    
+
   def find(id: Int)(implicit session: DBSession = autoSession): Option[Tag] = {
     withSQL {
       select.from(Tags as t).where.eq(t.id, id)
@@ -54,13 +54,13 @@ object Tags extends SQLSyntaxSupport[Tag] {
   }
 
   def create(
-    name: String,
+      name: String
   )(implicit session: DBSession = autoSession): Try[Tag] = {
     val generatedKey = withSQL {
       insert
         .into(Tags)
         .namedValues(
-          column.name -> name,
+          column.name -> name
         )
     }.updateAndReturnGeneratedKey().apply()
     find(generatedKey.toInt) match {
@@ -75,8 +75,8 @@ object Tags extends SQLSyntaxSupport[Tag] {
   }
 
   def batchInsert(
-     entities: collection.Seq[Tag]
-   )(implicit session: DBSession = autoSession): List[Int] = {
+      entities: collection.Seq[Tag]
+  )(implicit session: DBSession = autoSession): List[Int] = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
         Symbol("name") -> entity.name
@@ -89,8 +89,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: Tag)(implicit session: DBSession = autoSession
-  ): Try[Tag] = {
+  def save(entity: Tag)(implicit session: DBSession = autoSession): Try[Tag] = {
     withSQL {
       update(Tags)
         .set(
