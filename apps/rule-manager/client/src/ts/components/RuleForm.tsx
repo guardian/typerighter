@@ -14,6 +14,7 @@ import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
 import { updateRule } from "./api/updateRule";
 import {DraftRule, useRule} from "./hooks/useRule";
+import {RuleHistory} from "./RuleHistory";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -25,9 +26,8 @@ export const baseForm = {
   ignore: false,
 } as DraftRule;
 
-export const RuleForm = ({ruleId, onRuleUpdate, setCurrentRuleId, onClose}: {
+export const RuleForm = ({ruleId, setCurrentRuleId, onClose}: {
         ruleId: number | undefined,
-        onRuleUpdate: () => Promise<void>,
         onClose: () => void,
         setCurrentRuleId: Dispatch<SetStateAction<number | null>>,
     }) => {
@@ -73,7 +73,6 @@ export const RuleForm = ({ruleId, onRuleUpdate, setCurrentRuleId, onClose}: {
             .then(data => {
                 if (data.status === 'ok'){
                     setRuleFormData(baseForm);
-                    onRuleUpdate();
                     onClose();
                 } else {
                     setFormErrors([...formErrors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
@@ -88,8 +87,8 @@ export const RuleForm = ({ruleId, onRuleUpdate, setCurrentRuleId, onClose}: {
     return <EuiForm component="form">
         {<EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
-            <RuleType ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            {rule && <RuleHistory ruleHistory={rule.history} />}
             <EuiFlexGroup>
                 <EuiFlexItem>
                     <EuiButton onClick={() => {

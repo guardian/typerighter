@@ -215,9 +215,11 @@ const RulesTable = () => {
         <EuiSpacer />
         {formMode !== 'closed' &&
           <RuleForm
-            onRuleUpdate={fetchRules}
             createMode={formMode}
-            onClose={() => setFormMode('closed')}
+            onClose={() => {
+              setFormMode('closed');
+              fetchRules();
+            }}
             ruleId={currentRuleId}
             setCurrentRuleId={setCurrentRuleId}
           />
