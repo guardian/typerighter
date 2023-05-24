@@ -47,7 +47,7 @@ export function useRule(ruleId: number | undefined) {
   const [errors, setErrors] = useState<Error[] | undefined>(undefined);
   const [rule, setRule] = useState<RuleData | undefined>(undefined);
 
-  const fetchRules = async (ruleId: number) => {
+  const fetchRule = async (ruleId: number) => {
     setIsLoading(true);
 
     try {
@@ -69,9 +69,11 @@ export function useRule(ruleId: number | undefined) {
 
   useEffect(() => {
     if (ruleId) {
-      fetchRules(ruleId)
+      fetchRule(ruleId);
+    } else {
+      setRule(undefined);
     }
   }, [ruleId])
 
-  return {fetchRules, isLoading, errors, rule}
+  return {fetchRules: fetchRule, isLoading, errors, rule}
 }

@@ -39,7 +39,7 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
                 isInvalid={showErrors && !ruleData.pattern}
             >
                 <EuiFieldText
-                    value={ruleData.pattern}
+                    value={ruleData.pattern || ""}
                     onChange={(_ => partiallyUpdateRuleData({pattern: _.target.value}))}
                     required={true}
                     isInvalid={showErrors && !ruleData.pattern}
@@ -49,14 +49,14 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
                 label="Replacement"
                 helpText="What is the ideal term as per the house style?"
             >
-                <EuiFieldText value={ruleData.replacement}
+                <EuiFieldText value={ruleData.replacement || ""}
                               onChange={(_ => partiallyUpdateRuleData({replacement: _.target.value}))}/>
             </EuiFormRow>
             <EuiFormRow
                 label="Description"
                 helpText="What will the users see in Composer?"
             >
-                <EuiFieldText value={ruleData.description}
+                <EuiFieldText value={ruleData.description || ""}
                               onChange={(_ => partiallyUpdateRuleData({description: _.target.value}))}/>
             </EuiFormRow>
             <EuiRadioGroup

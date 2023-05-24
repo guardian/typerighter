@@ -7,14 +7,14 @@ import {
   EuiLoadingSpinner,
   EuiText
 } from "@elastic/eui";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
-import { RuleType } from "./RuleType";
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
 import { updateRule } from "./api/updateRule";
-import {DraftRule, useRule} from "./hooks/useRule";
+import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
+import styled from "@emotion/styled";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -26,10 +26,22 @@ export const baseForm = {
   ignore: false,
 } as DraftRule;
 
-export const RuleForm = ({ruleId, setCurrentRuleId, onClose}: {
+const SpinnerOverlay = styled.div`
+  display: flex;
+  justify-content: center;
+`
+
+const SpinnerOuter = styled.div`
+  position: relative;
+`;
+const SpinnerContainer = styled.div`
+  position: absolute;
+  top: 10px;
+`;
+
+export const RuleForm = ({ruleId, onClose}: {
         ruleId: number | undefined,
         onClose: () => void,
-        setCurrentRuleId: Dispatch<SetStateAction<number | null>>,
     }) => {
     const [showErrors, setShowErrors] = useState(false);
     const { isLoading, errors, rule } = useRule(ruleId);
@@ -44,6 +56,8 @@ export const RuleForm = ({ruleId, setCurrentRuleId, onClose}: {
         const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
         if (rule) {
           setRuleFormData(rule.draft);
+        } else {
+          setRuleFormData(baseForm);
         }
         if(!ruleFormData.pattern) {
           setFormErrors([emptyPatternFieldError]);
@@ -79,12 +93,10 @@ export const RuleForm = ({ruleId, setCurrentRuleId, onClose}: {
             })
     }
 
-    if (isLoading) {
-      return <EuiLoadingSpinner />
-    }
-
     return <EuiForm component="form">
+        {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
+
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             {rule && <RuleHistory ruleHistory={rule.live} />}
