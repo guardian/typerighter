@@ -4,7 +4,7 @@ import db.DbRule._
 import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
-import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 import scala.util.Try
 
 trait DbRuleLiveFields {
@@ -22,9 +22,9 @@ case class DbRuleLive(
     externalId: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
     advisoryRule: Option[Boolean] = None,
-    createdAt: ZonedDateTime,
+    createdAt: OffsetDateTime,
     createdBy: String,
-    updatedAt: ZonedDateTime,
+    updatedAt: OffsetDateTime,
     updatedBy: String,
     revisionId: Int = 0,
     ruleOrder: Int = 0,

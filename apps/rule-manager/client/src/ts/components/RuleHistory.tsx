@@ -5,8 +5,9 @@ import {RuleData} from "./hooks/useRule";
 import {maybeGetNameFromEmail} from "../utils/user";
 import styled from "@emotion/styled";
 import {LineBreak} from "./LineBreak";
-import {formatTimestampTZ} from "../utils/date";
+import {formatTimestampTZ, friendlyTimestampFormat} from "../utils/date";
 import {Person} from "./icons/person";
+import {format} from "date-fns";
 
 const subdeued = "#F7F8FC";
 const lightShade = "#D3DAE6";
@@ -70,7 +71,7 @@ export const RuleHistory = ({ruleHistory}: { ruleHistory: RuleData['history'] })
           </EventTimeline>
           <EventDetails isFirstPublished={isFirstPublished}>
             <EventDetailsWho>
-              <strong>{maybeGetNameFromEmail(rule.updatedBy)}</strong>, {formatTimestampTZ(rule.updatedAt)}
+              <strong>{maybeGetNameFromEmail(rule.updatedBy)}</strong>, {format(new Date(rule.updatedAt), friendlyTimestampFormat)}
             </EventDetailsWho>
             <EventDetailsWhy>{rule.reason}</EventDetailsWhy>
           </EventDetails>

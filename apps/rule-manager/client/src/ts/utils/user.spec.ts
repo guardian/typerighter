@@ -7,5 +7,10 @@ describe("user utils", () => {
       const formattedEmail = "Eva Smith"
       expect(maybeGetNameFromEmail(email)).toBe(formattedEmail);
     })
+    it("should not include 'casual'", () => {
+      const email = "eva.smith.casual@guardian.co.uk";
+      const formattedEmail = "Eva Smith"
+      expect(maybeGetNameFromEmail(email)).toBe(formattedEmail);
+    })
   })
 })

@@ -7,7 +7,7 @@ import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
 
-import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 import scala.util.{Failure, Success, Try}
 
 case class DbRuleDraft(
@@ -23,9 +23,9 @@ case class DbRuleDraft(
     externalId: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
     advisoryRule: Option[Boolean] = None,
-    createdAt: ZonedDateTime,
+    createdAt: OffsetDateTime,
     createdBy: String,
-    updatedAt: ZonedDateTime,
+    updatedAt: OffsetDateTime,
     updatedBy: String,
     revisionId: Int = 0
 ) extends DbRuleCommon {
@@ -88,7 +88,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       advisoryRule: Option[Boolean] = None,
       user: String
   ) = {
-    val createdAt = ZonedDateTime.now()
+    val createdAt = OffsetDateTime.now()
     DbRuleDraft(
       id,
       ruleType,
@@ -315,7 +315,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.advisoryRule -> entity.advisoryRule,
           column.createdAt -> entity.createdAt,
           column.createdBy -> entity.createdBy,
-          column.updatedAt -> ZonedDateTime.now(),
+          column.updatedAt -> OffsetDateTime.now(),
           column.updatedBy -> user,
           column.revisionId -> sqls"${column.revisionId} + 1"
         )

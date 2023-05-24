@@ -1,6 +1,6 @@
 package db
 
-import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 
 trait DbRuleCommon {
   def ruleType: String
@@ -13,9 +13,9 @@ trait DbRuleCommon {
   def externalId: Option[String]
   def forceRedRule: Option[Boolean]
   def advisoryRule: Option[Boolean]
-  def createdAt: ZonedDateTime
+  def createdAt: OffsetDateTime
   def createdBy: String
-  def updatedAt: ZonedDateTime
+  def updatedAt: OffsetDateTime
   def updatedBy: String
   def revisionId: Int
 }
