@@ -193,7 +193,9 @@ object RuleManager extends Loggable {
       .grouped(100)
       .foreach(DbRuleDraft.batchInsert)
 
-    val liveRules = incomingRules
+    val draftRules = DbRuleDraft.findAll()
+
+    val liveRules = draftRules
       .filterNot(_.ignore)
       .map(_.toLive("Imported from Google Sheet").copy(isActive = true))
 
