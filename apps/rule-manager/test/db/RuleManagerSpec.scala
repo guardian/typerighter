@@ -290,10 +290,9 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
     RuleManager.getAllRuleData(ruleToPublish.id.get) match {
       case None => fail("Rule should exist")
-      case Some((draftRule, liveRule, history)) =>
+      case Some((draftRule, liveRules)) =>
         draftRule shouldMatchTo ruleToPublish
-        liveRule shouldMatchTo None
-        history shouldMatchTo List.empty
+        liveRules shouldMatchTo List.empty
     }
   }
 
@@ -311,7 +310,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
         case None => fail("Rule should exist")
         case Some((draftRule, history)) =>
           draftRule shouldMatchTo revisedRuleToPublish
-          history shouldMatchTo List(secondLiveRule, firstLiveRule)
+          history shouldMatchTo List(secondLiveRule, firstLiveRule.copy(isActive = false))
       }
   }
 }
