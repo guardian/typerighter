@@ -121,14 +121,14 @@ object RuleManager extends Loggable {
 
   def getAllRuleData(id: Int)(implicit
       session: DBSession = autoSession
-  ): Option[(DbRuleDraft, Option[DbRuleLive], List[DbRuleLive])] = {
+  ): Option[(DbRuleDraft, List[DbRuleLive])] = {
     DbRuleDraft.find(id).map { draftRule =>
       val liveRules = draftRule.externalId match {
-        case Some(externalId) => DbRuleLive.findByExternalId(externalId)
+        case Some(externalId) => DbRuleLive.findByExternalId(externalId).sortBy(_.revisionId)
         case None             => List.empty
       }
 
-      (draftRule, liveRules.find(_.isActive), liveRules.filter(!_.isActive))
+      (draftRule, liveRules)
     }
   }
 

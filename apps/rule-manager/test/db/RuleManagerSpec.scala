@@ -309,10 +309,9 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
       RuleManager.getAllRuleData(ruleToPublish.id.get) match {
         case None => fail("Rule should exist")
-        case Some((draftRule, liveRule, history)) =>
+        case Some((draftRule, history)) =>
           draftRule shouldMatchTo revisedRuleToPublish
-          liveRule shouldMatchTo Some(secondLiveRule)
-          history shouldMatchTo List(firstLiveRule.copy(isActive = false))
+          history shouldMatchTo List(secondLiveRule, firstLiveRule)
       }
   }
 }

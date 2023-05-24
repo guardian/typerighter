@@ -4,7 +4,7 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleResource
-import play.api.libs.json.{JsNull, Json}
+import play.api.libs.json.Json
 import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
@@ -49,15 +49,11 @@ class RulesController(
   def get(id: Int) = ApiAuthAction {
     RuleManager.getAllRuleData(id) match {
       case None => NotFound("Rule not found matching ID")
-      case Some((draftRule, maybeLiveRule, previousLiveRules)) =>
+      case Some((draftRule, liveRules)) =>
         Ok(
           Json.obj(
             "draft" -> Json.toJson(draftRule),
-            "live" -> (maybeLiveRule match {
-              case Some(liveRule) => Json.toJson(liveRule)
-              case None           => JsNull
-            }),
-            "history" -> Json.toJson(previousLiveRules)
+            "live" -> Json.toJson(liveRules)
           )
         )
     }
