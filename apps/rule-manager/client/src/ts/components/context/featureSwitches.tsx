@@ -41,9 +41,7 @@ export const FeatureSwitchesContext = createContext<{
 }>({
   featureSwitches: initialFeatureSwitchValues,
   // The setters and getters are a noop until defined by a context.
-  toggleFeatureSwitch: (_: FeatureSwitchIds) => {
-    console.log("whups");
-  },
+  toggleFeatureSwitch: (_: FeatureSwitchIds) => {},
   getFeatureSwitchValue: () => false,
 });
 

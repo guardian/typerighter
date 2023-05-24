@@ -43,7 +43,6 @@ export const RuleForm = ({ruleId, setCurrentRuleId, onClose}: {
     useEffect(() => {
         const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
         if (rule) {
-          console.log({rule})
           setRuleFormData(rule.draft);
         }
         if(!ruleFormData.pattern) {
@@ -88,7 +87,7 @@ export const RuleForm = ({ruleId, setCurrentRuleId, onClose}: {
         {<EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-            {rule && <RuleHistory ruleHistory={rule.history} />}
+            {rule && <RuleHistory ruleHistory={rule.live} />}
             <EuiFlexGroup>
                 <EuiFlexItem>
                     <EuiButton onClick={() => {

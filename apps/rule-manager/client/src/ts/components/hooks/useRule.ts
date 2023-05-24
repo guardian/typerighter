@@ -13,6 +13,11 @@ export type BaseRule = {
   ignore: boolean,
   forceRedRule?: boolean,
   advisoryRule?: boolean,
+  revisionId: number,
+  createdBy: string,
+  createdAt: string,
+  updatedBy: string,
+  updatedAt: string
   id?: number
 }
 
@@ -20,12 +25,21 @@ export type DraftRule = BaseRule
 export type DraftRuleFromServer = Omit<BaseRule, "tags"> & {
   tags: string | undefined;
 }
-export type LiveRule = BaseRule
+export type LiveRule = BaseRule & {
+  reason: string
+}
+export type LiveRuleFromServer = Omit<LiveRule, "tags"> & {
+  tags: string | undefined;
+}
+
+export type RuleDataFromServer = {
+  draft: DraftRuleFromServer
+  live: LiveRuleFromServer[] | null
+}
 
 export type RuleData = {
   draft: DraftRule
-  live: LiveRule | null
-  history: LiveRule[]
+  live: LiveRule[]
 }
 
 export function useRule(ruleId: number | undefined) {
@@ -41,11 +55,10 @@ export function useRule(ruleId: number | undefined) {
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
-      const rules = await response.json();
+      const rules: RuleDataFromServer = await response.json();
       setRule({
         draft: transformApiFormData(rules.draft),
-        live: rules.live ? transformApiFormData(rules.live) : undefined,
-        history: rules.history.map(transformApiFormData)
+        live: rules.live.map(transformApiFormData)
       });
     } catch (error) {
       setErrors(error);
@@ -59,6 +72,6 @@ export function useRule(ruleId: number | undefined) {
       fetchRules(ruleId)
     }
   }, [ruleId])
-  console.log(rule)
-  return { fetchRules, isLoading, errors, rule }
+
+  return {fetchRules, isLoading, errors, rule}
 }

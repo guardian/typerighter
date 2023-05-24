@@ -1,6 +1,6 @@
-import { EuiFormRow } from "@elastic/eui";
+import {EuiFormRow, EuiIcon} from "@elastic/eui";
 import React from "react"
-import { RuleFormSection } from "./RuleFormSection"
+import {RuleFormSection} from "./RuleFormSection"
 import {RuleData} from "./hooks/useRule";
 import {maybeGetNameFromEmail} from "../utils/user";
 import styled from "@emotion/styled";
@@ -49,33 +49,36 @@ const EventDetailsWhy = styled.div`
     padding: 8px;
 `;
 
-export const RuleHistory = ({ruleHistory}: {ruleHistory: RuleData['history']}) => {
+const SheetIconContainer = styled.div`
+  padding: 7px 8px;
+`
+const SheetIcon = () => <SheetIconContainer><EuiIcon type="pageSelect" size="lg"/></SheetIconContainer>
 
-    return <RuleFormSection title="PUBLICATION HISTORY">
-      <LineBreak/>
-        <EuiFormRow
-        ><>
-          {!ruleHistory.length && "This rule has not yet been published."}
-          {ruleHistory.map((rule, index) => {
-            const isFirstPublished = index === (ruleHistory.length - 1)
-            return <Event>
-              <EventTimeline isFirstPublished={isFirstPublished}>
-  <EventTimelinePersonContainer>
+export const RuleHistory = ({ruleHistory}: { ruleHistory: RuleData['history'] }) => {
+  const sortedHistory = ruleHistory.concat().sort((a, b) => a.revisionId > b.revisionId ? -1 : 1);
+  return <RuleFormSection title="PUBLICATION HISTORY">
+    <LineBreak/>
+    <EuiFormRow><>
+      {!sortedHistory.length && "This rule has not yet been published."}
+      {sortedHistory.map((rule, index) => {
+        const isFirstPublished = index === (sortedHistory.length - 1)
+        return <Event>
+          <EventTimeline isFirstPublished={isFirstPublished}>
+            <EventTimelinePersonContainer>
+              {rule.updatedBy.includes("Google Sheet") ? <SheetIcon/> : <Person/>}
+            </EventTimelinePersonContainer>
+          </EventTimeline>
+          <EventDetails isFirstPublished={isFirstPublished}>
+            <EventDetailsWho>
+              <strong>{maybeGetNameFromEmail(rule.updatedBy)}</strong>, {formatTimestampTZ(rule.updatedAt)}
+            </EventDetailsWho>
+            <EventDetailsWhy>{rule.reason}</EventDetailsWhy>
+          </EventDetails>
 
-                <Person />
-  </EventTimelinePersonContainer>
-              </EventTimeline>
-              <EventDetails isFirstPublished={isFirstPublished}>
-                <EventDetailsWho>
-                  <strong>{maybeGetNameFromEmail(rule.updatedBy)}</strong>, {formatTimestampTZ(rule.updatedAt)}
-                </EventDetailsWho>
-                <EventDetailsWhy>{rule.reason}</EventDetailsWhy>
-              </EventDetails>
+        </Event>
+      })}
+    </>
 
-            </Event>
-          })}
-        </>
-
-        </EuiFormRow>
-    </RuleFormSection>
+    </EuiFormRow>
+  </RuleFormSection>
 }

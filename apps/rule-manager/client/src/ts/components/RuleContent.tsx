@@ -3,19 +3,22 @@ import {css} from "@emotion/react";
 import React, {useState} from "react"
 import {RuleFormSection} from "./RuleFormSection";
 import {LineBreak} from "./LineBreak";
-import {FormError, PartiallyUpdateRuleData, RuleFormData, RuleType} from "./RuleForm";
+import {FormError, PartiallyUpdateRuleData} from "./RuleForm";
 import {Label} from "./Label";
+import {DraftRule, RuleType} from "./hooks/useRule";
+
+type RuleTypeOption = {
+  id: RuleType,
+  label: string,
+}
 
 export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErrors}: {
-        ruleData: RuleFormData['draft'],
+        ruleData: DraftRule,
         partiallyUpdateRuleData: PartiallyUpdateRuleData,
         errors: FormError[],
         showErrors: boolean
     }) => {
-    type RuleTypeOption = {
-        id: RuleType,
-        label: string,
-    }
+
     const ruleTypeOptions: RuleTypeOption[] = [
         {
             id: "regex",
