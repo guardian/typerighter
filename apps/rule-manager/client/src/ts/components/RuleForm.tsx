@@ -43,7 +43,6 @@ export const RuleForm = ({ruleId, setCurrentRuleId, onClose}: {
     useEffect(() => {
         const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
         if (rule) {
-          console.log({rule})
           setRuleFormData(rule.draft);
         }
         if(!ruleFormData.pattern) {
