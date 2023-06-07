@@ -206,7 +206,8 @@ object RuleManager extends Loggable {
     val persistedRules = getDraftRules()
 
     val persistedRulesToCompare = persistedRules.map(_.copy(id = None))
-    val incomingRulesToCompare = incomingRules.map(_.copy(id = None))
+    val incomingRulesToCompare =
+      incomingRules.map(rule => rule.copy(id = None, isPublished = !rule.ignore))
 
     if (persistedRulesToCompare == incomingRulesToCompare) {
       publishLiveRules(bucketRuleResource)

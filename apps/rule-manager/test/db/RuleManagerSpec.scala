@@ -208,7 +208,9 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
       RuleManager.destructivelyPublishRules(allRules, bucketRuleResource)
 
-      DbRuleDraft.findAll() shouldMatchTo allRules
+      DbRuleDraft.findAll() shouldMatchTo allRules.map(rule =>
+        rule.copy(isPublished = !rule.ignore)
+      )
       DbRuleLive.findAll() shouldMatchTo unignoredRules.map(
         _.toLive("Imported from Google Sheet").copy(isActive = true)
       )
