@@ -27,7 +27,8 @@ case class DbRuleDraft(
     createdBy: String,
     updatedAt: OffsetDateTime,
     updatedBy: String,
-    revisionId: Int = 0
+    revisionId: Int = 0,
+    isPublished: Boolean
 ) extends DbRuleCommon {
 
   def toLive(reason: String): DbRuleLive = {
@@ -73,6 +74,29 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   def fromResultName(r: ResultName[DbRuleDraft])(rs: WrappedResultSet): DbRuleDraft =
     autoConstruct(rs, r)
 
+  def fromRow(rs: WrappedResultSet): DbRuleDraft = {
+    DbRuleDraft(
+      id = rs.intOpt("id"),
+      ruleType = rs.string("rule_type"),
+      pattern = rs.stringOpt("pattern"),
+      replacement = rs.stringOpt("replacement"),
+      category = rs.stringOpt("category"),
+      tags = rs.stringOpt("tags"),
+      description = rs.stringOpt("description"),
+      ignore = rs.boolean("ignore"),
+      notes = rs.stringOpt("notes"),
+      externalId = rs.stringOpt("external_id"),
+      forceRedRule = rs.booleanOpt("force_red_rule"),
+      advisoryRule = rs.booleanOpt("advisory_rule"),
+      createdAt = rs.offsetDateTime("created_at"),
+      createdBy = rs.string("created_by"),
+      updatedAt = rs.offsetDateTime("updated_at"),
+      updatedBy = rs.string("updated_by"),
+      revisionId = rs.int("revision_id"),
+      isPublished = rs.boolean("is_published")
+    )
+  }
+
   def withUser(
       id: Option[Int],
       ruleType: String,
@@ -105,46 +129,49 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       createdAt,
       createdBy = user,
       updatedAt = createdAt,
-      updatedBy = user
+      updatedBy = user,
+      isPublished = false
     )
   }
 
-  val r = DbRuleDraft.syntax("r")
+  val rd = DbRuleDraft.syntax("rd")
+  val rl = DbRuleLive.syntax("rl")
 
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
-    withSQL {
-      select.from(DbRuleDraft as r).where.eq(r.id, id)
-    }.map(DbRuleDraft.fromResultName(r.resultName)).single().apply()
+    sql"""
+        SELECT
+             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
+        FROM
+            ${DbRuleDraft as rd} LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId}
+        WHERE
+            ${rd.id} = $id
+       """
+      .map(DbRuleDraft.fromRow)
+      .single()
+      .apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
-    withSQL(select.from(DbRuleDraft as r).orderBy(r.id))
-      .map(DbRuleDraft.fromResultName(r.resultName))
+    sql"""
+        SELECT
+             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
+        FROM
+            ${DbRuleDraft as rd} LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId}
+       """
+      .map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
-    withSQL(select(sqls.count).from(DbRuleDraft as r)).map(rs => rs.long(1)).single().apply().get
-  }
-
-  def findBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
-    withSQL {
-      select.from(DbRuleDraft as r).where.append(where)
-    }.map(DbRuleDraft.fromResultName(r.resultName)).single().apply()
-  }
-
-  def findAllBy(where: SQLSyntax)(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
-    withSQL {
-      select.from(DbRuleDraft as r).where.append(where)
-    }.map(DbRuleDraft.fromResultName(r.resultName)).list().apply()
+    withSQL(select(sqls.count).from(DbRuleDraft as rd)).map(rs => rs.long(1)).single().apply().get
   }
 
   def countBy(where: SQLSyntax)(implicit session: DBSession = autoSession): Long = {
     withSQL {
-      select(sqls.count).from(DbRuleDraft as r).where.append(where)
+      select(sqls.count).from(DbRuleDraft as rd).where.append(where)
     }.map(_.long(1)).single().apply().get
   }
 
@@ -231,7 +258,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     updatedRule match {
       case Right(dbRule) => {
         DbRuleDraft.save(dbRule, user).toEither match {
-          case Left(e: Throwable) => Left(InternalServerError(e.getMessage()))
+          case Left(e: Throwable) => Left(InternalServerError(e.getMessage))
           case Right(dbRule)      => Right(dbRule)
         }
       }

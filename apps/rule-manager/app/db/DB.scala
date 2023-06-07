@@ -1,5 +1,6 @@
 package db
 
+import scalikejdbc.ConnectionPool.close
 import scalikejdbc._
 
 class DB(url: String, user: String, password: String) {
@@ -18,5 +19,5 @@ class DB(url: String, user: String, password: String) {
     dbString == "HELLO WORLD"
   }
 
-  def closeAll = ConnectionPool.closeAll()
+  def closeAll = close(ConnectionPool)
 }

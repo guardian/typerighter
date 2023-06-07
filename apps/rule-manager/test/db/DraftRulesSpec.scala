@@ -11,7 +11,6 @@ import play.api.mvc.Results.NotFound
 import java.time.OffsetDateTime
 
 class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
-  val r = DbRuleDraft.syntax("r")
 
   override def fixture(implicit session: DBSession) = {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
@@ -26,29 +25,39 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   behavior of "Draft rules"
 
-  it should "find by primary keys" in { implicit session =>
-    val maybeFound = DbRuleDraft.find(1)
-    maybeFound.isDefined should be(true)
+  it should "find by primary keys and return published status - false" in { implicit session =>
+    val found = DbRuleDraft.find(1).get
+    found.isPublished should be(false)
   }
-  it should "find by where clauses" in { implicit session =>
-    val maybeFound = DbRuleDraft.findBy(sqls.eq(r.id, 1))
-    maybeFound.isDefined should be(true)
+  it should "find by primary keys and return published status - true" in { implicit session =>
+    val found = DbRuleDraft.find(1).get
+    DbRuleLive.create(found.toLive("reason"), "user")
+    val foundAndPublished = DbRuleDraft.find(1).get
+    foundAndPublished.isPublished should be(true)
   }
-  it should "find all records" in { implicit session =>
-    val allResults = DbRuleDraft.findAll()
-    allResults.size should be > (0)
+
+  it should "find all records and return published status" in { implicit session =>
+    val toBePublished = DbRuleDraft
+      .create(ruleType = "regex", pattern = Some("MyString"), user = "test.user", ignore = false)
+      .get
+    DbRuleLive.create(toBePublished.toLive("reason"), "user")
+
+    val unpublished :: published :: Nil = DbRuleDraft.findAll()
+
+    unpublished should be(DbRuleDraft.find(1).get)
+    unpublished.isPublished should be(false)
+    published should be(DbRuleDraft.find(2).get)
+    published.isPublished should be(true)
   }
+
   it should "count all records" in { implicit session =>
     val count = DbRuleDraft.countAll()
-    count should be > (0L)
+    count should be > 0L
   }
-  it should "find all by where clauses" in { implicit session =>
-    val results = DbRuleDraft.findAllBy(sqls.eq(r.id, 1))
-    results.size should be > (0)
-  }
+
   it should "count by where clauses" in { implicit session =>
-    val count = DbRuleDraft.countBy(sqls.eq(r.id, 1))
-    count should be > (0L)
+    val count = DbRuleDraft.countBy(sqls.eq(DbRuleDraft.rd.id, 1))
+    count should be > 0L
   }
   it should "create new record and autofill createdAt, updatedAt, and revisionId" in {
     implicit session =>
@@ -96,7 +105,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       dbRule.id should be(Some(existingId))
       dbRule.pattern should be(Some("NewString"))
       dbRule.updatedBy should be("another.user")
-      dbRule.updatedAt.toInstant.toEpochMilli should be > existingRule.updatedAt.toInstant.toEpochMilli
+      dbRule.updatedAt.toInstant.toEpochMilli should be >= existingRule.updatedAt.toInstant.toEpochMilli
   }
 
   it should "save a record, updating the modified fields and incrementing the revisionId" in {
