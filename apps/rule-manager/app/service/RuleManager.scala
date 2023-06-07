@@ -136,18 +136,7 @@ object RuleManager extends Loggable {
       implicit session: DBSession = autoSession
   ): Either[Seq[FormError], DbRuleLive] = {
     for {
-      draftRule <- DbRuleDraft
-        .find(id)
-        .toRight(
-          Seq(
-            FormError(
-              "Finding existing rule",
-              s"Attempted to publish rule with id $id for user $user, but could not find a draft rule with that id"
-            )
-          )
-        )
-      liveRule = draftRule.toLive(reason)
-      _ <- liveDbRuleToCheckerRule(liveRule)
+      liveRule <- parseDraftRuleForPublication(id, reason)
       persistedLiveRule <- DbRuleLive
         .create(liveRule, user)
         .toEither
@@ -155,6 +144,38 @@ object RuleManager extends Loggable {
         .map(e => Seq(FormError("Error writing rule to live table", e.getMessage)))
       _ <- publishLiveRules(bucketRuleResource)
     } yield persistedLiveRule
+  }
+
+  /** Given a draft rule and a reason for publication, validates the draft rule for publication and
+    * returns a valid live rule.
+    */
+  def parseDraftRuleForPublication(id: Int, reason: String) = {
+    for {
+      draftRule <- DbRuleDraft
+        .find(id)
+        .toRight(
+          Seq(
+            FormError(
+              "Finding existing rule",
+              s"Could not find a draft rule with id $id"
+            )
+          )
+        )
+      liveRule = draftRule.toLive(reason)
+      externalId <- liveRule.externalId.toRight(Seq(FormError("External id", "required")))
+      _ <- liveDbRuleToCheckerRule(liveRule)
+      _ <- DbRuleLive
+        .find(externalId, draftRule.revisionId)
+        .map(_ =>
+          Seq(
+            FormError(
+              "Rule already exists",
+              "the current draft rule has not changed since it was last published"
+            )
+          )
+        )
+        .toLeft(())
+    } yield liveRule
   }
 
   def publishLiveRules(
