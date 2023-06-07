@@ -60,10 +60,6 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
       name: 'Type',
     },
     {
-      field: 'externalId',
-      name: 'ID'
-    },
-    {
       field: 'category',
       name: 'Category',
     },
@@ -78,6 +74,11 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     {
       field: 'description',
       name: 'Description'
+    },
+    {
+      field: 'isPublished',
+      name: 'Status',
+      render: value =>  value ? "Live" : "Draft"
     },
     {
       name: <EuiIcon type="pencil"/>,
