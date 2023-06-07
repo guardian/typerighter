@@ -121,4 +121,11 @@ class RulesController(
           )
     }
   }
+
+  def canPublish(id: Int) = ApiAuthAction {
+    RuleManager.parseDraftRuleForPublication(id, "validate") match {
+      case Right(_)     => Ok
+      case Left(errors) => BadRequest(Json.toJson(errors))
+    }
+  }
 }
