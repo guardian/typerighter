@@ -62,7 +62,7 @@ class RuleTagDraftSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     val deleted = RuleTagDraft.destroy(created)
     deleted should be(1)
     val result = RuleTagDraft.findTagsByRule(90)
-    result should be (List())
+    result should be(List())
   }
 
   it should "perform batch insert" in { implicit session =>

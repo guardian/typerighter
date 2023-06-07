@@ -18,17 +18,16 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTag] {
       select.from(RuleTagLive as rt).where.eq(rt.rule_id, ruleId).and.eq(rt.tag_id, tagId)
     }.map(RuleTagLive.fromResultName(rt.resultName)).single().apply()
   }
-
-  def findByRule(ruleId: Int)(implicit session: DBSession = autoSession): List[RuleTag] = {
+  def findTagsByRule(ruleId: Int)(implicit session: DBSession = autoSession): List[Int] = {
     withSQL {
       select.from(RuleTagLive as rt).where.eq(rt.rule_id, ruleId)
-    }.map(RuleTagLive.fromResultName(rt.resultName)).list().apply()
+    }.map(RuleTagLive.fromResultName(rt.resultName)).list().apply().map(rt => rt.tag_id)
   }
 
-  def findByTag(tagId: Int)(implicit session: DBSession = autoSession): List[RuleTag] = {
+  def findRulesByTag(tagId: Int)(implicit session: DBSession = autoSession): List[Int] = {
     withSQL {
       select.from(RuleTagLive as rt).where.eq(rt.tag_id, tagId)
-    }.map(RuleTagLive.fromResultName(rt.resultName)).list().apply()
+    }.map(RuleTagLive.fromResultName(rt.resultName)).list().apply().map(rt => rt.rule_id)
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[RuleTag] = {
@@ -81,12 +80,12 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTag] {
       )
     )
     SQL(s"""insert into $tableName(
-    rule_id,
-    tag_id
-  ) values (
-    {rule_id},
-    {tag_id},
-  )""").batchByName(params.toSeq: _*).apply[List]()
+      rule_id,
+      tag_id
+    ) values (
+      {rule_id},
+      {tag_id}
+    )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
   def destroy(entity: RuleTag)(implicit session: DBSession = autoSession): Int = {
