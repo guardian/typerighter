@@ -1,6 +1,5 @@
 package db
 
-package db
 
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
