@@ -39,6 +39,8 @@ const SpinnerContainer = styled.div`
   top: 10px;
 `;
 
+const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
+
 export const RuleForm = ({ruleId, onClose}: {
         ruleId: number | undefined,
         onClose: () => void,
@@ -53,18 +55,20 @@ export const RuleForm = ({ruleId, onClose}: {
     }
 
     useEffect(() => {
-        const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
         if (rule) {
           setRuleFormData(rule.draft);
         } else {
           setRuleFormData(baseForm);
         }
-        if(!ruleFormData.pattern) {
-          setFormErrors([emptyPatternFieldError]);
-        } else {
-          setFormErrors([]);
-        }
-    }, [rule])
+    }, [rule]);
+
+    useEffect(() => {
+      if(!ruleFormData.pattern) {
+        setFormErrors([emptyPatternFieldError]);
+      } else {
+        setFormErrors([]);
+      }
+    }, [ruleFormData]);
 
     useEffect(() => {
         if(errors?.length === 0) {
@@ -77,7 +81,7 @@ export const RuleForm = ({ruleId, onClose}: {
     // We need to be able to show errors on a field by field basis
 
     const saveRuleHandler = () => {
-        if(errors?.length > 0) {
+        if(formErrors.length > 0 || errors?.length > 0) {
             setShowErrors(true);
             return;
         }
@@ -96,7 +100,6 @@ export const RuleForm = ({ruleId, onClose}: {
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
-
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             {rule && <RuleHistory ruleHistory={rule.live} />}
