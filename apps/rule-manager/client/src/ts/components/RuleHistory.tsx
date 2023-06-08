@@ -9,7 +9,7 @@ import {formatTimestampTZ, friendlyTimestampFormat} from "../utils/date";
 import {Person} from "./icons/person";
 import {format} from "date-fns";
 
-const subdeued = "#F7F8FC";
+const subdued = "#F7F8FC";
 const lightShade = "#D3DAE6";
 
 const Event = styled.div`
@@ -18,7 +18,7 @@ const Event = styled.div`
 
 const EventTimeline = styled.div<{ isFirstPublished: boolean }>`
   position: relative;
-  ${({isFirstPublished}) => !isFirstPublished && `border-left: 2px solid ${subdeued};`}
+  ${({isFirstPublished}) => !isFirstPublished && `border-left: 2px solid ${subdued};`}
   margin-left: 16px;
   margin-right: 27px;
 `;
@@ -28,19 +28,19 @@ const EventTimelinePersonContainer = styled.div`
   width: 32px;
   height: 32px;
   left: -16px;
-  background-color: ${subdeued};
+  background-color: ${subdued};
   border-radius: 50%;
 `;
 
 const EventDetails = styled.div<{ isFirstPublished: boolean }>`
-  border: 1px solid ${subdeued};
+  border: 1px solid ${subdued};
   border-radius: 6px;
   flex-grow: 1;
   ${({isFirstPublished}) => !isFirstPublished && `margin-bottom: 8px;`}
 `;
 
 const EventDetailsWho = styled.div`
-  background-color: ${subdeued};
+  background-color: ${subdued};
   border-bottom: 1px solid ${lightShade};
   padding: 8px;
 `;
