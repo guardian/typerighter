@@ -69,7 +69,7 @@ class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with D
   }
 
   it should "perform batch insert" in { implicit session =>
-    val entities = List(Tag(None, "foo"), Tag(None, "bar"))
+    val entities = Tags.findAll()
     entities.foreach(e => Tags.destroy(e))
     val batchInserted = Tags.batchInsert(entities)
     batchInserted.size should be > (0)
