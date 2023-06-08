@@ -64,6 +64,10 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
+  /** Find live rules by `externalId`. Because there may be many inactive live rules with the same
+    * id, unlike the `find` method for draft rules, this method returns a list. To return a single
+    * rule, use `findRevision`.
+    */
   def find(
       externalId: String
   )(implicit session: DBSession = autoSession): List[DbRuleLive] = {
