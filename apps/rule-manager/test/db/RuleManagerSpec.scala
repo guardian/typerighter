@@ -236,7 +236,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       val publishedRule =
         RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
 
-      DbRuleLive.find(publishedRule.externalId.get, ruleToPublish.revisionId) match {
+      DbRuleLive.findRevision(publishedRule.externalId.get, ruleToPublish.revisionId) match {
         case Some(liveRule) =>
           liveRule.ruleType shouldBe ruleToPublish.ruleType
           liveRule.pattern shouldBe ruleToPublish.pattern

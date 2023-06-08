@@ -18,12 +18,12 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
   behavior of "Live rules"
 
   it should "find by primary keys" in { implicit session =>
-    val maybeFound = DbRuleLive.find("googleSheetId", 0)
+    val maybeFound = DbRuleLive.findRevision("googleSheetId", 0)
     maybeFound.isDefined should be(true)
   }
 
   it should "find all records" in { implicit session =>
-    val maybeFound = DbRuleLive.find("googleSheetId", 0)
+    val maybeFound = DbRuleLive.findRevision("googleSheetId", 0)
     val allResults = DbRuleLive.findAll()
     allResults should be(List(maybeFound.get))
   }

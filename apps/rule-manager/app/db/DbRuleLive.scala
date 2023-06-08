@@ -51,7 +51,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   override val autoSession = AutoSession
 
-  def find(externalId: String, revisionId: Int)(implicit
+  def findRevision(externalId: String, revisionId: Int)(implicit
       session: DBSession = autoSession
   ): Option[DbRuleLive] = {
     withSQL {
@@ -64,7 +64,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
-  def findByExternalId(
+  def find(
       externalId: String
   )(implicit session: DBSession = autoSession): List[DbRuleLive] = {
     withSQL {
@@ -131,7 +131,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .returning(column.externalId)
     }.map(_.string(column.externalId)).single().apply()
 
-    find(generatedKey.get, liveRule.revisionId) match {
+    findRevision(generatedKey.get, liveRule.revisionId) match {
       case Some(rule) => rule
       case None =>
         throw new Exception(

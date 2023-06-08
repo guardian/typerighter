@@ -124,7 +124,7 @@ object RuleManager extends Loggable {
   ): Option[(DbRuleDraft, List[DbRuleLive])] = {
     DbRuleDraft.find(id).map { draftRule =>
       val liveRules = draftRule.externalId match {
-        case Some(externalId) => DbRuleLive.findByExternalId(externalId).sortBy(-_.revisionId)
+        case Some(externalId) => DbRuleLive.find(externalId).sortBy(-_.revisionId)
         case None             => List.empty
       }
 
