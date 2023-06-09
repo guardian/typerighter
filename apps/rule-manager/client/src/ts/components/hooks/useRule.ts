@@ -51,7 +51,6 @@ export function useRule(ruleId: number | undefined) {
   const [isValidating, setIsValidating] = useState(false);
   const [publishingErrors, setPublishingErrors] = useState<FormError[] | undefined>(undefined);
   const [errors, setErrors] = useState<string | undefined>(undefined);
-
   const [rule, setRule] = useState<RuleData | undefined>(undefined);
 
   const fetchRule = async (ruleId: number) => {
