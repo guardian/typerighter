@@ -4,10 +4,10 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiForm,
-  EuiLoadingSpinner,
-  EuiText
+  EuiLoadingSpinner, EuiSpacer,
+  EuiText, EuiToolTip
 } from "@elastic/eui";
-import React, { useEffect, useState } from "react"
+import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
@@ -15,6 +15,7 @@ import { updateRule } from "./api/updateRule";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
+import {capitalize} from "lodash";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -46,7 +47,7 @@ export const RuleForm = ({ruleId, onClose}: {
         onClose: () => void,
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishingErrors } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
 
@@ -57,6 +58,7 @@ export const RuleForm = ({ruleId, onClose}: {
     useEffect(() => {
         if (rule) {
           setRuleFormData(rule.draft);
+          validateRule(rule.draft.id);
         } else {
           setRuleFormData(baseForm);
         }
@@ -97,6 +99,27 @@ export const RuleForm = ({ruleId, onClose}: {
             })
     }
 
+    const publishRuleHandler = async () => {
+      await publishRule(ruleId);
+      await fetchRule(ruleId);
+    }
+
+    const PublishTooltip: React.FC<{ children: ReactElement }> = ({ children }) => {
+        if (!publishingErrors) {
+          return <>{children}</>
+        }
+        return <EuiToolTip content={!!publishingErrors &&
+            <span>
+                This rule can't be published:
+                <br/>
+                <br/>
+                {publishingErrors?.map(error => <span>{`${capitalize(error.key)}: ${error.message}`}<br/></span>)}
+            </span>
+        }>
+          {children}
+        </EuiToolTip>
+    }
+
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
@@ -112,6 +135,11 @@ export const RuleForm = ({ruleId, onClose}: {
                 </EuiFlexItem>
                 <EuiFlexItem>
                     <EuiButton fill={true} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
+                </EuiFlexItem>
+                <EuiFlexItem>
+                  <PublishTooltip>
+                    <EuiButton disabled={!ruleId || isLoading || !!publishingErrors} isLoading={isPublishing} fill={true} onClick={publishRuleHandler}>{"Publish"}</EuiButton>
+                  </PublishTooltip>
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
