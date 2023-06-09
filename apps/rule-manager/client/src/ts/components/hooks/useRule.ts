@@ -44,11 +44,15 @@ export type RuleData = {
 
 export function useRule(ruleId: number | undefined) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [publishingErrors, setPublishingErrors] = useState<Error[] | undefined>(undefined);
   const [errors, setErrors] = useState<Error[] | undefined>(undefined);
   const [rule, setRule] = useState<RuleData | undefined>(undefined);
 
   const fetchRule = async (ruleId: number) => {
     setIsLoading(true);
+    setIsValidating(true); // Mark the rule as pending validation until the server tells us otherwise
 
     try {
       const response = await fetch(`${location}rules/${ruleId}`);
@@ -67,6 +71,48 @@ export function useRule(ruleId: number | undefined) {
     setIsLoading(false);
   }
 
+  const publishRule = async (ruleId: number) => {
+    setIsPublishing(true);
+
+    try {
+      const response = await fetch(`${location}rules/${ruleId}/publish`, {
+        method: "POST",
+        headers: [["Content-Type", "application/json"]],
+        body: JSON.stringify({ reason: "Placeholder reason" })
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to publish rules: ${response.status} ${response.statusText}`);
+      }
+
+      const rules: RuleDataFromServer = await response.json();
+      setRule({
+        draft: transformApiFormData(rules.draft),
+        live: rules.live.map(transformApiFormData)
+      });
+    } catch (error) {
+      setErrors(error);
+    } finally {
+      setIsPublishing(false);
+    }
+  }
+
+  const validateRule = async (ruleId: number) => {
+    setIsValidating(false);
+
+    try {
+      const response = await fetch(`${location}rules/${ruleId}/publish`);
+      if (response.status === 400) {
+        const validationErrors: Error[] = await response.json();
+        return setPublishingErrors(validationErrors);
+      }
+      setPublishingErrors(undefined);
+    } catch (error) {
+      setErrors(error);
+    } finally {
+      setIsValidating(false)
+    }
+  }
+
   useEffect(() => {
     if (ruleId) {
       fetchRule(ruleId);
@@ -75,5 +121,5 @@ export function useRule(ruleId: number | undefined) {
     }
   }, [ruleId])
 
-  return {fetchRules: fetchRule, isLoading, errors, rule}
+  return { fetchRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishingErrors }
 }
