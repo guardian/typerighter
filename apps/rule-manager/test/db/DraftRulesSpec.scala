@@ -38,7 +38,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   it should "find all records and return published status" in { implicit session =>
     val toBePublished = DbRuleDraft
-      .create(ruleType = "regex", pattern = Some("MyString"), user = "test.user", ignore = false)
+      .create(ruleType = "regex", pattern = Some("2"), user = "test.user", ignore = false)
       .get
     DbRuleLive.create(toBePublished.toLive("reason"), "user")
 

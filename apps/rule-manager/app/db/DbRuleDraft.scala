@@ -161,7 +161,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         SELECT
              ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
         FROM
-            ${DbRuleDraft as rd} LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId}
+            ${DbRuleDraft as rd}
+        LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
         ORDER BY ${rd.id}
        """
       .map(DbRuleDraft.fromRow)
