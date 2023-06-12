@@ -1,12 +1,11 @@
 package db
-import db.DbRuleDraft.autoSession
 import scalikejdbc._
 
 import scala.util.Try
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 case class Tag(
-    id: Int,
+    id: Option[Int],
     name: String
 )
 object Tags extends SQLSyntaxSupport[Tag] {
@@ -103,7 +102,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
         .eq(column.id, entity.id)
     }.update().apply()
 
-    find(entity.id)
+    find(entity.id.get)
       .toRight(
         new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
       )
