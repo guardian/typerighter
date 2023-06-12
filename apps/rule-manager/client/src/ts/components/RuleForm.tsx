@@ -42,9 +42,10 @@ const SpinnerContainer = styled.div`
 
 const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
 
-export const RuleForm = ({ruleId, onClose}: {
+export const RuleForm = ({ruleId, onClose, onUpdate}: {
         ruleId: number | undefined,
         onClose: () => void,
+        onUpdate: () => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
     const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishingErrors } = useRule(ruleId);
@@ -102,6 +103,7 @@ export const RuleForm = ({ruleId, onClose}: {
     const publishRuleHandler = async () => {
       await publishRule(ruleId);
       await fetchRule(ruleId);
+      onUpdate();
     }
 
     const PublishTooltip: React.FC<{ children: ReactElement }> = ({ children }) => {
