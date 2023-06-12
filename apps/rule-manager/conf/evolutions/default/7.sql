@@ -2,7 +2,7 @@
 
 ALTER TABLE rules_live
   DROP COLUMN id, -- We no longer use id as a primary key, so it's no longer necessary
-  ADD COLUMN rule_order INT NOT NULL,
+  ADD COLUMN rule_order SERIAL,
   ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE UNIQUE INDEX rules_live_is_active ON rules_live (external_id, is_active) where is_active = true;
@@ -10,6 +10,9 @@ CREATE UNIQUE INDEX rules_live_unique_order ON rules_live (rule_order, is_active
 CREATE UNIQUE INDEX rules_live_composite_pkey ON rules_live (external_id, revision_id);
 
 DROP INDEX rules_live_external_id_index;
+ALTER TABLE rules_live
+  ALTER COLUMN rule_order DROP DEFAULT;
+DROP SEQUENCE rules_live_rule_order_seq;
 
 -- !Downs
 
