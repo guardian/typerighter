@@ -1,3 +1,5 @@
+-- !Ups
+
 -- Add tags table
 CREATE TABLE tags (
   id SERIAL PRIMARY KEY,
