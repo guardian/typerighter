@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import {Rule} from "../RulesTable";
 
 export function useRules() {
     const { location } = window;
-    const [rules, setRules] = useState(null);
+    const [rules, setRules] = useState<Rule[] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);

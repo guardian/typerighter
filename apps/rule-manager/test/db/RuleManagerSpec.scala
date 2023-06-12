@@ -208,7 +208,9 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
       RuleManager.destructivelyPublishRules(allRules, bucketRuleResource)
 
-      DbRuleDraft.findAll() shouldMatchTo allRules
+      DbRuleDraft.findAll() shouldMatchTo allRules.map(rule =>
+        rule.copy(isPublished = !rule.ignore)
+      )
       DbRuleLive.findAll() shouldMatchTo unignoredRules.map(
         _.toLive("Imported from Google Sheet").copy(isActive = true)
       )
@@ -285,7 +287,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
-  "getRuleAndRevisions" should "return the current draft rule" in { () =>
+  "getAllRuleData" should "return the current draft rule" in { () =>
     val ruleToPublish = createPublishableRule
 
     RuleManager.getAllRuleData(ruleToPublish.id.get) match {
@@ -296,7 +298,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
-  "getRuleAndRevisions" should "return the current draft rule, the live rule if it exists, and the publication history" in {
+  "getAllRuleData" should "return the current draft rule, the live rule if it exists, and the publication history" in {
     () =>
       val ruleToPublish = createPublishableRule
 
