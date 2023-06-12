@@ -274,6 +274,18 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     allLiveRules(1).isActive shouldBe true
   }
 
+  "publishRule" should "not alter the active state of other rules when publishing a rule" in { () =>
+    val ruleToPublish = createPublishableRule
+    val anotherRuleToPublish = createPublishableRule
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+    RuleManager.publishRule(anotherRuleToPublish.id.get, user, reason, bucketRuleResource)
+
+    val allLiveRules = DbRuleLive.findAll()
+    allLiveRules(0).isActive shouldBe true
+    allLiveRules(1).isActive shouldBe true
+  }
+
   "publishRule" should "should not be able to publish the same revision of a rule" in { () =>
     val ruleToPublish = createPublishableRule
 
