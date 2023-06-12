@@ -8,7 +8,7 @@ import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 import play.api.mvc.Results.NotFound
 
-import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 
 class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val r = DbRuleDraft.syntax("r")
@@ -20,7 +20,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       .apply()
   }
 
-  def assertDatesAreWithinRangeMs(date1: ZonedDateTime, date2: ZonedDateTime, range: Int) = {
+  def assertDatesAreWithinRangeMs(date1: OffsetDateTime, date2: OffsetDateTime, range: Int) = {
     date1.toInstant().toEpochMilli should be(date2.toInstant().toEpochMilli +- range)
   }
 
@@ -59,8 +59,8 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       created.revisionId shouldBe 0
       created.createdBy shouldBe "test.user"
       created.updatedBy shouldBe "test.user"
-      assertDatesAreWithinRangeMs(created.createdAt, ZonedDateTime.now, 1000)
-      assertDatesAreWithinRangeMs(created.updatedAt, ZonedDateTime.now, 1000)
+      assertDatesAreWithinRangeMs(created.createdAt, OffsetDateTime.now, 1000)
+      assertDatesAreWithinRangeMs(created.updatedAt, OffsetDateTime.now, 1000)
   }
   it should "create a new record from a form rule" in { implicit session =>
     val formRule = CreateRuleForm(

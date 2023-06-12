@@ -1,9 +1,8 @@
 package db
 
-import java.time.ZonedDateTime
+import java.time.OffsetDateTime
 
 trait DbRuleCommon {
-  def id: Option[Int]
   def ruleType: String
   def pattern: Option[String]
   def replacement: Option[String]
@@ -14,16 +13,15 @@ trait DbRuleCommon {
   def externalId: Option[String]
   def forceRedRule: Option[Boolean]
   def advisoryRule: Option[Boolean]
-  def createdAt: ZonedDateTime
+  def createdAt: OffsetDateTime
   def createdBy: String
-  def updatedAt: ZonedDateTime
+  def updatedAt: OffsetDateTime
   def updatedBy: String
   def revisionId: Int
 }
 
 object DbRule {
   val dbColumns: Seq[String] = Seq(
-    "id",
     "rule_type",
     "pattern",
     "replacement",

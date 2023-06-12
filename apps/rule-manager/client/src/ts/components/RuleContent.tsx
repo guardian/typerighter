@@ -3,19 +3,22 @@ import {css} from "@emotion/react";
 import React, {useState} from "react"
 import {RuleFormSection} from "./RuleFormSection";
 import {LineBreak} from "./LineBreak";
-import {FormError, PartiallyUpdateRuleData, RuleFormData, RuleType} from "./RuleForm";
+import {FormError, PartiallyUpdateRuleData} from "./RuleForm";
 import {Label} from "./Label";
+import {DraftRule, RuleType} from "./hooks/useRule";
+
+type RuleTypeOption = {
+  id: RuleType,
+  label: string,
+}
 
 export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErrors}: {
-        ruleData: RuleFormData,
+        ruleData: DraftRule,
         partiallyUpdateRuleData: PartiallyUpdateRuleData,
         errors: FormError[],
         showErrors: boolean
     }) => {
-    type RuleTypeOption = {
-        id: RuleType,
-        label: string,
-    }
+
     const ruleTypeOptions: RuleTypeOption[] = [
         {
             id: "regex",
@@ -36,8 +39,8 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
                 isInvalid={showErrors && !ruleData.pattern}
             >
                 <EuiFieldText
-                    value={ruleData.pattern}
-                    onChange={(_ => partiallyUpdateRuleData(ruleData, {pattern: _.target.value}))}
+                    value={ruleData.pattern || ""}
+                    onChange={(_ => partiallyUpdateRuleData({pattern: _.target.value}))}
                     required={true}
                     isInvalid={showErrors && !ruleData.pattern}
                 />
@@ -46,22 +49,22 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
                 label="Replacement"
                 helpText="What is the ideal term as per the house style?"
             >
-                <EuiFieldText value={ruleData.replacement}
-                              onChange={(_ => partiallyUpdateRuleData(ruleData, {replacement: _.target.value}))}/>
+                <EuiFieldText value={ruleData.replacement || ""}
+                              onChange={(_ => partiallyUpdateRuleData({replacement: _.target.value}))}/>
             </EuiFormRow>
             <EuiFormRow
                 label="Description"
                 helpText="What will the users see in Composer?"
             >
-                <EuiFieldText value={ruleData.description}
-                              onChange={(_ => partiallyUpdateRuleData(ruleData, {description: _.target.value}))}/>
+                <EuiFieldText value={ruleData.description || ""}
+                              onChange={(_ => partiallyUpdateRuleData({description: _.target.value}))}/>
             </EuiFormRow>
             <EuiRadioGroup
                 options={ruleTypeOptions}
                 idSelected={ruleTypeSelected}
                 onChange={(ruleType) => {
                     setRuleTypeSelected(ruleType as RuleType);
-                    partiallyUpdateRuleData(ruleData, {ruleType: ruleType as RuleType});
+                    partiallyUpdateRuleData({ruleType: ruleType as RuleType});
                 }}
                 css={css`
                         flex-direction: row;

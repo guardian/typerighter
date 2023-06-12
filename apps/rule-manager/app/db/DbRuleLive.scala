@@ -4,15 +4,14 @@ import db.DbRule._
 import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
-import java.time.ZonedDateTime
-import scala.util.{Failure, Success, Try}
+import java.time.OffsetDateTime
+import scala.util.Try
 
 trait DbRuleLiveFields {
   def reason: String
 }
 
 case class DbRuleLive(
-    id: Option[Int],
     ruleType: String,
     pattern: Option[String] = None,
     replacement: Option[String] = None,
@@ -23,11 +22,13 @@ case class DbRuleLive(
     externalId: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
     advisoryRule: Option[Boolean] = None,
-    createdAt: ZonedDateTime,
+    createdAt: OffsetDateTime,
     createdBy: String,
-    updatedAt: ZonedDateTime,
+    updatedAt: OffsetDateTime,
     updatedBy: String,
     revisionId: Int = 0,
+    ruleOrder: Int = 0,
+    isActive: Boolean = false,
     reason: String
 ) extends DbRuleCommon
     with DbRuleLiveFields
@@ -38,7 +39,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   override val tableName = "rules_live"
 
   override val columns: Seq[String] = dbColumns ++ Seq(
-    "reason"
+    "reason",
+    "is_active",
+    "rule_order"
   )
 
   def fromResultName(r: ResultName[DbRuleLive])(rs: WrappedResultSet): DbRuleLive =
@@ -48,22 +51,66 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   override val autoSession = AutoSession
 
-  def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleLive] = {
+  def findRevision(externalId: String, revisionId: Int)(implicit
+      session: DBSession = autoSession
+  ): Option[DbRuleLive] = {
     withSQL {
-      select.from(DbRuleLive as r).where.eq(r.id, id)
+      select
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.externalId, externalId)
+        .and
+        .eq(r.revisionId, revisionId)
     }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
+  /** Find live rules by `externalId`. Because there may be many inactive live rules with the same
+    * id, unlike the `find` method for draft rules, this method returns a list. To return a single
+    * rule, use `findRevision`.
+    */
+  def find(
+      externalId: String
+  )(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    withSQL {
+      select
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.externalId, externalId)
+    }.map(DbRuleLive.fromResultName(r.resultName)).list().apply()
+  }
+
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
-    withSQL(select.from(DbRuleLive as r).orderBy(r.id))
+    withSQL(select.from(DbRuleLive as r).orderBy(r.ruleOrder))
       .map(DbRuleLive.fromResultName(r.resultName))
       .list()
       .apply()
   }
 
+  def findAllActive()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    withSQL(
+      select
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.isActive, true)
+        .orderBy(r.ruleOrder)
+    )
+      .map(DbRuleLive.fromResultName(r.resultName))
+      .list()
+      .apply()
+  }
+
+  /** Create a new live rule. This rule will supercede the previous active live rule.
+    */
   def create(liveRule: DbRuleLive, user: String)(implicit
       session: DBSession = autoSession
-  ): Try[DbRuleLive] = {
+  ): Try[DbRuleLive] = Try {
+    withSQL {
+      update(DbRuleLive)
+        .set(column.isActive -> false)
+        .where
+        .eq(column.isActive, true)
+    }.update().apply()
+
     val generatedKey = withSQL {
       insert
         .into(DbRuleLive)
@@ -79,18 +126,20 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
           column.forceRedRule -> liveRule.forceRedRule,
           column.advisoryRule -> liveRule.advisoryRule,
           column.reason -> liveRule.reason,
+          column.revisionId -> liveRule.revisionId,
           column.createdBy -> user,
-          column.updatedBy -> user
+          column.updatedBy -> user,
+          column.ruleOrder -> liveRule.ruleOrder,
+          column.isActive -> true
         )
-    }.updateAndReturnGeneratedKey("id").apply()
+        .returning(column.externalId)
+    }.map(_.string(column.externalId)).single().apply()
 
-    find(generatedKey.toInt) match {
-      case Some(rule) => Success(rule)
+    findRevision(generatedKey.get, liveRule.revisionId) match {
+      case Some(rule) => rule
       case None =>
-        Failure(
-          new Exception(
-            s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
-          )
+        throw new Exception(
+          s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
         )
     }
   }
@@ -114,7 +163,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         Symbol("createdAt") -> entity.createdAt,
         Symbol("updatedBy") -> entity.updatedBy,
         Symbol("updatedAt") -> entity.updatedAt,
-        Symbol("reason") -> entity.reason
+        Symbol("reason") -> entity.reason,
+        Symbol("isActive") -> entity.isActive,
+        Symbol("ruleOrder") -> entity.ruleOrder
       )
     )
     SQL(s"""insert into $tableName(
@@ -132,7 +183,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       created_by,
       updated_at,
       updated_by,
-      reason
+      reason,
+      is_active,
+      rule_order
     ) values (
       {ruleType},
       {pattern},
@@ -148,7 +201,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {createdBy},
       {updatedAt},
       {updatedBy},
-      {reason}
+      {reason},
+      {isActive},
+      {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 

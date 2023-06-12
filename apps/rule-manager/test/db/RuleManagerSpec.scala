@@ -22,7 +22,7 @@ import utils.LocalStack
 
 import scala.util.Random
 
-class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
+class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val bucketRuleResource =
     new BucketRuleResource(LocalStack.s3Client, "typerighter-app-local", "local")
 
@@ -34,7 +34,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   def createRandomRules(ruleCount: Int, ignore: Boolean = false) =
     (1 to ruleCount).map { ruleIndex =>
       DbRuleDraft.withUser(
-        id = None,
+        id = Some(ruleIndex),
         category = Some("Check this"),
         description = Some("A random rule description. " * Random.between(1, 100)),
         replacement = None,
@@ -89,7 +89,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   "liveDbRuleToCheckerRule" should "give a sensible error message when parsing ltXML rules" in {
     () =>
       val rule = DbRuleDraft
-        .withUser(id = None, ruleType = "languageToolXML", user = "example.user", ignore = false)
+        .withUser(id = Some(0), ruleType = "languageToolXML", user = "example.user", ignore = false)
         .toLive("reason")
 
       val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
@@ -107,7 +107,12 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
   "liveDbRuleToCheckerRule" should "give a sensible error message when parsing ltCore rules" in {
     () =>
       val rule = DbRuleDraft
-        .withUser(id = None, ruleType = "languageToolCore", user = "example.user", ignore = false)
+        .withUser(
+          id = Some(0),
+          ruleType = "languageToolCore",
+          user = "example.user",
+          ignore = false
+        )
         .toLive("reason")
 
       val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
@@ -119,7 +124,7 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
   }
 
-  "destructivelyDumpRuleResourceToDB" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
+  "destructivelyPublishRules" should "add rules of each type in a ruleResource, and read it back as an identical resource" in {
     () =>
       val rulesFromSheet = List[CheckerRule](
         RegexRule(
@@ -142,11 +147,13 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
         )
       )
 
-      val rules = rulesFromSheet.map(RuleManager.checkerRuleToDraftDbRule)
+      val rules = rulesFromSheet
+        .map(RuleManager.checkerRuleToDraftDbRule)
+        .zipWithIndex
+        .map { case (rule, index) => rule.copy(id = Some(index + 1)) }
+
       val maybePublishedRules =
         RuleManager.destructivelyPublishRules(rules, bucketRuleResource)
-
-      println(maybePublishedRules)
 
       maybePublishedRules.toOption.get.rules shouldMatchTo rulesFromSheet
   }
@@ -175,17 +182,24 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
     secondRulesFromDb.rules shouldMatchTo toCheckerRules(secondRules)
   }
 
+  "destructivelyDumpRulesToDB" should "make newly added rules active" in { () =>
+    val firstRules = createRandomRules(1)
+    RuleManager.destructivelyPublishRules(firstRules, bucketRuleResource)
+
+    DbRuleLive.findAll().head.isActive shouldBe true
+  }
+
   "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
     () =>
       val rulesToIgnore = createRandomRules(10, ignore = true)
 
       val ruleResourceWithIgnoredRules =
-        RuleManager.destructivelyPublishRules(rulesToIgnore, bucketRuleResource).toOption.get
+        RuleManager.destructivelyPublishRules(rulesToIgnore, bucketRuleResource)
 
-      ruleResourceWithIgnoredRules.shouldEqual(CheckerRuleResource(List()))
+      ruleResourceWithIgnoredRules.toOption.get.shouldEqual(CheckerRuleResource(List()))
   }
 
-  "destructivelyDumpRuleResourceToDB" should "write all rules to draft, and only write unignored rules to live" in {
+  "destructivelyPublishRules" should "write all rules to draft, and only write unignored rules to live" in {
     () =>
       val allRules = createRandomRules(2).zipWithIndex.map { case (rule, index) =>
         if (index % 2 == 0) rule.copy(ignore = true) else rule
@@ -194,16 +208,17 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
 
       RuleManager.destructivelyPublishRules(allRules, bucketRuleResource)
 
-      DbRuleDraft.findAll().map(_.copy(id = None)) shouldMatchTo allRules
-      DbRuleLive.findAll().map(_.copy(id = None)) shouldMatchTo unignoredRules.map(
-        _.toLive("Imported from Google Sheet")
+      DbRuleDraft.findAll() shouldMatchTo allRules
+      DbRuleLive.findAll() shouldMatchTo unignoredRules.map(
+        _.toLive("Imported from Google Sheet").copy(isActive = true)
       )
   }
 
-  "publishRule" should "add an identical rule to the live rules table" in { () =>
-    val user = "example.user@guardian.co.uk"
-    val reason = "Some important update"
-    val ruleToPublish = DbRuleDraft
+  val user = "example.user@guardian.co.uk"
+  val reason = "Some important update"
+
+  def createPublishableRule =
+    DbRuleDraft
       .create(
         ruleType = "regex",
         user = user,
@@ -214,17 +229,22 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       )
       .get
 
-    val publishedRule =
-      RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
+  "publishRule" should "add an identical rule to the live rules table, and make it active" in {
+    () =>
+      val ruleToPublish = createPublishableRule
 
-    DbRuleLive.find(publishedRule.id.get) match {
-      case Some(liveRule) =>
-        liveRule.ruleType shouldBe ruleToPublish.ruleType
-        liveRule.pattern shouldBe ruleToPublish.pattern
-        liveRule.description shouldBe ruleToPublish.description
-        liveRule.reason shouldBe reason
-      case None => fail(s"Could not find published rule with id: ${ruleToPublish.id.get}")
-    }
+      val publishedRule =
+        RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
+
+      DbRuleLive.findRevision(publishedRule.externalId.get, ruleToPublish.revisionId) match {
+        case Some(liveRule) =>
+          liveRule.ruleType shouldBe ruleToPublish.ruleType
+          liveRule.pattern shouldBe ruleToPublish.pattern
+          liveRule.description shouldBe ruleToPublish.description
+          liveRule.reason shouldBe reason
+          liveRule.isActive shouldBe true
+        case None => fail(s"Could not find published rule with id: ${ruleToPublish.id.get}")
+      }
   }
 
   "publishRule" should "not publish rules that cannot be transformed into checker rules" in { () =>
@@ -236,5 +256,61 @@ class DbRuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollba
       case Right(_)         => fail("This rule should not be publishable")
       case Left(formErrors) => formErrors.head.message should include("error.required")
     }
+  }
+
+  "publishRule" should "make previous revisions of that rule inactive" in { () =>
+    val ruleToPublish = createPublishableRule
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+
+    DbRuleDraft.save(ruleToPublish.copy(revisionId = 2), user)
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+
+    val allLiveRules = DbRuleLive.findAll()
+    allLiveRules(0).isActive shouldBe false
+    allLiveRules(1).isActive shouldBe true
+  }
+
+  "publishRule" should "should not be able to publish the same revision of a rule" in { () =>
+    val ruleToPublish = createPublishableRule
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
+      case Right(rule) => fail("This rule should not be publishable")
+      case Left(formErrors) =>
+        formErrors.head.message should include(
+          "duplicate key value violates unique constraint \"rules_live_composite_pkey\""
+        )
+    }
+  }
+
+  "getRuleAndRevisions" should "return the current draft rule" in { () =>
+    val ruleToPublish = createPublishableRule
+
+    RuleManager.getAllRuleData(ruleToPublish.id.get) match {
+      case None => fail("Rule should exist")
+      case Some((draftRule, liveRules)) =>
+        draftRule shouldMatchTo ruleToPublish
+        liveRules shouldMatchTo List.empty
+    }
+  }
+
+  "getRuleAndRevisions" should "return the current draft rule, the live rule if it exists, and the publication history" in {
+    () =>
+      val ruleToPublish = createPublishableRule
+
+      val firstLiveRule =
+        RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
+      val revisedRuleToPublish = DbRuleDraft.save(ruleToPublish.copy(revisionId = 2), user).get
+      val secondLiveRule =
+        RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
+
+      RuleManager.getAllRuleData(ruleToPublish.id.get) match {
+        case None => fail("Rule should exist")
+        case Some((draftRule, history)) =>
+          draftRule shouldMatchTo revisedRuleToPublish
+          history shouldMatchTo List(secondLiveRule, firstLiveRule.copy(isActive = false))
+      }
   }
 }

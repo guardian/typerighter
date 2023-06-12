@@ -1,71 +1,77 @@
-import { EuiButton, EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiForm, EuiSpacer, EuiText, EuiToolTip } from "@elastic/eui";
-import React, { Dispatch, SetStateAction, useContext, useEffect, useState } from "react"
+import {
+  EuiButton,
+  EuiCallOut,
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiForm,
+  EuiLoadingSpinner,
+  EuiText
+} from "@elastic/eui";
+import React, { useEffect, useState } from "react"
 import { RuleContent } from "./RuleContent";
-import { RuleType } from "./RuleType";
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
-import { FeatureSwitchesContext } from "./context/featureSwitches";
 import { updateRule } from "./api/updateRule";
-import { useCreateEditPermissions } from "./RulesTable";
+import {DraftRule, RuleType, useRule} from "./hooks/useRule";
+import {RuleHistory} from "./RuleHistory";
+import styled from "@emotion/styled";
 
-export type RuleType = 'regex' | 'languageToolXML';
+export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
-export type RuleFormData = {
-    ruleType: RuleType,
-    pattern?: string,
-    replacement?: string,
-    category?: string,
-    tags: string[],
-    description?: string,
-    ignore: boolean,
-    forceRedRule?: boolean,
-    advisoryRule?: boolean,
-    id?: number
-}
-
-export type PartiallyUpdateRuleData = (existing: RuleFormData, partialReplacement: Partial<RuleFormData>) => void;
-
-export type FormError = { id: string; value: string }
+export type FormError = { id: string; value: string };
 
 export const baseForm = {
-    ruleType: 'regex' as RuleType,
-    tags: [] as string[],
-    ignore: false,
-}
+  ruleType: 'regex' as RuleType,
+  tags: [] as string[],
+  ignore: false,
+} as DraftRule;
 
-export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpen, setCreateRuleFormOpen, updateMode, setUpdateMode}: {
-        onRuleUpdate: () => Promise<void>, 
-        ruleData: RuleFormData,
-        setRuleData: Dispatch<SetStateAction<RuleFormData>>,
-        createRuleFormOpen: boolean, 
-        setCreateRuleFormOpen: Dispatch<SetStateAction<boolean>>,
-        updateMode: boolean, 
-        setUpdateMode: Dispatch<SetStateAction<boolean>>,
+const SpinnerOverlay = styled.div`
+  display: flex;
+  justify-content: center;
+`
+
+const SpinnerOuter = styled.div`
+  position: relative;
+`;
+const SpinnerContainer = styled.div`
+  position: absolute;
+  top: 10px;
+`;
+
+const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
+
+export const RuleForm = ({ruleId, onClose}: {
+        ruleId: number | undefined,
+        onClose: () => void,
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const [errors, setErrors] = useState<FormError[]>([]);
+    const { isLoading, errors, rule } = useRule(ruleId);
+    const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
+    const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
 
-    const openCreateRuleForm = () => {
-        setRuleData(baseForm);
-        setCreateRuleFormOpen(true);
-        setUpdateMode(false);
-    }
-    
-    const partiallyUpdateRuleData: PartiallyUpdateRuleData = (existing, partialReplacement) => {
-        setRuleData({...existing, ...partialReplacement});
+    const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
+      setRuleFormData({ ...ruleFormData, ...partialReplacement});
     }
 
     useEffect(() => {
-        const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
-        if(!ruleData.pattern) {
-            setErrors([emptyPatternFieldError]);
+        if (rule) {
+          setRuleFormData(rule.draft);
         } else {
-            setErrors([]);
+          setRuleFormData(baseForm);
         }
-    }, [ruleData])
+    }, [rule]);
 
     useEffect(() => {
-        if(errors.length === 0) {
+      if(!ruleFormData.pattern) {
+        setFormErrors([emptyPatternFieldError]);
+      } else {
+        setFormErrors([]);
+      }
+    }, [ruleFormData]);
+
+    useEffect(() => {
+        if(errors?.length === 0) {
             setShowErrors(false);
         }
     }, [errors])
@@ -75,54 +81,42 @@ export const RuleForm = ({onRuleUpdate, ruleData, setRuleData, createRuleFormOpe
     // We need to be able to show errors on a field by field basis
 
     const saveRuleHandler = () => {
-        if(errors.length > 0) {
+        if(formErrors.length > 0 || errors?.length > 0) {
             setShowErrors(true);
             return;
         }
 
-        (updateMode ? updateRule(ruleData) : createRule(ruleData))
+        (ruleId ? updateRule(ruleFormData) : createRule(ruleFormData))
             .then(data => {
                 if (data.status === 'ok'){
-                    setRuleData(baseForm);
-                    onRuleUpdate();
-                    setCreateRuleFormOpen(false);
+                    setRuleFormData(baseForm);
+                    onClose();
                 } else {
-                    setErrors([...errors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                    setFormErrors([...formErrors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
                 }
             })
     }
 
-    const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
-    const hasCreatePermissions = useCreateEditPermissions();
-
     return <EuiForm component="form">
-        {getFeatureSwitchValue("create-and-edit") && 
-            <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
-                <EuiButton
-                    isDisabled={createRuleFormOpen || !hasCreatePermissions} 
-                    onClick={openCreateRuleForm}
-                >Create Rule</EuiButton>
-            </EuiToolTip>
-        }
-        <EuiSpacer />
-        {createRuleFormOpen ? <EuiFlexGroup  direction="column">
-            <RuleContent ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={errors} showErrors={showErrors}/>
-            <RuleType ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-            <RuleMetadata ruleData={ruleData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+        {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
+        {<EuiFlexGroup  direction="column">
+            <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
+            <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            {rule && <RuleHistory ruleHistory={rule.live} />}
             <EuiFlexGroup>
                 <EuiFlexItem>
                     <EuiButton onClick={() => {
-                        setCreateRuleFormOpen(false);
-                        setRuleData(baseForm);
-                    }}>{updateMode ? "Discard Changes" : "Discard Rule"}</EuiButton>
+                        onClose();
+                        setRuleFormData(baseForm);
+                    }}>{ruleId ? "Discard Changes" : "Discard Rule"}</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                    <EuiButton fill={true} onClick={saveRuleHandler}>{updateMode ? "Update Rule" : "Save Rule"}</EuiButton>
+                    <EuiButton fill={true} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
-                { errors.map((error, index) => <EuiText key={index}>{`${error.value}`}</EuiText>)}
+                {formErrors.map((error, index) => <EuiText key={index}>{`${error.value}`}</EuiText>)}
             </EuiCallOut> : null}
-        </EuiFlexGroup> : null}
+        </EuiFlexGroup>}
     </EuiForm>
 }

@@ -17,6 +17,7 @@ import { icon as starFilled } from "@elastic/eui/es/components/icon/assets/star_
 import { icon as pencil } from "@elastic/eui/es/components/icon/assets/pencil";
 import { icon as returnKey } from "@elastic/eui/es/components/icon/assets/return_key";
 import { icon as warning } from "@elastic/eui/es/components/icon/assets/warning";
+import { icon as pageSelect } from "@elastic/eui/es/components/icon/assets/pageSelect";
 
 type IconComponentNameType = ValuesType<typeof ICON_TYPES>;
 type IconComponentCacheType = Partial<Record<IconComponentNameType, unknown>>;
@@ -37,7 +38,8 @@ const cachedIcons: IconComponentCacheType = {
     starFilled,
     pencil,
     returnKey,
-    warning
+    warning,
+    pageSelect
 };
 
 appendIconComponentCache(cachedIcons);

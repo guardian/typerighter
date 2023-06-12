@@ -2,11 +2,12 @@ import {useEffect, useState} from "react";
 import {EuiFormRow, EuiComboBox} from "@elastic/eui";
 import React from "react";
 import { MetadataOption } from "./CategorySelector";
-import { PartiallyUpdateRuleData, RuleFormData } from "./RuleForm";
+import { PartiallyUpdateRuleData } from "./RuleForm";
 import { existingTags } from "../constants/constants";
+import {DraftRule} from "./hooks/useRule";
 
 export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
-    ruleData: RuleFormData,
+    ruleData: DraftRule,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
     const options = existingTags.map(tag => {return {label: tag}});
@@ -19,7 +20,7 @@ export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
 
     useEffect(() => {
         const newTags = selectedTags.map(tag => tag.label)
-        partiallyUpdateRuleData(ruleData, {tags: newTags})
+        partiallyUpdateRuleData({tags: newTags})
     }, [selectedTags])
 
     return (

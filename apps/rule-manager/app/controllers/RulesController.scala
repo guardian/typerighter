@@ -5,13 +5,11 @@ import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.Json
-import play.api.mvc._
-
 import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
-import utils.{PermissionsHandler, RuleManagerConfig}
+import play.api.mvc._
 import service.{RuleManager, SheetsRuleResource}
-import utils.{FormErrorEnvelope, FormHelpers}
+import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
 import scala.util.{Failure, Success}
 
@@ -49,9 +47,15 @@ class RulesController(
   }
 
   def get(id: Int) = ApiAuthAction {
-    DbRuleDraft.find(id) match {
-      case None         => NotFound("Rule not found matching ID")
-      case Some(result) => Ok(Json.toJson(result))
+    RuleManager.getAllRuleData(id) match {
+      case None => NotFound("Rule not found matching ID")
+      case Some((draftRule, liveRules)) =>
+        Ok(
+          Json.obj(
+            "draft" -> Json.toJson(draftRule),
+            "live" -> Json.toJson(liveRules)
+          )
+        )
     }
   }
 
