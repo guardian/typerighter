@@ -221,6 +221,7 @@ const RulesTable = () => {
               setFormMode('closed');
               fetchRules();
             }}
+            onUpdate={fetchRules}
             ruleId={currentRuleId}
             setCurrentRuleId={setCurrentRuleId}
           />
