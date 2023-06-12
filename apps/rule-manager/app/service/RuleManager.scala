@@ -165,7 +165,7 @@ object RuleManager extends Loggable {
       externalId <- liveRule.externalId.toRight(Seq(FormError("External id", "required")))
       _ <- liveDbRuleToCheckerRule(liveRule)
       _ <- DbRuleLive
-        .find(externalId, draftRule.revisionId)
+        .findRevision(externalId, draftRule.revisionId)
         .map(_ =>
           Seq(
             FormError(
