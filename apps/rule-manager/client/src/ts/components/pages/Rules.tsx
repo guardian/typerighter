@@ -1,11 +1,13 @@
 import React from "react";
-import {EuiPageSection} from "@elastic/eui";
+import {EuiPageBody, EuiPageSection} from "@elastic/eui";
 import RulesTable from "../RulesTable";
 
 export const Rules = () => {
     return (
+      <EuiPageBody>
         <EuiPageSection bottomBorder={true}>
             <RulesTable/>
         </EuiPageSection>
+      </EuiPageBody>
     );
 }

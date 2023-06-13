@@ -58,10 +58,12 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     {
       field: 'ruleType',
       name: 'Type',
+      width: '70px'
     },
     {
       field: 'category',
       name: 'Category',
+
     },
     {
       field: 'pattern',
@@ -73,15 +75,20 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     },
     {
       field: 'description',
-      name: 'Description'
+      name: 'Description',
+      textOnly: true,
+      truncateText: true,
+      width: '20%'
     },
     {
       field: 'isPublished',
       name: 'Status',
-      render: (value: boolean) =>  value ? "Live" : "Draft"
+      render: (value: boolean) =>  value ? "Live" : "Draft",
+      width: '50px'
     },
     {
       name: <EuiIcon type="pencil"/>,
+      width: '50px',
       actions: [{
         name: 'Edit',
         render: (item, enabled) => <EditRule editIsEnabled={enabled} editRule={editRule} rule={item}/>,
@@ -94,7 +101,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
         'data-test-subj': 'action-edit',
       }]
     }
-  ]
+  ] as Array<EuiBasicTableColumn<Rule>>;
 }
 
 // We use our own button rather than an EuiIconButton because that component won't allow us to
@@ -124,17 +131,25 @@ const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
 
 const RulesTable = () => {
   const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
-  const search: EuiSearchBarProps = {
-    box: {
-      incremental: true,
-      schema: true,
-    }
-  };
 
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
   const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
   const hasCreatePermissions = useCreateEditPermissions();
+
+  const search: EuiSearchBarProps = {
+    box: {
+      incremental: true,
+      schema: true,
+    },
+    toolsRight: getFeatureSwitchValue("create-and-edit") ?
+    <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
+      <EuiButton
+        isDisabled={!hasCreatePermissions}
+        onClick={() => openEditRulePanel(undefined)}
+      >Create Rule</EuiButton>
+    </EuiToolTip> : <></>
+};
 
   const openEditRulePanel = (ruleId: number | undefined) => {
     setCurrentRuleId(ruleId);
@@ -157,17 +172,6 @@ const RulesTable = () => {
       </EuiFlexItem>
     </EuiFlexGroup>
     <EuiFlexGrid>
-      {isLoading &&
-        <EuiFlexItem grow={true} css={css`
-                  align-content: center;
-                  display: flex;
-                  justify-content: center;
-                  width: 100%;
-                  padding-bottom: 20px;
-                `}>
-          <EuiLoadingSpinner size="m"/>
-        </EuiFlexItem>
-      }
       {error &&
         <EuiFlexItem grow={true} style={{
           display: 'flex',
@@ -189,11 +193,11 @@ const RulesTable = () => {
 
       }
     </EuiFlexGrid>
-
     <EuiFlexGroup>
       <EuiFlexItem grow={2}>
         {rules &&
           <EuiInMemoryTable
+            loading={isLoading}
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
             columns={columns}
@@ -204,27 +208,23 @@ const RulesTable = () => {
           />
         }
       </EuiFlexItem>
-      <EuiFlexItem grow={1}>
-        {getFeatureSwitchValue("create-and-edit") &&
-          <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
-            <EuiButton
-              isDisabled={!hasCreatePermissions}
-              onClick={() => openEditRulePanel(undefined)}
-            >Create Rule</EuiButton>
-          </EuiToolTip>
-        }
-        <EuiSpacer />
-        {formMode !== 'closed' &&
+      {formMode !== 'closed' && (
+        <EuiFlexItem grow={1}>
           <RuleForm
             onClose={() => {
               setFormMode('closed');
               fetchRules();
             }}
-            onUpdate={fetchRules}
+            onUpdate={() => {
+              fetchRules();
+              if (formMode === 'create') {
+                setFormMode('edit');
+              }
+            }}
             ruleId={currentRuleId}
           />
-        }
-      </EuiFlexItem>
+        </EuiFlexItem>
+      )}
     </EuiFlexGroup>
   </>
 }
