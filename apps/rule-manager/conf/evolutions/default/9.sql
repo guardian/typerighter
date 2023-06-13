@@ -1,14 +1,14 @@
 -- !Ups
 
 -- Add rules_live to tags join table
-CREATE TABLE rules_live_tags (
+CREATE TABLE rule_tag_live (
     rule_id integer NOT NULL,
     tag_id integer NOT NULL,
     UNIQUE (rule_id, tag_id)
 );
 
 -- Add rules_draft to tags join table
-CREATE TABLE rules_draft_tags (
+CREATE TABLE rule_tag_draft (
   rule_id integer NOT NULL,
   tag_id integer NOT NULL,
   UNIQUE (rule_id, tag_id)
@@ -16,5 +16,5 @@ CREATE TABLE rules_draft_tags (
 
 -- !Downs
 
-DROP TABLE rules_live_tags;
-DROP TABLE rules_draft_tags;
+DROP TABLE rule_tag_live;
+DROP TABLE rule_tag_draft;
