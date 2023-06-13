@@ -5,11 +5,11 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 
-class RuleDraftTagSpecSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
+class RuleTagDraftSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val rt = RuleTagDraft.syntax("rt")
 
   override def fixture(implicit session: DBSession) = {
-    sql"insert into rules_draft_tags (rule_id, tag_id) values (${123} ${456})"
+    sql"insert into rule_tag_draft (rule_id, tag_id) values (12, 34)"
       .update()
       .apply()
   }
@@ -20,30 +20,32 @@ class RuleDraftTagSpecSpec extends FixtureAnyFlatSpec with Matchers with AutoRol
     val maybeFound = RuleTagDraft.find(12, 34)
     maybeFound.isDefined should be(true)
   }
-  it should "find by rule" in { implicit session =>
-    val maybeFound = RuleTagDraft.findByRule(12)
+
+  it should "find tags by rule" in { implicit session =>
+    val maybeFound = RuleTagDraft.findTagsByRule(12)
     maybeFound should be(List(34))
   }
-  it should "find by tag" in { implicit session =>
-    val maybeFound = RuleTagDraft.findByRule(34)
+
+  it should "find rules by tag" in { implicit session =>
+    val maybeFound = RuleTagDraft.findRulesByTag(34)
     maybeFound should be(List(12))
   }
+
   it should "find all records" in { implicit session =>
     val allResults = RuleTagDraft.findAll()
-    allResults should be(RuleTag(12, 34))
+    allResults should be(List(RuleTag(12, 34)))
   }
+
   it should "count all records" in { implicit session =>
     val count = RuleTagDraft.countAll()
     count should be > (0L)
   }
-  it should "find all by where clauses" in { implicit session =>
-    val results = Tags.findAllBy(sqls.eq(rt.id, 1))
-    results.size should be > (0)
-  }
+
   it should "count by where clauses" in { implicit session =>
     val count = RuleTagDraft.countBy(sqls.eq(rt.rule_id, 12))
     count should be > (0L)
   }
+
   it should "create new 'rule draft -> tag' join record" in { implicit session =>
     val created = RuleTagDraft
       .create(ruleId = 56, tagId = 78)
@@ -59,8 +61,8 @@ class RuleDraftTagSpecSpec extends FixtureAnyFlatSpec with Matchers with AutoRol
       .get
     val deleted = RuleTagDraft.destroy(created)
     deleted should be(1)
-    val shouldBeNone = RuleTagDraft.findByRule(90)
-    shouldBeNone should be(None)
+    val result = RuleTagDraft.findTagsByRule(90)
+    result should be (List())
   }
 
   it should "perform batch insert" in { implicit session =>

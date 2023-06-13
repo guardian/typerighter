@@ -18,16 +18,16 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTag] {
       select.from(RuleTagDraft as rt).where.eq(rt.rule_id, ruleId).and.eq(rt.tag_id, tagId)
     }.map(RuleTagDraft.fromResultName(rt.resultName)).single().apply()
   }
-  def findByRule(ruleId: Int)(implicit session: DBSession = autoSession): List[RuleTag] = {
+  def findTagsByRule(ruleId: Int)(implicit session: DBSession = autoSession): List[Int] = {
     withSQL {
       select.from(RuleTagDraft as rt).where.eq(rt.rule_id, ruleId)
-    }.map(RuleTagDraft.fromResultName(rt.resultName)).list().apply()
+    }.map(RuleTagDraft.fromResultName(rt.resultName)).list().apply().map(rt => rt.tag_id)
   }
 
-  def findByTag(tagId: Int)(implicit session: DBSession = autoSession): List[RuleTag] = {
+  def findRulesByTag(tagId: Int)(implicit session: DBSession = autoSession): List[Int] = {
     withSQL {
       select.from(RuleTagDraft as rt).where.eq(rt.tag_id, tagId)
-    }.map(RuleTagDraft.fromResultName(rt.resultName)).list().apply()
+    }.map(RuleTagDraft.fromResultName(rt.resultName)).list().apply().map(rt => rt.rule_id)
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[RuleTag] = {
@@ -84,7 +84,7 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTag] {
       tag_id
     ) values (
       {rule_id},
-      {tag_id},
+      {tag_id}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
