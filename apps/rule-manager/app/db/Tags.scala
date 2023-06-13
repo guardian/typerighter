@@ -1,4 +1,6 @@
 package db
+import model.{CreateTagForm}
+import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
 import scala.util.Try
@@ -9,6 +11,8 @@ case class Tag(
     name: String
 )
 object Tags extends SQLSyntaxSupport[Tag] {
+  implicit val format: Format[Tag] = Json.format[Tag]
+
   override val tableName = "tags"
 
   override val columns = Seq("id", "name")
@@ -72,6 +76,14 @@ object Tags extends SQLSyntaxSupport[Tag] {
           )
         )
     }
+  }
+
+  def createFromTagForm(tagForm: CreateTagForm)(implicit
+      session: DBSession = autoSession
+  ) = {
+    Tags.create(
+      name = tagForm.name
+    )
   }
 
   def batchInsert(

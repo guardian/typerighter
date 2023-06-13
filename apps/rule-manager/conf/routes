@@ -25,5 +25,13 @@ POST    /rules/:id/publish          controllers.RulesController.publish(id: Int)
 +nocsrf
 GET    /rules/:id/publish         controllers.RulesController.canPublish(id: Int)
 
+# Tags
++nocsrf
+GET     /tags                       controllers.TagsController.list()
++nocsrf
+POST    /tags                       controllers.TagsController.create()
++nocsrf
+GET     /tags/:id                   controllers.TagsController.get(id: Int)
+
 # Map static resources from the /public folder to the correct URL path
 GET     /*file                      controllers.Assets.versioned(path="/public/", file: Asset)
