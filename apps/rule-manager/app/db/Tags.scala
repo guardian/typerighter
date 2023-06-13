@@ -1,6 +1,7 @@
 package db
-import model.{CreateTagForm}
+import model.TagForm
 import play.api.libs.json.{Format, Json}
+import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
 
 import scala.util.Try
@@ -78,12 +79,33 @@ object Tags extends SQLSyntaxSupport[Tag] {
     }
   }
 
-  def createFromTagForm(tagForm: CreateTagForm)(implicit
+  def createFromTagForm(tagForm: TagForm)(implicit
       session: DBSession = autoSession
   ) = {
     Tags.create(
       name = tagForm.name
     )
+  }
+
+  def updateFromTagForm(id: Int, tagForm: TagForm)(implicit
+      session: DBSession = autoSession
+  ) = {
+    val tag = Tags.find(id)
+      .toRight(NotFound("Rule not found matching ID"))
+      .map(existingRule =>
+        existingRule.copy(
+          name = tagForm.name
+        )
+      )
+    tag match {
+      case Right(tag) => {
+        Tags.save(tag).toEither match {
+          case Left(e: Throwable) => Left(InternalServerError(e.getMessage))
+          case Right(dbRule) => Right(dbRule)
+        }
+      }
+      case Left(result) => Left(result)
+    }
   }
 
   def batchInsert(

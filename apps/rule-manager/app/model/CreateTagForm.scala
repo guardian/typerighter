@@ -3,13 +3,13 @@ package model
 import play.api.data.Form
 import play.api.data.Forms.{mapping, nonEmptyText}
 
-object CreateTagForm {
+object TagForm {
   val form = Form(
     mapping(
       "name" -> nonEmptyText()
-    )(CreateTagForm.apply)(CreateTagForm.unapply)
+    )(TagForm.apply)(TagForm.unapply)
   )
 }
-case class CreateTagForm(
+case class TagForm(
     name: String
 )
