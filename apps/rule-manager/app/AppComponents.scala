@@ -2,7 +2,7 @@ import play.api.ApplicationLoader.Context
 import play.filters.HttpFiltersComponents
 import play.api.BuiltInComponentsFromContext
 import play.api.libs.ws.ahc.AhcWSComponents
-import controllers.{AssetsComponents, HomeController, RulesController}
+import controllers.{AssetsComponents, HomeController, RulesController, TagsController}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
@@ -98,10 +98,17 @@ class AppComponents(
     config
   )
 
+  val tagsController = new TagsController(
+    controllerComponents,
+    publicSettings,
+    config
+  )
+
   lazy val router = new Routes(
     httpErrorHandler,
     homeController,
     rulesController,
+    tagsController,
     assets
   )
 }
