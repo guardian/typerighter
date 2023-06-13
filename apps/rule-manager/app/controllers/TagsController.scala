@@ -13,13 +13,13 @@ import db.Tags
 import db.Tags.format
 
 class TagsController(
-  cc: ControllerComponents,
-  val publicSettings: PublicSettings,
-  override val config: RuleManagerConfig
+    cc: ControllerComponents,
+    val publicSettings: PublicSettings,
+    override val config: RuleManagerConfig
 ) extends AbstractController(cc)
-  with PandaAuthentication
-  with PermissionsHandler
-  with FormHelpers {
+    with PandaAuthentication
+    with PermissionsHandler
+    with FormHelpers {
 
   def list = ApiAuthAction {
     Ok(Json.toJson(Tags.findAll()))
@@ -56,7 +56,7 @@ class TagsController(
               },
               formRule => {
                 Tags.createFromTagForm(formRule) match {
-                  case Success(tag)  => Ok(Json.toJson(tag))
+                  case Success(tag)   => Ok(Json.toJson(tag))
                   case Failure(error) => InternalServerError(error.getMessage())
                 }
               }
@@ -78,7 +78,7 @@ class TagsController(
             },
             tagForm => {
               Tags.updateFromTagForm(id, tagForm) match {
-                case Left(result) => result
+                case Left(result)  => result
                 case Right(dbRule) => Ok(Json.toJson(dbRule))
               }
             }

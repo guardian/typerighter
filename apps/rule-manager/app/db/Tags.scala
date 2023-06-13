@@ -90,7 +90,8 @@ object Tags extends SQLSyntaxSupport[Tag] {
   def updateFromTagForm(id: Int, tagForm: TagForm)(implicit
       session: DBSession = autoSession
   ) = {
-    val tag = Tags.find(id)
+    val tag = Tags
+      .find(id)
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
         existingRule.copy(
@@ -101,7 +102,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
       case Right(tag) => {
         Tags.save(tag).toEither match {
           case Left(e: Throwable) => Left(InternalServerError(e.getMessage))
-          case Right(dbRule) => Right(dbRule)
+          case Right(dbRule)      => Right(dbRule)
         }
       }
       case Left(result) => Left(result)
