@@ -52,9 +52,9 @@ trait RuleTagCommon extends SQLSyntaxSupport[RuleTag] {
   }
 
   def create(
-              ruleId: Int,
-              tagId: Int
-            )(implicit session: DBSession = autoSession): Try[RuleTag] = {
+      ruleId: Int,
+      tagId: Int
+  )(implicit session: DBSession = autoSession): Try[RuleTag] = {
     val generatedKey = withSQL {
       insert
         .into(this)
@@ -75,8 +75,8 @@ trait RuleTagCommon extends SQLSyntaxSupport[RuleTag] {
   }
 
   def batchInsert(
-                   entities: collection.Seq[RuleTag]
-                 )(implicit session: DBSession = autoSession): List[Int] = {
+      entities: collection.Seq[RuleTag]
+  )(implicit session: DBSession = autoSession): List[Int] = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
         Symbol("rule_id") -> entity.rule_id,
