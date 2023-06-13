@@ -78,7 +78,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     {
       field: 'isPublished',
       name: 'Status',
-      render: value =>  value ? "Live" : "Draft"
+      render: (value: boolean) =>  value ? "Live" : "Draft"
     },
     {
       name: <EuiIcon type="pencil"/>,
@@ -216,14 +216,12 @@ const RulesTable = () => {
         <EuiSpacer />
         {formMode !== 'closed' &&
           <RuleForm
-            createMode={formMode}
             onClose={() => {
               setFormMode('closed');
               fetchRules();
             }}
             onUpdate={fetchRules}
             ruleId={currentRuleId}
-            setCurrentRuleId={setCurrentRuleId}
           />
         }
       </EuiFlexItem>

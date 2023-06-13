@@ -14,7 +14,7 @@ export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
 
     const [selectedTags, setSelectedTags] = useState<MetadataOption[]>(ruleData.tags ? ruleData.tags.map(tag => ({label: tag})) : []);
 
-    const onChange = (selectedTags) => {
+    const onChange = (selectedTags: MetadataOption[]) => {
         setSelectedTags(selectedTags);
     };
 

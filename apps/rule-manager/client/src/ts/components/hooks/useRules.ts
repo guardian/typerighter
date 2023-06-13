@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import {Rule} from "../RulesTable";
+import { errorToString } from '../../utils/error';
 
 export function useRules() {
     const { location } = window;
     const [rules, setRules] = useState<Rule[] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | undefined>(undefined);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const fetchRules = async (): Promise<void> => {
         setIsLoading(true);
@@ -17,7 +18,7 @@ export function useRules() {
             const rules = await response.json();
             setRules(rules);
         } catch (error) {
-            setError(error);
+            setError(errorToString(error));
         }
         setIsLoading(false);
     }
@@ -37,7 +38,7 @@ export function useRules() {
             const rules = await updatedRulesResponse.json();
             setRules(rules);
         } catch (e) {
-            setError(e);
+            setError(errorToString(error));
         } finally {
             setIsRefreshing(false);
         }

@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {transformApiFormData} from "../api/parseResponse";
+import { errorToString } from "../../utils/error";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -34,7 +35,7 @@ export type LiveRuleFromServer = Omit<LiveRule, "tags"> & {
 
 export type RuleDataFromServer = {
   draft: DraftRuleFromServer
-  live: LiveRuleFromServer[] | null
+  live: LiveRuleFromServer[]
 }
 
 export type RuleData = {
@@ -46,8 +47,9 @@ export function useRule(ruleId: number | undefined) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [publishingErrors, setPublishingErrors] = useState<Error[] | undefined>(undefined);
+  const [publishingErrors, setPublishingErrors] = useState<string | undefined>(undefined);
   const [errors, setErrors] = useState<Error[] | undefined>(undefined);
+
   const [rule, setRule] = useState<RuleData | undefined>(undefined);
 
   const fetchRule = async (ruleId: number) => {
@@ -65,7 +67,7 @@ export function useRule(ruleId: number | undefined) {
         live: rules.live.map(transformApiFormData)
       });
     } catch (error) {
-      setErrors(error);
+      setErrors(errorToString(error));
     }
 
     setIsLoading(false);
