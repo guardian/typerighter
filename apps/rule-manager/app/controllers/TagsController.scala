@@ -3,7 +3,7 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.lib.PandaAuthentication
-import model.CreateTagForm
+import model.{TagForm}
 import play.api.libs.json.Json
 import play.api.mvc._
 import utils.{FormHelpers, PermissionsHandler, RuleManagerConfig}
@@ -32,12 +32,22 @@ class TagsController(
         Ok(Json.toJson(tag))
     }
   }
+
+  def delete(id: Int) = ApiAuthAction {
+    Tags.find(id) match {
+      case None => NotFound("Tag not found matching ID")
+      case Some(tag) =>
+        Tags.destroy(tag)
+        Ok(s"Tag with id ${tag.id.get} deleted.")
+    }
+  }
+
   def create = ApiAuthAction { implicit request =>
     {
       hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
         case false => Unauthorized("You don't have permission to create tags")
         case true =>
-          CreateTagForm.form
+          TagForm.form
             .bindFromRequest()
             .fold(
               formWithErrors => {
@@ -52,6 +62,27 @@ class TagsController(
               }
             )
       }
+    }
+  }
+
+  def update(id: Int) = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        TagForm.form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              val errors = formWithErrors.errors
+              BadRequest(Json.toJson(errors))
+            },
+            tagForm => {
+              Tags.updateFromTagForm(id, tagForm) match {
+                case Left(result) => result
+                case Right(dbRule) => Ok(Json.toJson(dbRule))
+              }
+            }
+          )
     }
   }
 }
