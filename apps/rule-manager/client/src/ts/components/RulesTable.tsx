@@ -11,7 +11,8 @@ import {
   EuiButtonIcon,
   EuiFlexGrid,
   EuiIcon,
-  EuiToolTip, EuiSpacer
+  EuiToolTip, EuiSpacer,
+  EuiTableSelectionType
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -142,6 +143,18 @@ const RulesTable = () => {
 
   const columns = createColumns(openEditRulePanel);
 
+  const [selectedItems, setSelectedItems] = useState<Rule[]>([]);
+  const onSelectionChange = (selectedItems: Rule[]) => {
+    setSelectedItems(selectedItems);
+  }
+
+  const selection: EuiTableSelectionType<Rule> = {
+    selectable: () => hasCreatePermissions,
+    selectableMessage: (selectable, rule) => !selectable ? "You don't have edit permissions" : '',
+    onSelectionChange,
+    initialSelected: [],
+  }
+
   return <>
     <EuiFlexGroup>
       <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
@@ -195,11 +208,14 @@ const RulesTable = () => {
           <EuiInMemoryTable
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
+            itemId="id"
             columns={columns}
             pagination={true}
             sorting={sorting}
             search={search}
             hasActions={true}
+            selection={selection}
+            isSelectable={true}
           />
         }
       </EuiFlexItem>
