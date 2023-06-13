@@ -84,7 +84,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     // We need to be able to show errors on a field by field basis
 
     const saveRuleHandler = () => {
-        if(formErrors.length > 0 || errors?.length > 0) {
+        if(formErrors.length > 0 || errors && errors.length > 0) {
             setShowErrors(true);
             return;
         }
