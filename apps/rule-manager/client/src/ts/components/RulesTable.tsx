@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {
   EuiSearchBarProps,
   EuiBasicTableColumn,
@@ -143,9 +143,11 @@ const RulesTable = () => {
 
   const columns = createColumns(openEditRulePanel);
 
-  const [selectedItems, setSelectedItems] = useState<Rule[]>([]);
-  const onSelectionChange = (selectedItems: Rule[]) => {
-    setSelectedItems(selectedItems);
+  const [selectedRules, setSelectedRules] = useState<Rule[]>([]);
+
+  const onSelectionChange = (selectedRules: Rule[]) => {
+    setSelectedRules(selectedRules);
+    openEditRulePanel(Number(selectedRules[0]?.id));
   }
 
   const selection: EuiTableSelectionType<Rule> = {
@@ -154,6 +156,12 @@ const RulesTable = () => {
     onSelectionChange,
     initialSelected: [],
   }
+
+  useEffect(() => {
+    if (selectedRules.length === 0) {
+        setFormMode('closed')
+    }
+  }, [selectedRules])
 
   return <>
     <EuiFlexGroup>
