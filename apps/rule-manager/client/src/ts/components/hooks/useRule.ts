@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
-import {transformApiFormData} from "../api/parseResponse";
+import { responseHandler, transformApiFormData} from "../api/parseResponse";
 import { errorToString } from "../../utils/error";
+import { transformRuleFormData } from "../api/createRule";
 import { FormError } from "../RuleForm";
 
 export type RuleType = 'regex' | 'languageToolXML';
@@ -116,6 +117,55 @@ export function useRule(ruleId: number | undefined) {
     }
   }
 
+  const updateRule = async (ruleForm: DraftRule) => {
+    setIsLoading(true);
+
+    const formDataForApi = transformRuleFormData(ruleForm);
+    // We would always expect the ruleForm to include an ID when updating a rule
+    if (!ruleForm.id) return ({status: 'error', errorMessage: "Update endpoint requires a rule ID"})
+
+    const response = await fetch(`${location}rules/${ruleForm.id}`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formDataForApi)
+    })
+
+
+    const parsedResponse = await responseHandler(response);
+    if (parsedResponse.status === "ok") {
+      setRule({ ...rule || { live: [] }, draft: parsedResponse.data });
+    } else {
+      setErrors(parsedResponse.errorMessage);
+    }
+
+    setIsLoading(false);
+  }
+
+  const createRule = async (ruleForm: DraftRule) => {
+    setIsLoading(true);
+
+    const transformedRuleFormData = transformRuleFormData(ruleForm);
+    const createRuleResponse = await fetch(`${location}rules`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(transformedRuleFormData)
+    })
+
+    const parsedResponse = await responseHandler(createRuleResponse);
+    if (parsedResponse.status === "ok") {
+      setRule({ ...rule || { live: [] }, draft: parsedResponse.data });
+    } else {
+      setErrors(parsedResponse.errorMessage);
+    }
+
+    setIsLoading(false);
+  }
+
+
   useEffect(() => {
     if (ruleId) {
       fetchRule(ruleId);
@@ -124,5 +174,5 @@ export function useRule(ruleId: number | undefined) {
     }
   }, [ruleId])
 
-  return { fetchRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishingErrors }
+  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishingErrors }
 }

@@ -10,8 +10,6 @@ import {
 import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
-import { createRule } from "./api/createRule";
-import { updateRule } from "./api/updateRule";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
@@ -48,7 +46,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         onUpdate: () => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishingErrors } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishingErrors } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
 
@@ -83,22 +81,16 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     // We need to be able to change the errors depending on which fields are invalid
     // We need to be able to show errors on a field by field basis
 
-    const saveRuleHandler = () => {
-        if(formErrors.length > 0 || errors && errors.length > 0) {
-            setShowErrors(true);
-            return;
-        }
+    const saveRuleHandler = async () => {
+      if(formErrors.length > 0 || errors && errors.length > 0) {
+          setShowErrors(true);
+          return;
+      }
 
-        (ruleId ? updateRule(ruleFormData) : createRule(ruleFormData))
-            .then(data => {
-                if (data.status === 'ok'){
-                    setRuleFormData(baseForm);
-                    onClose();
-                } else {
-                    setFormErrors([...formErrors, {key: `${data.status} error`, message: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
-                }
-            })
-    }
+      await ruleId ? updateRule(ruleFormData) : createRule(ruleFormData);
+
+      onUpdate();
+    };
 
     const publishRuleHandler = async () => {
       if (!ruleId) {
@@ -125,6 +117,8 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         </EuiToolTip>
     }
 
+    const hasUnsavedChanges = ruleFormData !== rule?.draft;
+
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
@@ -134,12 +128,18 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
             <EuiFlexGroup>
                 <EuiFlexItem>
                     <EuiButton onClick={() => {
+                        const shouldClose = hasUnsavedChanges
+                          ? window.confirm("Your rule has unsaved changes. Are you sure you want to discard them?")
+                          : true;
+                        if (!shouldClose) {
+                          return;
+                        }
                         onClose();
                         setRuleFormData(baseForm);
-                    }}>{ruleId ? "Discard Changes" : "Discard Rule"}</EuiButton>
+                    }}>Close</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                    <EuiButton fill={true} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
+                    <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
                   <PublishTooltip>
