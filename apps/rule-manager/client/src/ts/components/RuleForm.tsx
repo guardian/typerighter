@@ -19,7 +19,7 @@ import {capitalize} from "lodash";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
-export type FormError = { id: string; value: string };
+export type FormError = { key: string; message: string };
 
 export const baseForm = {
   ruleType: 'regex' as RuleType,
@@ -40,7 +40,7 @@ const SpinnerContainer = styled.div`
   top: 10px;
 `;
 
-const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
+const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 
 export const RuleForm = ({ruleId, onClose, onUpdate}: {
         ruleId: number | undefined,
@@ -59,7 +59,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     useEffect(() => {
         if (rule) {
           setRuleFormData(rule.draft);
-          validateRule(rule.draft.id);
+          rule.draft.id && validateRule(rule.draft.id);
         } else {
           setRuleFormData(baseForm);
         }
@@ -95,12 +95,15 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                     setRuleFormData(baseForm);
                     onClose();
                 } else {
-                    setFormErrors([...formErrors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                    setFormErrors([...formErrors, {key: `${data.status} error`, message: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
                 }
             })
     }
 
     const publishRuleHandler = async () => {
+      if (!ruleId) {
+        return;
+      }
       await publishRule(ruleId);
       await fetchRule(ruleId);
       onUpdate();
@@ -145,7 +148,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
-                {formErrors.map((error, index) => <EuiText key={index}>{`${error.value}`}</EuiText>)}
+                {formErrors.map((error, index) => <EuiText key={index}>{`${error.message}`}</EuiText>)}
             </EuiCallOut> : null}
         </EuiFlexGroup>}
     </EuiForm>
