@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {transformApiFormData} from "../api/parseResponse";
 import { errorToString } from "../../utils/error";
+import { FormError } from "../RuleForm";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -47,8 +48,8 @@ export function useRule(ruleId: number | undefined) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [publishingErrors, setPublishingErrors] = useState<string | undefined>(undefined);
-  const [errors, setErrors] = useState<Error[] | undefined>(undefined);
+  const [publishingErrors, setPublishingErrors] = useState<FormError[] | undefined>(undefined);
+  const [errors, setErrors] = useState<string | undefined>(undefined);
 
   const [rule, setRule] = useState<RuleData | undefined>(undefined);
 
@@ -92,7 +93,7 @@ export function useRule(ruleId: number | undefined) {
         live: rules.live.map(transformApiFormData)
       });
     } catch (error) {
-      setErrors(error);
+      setErrors(errorToString(error));
     } finally {
       setIsPublishing(false);
     }
@@ -104,12 +105,12 @@ export function useRule(ruleId: number | undefined) {
     try {
       const response = await fetch(`${location}rules/${ruleId}/publish`);
       if (response.status === 400) {
-        const validationErrors: Error[] = await response.json();
+        const validationErrors: FormError[] = await response.json();
         return setPublishingErrors(validationErrors);
       }
       setPublishingErrors(undefined);
     } catch (error) {
-      setErrors(error);
+      setErrors(errorToString(error));
     } finally {
       setIsValidating(false)
     }
