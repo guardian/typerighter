@@ -15,7 +15,7 @@ import controllers.{
   AuditController,
   CapiProxyController,
   HomeController,
-  RulesController,
+  RulesController
 }
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
