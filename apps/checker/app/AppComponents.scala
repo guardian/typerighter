@@ -15,7 +15,7 @@ import controllers.{
   AuditController,
   CapiProxyController,
   HomeController,
-  RulesController
+  RulesController,
 }
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
@@ -135,7 +135,6 @@ class AppComponents(
     publicSettings,
     ruleManagerUrl
   )
-  val tagsController = new TagsController()
   val homeController = new HomeController(controllerComponents, matcherPool, publicSettings)
   val auditController = new AuditController(controllerComponents, publicSettings)
   val capiProxyController =
