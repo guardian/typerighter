@@ -16,6 +16,7 @@ import { icon as pencil } from "@elastic/eui/src/components/icon/assets/pencil";
 import { icon as returnKey } from "@elastic/eui/src/components/icon/assets/return_key";
 import { icon as warning } from "@elastic/eui/src/components/icon/assets/warning";
 import { icon as pageSelect } from "@elastic/eui/src/components/icon/assets/pageSelect";
+import { icon as dot } from "@elastic/eui/src/components/icon/assets/dot";
 
 const cachedIcons = {
     arrowDown,
@@ -34,7 +35,8 @@ const cachedIcons = {
     pencil,
     returnKey,
     warning,
-    pageSelect
+    pageSelect,
+    dot
 };
 
 appendIconComponentCache(cachedIcons);

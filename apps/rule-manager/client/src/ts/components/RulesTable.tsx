@@ -7,11 +7,11 @@ import {
   EuiFlexItem,
   EuiButton,
   EuiFlexGroup,
-  EuiLoadingSpinner,
   EuiButtonIcon,
   EuiFlexGrid,
   EuiIcon,
-  EuiToolTip, EuiSpacer
+  EuiToolTip,
+  EuiHealth
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -56,39 +56,42 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
   const hasEditPermissions = useCreateEditPermissions();
   return [
     {
-      field: 'ruleType',
-      name: 'Type',
-      width: '70px'
-    },
-    {
-      field: 'category',
-      name: 'Category',
-
-    },
-    {
-      field: 'pattern',
-      name: 'Match',
-    },
-    {
       field: 'replacement',
       name: 'Replacement',
+      width: '14.2%'
     },
     {
       field: 'description',
       name: 'Description',
       textOnly: true,
       truncateText: true,
-      width: '20%'
+      width: '21.4%'
+    },
+    {
+      field: 'pattern',
+      name: 'Match',
+      truncateText: true,
+      width: '21.4%'
+    },
+    {
+      field: 'category',
+      name: 'Rule source',
+      width: '14.2%'
+    },
+    {
+      field: 'ruleType',
+      name: 'Type',
+      width: '14.2%'
     },
     {
       field: 'isPublished',
       name: 'Status',
-      render: (value: boolean) =>  value ? "Live" : "Draft",
-      width: '50px'
+      render: (value: boolean) =>  <><EuiHealth color={value ? "success" : "warning"}/>{value ? "Live" : "Draft"}</>,
+      width: '7.1%'
     },
     {
       name: <EuiIcon type="pencil"/>,
-      width: '50px',
+      width: '7.1%',
       actions: [{
         name: 'Edit',
         render: (item, enabled) => <EditRule editIsEnabled={enabled} editRule={editRule} rule={item}/>,
