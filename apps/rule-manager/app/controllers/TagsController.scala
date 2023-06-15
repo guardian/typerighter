@@ -79,7 +79,7 @@ class TagsController(
             tagForm => {
               Tags.updateFromTagForm(id, tagForm) match {
                 case Left(result)  => result
-                case Right(dbRule) => Ok(Json.toJson(dbRule))
+                case Right(tag) => Ok(Json.toJson(tag))
               }
             }
           )
