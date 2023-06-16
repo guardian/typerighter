@@ -270,6 +270,44 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       case Left(result) => Left(result)
     }
   }
+  def batchUpdateFromFormRule(formRule: UpdateRuleForm, ids: List[Int], user: String)(implicit
+      session: DBSession = autoSession
+  ): Try[List[DbRuleDraft]] = {
+    try {
+      val updatedRules = ids.flatMap { id =>
+        val existingRule = find(id)
+          .toRight(
+            new Exception(s"Error updating rule with id ${id}: could not read existing rule")
+          )
+          .toOption
+
+        existingRule.map { rule =>
+          val mergedRule = rule.copy(
+            category = formRule.category.orElse(rule.category),
+            tags = formRule.tags.orElse(rule.tags)
+          )
+          val updatedRows = withSQL {
+            update(DbRuleDraft)
+              .set(
+                column.category -> mergedRule.category,
+                column.tags -> mergedRule.tags,
+                column.updatedBy -> user,
+                column.revisionId -> sqls"${column.revisionId} + 1"
+              )
+              .where
+              .eq(column.id, id)
+          }.update().apply()
+
+          if (updatedRows > 0) mergedRule
+          else throw new Exception(s"Error updating rule with id ${id}: no rows updated")
+        }
+      }
+
+      Success(updatedRules)
+    } catch {
+      case e: Throwable => Failure(e)
+    }
+  }
 
   def batchInsert(
       entities: collection.Seq[DbRuleDraft]

@@ -4,7 +4,7 @@ import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleResource
-import play.api.libs.json.Json
+import play.api.libs.json.{JsSuccess, JsValue, Json, Reads}
 import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
@@ -119,6 +119,76 @@ class RulesController(
               }
             }
           )
+    }
+  }
+
+  def batchUpdate() = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        val jsonBody = request.body.asJson
+        jsonBody match {
+          case Some(json) =>
+            val validatedRequest = json.validate[BatchUpdateRequest]
+            validatedRequest.fold(
+              errors => {
+                val errorMessages = errors.flatMap { case (path, validationErrors) =>
+                  validationErrors.map(error => s"${path.toString}: ${error.message}")
+                }
+                BadRequest(
+                  Json.obj(
+                    "errors"
+                      -> errorMessages
+                  )
+                )
+              },
+              batchUpdateRequest => {
+                val ids = batchUpdateRequest.ids
+                val updatedRuleForm = UpdateRuleForm(
+                  category = batchUpdateRequest.fields.category,
+                  tags = batchUpdateRequest.fields.tags
+                )
+                val filledForm = UpdateRuleForm.form.fill(updatedRuleForm)
+
+                filledForm
+                  .fold(
+                    formWithErrors => {
+                      val errors = formWithErrors.errors
+                      BadRequest(Json.toJson(errors))
+                    },
+                    formRule => {
+                      DbRuleDraft.batchUpdateFromFormRule(formRule, ids, request.user.email) match {
+                        case Success(dbRules) => Ok(Json.toJson(dbRules))
+                        case Failure(error)   => InternalServerError(error.getMessage())
+                      }
+                    }
+                  )
+              }
+            )
+          case None => BadRequest("No JSON body found")
+        }
+    }
+  }
+
+  case class BatchUpdateRequest(ids: List[Int], fields: BatchUpdateFields)
+
+  case class BatchUpdateFields(category: Option[String], tags: Option[String])
+
+  object BatchUpdateRequest {
+    implicit val batchUpdateFieldsReads: Reads[BatchUpdateFields] = Reads { json =>
+      val category = (json \ "category").asOpt[String]
+      val tags = (json \ "tags").asOpt[String]
+
+      val batchUpdateFields = BatchUpdateFields(category, tags)
+
+      JsSuccess(batchUpdateFields)
+    }
+    implicit val batchUpdateRequestReads: Reads[BatchUpdateRequest] = Reads { json =>
+      val ids = (json \ "ids").as[List[Int]]
+      val fieldsJson = (json \ "fields").as[JsValue]
+      val fields = fieldsJson.asOpt[BatchUpdateFields].getOrElse(BatchUpdateFields(None, None))
+
+      JsSuccess(BatchUpdateRequest(ids, fields))
     }
   }
 }
