@@ -63,6 +63,10 @@ val commonSettings = Seq(
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
+    "com.gu" %% "content-api-models-scala" % capiModelsVersion,
+    "com.gu" %% "content-api-models-json" % capiModelsVersion,
+    "com.gu" %% "content-api-client-aws" % "0.7",
+    "com.gu" %% "content-api-client-default" % capiClientVersion,
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
