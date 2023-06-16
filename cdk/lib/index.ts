@@ -84,55 +84,6 @@ export class Typerighter extends GuStack {
 
     const typerighterBucketName = `typerighter-app-${lowercaseStage}`;
 
-    const dbPort = 5432;
-
-    // Rule manager app
-
-    const ruleManagerAppName = "typerighter-rule-manager";
-
-    const ruleManagerDomain = `manager.${props.domainSuffix}`
-
-    const ruleManagerApp = new GuPlayApp(this, {
-      app: ruleManagerAppName,
-      instanceType: new InstanceType("t4g.small"),
-      userData: `#!/bin/bash -ev
-        aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
-        dpkg -i /tmp/package.deb`,
-      access: {
-        scope: AccessScope.PUBLIC,
-      },
-      certificateProps: {
-         domainName: ruleManagerDomain,
-      },
-      monitoringConfiguration: {
-        noMonitoring: true,
-      },
-      roleConfiguration: {
-        additionalPolicies: [
-          pandaAuthPolicy,
-          permissionsFilePolicyStatement
-        ],
-      },
-      scaling: {
-        minimumInstances: props.instanceCount,
-      },
-      applicationLogging: {
-        enabled: true,
-        systemdUnitName: "typerighter-rule-manager"
-      }
-    });
-
-    const ruleManagerDnsRecord = new GuDnsRecordSet(
-      this,
-      "manager-dns-records",
-      {
-        name: ruleManagerDomain,
-        recordType: RecordType.CNAME,
-        resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
-        ttl: Duration.minutes(60),
-      }
-    );
-
     // Checker app
 
     const checkerAppName = "typerighter-checker";
@@ -181,6 +132,75 @@ dpkg -i /tmp/package.deb`,
         systemdUnitName: "typerighter-checker"
       }
     });
+
+    // Rule manager app
+
+    const dbPort = 5432;
+
+    const ruleManagerAppName = "typerighter-rule-manager";
+
+    const ruleManagerDomain = `manager.${props.domainSuffix}`
+
+    const ruleManagerApp = new GuPlayApp(this, {
+      app: ruleManagerAppName,
+      instanceType: new InstanceType("t4g.micro"),
+      userData: `#!/bin/bash -ev
+        aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+        dpkg -i /tmp/package.deb
+
+        cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
+        typerighter.checkerServiceUrl = "${checkerApp.loadBalancer.loadBalancerDnsName}"
+        EOF
+        `,
+      access: {
+        scope: AccessScope.PUBLIC,
+      },
+      certificateProps: {
+        domainName: ruleManagerDomain,
+      },
+      monitoringConfiguration: {
+        noMonitoring: true,
+      },
+      roleConfiguration: {
+        additionalPolicies: [
+          pandaAuthPolicy,
+          permissionsFilePolicyStatement
+        ],
+      },
+      scaling: {
+        minimumInstances: props.instanceCount,
+      },
+      applicationLogging: {
+        enabled: true,
+        systemdUnitName: "typerighter-rule-manager"
+      }
+    });
+
+    const accessFromRuleManager = new GuSecurityGroup(this, "CheckerSecurityGroup", {
+      app: ruleManagerAppName,
+      description: "Allow access to the Checker service directly",
+      vpc: ruleManagerApp.vpc,
+      allowAllOutbound: false
+    });
+
+    accessFromRuleManager.connections.allowFrom(
+      ruleManagerApp.autoScalingGroup,
+      Port.tcp(443),
+      "Allow the rule manager app to connect to the checker load balancer"
+    )
+
+    checkerApp.loadBalancer.addSecurityGroup(accessFromRuleManager)
+
+    const ruleManagerDnsRecord = new GuDnsRecordSet(
+      this,
+      "manager-dns-records",
+      {
+        name: ruleManagerDomain,
+        recordType: RecordType.CNAME,
+        resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
+        ttl: Duration.minutes(60),
+      }
+    );
 
     const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {
       bucketName: typerighterBucketName,
