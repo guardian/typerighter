@@ -80,6 +80,7 @@ class TagsController(
               Tags.updateFromTagForm(id, tagForm) match {
                 case Left(NotFoundException(message)) => NotFound(message)
                 case Left(DbException(message))       => InternalServerError(message)
+                case Left(e: Exception)               => InternalServerError(e.getMessage)
                 case Right(tag)                       => Ok(Json.toJson(tag))
               }
             }
