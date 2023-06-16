@@ -52,7 +52,7 @@ class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with D
   it should "save a record, updating the modified fields" in { implicit session =>
     val entity = Tags.findAll().head
     val modified = entity.copy(name = "bar")
-    val updated = Tags.save(modified).get
+    val updated = Tags.save(modified).getOrElse(null)
     updated.name should equal("bar")
   }
 
