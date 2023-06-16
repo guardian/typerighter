@@ -16,7 +16,6 @@ case class DbRuleLive(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[String] = None,
     description: Option[String] = None,
     notes: Option[String] = None,
     externalId: Option[String] = None,

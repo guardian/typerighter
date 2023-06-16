@@ -16,7 +16,6 @@ case class DbRuleDraft(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[String] = None,
     description: Option[String] = None,
     ignore: Boolean,
     notes: Option[String] = None,
@@ -43,7 +42,6 @@ case class DbRuleDraft(
           pattern = pattern,
           replacement = replacement,
           category = category,
-          tags = tags,
           description = description,
           notes = notes,
           externalId = externalId,
@@ -59,6 +57,7 @@ case class DbRuleDraft(
         )
     }
   }
+  // TODO: Also push tag relationships to live
 }
 
 object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
@@ -81,7 +80,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern = rs.stringOpt("pattern"),
       replacement = rs.stringOpt("replacement"),
       category = rs.stringOpt("category"),
-      tags = rs.stringOpt("tags"),
       description = rs.stringOpt("description"),
       ignore = rs.boolean("ignore"),
       notes = rs.stringOpt("notes"),
@@ -97,13 +95,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     )
   }
 
+  // TODO: also do the tag
+
   def withUser(
       id: Option[Int],
       ruleType: String,
       pattern: Option[String] = None,
       replacement: Option[String] = None,
       category: Option[String] = None,
-      tags: Option[String] = None,
       description: Option[String] = None,
       ignore: Boolean,
       notes: Option[String] = None,
@@ -119,7 +118,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern,
       replacement,
       category,
-      tags,
       description,
       ignore,
       notes,
@@ -136,6 +134,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   val rd = DbRuleDraft.syntax("rd")
   val rl = DbRuleLive.syntax("rl")
+  val rt = RuleTagDraft.syntax("rt")
 
   override val autoSession = AutoSession
 
@@ -148,6 +147,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         LEFT JOIN ${DbRuleLive as rl}
             ON ${rd.externalId} = ${rl.externalId}
             AND ${rl.isActive} = TRUE
+        LEFT JOIN ${RuleTagDraft as rt} ON ${rt.rule_id} = ${rl.externalId}
         WHERE
             ${rd.id} = $id
        """
@@ -163,6 +163,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         FROM
             ${DbRuleDraft as rd}
         LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
+        LEFT JOIN ${RuleTagDraft as rt} ON ${rt.rule_id} = ${rl.externalId}
         ORDER BY ${rd.id}
        """
       .map(DbRuleDraft.fromRow)
@@ -201,7 +202,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.pattern -> pattern,
           column.replacement -> replacement,
           column.category -> category,
-          column.tags -> tags,
           column.description -> description,
           column.ignore -> ignore,
           column.notes -> notes,
@@ -211,6 +211,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.updatedBy -> user
         )
     }.updateAndReturnGeneratedKey().apply()
+    // TODO - also generate tag relationships
 
     find(generatedKey.toInt) match {
       case Some(rule) => Success(rule)
@@ -255,11 +256,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           pattern = formRule.pattern,
           replacement = formRule.replacement,
           category = formRule.category,
-          tags = formRule.tags,
           description = formRule.description,
           advisoryRule = formRule.advisoryRule
         )
       )
+    // TODO: also update the tags from formRule.tags
     updatedRule match {
       case Right(dbRule) => {
         DbRuleDraft.save(dbRule, user).toEither match {
@@ -280,7 +281,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("pattern") -> entity.pattern,
         Symbol("replacement") -> entity.replacement,
         Symbol("category") -> entity.category,
-        Symbol("tags") -> entity.tags,
         Symbol("description") -> entity.description,
         Symbol("ignore") -> entity.ignore,
         Symbol("notes") -> entity.notes,
@@ -298,7 +298,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern,
       replacement,
       category,
-      tags,
       description,
       ignore,
       notes,
@@ -314,7 +313,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {pattern},
       {replacement},
       {category},
-      {tags},
       {description},
       {ignore},
       {notes},
@@ -326,6 +324,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {updatedBy},
       {updatedAt}
     )""").batchByName(params.toSeq: _*).apply[List]()
+    // TODO: Also do something with the tags
   }
 
   def save(entity: DbRuleDraft, user: String)(implicit
@@ -338,7 +337,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.pattern -> entity.pattern,
           column.replacement -> entity.replacement,
           column.category -> entity.category,
-          column.tags -> entity.tags,
           column.description -> entity.description,
           column.ignore -> entity.ignore,
           column.notes -> entity.notes,
@@ -354,7 +352,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .where
         .eq(column.id, entity.id)
     }.update().apply()
-
+    // TODO: also do something with the tags. Part of same sql query?
     find(entity.id.get)
       .toRight(
         new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
@@ -368,9 +366,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     }.update().apply()
   }
 
+  // TODO: also delete tag rule relationships
+
   def destroyAll()(implicit session: DBSession = autoSession): Int = {
     withSQL {
       delete.from(DbRuleDraft)
     }.update().apply()
   }
 }
+
+// TODO: also delete tag rule relationships
+
