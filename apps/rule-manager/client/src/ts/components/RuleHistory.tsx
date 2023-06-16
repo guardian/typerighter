@@ -63,7 +63,7 @@ export const RuleHistory = ({ruleHistory}: { ruleHistory: RuleData['live'] }) =>
       {!sortedHistory.length && "This rule has not yet been published."}
       {sortedHistory.map((rule, index) => {
         const isFirstPublished = index === (sortedHistory.length - 1)
-        return <Event>
+        return <Event key={rule.revisionId}>
           <EventTimeline isFirstPublished={isFirstPublished}>
             <EventTimelinePersonContainer>
               {rule.updatedBy.includes("Google Sheet") ? <SheetIcon/> : <Person/>}

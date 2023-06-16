@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {
   EuiSearchBarProps,
   EuiBasicTableColumn,
@@ -11,7 +11,8 @@ import {
   EuiButtonIcon,
   EuiFlexGrid,
   EuiIcon,
-  EuiToolTip, EuiSpacer
+  EuiToolTip, EuiSpacer,
+  EuiTableSelectionType
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -143,6 +144,26 @@ const RulesTable = () => {
 
   const columns = createColumns(openEditRulePanel);
 
+  const [selectedRules, setSelectedRules] = useState<Rule[]>([]);
+
+  const onSelectionChange = (selectedRules: Rule[]) => {
+    setSelectedRules(selectedRules);
+    openEditRulePanel(Number(selectedRules[0]?.id));
+  }
+
+  const selection: EuiTableSelectionType<Rule> = {
+    selectable: () => hasCreatePermissions,
+    selectableMessage: (selectable, rule) => !selectable ? "You don't have edit permissions" : '',
+    onSelectionChange,
+    initialSelected: [],
+  }
+
+  useEffect(() => {
+    if (selectedRules.length === 0) {
+        setFormMode('closed')
+    }
+  }, [selectedRules])
+
   return <>
     <EuiFlexGroup>
       <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
@@ -196,11 +217,14 @@ const RulesTable = () => {
           <EuiInMemoryTable
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
+            itemId="id"
             columns={columns}
             pagination={true}
             sorting={sorting}
             search={search}
             hasActions={true}
+            selection={selection}
+            isSelectable={true}
           />
         }
       </EuiFlexItem>
