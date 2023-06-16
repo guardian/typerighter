@@ -89,7 +89,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
 
   def updateFromTagForm(id: Int, tagForm: TagForm)(implicit
       session: DBSession = autoSession
-  ) = {
+  ): Either[Exception, Tag] = {
     val tag = Tags
       .find(id)
       .toRight(NotFoundException("Rule not found matching ID"))
@@ -101,8 +101,8 @@ object Tags extends SQLSyntaxSupport[Tag] {
     tag match {
       case Right(tag) => {
         Tags.save(tag) match {
-          case Left(e: Exception) => Left(e: Exception)
-          case Right(dbRule)      => Right(dbRule)
+          case Left(e)       => Left(e)
+          case Right(dbRule) => Right(dbRule)
         }
       }
       case Left(result) => Left(result)
@@ -124,7 +124,9 @@ object Tags extends SQLSyntaxSupport[Tag] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: Tag)(implicit session: DBSession = autoSession): Either[DbException, Tag] = {
+  def save(
+      entity: Tag
+  )(implicit session: DBSession = autoSession): Either[Exception, Tag] = {
     withSQL {
       update(Tags)
         .set(
