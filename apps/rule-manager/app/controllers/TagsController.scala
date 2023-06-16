@@ -3,10 +3,10 @@ package controllers
 import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.lib.PandaAuthentication
-import model.{TagForm}
+import model.TagForm
 import play.api.libs.json.Json
 import play.api.mvc._
-import utils.{FormHelpers, PermissionsHandler, RuleManagerConfig}
+import utils.{DbException, FormHelpers, NotFoundException, PermissionsHandler, RuleManagerConfig}
 
 import scala.util.{Failure, Success}
 import db.Tags
@@ -78,8 +78,9 @@ class TagsController(
             },
             tagForm => {
               Tags.updateFromTagForm(id, tagForm) match {
-                case Left(result)  => result
-                case Right(tag) => Ok(Json.toJson(tag))
+                case Left(NotFoundException(message)) => NotFound(message)
+                case Left(DbException(message))       => InternalServerError(message)
+                case Right(tag)                       => Ok(Json.toJson(tag))
               }
             }
           )

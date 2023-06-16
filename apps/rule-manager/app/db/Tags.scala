@@ -1,8 +1,8 @@
 package db
 import model.TagForm
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.Results.{InternalServerError, NotFound}
 import scalikejdbc._
+import utils.{DbException, NotFoundException}
 
 import scala.util.Try
 import scala.util.{Failure, Success}
@@ -92,7 +92,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
   ) = {
     val tag = Tags
       .find(id)
-      .toRight(NotFound("Rule not found matching ID"))
+      .toRight(NotFoundException("Rule not found matching ID"))
       .map(existingRule =>
         existingRule.copy(
           name = tagForm.name
@@ -100,8 +100,8 @@ object Tags extends SQLSyntaxSupport[Tag] {
       )
     tag match {
       case Right(tag) => {
-        Tags.save(tag).toEither match {
-          case Left(e: Throwable) => Left(InternalServerError(e.getMessage))
+        Tags.save(tag) match {
+          case Left(e: Exception) => Left(e: Exception)
           case Right(dbRule)      => Right(dbRule)
         }
       }
@@ -124,7 +124,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: Tag)(implicit session: DBSession = autoSession): Try[Tag] = {
+  def save(entity: Tag)(implicit session: DBSession = autoSession): Either[DbException, Tag] = {
     withSQL {
       update(Tags)
         .set(
@@ -137,9 +137,8 @@ object Tags extends SQLSyntaxSupport[Tag] {
 
     find(entity.id.get)
       .toRight(
-        new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
+        DbException(s"Error updating rule with id ${entity.id}: could not read updated rule")
       )
-      .toTry
   }
 
   def destroy(entity: Tag)(implicit session: DBSession = autoSession): Int = {
