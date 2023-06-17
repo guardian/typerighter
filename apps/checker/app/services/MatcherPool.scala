@@ -4,9 +4,9 @@ import akka.NotUsed
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import com.gu.typerighter.model.{CheckerRule, Category, RuleMatch, TextBlock}
+import com.gu.typerighter.model.{Category, CheckerRule, RuleMatch, TextBlock}
 import model._
-import net.logstash.logback.marker.Markers
+import net.logstash.logback.marker.{LogstashMarker, Markers}
 import play.api.Logging
 import play.api.libs.concurrent.Futures
 import utils._
@@ -25,24 +25,43 @@ case class MatcherRequest(blocks: List[TextBlock])
   */
 case class PartialMatcherJob(blocks: List[TextBlock], categoryIds: Set[String])
 
-/** A MatcherJob represents everything we need to for a matcher to
+/** A MatcherPoolJob represents everything we need to for a matcher to
   *   - perform work
   *   - notify its caller once work is complete
   */
-case class MatcherJob(
+sealed trait MatcherPoolJob {
+  val promise: Promise[List[RuleMatch]] = Promise[List[RuleMatch]]()
+  val blocks: List[TextBlock]
+  def toMarker: LogstashMarker
+}
+
+case class MatcherPoolCategoryJob(
     requestId: String,
     documentId: String,
     blocks: List[TextBlock],
-    categoryIds: MatcherPool.CategoryIds,
-    promise: Promise[List[RuleMatch]],
-    jobsInValidationSet: Integer
-) {
+    categoryIds: MatcherPool.CategoryIds
+) extends MatcherPoolJob {
   def toMarker = Markers.appendEntries(
     Map(
       "requestId" -> this.requestId,
       "documentId" -> this.documentId,
       "blocks" -> this.blocks.map(_.id).mkString(", "),
       "categoryIds" -> this.categoryIds.mkString(", ")
+    ).asJava
+  )
+}
+
+case class MatcherPoolSingleMatcherJob(
+    requestId: String,
+    documentId: String,
+    blocks: List[TextBlock],
+    matcher: Matcher
+) extends MatcherPoolJob {
+  def toMarker = Markers.appendEntries(
+    Map(
+      "requestId" -> this.requestId,
+      "documentId" -> this.documentId,
+      "blocks" -> this.blocks.map(_.id).mkString(", ")
     ).asJava
   )
 }
@@ -76,9 +95,7 @@ class MatcherPool(
     val maybeCloudWatchClient: Option[CloudWatchClient] = None
 )(implicit ec: ExecutionContext, implicit val mat: Materializer)
     extends Logging {
-  type JobProgressMap = Map[String, Int]
   type MatcherId = String
-  type CategoryId = String
   private val matchers = new ConcurrentHashMap[MatcherId, Matcher]().asScala
 
   // This supervision strategy resumes the stream when `mapAsyncUnordered`
@@ -87,14 +104,11 @@ class MatcherPool(
   private val supervisionStrategy = ActorAttributes.supervisionStrategy(Supervision.resumingDecider)
 
   private val queue = Source
-    .queue[MatcherJob](maxQueuedJobs)
+    .queue[MatcherPoolJob](maxQueuedJobs)
     .mapAsyncUnordered(maxCurrentJobs)(getMatchesForJob)
     .withAttributes(supervisionStrategy)
     .to(Sink.ignore)
     .run()
-
-  def getMaxCurrentValidations: Int = maxCurrentJobs
-  def getMaxQueuedValidations: Int = maxQueuedJobs
 
   /** Check the text with the matchers assigned to the given category ids. If no ids are assigned,
     * use all the currently available matchers.
@@ -102,7 +116,7 @@ class MatcherPool(
   def check(query: Check): Future[CheckResult] = {
     val categoryIds = getApplicableCategories(query)
 
-    logCheckBegin(query)
+    logCheckBegin(query.toMarker)
 
     val partialJobs = checkStrategy(query.blocks, categoryIds)
     val jobs = createJobsFromPartialJobs(
@@ -119,7 +133,7 @@ class MatcherPool(
           case ((accCatIds, accBlocks, accMatches), (job, matches)) =>
             (accCatIds ++ job.categoryIds, accBlocks ++ job.blocks, accMatches ++ matches)
         }
-      logCheckComplete(query)
+      logCheckComplete(query.toMarker)
 
       CheckResult(catIds, blocks, matches)
     }
@@ -128,7 +142,7 @@ class MatcherPool(
   def checkStream(query: Check): Source[CheckResult, NotUsed] = {
     val categoryIds = getApplicableCategories(query)
 
-    logCheckBegin(query)
+    logCheckBegin(query.toMarker)
 
     val jobs = createJobsFromPartialJobs(
       query.requestId,
@@ -153,14 +167,43 @@ class MatcherPool(
           CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete))
         }
       }
-      .alsoTo(Sink.onComplete { _ => logCheckComplete(query) })
+      .alsoTo(Sink.onComplete { _ => logCheckComplete(query.toMarker) })
   }
 
-  def getCategoryIds(query: Check): Set[MatcherId] = {
-    query.categoryIds match {
-      case None      => getCurrentCategories.map(_.id)
-      case Some(ids) => ids
+  def checkSingle(
+      query: CheckSingleRule,
+      matcher: Matcher
+  ): Source[CheckSingleRuleResult, NotUsed] = {
+    logCheckBegin(query.toMarker)
+
+    val jobs = query.documents.map { document =>
+      MatcherPoolSingleMatcherJob(
+        query.requestId,
+        document.id,
+        document.blocks,
+        matcher
+      )
     }
+
+    val totalJobCount = jobs.size
+    val jobsCompleted = new AtomicInteger(0)
+
+    def percentageRequestComplete: Int =
+      Math.round(jobsCompleted.floatValue() / totalJobCount * 100)
+
+    logger.info(s"Created $totalJobCount jobs for request with id: ${query.requestId}")
+
+    val eventualResponses = jobs.map(offerJobToQueue)
+
+    Source(eventualResponses)
+      .mapAsyncUnordered(1)(identity)
+      .map {
+        case (job, matches) => {
+          jobsCompleted.incrementAndGet()
+          CheckSingleRuleResult(matches, Some(percentageRequestComplete))
+        }
+      }
+      .alsoTo(Sink.onComplete { _ => logCheckComplete(query.toMarker) })
   }
 
   /** Add a matcher to the pool of matchers.
@@ -196,18 +239,15 @@ class MatcherPool(
       documentId: Option[String],
       partialJobs: List[PartialMatcherJob]
   ) = partialJobs.map { partialJob =>
-    val promise = Promise[List[RuleMatch]]()
-    MatcherJob(
+    MatcherPoolCategoryJob(
       requestId,
       documentId.getOrElse("no-document-id"),
       partialJob.blocks,
-      partialJob.categoryIds,
-      promise,
-      partialJobs.length
+      partialJob.categoryIds
     )
   }
 
-  private def offerJobToQueue(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
+  private def offerJobToQueue[Job <: MatcherPoolJob](job: Job): Future[(Job, List[RuleMatch])] = {
     logger.info(s"Job has been offered to the queue")(job.toMarker)
 
     queue.offer(job) match {
@@ -227,20 +267,22 @@ class MatcherPool(
     }
   }
 
-  private def failJobWith(job: MatcherJob, message: String) = {
+  private def failJobWith(job: MatcherPoolJob, message: String) = {
     logger.error(message)(job.toMarker)
     job.promise.failure(new Throwable(message))
   }
 
-  private def getMatchesForJob(job: MatcherJob): Future[(MatcherJob, List[RuleMatch])] = {
+  private def getMatchesForJob(job: MatcherPoolJob): Future[(MatcherPoolJob, List[RuleMatch])] = {
     val maybeMatchesForJob = for {
-      matchers <- getMatchersForJob(job)
+      matchers <- job match {
+        case categoryJob: MatcherPoolCategoryJob => getMatchersForJob(categoryJob)
+        case singleMatcherJob: MatcherPoolSingleMatcherJob =>
+          Success(List(singleMatcherJob.matcher))
+      }
     } yield {
       val eventuallyMatches = runMatchersForJob(matchers, job.blocks).map { (job, _) }
-      job.promise.completeWith(eventuallyMatches.map {
-        case (_, matches) => {
-          matches
-        }
+      job.promise.completeWith(eventuallyMatches.map { case (_, matches) =>
+        matches
       })
 
       eventuallyMatches
@@ -255,7 +297,7 @@ class MatcherPool(
     Future.fromTry(maybeMatchesForJob).flatten
   }
 
-  private def getMatchersForJob(job: MatcherJob): Try[List[Matcher]] = {
+  private def getMatchersForJob(job: MatcherPoolCategoryJob): Try[List[Matcher]] = {
     val matchersToCheck = matchers.values.toList
       .filter { doesMatcherServeAllCategories(job.categoryIds, _) }
 
@@ -321,10 +363,10 @@ class MatcherPool(
     )
   }
 
-  private def logCheckBegin(query: Check) =
-    logger.info(s"Matcher pool query complete")(query.toMarker)
-  private def logCheckComplete(query: Check) =
-    logger.info(s"Matcher pool query complete")(query.toMarker)
+  private def logCheckBegin(markers: LogstashMarker) =
+    logger.info(s"Matcher pool query begins")(markers)
+  private def logCheckComplete(markers: LogstashMarker) =
+    logger.info(s"Matcher pool query complete")(markers)
 
   /** Get the categories to apply to this check. If no categories are supplied, default to all
     * available categories.
