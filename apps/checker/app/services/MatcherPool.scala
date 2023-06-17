@@ -161,11 +161,9 @@ class MatcherPool(
 
     Source(eventualResponses)
       .mapAsyncUnordered(1)(identity)
-      .map {
-        case (job, matches) => {
-          jobsCompleted.incrementAndGet()
-          CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete))
-        }
+      .map { case (job, matches) =>
+        jobsCompleted.incrementAndGet()
+        CheckResult(job.categoryIds, job.blocks, matches, Some(percentageRequestComplete))
       }
       .alsoTo(Sink.onComplete { _ => logCheckComplete(query.toMarker) })
   }
@@ -197,11 +195,9 @@ class MatcherPool(
 
     Source(eventualResponses)
       .mapAsyncUnordered(1)(identity)
-      .map {
-        case (job, matches) => {
-          jobsCompleted.incrementAndGet()
-          CheckSingleRuleResult(matches, Some(percentageRequestComplete))
-        }
+      .map { case (_, matches) =>
+        jobsCompleted.incrementAndGet()
+        CheckSingleRuleResult(matches, Some(percentageRequestComplete))
       }
       .alsoTo(Sink.onComplete { _ => logCheckComplete(query.toMarker) })
   }

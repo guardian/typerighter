@@ -454,4 +454,87 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       percentages shouldBe Seq(10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0)
     }
   }
+
+  behavior of "checkSingle"
+
+  it should "complete queued jobs" in {
+    val matcher :: Nil = getMatchers(1)
+    val rule = getResponseRule(0)
+    matcher.completeWith(responses)
+
+    val pool = getPool(List.empty)
+    val futureResult = pool
+      .checkSingle(
+        CheckSingleRule(
+          "requestId",
+          rule,
+          documents = List(
+            Document(
+              "document-1",
+              List(
+                TextBlock("blockId", "Example text", 0, 10)
+              )
+            )
+          )
+        ),
+        matcher
+      )
+      .runWith(Sink.seq)
+
+    futureResult.map { result =>
+      result shouldMatchTo List(
+        CheckSingleRuleResult(
+          List(
+            RuleMatch(
+              rule = rule,
+              fromPos = 0,
+              toPos = 5,
+              precedingText = "",
+              subsequentText = "",
+              matchedText = "placeholder text",
+              message = "test-response",
+              shortMessage = None,
+              suggestions = List(),
+              replacement = None,
+              matchContext = "[placeholder text]"
+            )
+          ),
+          Some(100)
+        )
+      )
+    }
+  }
+
+  it should "give an event for each document" in {
+    val matcher :: Nil = getMatchers(1)
+    val rule = getResponseRule(0)
+    matcher.completeWith(responses)
+
+    val pool = getPool(List.empty)
+    val block = TextBlock(
+      "blockId",
+      "Example text",
+      0,
+      10
+    )
+    val futureResult = pool
+      .checkSingle(
+        CheckSingleRule(
+          "requestId",
+          rule,
+          documents = List(
+            Document("document-1", List(block, block)),
+            Document("document-2", List(block, block))
+          )
+        ),
+        matcher
+      )
+      .runWith(Sink.seq)
+
+    futureResult.map { result =>
+      result.size shouldBe 2
+      result(0).percentageRequestComplete shouldBe Some(50)
+      result(1).percentageRequestComplete shouldBe Some(100)
+    }
+  }
 }
