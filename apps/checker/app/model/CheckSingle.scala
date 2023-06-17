@@ -10,7 +10,7 @@ object CheckSingleRule {
   implicit val reads: Reads[CheckSingleRule] = Json.reads[CheckSingleRule]
 }
 
-/** Everything Typerighter needs to a list of documents against a single rule.
+/** Everything Typerighter needs to get matches for a list of documents against a single rule.
   */
 case class CheckSingleRule(
     requestId: String,

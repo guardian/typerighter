@@ -112,7 +112,7 @@ class AppComponents(
   )(matcherPoolDispatcher, materializer)
 
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
-  val ruleProvisioner = new RuleProvisionerService(
+  val matcherProvisionerService = new MatcherProvisionerService(
     bucketRuleResource,
     matcherPool,
     languageToolFactory,
@@ -127,7 +127,8 @@ class AppComponents(
     case _: DevIdentity => "https://manager.typerighter.local.dev-gutools.co.uk"
   }
 
-  val apiController = new ApiController(controllerComponents, matcherPool, publicSettings)
+  val apiController =
+    new ApiController(controllerComponents, matcherPool, matcherProvisionerService, publicSettings)
   val rulesController = new RulesController(
     controllerComponents,
     matcherPool,
@@ -157,5 +158,5 @@ class AppComponents(
 
   /** Set up matchers and add them to the matcher pool as the app starts.
     */
-  ruleProvisioner.scheduleUpdateRules(actorSystem.scheduler)
+  matcherProvisionerService.scheduleUpdateRules(actorSystem.scheduler)
 }
