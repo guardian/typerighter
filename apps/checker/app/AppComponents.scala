@@ -8,7 +8,6 @@ import com.amazonaws.regions.Regions
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.gu.pandomainauth.PublicSettings
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{
   ApiController,
@@ -53,7 +52,7 @@ class AppComponents(
   override def httpFilters: Seq[EssentialFilter] =
     corsFilter +: super.httpFilters.filterNot(allowedHostsFilter ==)
 
-  val config = new CheckerConfig(configuration, region, identity, creds)
+  val config = new CheckerConfig(configuration, region, identity, creds, wsClient)
 
   val languageToolFactory = new LanguageToolFactory(config.ngramPath, true)
 
@@ -88,9 +87,6 @@ class AppComponents(
     case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
     case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
   }
-  val publicSettings =
-    new PublicSettings(settingsFile, "pan-domain-auth-settings", standardS3Client)
-  publicSettings.start()
 
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
@@ -128,18 +124,18 @@ class AppComponents(
   }
 
   val apiController =
-    new ApiController(controllerComponents, matcherPool, matcherProvisionerService, publicSettings)
+    new ApiController(controllerComponents, matcherPool, matcherProvisionerService, config)
   val rulesController = new RulesController(
     controllerComponents,
     matcherPool,
     config.spreadsheetId,
-    publicSettings,
-    ruleManagerUrl
+    ruleManagerUrl,
+    config
   )
-  val homeController = new HomeController(controllerComponents, matcherPool, publicSettings)
-  val auditController = new AuditController(controllerComponents, publicSettings)
+  val homeController = new HomeController(controllerComponents, matcherPool, config)
+  val auditController = new AuditController(controllerComponents, config)
   val capiProxyController =
-    new CapiProxyController(controllerComponents, contentClient, publicSettings)
+    new CapiProxyController(controllerComponents, contentClient, config)
 
   override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(
     "application/json" -> new JsonHttpErrorHandler(environment, None),

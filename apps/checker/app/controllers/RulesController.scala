@@ -1,22 +1,22 @@
 package controllers
 
-import com.gu.pandomainauth.PublicSettings
-import com.gu.typerighter.lib.PandaAuthentication
+import com.gu.typerighter.controllers.AppAuthActions
+import com.gu.typerighter.lib.CommonConfig
 import play.api.mvc._
 import services._
 
 /** The controller that handles the management of matcher rules.
   */
 class RulesController(
-    cc: ControllerComponents,
+    val controllerComponents: ControllerComponents,
     matcherPool: MatcherPool,
     sheetId: String,
-    val publicSettings: PublicSettings,
-    val ruleManagerUrl: String
-) extends AbstractController(cc)
-    with PandaAuthentication {
+    val ruleManagerUrl: String,
+    val config: CommonConfig
+) extends BaseController
+    with AppAuthActions {
 
-  def rules = ApiAuthAction { implicit request: Request[AnyContent] =>
+  def rules = APIAuthAction { implicit request: Request[AnyContent] =>
     Ok(
       views.html.rules(
         sheetId,

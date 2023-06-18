@@ -1,12 +1,12 @@
 package controllers
 
 import akka.stream.scaladsl.Sink
-import com.gu.pandomainauth.PublicSettings
+import com.gu.typerighter.controllers.AppAuthActions
 import model.{Check, CheckSingleRule}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.{MatcherPool, MatcherProvisionerService}
-import com.gu.typerighter.lib.PandaAuthentication
+import com.gu.typerighter.lib.CommonConfig
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import utils.{JsonHelpers, Timer}
@@ -16,14 +16,14 @@ import scala.util.{Failure, Success}
 /** The controller that handles API requests.
   */
 class ApiController(
-    cc: ControllerComponents,
+    val controllerComponents: ControllerComponents,
     matcherPool: MatcherPool,
     matcherProvisionerService: MatcherProvisionerService,
-    val publicSettings: PublicSettings
+    val config: CommonConfig
 )(implicit ec: ExecutionContext)
-    extends AbstractController(cc)
-    with PandaAuthentication {
-  def check: Action[JsValue] = ApiAuthAction.async(parse.json) { request =>
+    extends BaseController
+    with AppAuthActions {
+  def check: Action[JsValue] = APIAuthAction.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
         val eventuallyResult =
@@ -40,7 +40,7 @@ class ApiController(
     }
   }
 
-  def checkStream = ApiAuthAction[JsValue](parse.json) { request =>
+  def checkStream = APIAuthAction[JsValue](parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
         // A promise to let us listen for the end of the stream, and log when the request is complete.
@@ -59,7 +59,7 @@ class ApiController(
     }
   }
 
-  def checkSingleRule = ApiAuthAction[JsValue](parse.json) { request =>
+  def checkSingleRule = APIAuthAction[JsValue](parse.json) { request =>
     request.body.validate[CheckSingleRule].asEither match {
       case Right(check) =>
         matcherProvisionerService.getMatcherForRule(check.rule) match {
@@ -82,7 +82,7 @@ class ApiController(
     }
   }
 
-  def getCurrentCategories: Action[AnyContent] = ApiAuthAction {
+  def getCurrentCategories: Action[AnyContent] = APIAuthAction {
     Ok(Json.toJson(matcherPool.getCurrentCategories))
   }
 
