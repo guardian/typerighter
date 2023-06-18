@@ -45,25 +45,6 @@ class AppComponents(
       LocalStack.s3Client
   }
 
-<<<<<<< HEAD
-=======
-  val stageDomain = identity match {
-    case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
-    case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk"
-    case _: DevIdentity        => "local.dev-gutools.co.uk"
-  }
-  val appName = identity match {
-    case identity: AwsIdentity => identity.app
-    case identity: DevIdentity => identity.app
-  }
-
-  val publicSettingsFile = identity match {
-    case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
-    case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
-    case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
-  }
-
->>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
     case _: DevIdentity        => "local"

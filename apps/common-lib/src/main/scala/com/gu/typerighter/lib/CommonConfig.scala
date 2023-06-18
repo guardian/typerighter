@@ -6,11 +6,8 @@ import com.gu.AwsIdentity
 import com.gu.DevIdentity
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-<<<<<<< HEAD
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
-=======
->>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import play.api.libs.ws.WSClient
 
@@ -25,10 +22,6 @@ abstract class CommonConfig(
     val awsCredentials: AWSCredentialsProvider,
     val ws: WSClient
 ) {
-<<<<<<< HEAD
-=======
-
->>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 
@@ -61,7 +54,6 @@ abstract class CommonConfig(
     settingsFileKey = s"$stageDomain.settings",
     s3Client = pandaS3Client
   )
-<<<<<<< HEAD
 
   private val secretsManagerClient = AWSSecretsManagerClientBuilder
     .standard()
@@ -78,6 +70,4 @@ abstract class CommonConfig(
       .getSecretValue(getSecretValueRequest)
       .getSecretString
   }
-=======
->>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
 }

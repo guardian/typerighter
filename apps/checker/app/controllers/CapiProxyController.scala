@@ -3,32 +3,18 @@ package controllers
 import com.gu.contentapi.json.CirceEncoders._
 import io.circe.syntax._
 import play.api.mvc._
-<<<<<<< HEAD
 import com.gu.typerighter.controllers.PandaAuthController
-=======
-import com.gu.typerighter.controllers.AppAuthActions
->>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
 import com.gu.typerighter.lib.CommonConfig
 import services.ContentClient
 
 import scala.concurrent.ExecutionContext
 
 class CapiProxyController(
-<<<<<<< HEAD
     controllerComponents: ControllerComponents,
     contentClient: ContentClient,
     config: CommonConfig
 )(implicit ec: ExecutionContext)
     extends PandaAuthController(controllerComponents, config) {
-=======
-    val controllerComponents: ControllerComponents,
-    contentClient: ContentClient,
-    val config: CommonConfig
-)(implicit ec: ExecutionContext)
-    extends BaseController
-    with AppAuthActions {
->>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
-
   def searchContent(
       query: String,
       tags: Option[List[String]],
