@@ -1,7 +1,11 @@
 package controllers
 
 import akka.stream.scaladsl.Sink
+<<<<<<< HEAD
 import com.gu.typerighter.controllers.PandaAuthController
+=======
+import com.gu.typerighter.controllers.AppAuthActions
+>>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
 import model.{Check, CheckSingleRule}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -16,12 +20,22 @@ import scala.util.{Failure, Success}
 /** The controller that handles API requests.
   */
 class ApiController(
+<<<<<<< HEAD
     controllerComponents: ControllerComponents,
     matcherPool: MatcherPool,
     matcherProvisionerService: MatcherProvisionerService,
     config: CommonConfig
 )(implicit ec: ExecutionContext)
     extends PandaAuthController(controllerComponents, config) {
+=======
+    val controllerComponents: ControllerComponents,
+    matcherPool: MatcherPool,
+    matcherProvisionerService: MatcherProvisionerService,
+    val config: CommonConfig
+)(implicit ec: ExecutionContext)
+    extends BaseController
+    with AppAuthActions {
+>>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
   def check: Action[JsValue] = APIAuthAction.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
@@ -58,7 +72,11 @@ class ApiController(
     }
   }
 
+<<<<<<< HEAD
   def checkSingleRule = APIHMACAuthAction[JsValue](parse.json) { request =>
+=======
+  def checkSingleRule = APIAuthAction[JsValue](parse.json) { request =>
+>>>>>>> 7130b55a (Refactor configuration to pass pan-domain-config as a part of CommonConfig, and adjust controller configuration to suit HMACAuthActions)
     request.body.validate[CheckSingleRule].asEither match {
       case Right(check) =>
         matcherProvisionerService.getMatcherForRule(check.rule) match {
