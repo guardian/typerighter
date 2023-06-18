@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc._
-import com.gu.typerighter.controllers.AppAuthActions
+import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.lib.CommonConfig
 import play.api.libs.json.Json
 import services._
@@ -9,11 +9,10 @@ import services._
 /** The controller for the index pages.
   */
 class HomeController(
-    val controllerComponents: ControllerComponents,
+    controllerComponents: ControllerComponents,
     matcherPool: MatcherPool,
-    val config: CommonConfig
-) extends BaseController
-    with AppAuthActions {
+    config: CommonConfig
+) extends PandaAuthController(controllerComponents, config) {
   def index() = APIAuthAction {
     Ok(views.html.index())
   }
