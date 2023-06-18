@@ -144,4 +144,57 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
     val batchInserted = DbRuleDraft.batchInsert(entities)
     batchInserted.size should be > (0)
   }
+
+  it should "perform a batch edit on tags and categories" in { implicit session =>
+    val existingRule1 = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("General"),
+        tags = Some("Names,SG,Legal"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+    val existingRule2 = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("General"),
+        tags = Some("Coronavirus"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+    val existingRule3 = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("General"),
+        tags = Some("Typos,Semantics"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val existingIds = List(existingRule1, existingRule2, existingRule3).map(_.id.get)
+
+    val formRule = UpdateRuleForm(
+      category = Some("Style guide and names"),
+      tags = Some("Names,SG,Legal,Coronavirus,Typos,Semantics")
+    )
+
+    val updatedRules =
+      DbRuleDraft.batchUpdateFromFormRule(formRule, existingIds, "another.user").getOrElse(null)
+
+    val updatedRulesFromDb = updatedRules.map { rule =>
+      DbRuleDraft.find(rule.id.get)
+    }
+
+    updatedRulesFromDb.foreach { maybeRule =>
+      maybeRule.foreach { rule =>
+        rule.category should be(Some("Style guide and names"))
+        rule.tags should be(Some("Names,SG,Legal,Coronavirus,Typos,Semantics"))
+      }
+    }
+
+    updatedRulesFromDb.size shouldBe 3
+  }
 }

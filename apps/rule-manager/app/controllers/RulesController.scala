@@ -144,25 +144,29 @@ class RulesController(
               },
               batchUpdateRequest => {
                 val ids = batchUpdateRequest.ids
-                val updatedRuleForm = UpdateRuleForm(
-                  category = batchUpdateRequest.fields.category,
-                  tags = batchUpdateRequest.fields.tags
-                )
-                val filledForm = UpdateRuleForm.form.fill(updatedRuleForm)
-
-                filledForm
-                  .fold(
-                    formWithErrors => {
-                      val errors = formWithErrors.errors
-                      BadRequest(Json.toJson(errors))
-                    },
-                    formRule => {
-                      DbRuleDraft.batchUpdateFromFormRule(formRule, ids, request.user.email) match {
-                        case Success(dbRules) => Ok(Json.toJson(dbRules))
-                        case Failure(error)   => InternalServerError(error.getMessage())
-                      }
-                    }
+                if (ids.isEmpty) BadRequest("No rule IDs provided")
+                else {
+                  val updatedRuleForm = UpdateRuleForm(
+                    category = batchUpdateRequest.fields.category,
+                    tags = batchUpdateRequest.fields.tags
                   )
+                  val filledForm = UpdateRuleForm.form.fill(updatedRuleForm)
+
+                  filledForm
+                    .fold(
+                      formWithErrors => {
+                        val errors = formWithErrors.errors
+                        BadRequest(Json.toJson(errors))
+                      },
+                      formRule => {
+                        DbRuleDraft
+                          .batchUpdateFromFormRule(formRule, ids, request.user.email) match {
+                          case Success(dbRules) => Ok(Json.toJson(dbRules))
+                          case Failure(error)   => InternalServerError(error.getMessage())
+                        }
+                      }
+                    )
+                }
               }
             )
           case None => BadRequest("No JSON body found")
