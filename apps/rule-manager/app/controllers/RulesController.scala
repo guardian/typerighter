@@ -1,7 +1,7 @@
 package controllers
 
 import com.gu.permissions.PermissionDefinition
-import com.gu.typerighter.controllers.AppAuthActions
+import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.Json
 import db.DbRuleDraft
@@ -15,12 +15,11 @@ import scala.util.{Failure, Success}
 /** The controller that handles the management of matcher rules.
   */
 class RulesController(
-    val controllerComponents: ControllerComponents,
+    controllerComponents: ControllerComponents,
     sheetsRuleResource: SheetsRuleResource,
     bucketRuleResource: BucketRuleResource,
     val config: RuleManagerConfig
-) extends BaseController
-    with AppAuthActions
+) extends PandaAuthController(controllerComponents, config)
     with PermissionsHandler
     with FormHelpers {
   def refresh = APIAuthAction {

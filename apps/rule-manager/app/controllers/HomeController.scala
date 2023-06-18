@@ -6,16 +6,15 @@ import com.gu.typerighter.lib.Loggable
 import db.DB
 import utils.PermissionsHandler
 import com.gu.permissions.PermissionDefinition
-import com.gu.typerighter.controllers.AppAuthActions
+import com.gu.typerighter.controllers.PandaAuthController
 import utils.RuleManagerConfig
 
 class HomeController(
-    val controllerComponents: ControllerComponents,
-    val db: DB,
+    controllerComponents: ControllerComponents,
+    db: DB,
     val config: RuleManagerConfig
-) extends BaseController
+) extends PandaAuthController(controllerComponents, config)
     with Loggable
-    with AppAuthActions
     with PermissionsHandler {
 
   def index(path: String) = AuthAction { request =>

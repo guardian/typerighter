@@ -22,7 +22,6 @@ abstract class CommonConfig(
     val awsCredentials: AWSCredentialsProvider,
     val ws: WSClient
 ) {
-
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 

@@ -6,13 +6,23 @@ import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import com.gu.typerighter.lib.{CommonConfig, Loggable}
 import play.api.libs.ws.WSClient
+import play.api.mvc.{BaseController, ControllerComponents}
 
-trait AppAuthActions extends AuthActions with HMACAuthActions with Loggable {
-  def config: CommonConfig
-
-  val panDomainSettings: PanDomainAuthSettingsRefresher = config.panDomainSettings
-  val wsClient: WSClient = config.ws
-
+@scala.annotation.nowarn("msg=early initializers")
+abstract class PandaAuthController(
+    val controllerComponents: ControllerComponents,
+    config: CommonConfig
+) extends {
+      // This approach will be replaced with trait parameters in Scala 3 –
+      // until then, this is where we can break out config parameters into
+      // the overrides that our auth traits depend on.
+      val panDomainSettings: PanDomainAuthSettingsRefresher = config.panDomainSettings
+      val wsClient: WSClient = config.ws
+    }
+    with AuthActions
+    with HMACAuthActions
+    with BaseController
+    with Loggable {
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
     log.info(s"Validating user $authedUser")
     PanDomain.guardianValidation(authedUser)
