@@ -6,7 +6,7 @@ import play.api.libs.ws.WSClient
 
 import com.gu.typerighter.lib.Loggable
 
-import _root_.db.DB
+import db.DB
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import utils.PermissionsHandler
 import com.gu.permissions.PermissionDefinition
