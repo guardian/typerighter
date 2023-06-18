@@ -67,6 +67,11 @@ val commonSettings = Seq(
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
+    "com.gu" %% "content-api-models-scala" % capiModelsVersion,
+    "com.gu" %% "content-api-models-json" % capiModelsVersion,
+    "com.gu" %% "content-api-client-aws" % "0.7",
+    "com.gu" %% "content-api-client-default" % capiClientVersion,
+    "com.gu" %% "panda-hmac-play_2-8" % "2.2.0"
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
@@ -78,6 +83,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
   .settings(
     commonSettings,
     libraryDependencies ++= Seq(
+      ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
       "com.typesafe.play" %% "play" % "2.8.19",
     )
