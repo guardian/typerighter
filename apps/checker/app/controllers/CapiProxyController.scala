@@ -3,27 +3,26 @@ package controllers
 import com.gu.contentapi.json.CirceEncoders._
 import io.circe.syntax._
 import play.api.mvc._
-import com.gu.pandomainauth.PublicSettings
-import com.gu.typerighter.lib.PandaAuthentication
-
+import com.gu.typerighter.controllers.AppAuthActions
+import com.gu.typerighter.lib.CommonConfig
 import services.ContentClient
 
-import scala.concurrent.{ExecutionContext}
+import scala.concurrent.ExecutionContext
 
 class CapiProxyController(
-    cc: ControllerComponents,
+    val controllerComponents: ControllerComponents,
     contentClient: ContentClient,
-    val publicSettings: PublicSettings
+    val config: CommonConfig
 )(implicit ec: ExecutionContext)
-    extends AbstractController(cc)
-    with PandaAuthentication {
+    extends BaseController
+    with AppAuthActions {
 
   def searchContent(
       query: String,
       tags: Option[List[String]],
       sections: Option[List[String]],
       page: Option[Int]
-  ) = ApiAuthAction.async {
+  ) = APIAuthAction.async {
     contentClient
       .searchContent(
         query,
@@ -34,11 +33,11 @@ class CapiProxyController(
       .map { result => Ok(result.asJson.toString).as(JSON) }
   }
 
-  def searchTags(queryStr: String) = ApiAuthAction.async {
+  def searchTags(queryStr: String) = APIAuthAction.async {
     contentClient.searchTags(queryStr).map { result => Ok(result.asJson.toString).as(JSON) }
   }
 
-  def searchSections(queryStr: String) = ApiAuthAction.async {
+  def searchSections(queryStr: String) = APIAuthAction.async {
     contentClient.searchSections(queryStr).map { result => Ok(result.asJson.toString).as(JSON) }
   }
 }

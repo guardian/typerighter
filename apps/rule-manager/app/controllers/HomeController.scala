@@ -2,22 +2,17 @@ package controllers
 
 import play.api.mvc._
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
-
 import com.gu.typerighter.lib.Loggable
-
 import db.DB
-import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import utils.PermissionsHandler
 import com.gu.permissions.PermissionDefinition
+import com.gu.typerighter.controllers.AppAuthActions
 import utils.RuleManagerConfig
 
 class HomeController(
     val controllerComponents: ControllerComponents,
     val db: DB,
-    override val panDomainSettings: PanDomainAuthSettingsRefresher,
-    override val wsClient: WSClient,
-    override val config: RuleManagerConfig
+    val config: RuleManagerConfig
 ) extends BaseController
     with Loggable
     with AppAuthActions

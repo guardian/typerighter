@@ -95,7 +95,6 @@ val checker = (project in file(s"$appsFolder/checker"))
     PlayKeys.devSettings += "play.server.http.port" -> "9100",
     commonSettings,
     libraryDependencies ++= Seq(
-      ws,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,

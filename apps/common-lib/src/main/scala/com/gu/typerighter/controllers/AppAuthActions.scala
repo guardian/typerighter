@@ -1,12 +1,17 @@
-package controllers
+package com.gu.typerighter.controllers
 
-import com.gu.pandomainauth.PanDomain
+import com.gu.pandahmac.HMACAuthActions
+import com.gu.pandomainauth.{PanDomain, PanDomainAuthSettingsRefresher}
 import com.gu.pandomainauth.action.AuthActions
 import com.gu.pandomainauth.model.AuthenticatedUser
 import com.gu.typerighter.lib.{CommonConfig, Loggable}
+import play.api.libs.ws.WSClient
 
-trait AppAuthActions extends AuthActions with Loggable {
+trait AppAuthActions extends AuthActions with HMACAuthActions with Loggable {
   def config: CommonConfig
+
+  val panDomainSettings: PanDomainAuthSettingsRefresher = config.panDomainSettings
+  val wsClient: WSClient = config.ws
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
     log.info(s"Validating user $authedUser")
