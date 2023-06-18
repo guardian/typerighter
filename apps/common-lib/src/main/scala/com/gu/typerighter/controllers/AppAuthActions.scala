@@ -26,4 +26,7 @@ trait AppAuthActions extends AuthActions with HMACAuthActions with Loggable {
 
   override def authCallbackUrl: String =
     s"https://manager.typerighter.${config.stageDomain}/oauthCallback"
+
+  override def secretKeys =
+    config.hmacSecrets
 }

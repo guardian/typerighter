@@ -6,6 +6,8 @@ import com.gu.AwsIdentity
 import com.gu.DevIdentity
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
+import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import play.api.libs.ws.WSClient
 
@@ -53,4 +55,20 @@ abstract class CommonConfig(
     settingsFileKey = s"$stageDomain.settings",
     s3Client = pandaS3Client
   )
+
+  private val secretsManagerClient = AWSSecretsManagerClientBuilder
+    .standard()
+    .withRegion(awsRegion)
+    .build()
+
+  private val hmacSecretStages = List("AWSCURRENT", "AWSPREVIOUS")
+  lazy val hmacSecrets: List[String] = hmacSecretStages.map { stage =>
+    val getSecretValueRequest = new GetSecretValueRequest()
+      .withSecretId(s"/$stage/flexible/typerighter/hmacSecret")
+      .withVersionStage(stage)
+
+    secretsManagerClient
+      .getSecretValue(getSecretValueRequest)
+      .getSecretString
+  }
 }
