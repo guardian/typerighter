@@ -3,19 +3,18 @@ package controllers
 import com.gu.contentapi.json.CirceEncoders._
 import io.circe.syntax._
 import play.api.mvc._
-import com.gu.typerighter.controllers.AppAuthActions
+import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.lib.CommonConfig
 import services.ContentClient
 
 import scala.concurrent.ExecutionContext
 
 class CapiProxyController(
-    val controllerComponents: ControllerComponents,
+    controllerComponents: ControllerComponents,
     contentClient: ContentClient,
-    val config: CommonConfig
+    config: CommonConfig
 )(implicit ec: ExecutionContext)
-    extends BaseController
-    with AppAuthActions {
+    extends PandaAuthController(controllerComponents, config) {
 
   def searchContent(
       query: String,

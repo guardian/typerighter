@@ -1,7 +1,7 @@
 package controllers
 
 import akka.stream.scaladsl.Sink
-import com.gu.typerighter.controllers.AppAuthActions
+import com.gu.typerighter.controllers.PandaAuthController
 import model.{Check, CheckSingleRule}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
@@ -16,13 +16,12 @@ import scala.util.{Failure, Success}
 /** The controller that handles API requests.
   */
 class ApiController(
-    val controllerComponents: ControllerComponents,
+    controllerComponents: ControllerComponents,
     matcherPool: MatcherPool,
     matcherProvisionerService: MatcherProvisionerService,
-    val config: CommonConfig
+    config: CommonConfig
 )(implicit ec: ExecutionContext)
-    extends BaseController
-    with AppAuthActions {
+    extends PandaAuthController(controllerComponents, config) {
   def check: Action[JsValue] = APIAuthAction.async(parse.json) { request =>
     request.body.validate[Check].asEither match {
       case Right(check) =>
