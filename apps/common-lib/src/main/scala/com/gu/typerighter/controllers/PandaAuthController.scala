@@ -15,7 +15,8 @@ abstract class PandaAuthController(
 ) extends {
       // This approach will be replaced with trait parameters in Scala 3 –
       // until then, this is where we can break out config parameters into
-      // the overrides that our auth traits depend on.
+      // the overrides that our auth traits depend on. If we don't do that,
+      // the overrides will not be present when the auth traits initialise.
       val panDomainSettings: PanDomainAuthSettingsRefresher = config.panDomainSettings
       val wsClient: WSClient = config.ws
     }
