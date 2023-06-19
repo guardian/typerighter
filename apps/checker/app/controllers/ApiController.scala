@@ -7,6 +7,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.{MatcherPool, MatcherProvisionerService}
 import com.gu.typerighter.lib.CommonConfig
+import com.gu.typerighter.model.CheckSingleRule
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import utils.{JsonHelpers, Timer}
