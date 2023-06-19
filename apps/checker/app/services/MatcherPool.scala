@@ -4,7 +4,14 @@ import akka.NotUsed
 import akka.stream.QueueOfferResult.{Dropped, QueueClosed, Failure => QueueFailure}
 import akka.stream._
 import akka.stream.scaladsl.{Sink, Source}
-import com.gu.typerighter.model.{Category, CheckerRule, RuleMatch, TextBlock}
+import com.gu.typerighter.model.{
+  Category,
+  CheckSingleRule,
+  CheckSingleRuleResult,
+  CheckerRule,
+  RuleMatch,
+  TextBlock
+}
 import model._
 import net.logstash.logback.marker.{LogstashMarker, Markers}
 import play.api.Logging
