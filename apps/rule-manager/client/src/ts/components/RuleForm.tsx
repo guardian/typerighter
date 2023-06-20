@@ -16,6 +16,7 @@ import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
 import {capitalize} from "lodash";
+import {archiveRule} from "./api/archiveRule";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -110,19 +111,39 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const PublishTooltip: React.FC<{ children: ReactElement }> = ({ children }) => {
-        if (!publishingErrors) {
-          return <>{children}</>
-        }
-        return <EuiToolTip content={!!publishingErrors &&
-            <span>
+      if (!publishingErrors) {
+        return <>{children}</>
+      }
+      return <EuiToolTip content={!!publishingErrors &&
+        <span>
                 This rule can't be published:
                 <br/>
                 <br/>
-                {publishingErrors?.map(error => <span>{`${capitalize(error.key)}: ${error.message}`}<br/></span>)}
+          {publishingErrors?.map(error => <span>{`${capitalize(error.key)}: ${error.message}`}<br/></span>)}
             </span>
-        }>
-          {children}
-        </EuiToolTip>
+      }>
+        {children}
+      </EuiToolTip>
+    }
+
+    const archiveRuleHandler = () => {
+        if (!ruleFormData?.id) {
+          return;
+        }
+        if(formErrors.length > 0) {
+            setShowErrors(true);
+            return;
+        }
+
+        archiveRule(ruleFormData.id)
+            .then(data => {
+                if (data.status === 'ok'){
+                    setRuleFormData(baseForm);
+                    onClose();
+                } else {
+                    setFormErrors([...formErrors, {key: `${data.status} error`, message: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                }
+            })
     }
 
     return <EuiForm component="form">
@@ -131,14 +152,14 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             {rule && <RuleHistory ruleHistory={rule.live} />}
-            <EuiFlexGroup>
-                <EuiFlexItem>
+            <EuiFlexGroup gutterSize="m">
+                <EuiFlexItem grow={0}>
                     <EuiButton onClick={() => {
                         onClose();
                         setRuleFormData(baseForm);
                     }}>{ruleId ? "Discard Changes" : "Discard Rule"}</EuiButton>
                 </EuiFlexItem>
-                <EuiFlexItem>
+                <EuiFlexItem grow={0}>
                     <EuiButton fill={true} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
@@ -147,6 +168,12 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                   </PublishTooltip>
                 </EuiFlexItem>
             </EuiFlexGroup>
+            {
+                !ruleFormData.isArchived ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={archiveRuleHandler} color={"danger"}>Archive Rule</EuiButton>
+                </EuiFlexItem> : null
+            }
+
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
                 {formErrors.map((error, index) => <EuiText key={index}>{`${error.message}`}</EuiText>)}
             </EuiCallOut> : null}
