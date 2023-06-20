@@ -2,14 +2,16 @@ package controllers
 
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.controllers.PandaAuthController
+import com.gu.typerighter.model.Document
 import com.gu.typerighter.rules.BucketRuleResource
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import db.DbRuleDraft
 import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
-import service.{RuleManager, SheetsRuleResource}
+import service.{RuleManager, RuleTesting, SheetsRuleResource}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 /** The controller that handles the management of matcher rules.
@@ -18,8 +20,10 @@ class RulesController(
     controllerComponents: ControllerComponents,
     sheetsRuleResource: SheetsRuleResource,
     bucketRuleResource: BucketRuleResource,
+    ruleTesting: RuleTesting,
     val config: RuleManagerConfig
-) extends PandaAuthController(controllerComponents, config)
+)(implicit ec: ExecutionContext)
+    extends PandaAuthController(controllerComponents, config)
     with PermissionsHandler
     with FormHelpers {
   def refresh = APIAuthAction {
@@ -116,6 +120,26 @@ class RulesController(
               }
             }
           )
+    }
+  }
+
+  def test(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
+    request.body.validate[Document].asEither match {
+      case Right(document) =>
+        DbRuleDraft.find(id).flatMap { draftRule =>
+          val liveRule = draftRule.toLive("placeholder")
+          RuleManager.liveDbRuleToCheckerRule(liveRule).toOption
+        } match {
+          case Some(rule) =>
+            ruleTesting
+              .testRule(rule, List(document))
+              .map { resultStream =>
+                Ok.chunked(resultStream.map(result => Json.toJson(result)))
+              }
+          case None => Future.successful(NotFound(s"No rule with ID: ${id}"))
+        }
+
+      case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
 }

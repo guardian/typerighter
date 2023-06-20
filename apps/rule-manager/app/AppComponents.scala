@@ -8,12 +8,13 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
+import com.gu.typerighter.lib.HMACClient
 import com.gu.typerighter.rules.BucketRuleResource
 import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
-import service.SheetsRuleResource
+import service.{RuleTesting, SheetsRuleResource}
 import utils.{LocalStack, RuleManagerConfig}
 
 class AppComponents(
@@ -50,9 +51,10 @@ class AppComponents(
     case _: DevIdentity        => "local"
   }
   val typerighterBucket = s"typerighter-app-${stage}"
-
+  val hmacClient = new HMACClient(stage, secretKey = config.hmacSecrets.head)
   val sheetsRuleResource = new SheetsRuleResource(config.credentials, config.spreadsheetId)
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
+  val ruleTesting = new RuleTesting(wsClient, hmacClient, config.checkerServiceUrl)
 
   val homeController = new HomeController(
     controllerComponents,
@@ -64,6 +66,7 @@ class AppComponents(
     controllerComponents,
     sheetsRuleResource,
     bucketRuleResource,
+    ruleTesting,
     config
   )
 

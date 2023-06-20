@@ -1,7 +1,7 @@
 package com.gu.typerighter.model
 
 import org.languagetool.rules.{RuleMatch => LTRuleMatch}
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.{Format, Json}
 
 import scala.jdk.CollectionConverters._
 
@@ -31,7 +31,7 @@ object RuleMatch {
     )
   }
 
-  implicit val writes: Writes[RuleMatch] = Json.writes[RuleMatch]
+  implicit val format: Format[RuleMatch] = Json.format[RuleMatch]
 }
 
 case class RuleMatch(
