@@ -22,6 +22,8 @@ GET     /rules/:id                  controllers.RulesController.get(id: Int)
 POST    /rules/:id                  controllers.RulesController.update(id: Int)
 +nocsrf
 POST    /rules/:id/publish          controllers.RulesController.publish(id: Int)
++nocsrf
+GET    /rules/:id/test             controllers.RulesController.test(id: Int)
 
 # Map static resources from the /public folder to the correct URL path
 GET     /*file                      controllers.Assets.versioned(path="/public/", file: Asset)

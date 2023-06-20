@@ -11,6 +11,8 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import play.api.libs.ws.WSClient
 
+import scala.util.Try
+
 /** A class to store configuration that's common across projects.
   *
   * Fails fast with an exception if properties aren't found.
@@ -21,7 +23,7 @@ abstract class CommonConfig(
     identity: AppIdentity,
     val awsCredentials: AWSCredentialsProvider,
     val ws: WSClient
-) {
+) extends Loggable {
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 
@@ -57,17 +59,29 @@ abstract class CommonConfig(
 
   private val secretsManagerClient = AWSSecretsManagerClientBuilder
     .standard()
+    .withCredentials(awsCredentials)
     .withRegion(awsRegion)
     .build()
 
   private val hmacSecretStages = List("AWSCURRENT", "AWSPREVIOUS")
-  lazy val hmacSecrets: List[String] = hmacSecretStages.map { stage =>
+  println(s"/${stage.toUpperCase}/flexible/typerighter/hmacSecret")
+  val hmacSecrets: List[String] = hmacSecretStages.flatMap { secretStage =>
     val getSecretValueRequest = new GetSecretValueRequest()
-      .withSecretId(s"/$stage/flexible/typerighter/hmacSecret")
-      .withVersionStage(stage)
+      .withSecretId(s"/${stage.toUpperCase}/flexible/typerighter/hmacSecret")
+      .withVersionStage(secretStage)
 
-    secretsManagerClient
-      .getSecretValue(getSecretValueRequest)
-      .getSecretString
+    println(secretStage, s"/${stage.toUpperCase}/flexible/typerighter/hmacSecret")
+
+    val result = Try {
+      val result = secretsManagerClient
+        .getSecretValue(getSecretValueRequest)
+        .getSecretString
+      Some(result)
+    }.recover { error =>
+      log.error("Error fetching secret: ", error)
+      None
+    }.get
+
+    result
   }
 }
