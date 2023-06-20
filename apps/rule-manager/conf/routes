@@ -32,6 +32,8 @@ POST    /api/rules/:id/unpublish        controllers.RulesController.unpublish(id
 POST    /api/rules/:id/archive          controllers.RulesController.archive(id: Int)
 +nocsrf
 POST    /api/rules/:id/unarchive        controllers.RulesController.unarchive(id: Int)
++nocsrf
+GET    /rules/:id/test                  controllers.RulesController.test(id: Int)
 
 # Tags
 +nocsrf

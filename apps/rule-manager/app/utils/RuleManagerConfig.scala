@@ -18,4 +18,5 @@ class RuleManagerConfig(
   val dbPassword = playConfig.get[String]("db.default.password")
   val credentials = playConfig.get[String]("typerighter.google.credentials")
   val spreadsheetId = playConfig.get[String]("typerighter.sheetId")
+  val checkerServiceUrl = playConfig.get[String]("typerighter.checkerServiceUrl")
 }

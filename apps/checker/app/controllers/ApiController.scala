@@ -2,7 +2,7 @@ package controllers
 
 import akka.stream.scaladsl.Sink
 import com.gu.typerighter.controllers.PandaAuthController
-import model.{Check, CheckSingleRule}
+import model.Check
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.{MatcherPool, MatcherProvisionerService}
