@@ -1,5 +1,8 @@
 package db
+import model.TagForm
+import play.api.libs.json.{Format, Json}
 import scalikejdbc._
+import utils.{DbException, NotFoundException}
 
 import scala.util.Try
 import scala.util.{Failure, Success}
@@ -9,6 +12,8 @@ case class Tag(
     name: String
 )
 object Tags extends SQLSyntaxSupport[Tag] {
+  implicit val format: Format[Tag] = Json.format[Tag]
+
   override val tableName = "tags"
 
   override val columns = Seq("id", "name")
@@ -74,6 +79,36 @@ object Tags extends SQLSyntaxSupport[Tag] {
     }
   }
 
+  def createFromTagForm(tagForm: TagForm)(implicit
+      session: DBSession = autoSession
+  ) = {
+    Tags.create(
+      name = tagForm.name
+    )
+  }
+
+  def updateFromTagForm(id: Int, tagForm: TagForm)(implicit
+      session: DBSession = autoSession
+  ): Either[Exception, Tag] = {
+    val tag = Tags
+      .find(id)
+      .toRight(NotFoundException("Rule not found matching ID"))
+      .map(existingRule =>
+        existingRule.copy(
+          name = tagForm.name
+        )
+      )
+    tag match {
+      case Right(tag) => {
+        Tags.save(tag) match {
+          case Left(e)       => Left(e)
+          case Right(dbRule) => Right(dbRule)
+        }
+      }
+      case Left(result) => Left(result)
+    }
+  }
+
   def batchInsert(
       entities: collection.Seq[Tag]
   )(implicit session: DBSession = autoSession): List[Int] = {
@@ -89,7 +124,9 @@ object Tags extends SQLSyntaxSupport[Tag] {
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
-  def save(entity: Tag)(implicit session: DBSession = autoSession): Try[Tag] = {
+  def save(
+      entity: Tag
+  )(implicit session: DBSession = autoSession): Either[Exception, Tag] = {
     withSQL {
       update(Tags)
         .set(
@@ -102,9 +139,8 @@ object Tags extends SQLSyntaxSupport[Tag] {
 
     find(entity.id.get)
       .toRight(
-        new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
+        DbException(s"Error updating rule with id ${entity.id}: could not read updated rule")
       )
-      .toTry
   }
 
   def destroy(entity: Tag)(implicit session: DBSession = autoSession): Int = {
