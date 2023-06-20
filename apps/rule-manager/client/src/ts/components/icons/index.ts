@@ -18,6 +18,7 @@ import { icon as pencil } from "@elastic/eui/es/components/icon/assets/pencil";
 import { icon as returnKey } from "@elastic/eui/es/components/icon/assets/return_key";
 import { icon as warning } from "@elastic/eui/es/components/icon/assets/warning";
 import { icon as pageSelect } from "@elastic/eui/es/components/icon/assets/pageSelect";
+import { icon as dot } from "@elastic/eui/es/components/icon/assets/dot";
 
 type IconComponentNameType = ValuesType<typeof ICON_TYPES>;
 type IconComponentCacheType = Partial<Record<IconComponentNameType, unknown>>;
@@ -39,7 +40,8 @@ const cachedIcons: IconComponentCacheType = {
     pencil,
     returnKey,
     warning,
-    pageSelect
+    pageSelect,
+    dot
 };
 
 appendIconComponentCache(cachedIcons);

@@ -15,6 +15,7 @@ import { updateRule } from "./api/updateRule";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
+import {archiveRule} from "./api/archiveRule";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -97,23 +98,46 @@ export const RuleForm = ({ruleId, onClose}: {
             })
     }
 
+    const archiveRuleHandler = () => {
+        if(formErrors.length > 0) {
+            setShowErrors(true);
+            return;
+        }
+
+        archiveRule(ruleFormData.id)
+            .then(data => {
+                if (data.status === 'ok'){
+                    setRuleFormData(baseForm);
+                    onClose();
+                } else {
+                    setFormErrors([...formErrors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                }
+            })
+    }
+
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             {rule && <RuleHistory ruleHistory={rule.live} />}
-            <EuiFlexGroup>
-                <EuiFlexItem>
+            <EuiFlexGroup gutterSize="m">
+                <EuiFlexItem grow={0}>
                     <EuiButton onClick={() => {
                         onClose();
                         setRuleFormData(baseForm);
                     }}>{ruleId ? "Discard Changes" : "Discard Rule"}</EuiButton>
                 </EuiFlexItem>
-                <EuiFlexItem>
+                <EuiFlexItem grow={0}>
                     <EuiButton fill={true} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
+            {
+                !ruleFormData.isArchived ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={archiveRuleHandler} color={"danger"}>Archive Rule</EuiButton>
+                </EuiFlexItem> : null
+            }
+
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
                 {formErrors.map((error, index) => <EuiText key={index}>{`${error.value}`}</EuiText>)}
             </EuiCallOut> : null}

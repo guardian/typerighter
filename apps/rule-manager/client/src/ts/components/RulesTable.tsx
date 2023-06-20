@@ -11,7 +11,9 @@ import {
   EuiButtonIcon,
   EuiFlexGrid,
   EuiIcon,
-  EuiToolTip, EuiSpacer,
+  EuiToolTip,
+  EuiSpacer,
+  EuiHealth,
   EuiTableSelectionType
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
@@ -77,9 +79,18 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
       name: 'Description'
     },
     {
-      field: 'isPublished',
-      name: 'Status',
-      render: value =>  value ? "Live" : "Draft"
+      name: 'State',
+      render: rule =>  {
+        if(rule.isPublished) {
+          return <><EuiHealth color="success"/>Live</>;
+        }
+
+        if(rule.isArchived) {
+          return <><EuiHealth color="danger"/>Archived</>;
+        }
+
+        return <><EuiHealth color="#DA8B45"/>Draft</>;
+      }
     },
     {
       name: <EuiIcon type="pencil"/>,
@@ -91,7 +102,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
         onClick: (rule) => {
           editRule(Number(rule.id))
         },
-        enabled: (item) => hasEditPermissions,
+        enabled: () => hasEditPermissions,
         'data-test-subj': 'action-edit',
       }]
     }
