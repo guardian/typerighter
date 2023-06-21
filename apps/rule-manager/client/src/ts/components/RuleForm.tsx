@@ -49,7 +49,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         onUpdate: () => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishValidationErrors } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishValidationErrors, resetPublishValidationErrors } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
 
@@ -63,6 +63,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
           rule.draft.id && validateRule(rule.draft.id);
         } else {
           setRuleFormData(baseForm);
+          resetPublishValidationErrors();
         }
     }, [rule]);
 

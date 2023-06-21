@@ -116,6 +116,8 @@ export function useRule(ruleId: number | undefined) {
     }
   }
 
+  const resetPublishValidationErrors = () => setPublishValidationErrors(undefined);
+
   useEffect(() => {
     if (ruleId) {
       fetchRule(ruleId);
@@ -124,5 +126,5 @@ export function useRule(ruleId: number | undefined) {
     }
   }, [ruleId])
 
-  return { fetchRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors }
+  return { fetchRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors }
 }
