@@ -25,7 +25,7 @@ export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
     }, [selectedCategory])
 
     return (
-        <EuiFormRow label='Category'>
+        <EuiFormRow label='Category' fullWidth={true}>
             <EuiComboBox
                 options={categories}
                 singleSelection={singleSelectionOptions}
@@ -33,6 +33,7 @@ export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
                 onChange={onChange}
                 isClearable={true}
                 isCaseSensitive
+                fullWidth={true}
             />
         </EuiFormRow>
     );

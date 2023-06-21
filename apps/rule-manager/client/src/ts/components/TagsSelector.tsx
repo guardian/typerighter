@@ -24,13 +24,14 @@ export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
     }, [selectedTags])
 
     return (
-        <EuiFormRow label='Tags'>
+        <EuiFormRow label='Tags' fullWidth={true}>
             <EuiComboBox
                 options={options}
                 selectedOptions={ruleData.tags ? ruleData.tags.map(tag => ({label: tag})) : undefined}
                 onChange={onChange}
                 isClearable={true}
                 isCaseSensitive
+                fullWidth={true}
             />
         </EuiFormRow>
     );
