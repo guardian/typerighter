@@ -206,7 +206,7 @@ class RulesController(
             ruleTesting
               .testRule(rule, List(document))
               .map { resultStream =>
-                Ok.chunked(resultStream.map(result => Json.toJson(result)))
+                Ok.chunked(resultStream.bodyAsSource)
               }
           case None => Future.successful(NotFound(s"No rule with ID: ${id}"))
         }
