@@ -1,4 +1,4 @@
-import {DraftRule, DraftRuleFromServer} from "../hooks/useRule";
+import {DraftRule, DraftRuleFromServer} from "../components/hooks/useRule";
 
 export interface OkIResponse {
     status: 'ok'

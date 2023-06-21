@@ -15,7 +15,6 @@ import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
 import {capitalize} from "lodash";
-import {archiveRule} from "./api/archiveRule";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -48,7 +47,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         onUpdate: (id: number) => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
 
@@ -126,20 +125,13 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         if (!ruleFormData?.id) {
           return;
         }
-        if(formErrors.length > 0) {
-            setShowErrors(true);
-            return;
-        }
 
-        archiveRule(ruleFormData.id)
-            .then(data => {
-                if (data.status === 'ok'){
-                    setRuleFormData(baseForm);
-                    onClose();
-                } else {
-                    setFormErrors([...formErrors, {key: `${data.status} error`, message: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
-                }
-            })
+        archiveRule(ruleFormData.id).then(data => {
+            if (data.status === 'ok'){
+                setRuleFormData(baseForm);
+                onClose();
+            }
+        })
     }
 
     const hasUnsavedChanges = ruleFormData !== rule?.draft;

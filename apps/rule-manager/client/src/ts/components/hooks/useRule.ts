@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {ErrorIResponse, responseHandler, transformApiFormData, transformRuleFormData} from "../api/parseResponse";
+import {ErrorIResponse, responseHandler, transformApiFormData, transformRuleFormData} from "../../utils/api";
 import { errorToString } from "../../utils/error";
 import { FormError } from "../RuleForm";
 
@@ -100,6 +100,18 @@ export function useRule(ruleId: number | undefined) {
     }
   }
 
+  const archiveRule = async (ruleId: number) => {
+    setIsLoading(true);
+
+    const result = await fetch(`${location}rules/${ruleId}/archive`, {
+      method: 'POST',
+    }).then(responseHandler)
+
+    setIsLoading(false);
+
+    return result;
+  }
+
   const validateRule = async (ruleId: number) => {
     setIsValidating(false);
 
@@ -180,5 +192,5 @@ export function useRule(ruleId: number | undefined) {
     }
   }, [ruleId])
 
-  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors }
+  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule }
 }
