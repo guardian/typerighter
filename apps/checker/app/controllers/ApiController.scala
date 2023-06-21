@@ -58,7 +58,7 @@ class ApiController(
     }
   }
 
-  def checkSingleRule = APIAuthAction[JsValue](parse.json) { request =>
+  def checkSingleRule = APIHMACAuthAction[JsValue](parse.json) { request =>
     request.body.validate[CheckSingleRule].asEither match {
       case Right(check) =>
         matcherProvisionerService.getMatcherForRule(check.rule) match {

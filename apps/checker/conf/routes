@@ -17,7 +17,7 @@ POST    /check                      controllers.ApiController.check()
 +nocsrf
 POST    /checkStream                controllers.ApiController.checkStream
 +nocsrf
-POST     /checkSingle               controllers.ApiController.checkSingleRule
+POST    /checkSingle                controllers.ApiController.checkSingleRule
 
 GET     /categories                 controllers.ApiController.getCurrentCategories()
 
