@@ -59,7 +59,7 @@ val commonSettings = Seq(
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
-    "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
+    "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
     "com.google.api-client" % "google-api-client" % "2.0.1",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
@@ -135,7 +135,6 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
-      "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
       "com.gu" %% "editorial-permissions-client" % "2.14",
     )
   )
