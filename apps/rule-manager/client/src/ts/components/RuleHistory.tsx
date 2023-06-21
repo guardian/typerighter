@@ -5,7 +5,7 @@ import {RuleData} from "./hooks/useRule";
 import {maybeGetNameFromEmail} from "../utils/user";
 import styled from "@emotion/styled";
 import {LineBreak} from "./LineBreak";
-import {formatTimestampTZ, friendlyTimestampFormat} from "../utils/date";
+import {friendlyTimestampFormat} from "../utils/date";
 import {Person} from "./icons/person";
 import {format} from "date-fns";
 
@@ -53,13 +53,13 @@ const EventDetailsWhy = styled.div`
 const SheetIconContainer = styled.div`
   padding: 7px 8px;
 `
-const SheetIcon = () => <SheetIconContainer><EuiIcon type="pageSelect" size="lg"/></SheetIconContainer>
+const SheetIcon = () => <SheetIconContainer><EuiIcon type="pageSelect" /></SheetIconContainer>
 
-export const RuleHistory = ({ruleHistory}: { ruleHistory: RuleData['history'] }) => {
+export const RuleHistory = ({ruleHistory, collapse}: { ruleHistory: RuleData['live'], collapse: boolean}) => {
   const sortedHistory = ruleHistory.concat().sort((a, b) => a.revisionId > b.revisionId ? -1 : 1);
   return <RuleFormSection title="PUBLICATION HISTORY">
-    <LineBreak/>
-    <EuiFormRow><>
+    {!collapse && <LineBreak />}
+    {!collapse && <EuiFormRow><>
       {!sortedHistory.length && "This rule has not yet been published."}
       {sortedHistory.map((rule, index) => {
         const isFirstPublished = index === (sortedHistory.length - 1)
@@ -75,11 +75,10 @@ export const RuleHistory = ({ruleHistory}: { ruleHistory: RuleData['history'] })
             </EventDetailsWho>
             <EventDetailsWhy>{rule.reason}</EventDetailsWhy>
           </EventDetails>
-
         </Event>
       })}
     </>
-
     </EuiFormRow>
+    }
   </RuleFormSection>
 }

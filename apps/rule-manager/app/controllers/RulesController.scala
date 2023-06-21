@@ -127,20 +127,46 @@ class RulesController(
       case false => Unauthorized("You don't have permission to edit rules")
       case true =>
         BatchUpdateRuleForm.form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => {
-            val errors = formWithErrors.errors
-            BadRequest(Json.toJson(errors))
-          },
-          formRule => {
-            val ids = formRule.ids
-            DbRuleDraft.batchUpdateFromFormRule(formRule, ids, request.user.email) match {
-              case Failure(e)  => InternalServerError(e.getMessage())
-              case Success(rules) => Ok(Json.toJson(rules))
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              val errors = formWithErrors.errors
+              BadRequest(Json.toJson(errors))
+            },
+            formRule => {
+              val ids = formRule.ids
+              val category = formRule.fields.category
+              val tags = formRule.fields.tags
+              DbRuleDraft.batchUpdateFromFormRule(ids, category, tags, request.user.email) match {
+                case Failure(e)     => InternalServerError(e.getMessage())
+                case Success(rules) => Ok(Json.toJson(rules))
+              }
             }
-          }
-        )
+          )
+    }
+  }
+
+  def canPublish(id: Int) = ApiAuthAction {
+    RuleManager.parseDraftRuleForPublication(id, "validate") match {
+      case Right(_)     => Ok
+      case Left(errors) => BadRequest(Json.toJson(errors))
+    }
+  }
+
+  def archive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to archive rules")
+      case true =>
+        RuleManager.archiveRule(id, request.user.email) match {
+          case Left(e: Throwable) => InternalServerError(e.getMessage)
+          case Right((draftRule, liveRule)) =>
+            Ok(
+              Json.obj(
+                "draft" -> Json.toJson(draftRule),
+                "live" -> Json.toJson(liveRule)
+              )
+            )
+        }
     }
   }
 }

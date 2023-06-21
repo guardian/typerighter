@@ -5,9 +5,10 @@ import {
   EuiFlexItem,
   EuiForm,
   EuiLoadingSpinner,
-  EuiText
+  EuiText,
+  EuiToolTip
 } from "@elastic/eui";
-import React, { useEffect, useState } from "react"
+import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
 import { createRule } from "./api/createRule";
@@ -15,10 +16,12 @@ import { updateRule } from "./api/updateRule";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
+import {capitalize} from "lodash";
+import {archiveRule} from "./api/archiveRule";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
-export type FormError = { id: string; value: string };
+export type FormError = { key: string; message: string };
 
 export const baseForm = {
   ruleType: 'regex' as RuleType,
@@ -39,14 +42,16 @@ const SpinnerContainer = styled.div`
   top: 10px;
 `;
 
-const emptyPatternFieldError = {id: 'pattern', value: 'A pattern is required'}
+const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 
-export const RuleForm = ({ruleId, onClose}: {
+export const RuleForm = ({ruleId, onClose, onUpdate, isInBatchUpdateMode}: {
         ruleId: number | undefined,
         onClose: () => void,
+        onUpdate: () => void,
+        isInBatchUpdateMode: boolean,
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishValidationErrors, resetPublishValidationErrors } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
 
@@ -57,8 +62,10 @@ export const RuleForm = ({ruleId, onClose}: {
     useEffect(() => {
         if (rule) {
           setRuleFormData(rule.draft);
+          rule.draft.id && validateRule(rule.draft.id);
         } else {
           setRuleFormData(baseForm);
+          resetPublishValidationErrors();
         }
     }, [rule]);
 
@@ -81,7 +88,7 @@ export const RuleForm = ({ruleId, onClose}: {
     // We need to be able to show errors on a field by field basis
 
     const saveRuleHandler = () => {
-        if(formErrors.length > 0 || errors?.length > 0) {
+        if(formErrors.length > 0 || errors && errors.length > 0) {
             setShowErrors(true);
             return;
         }
@@ -92,7 +99,52 @@ export const RuleForm = ({ruleId, onClose}: {
                     setRuleFormData(baseForm);
                     onClose();
                 } else {
-                    setFormErrors([...formErrors, {id: `${data.status} error`, value: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                    setFormErrors([...formErrors, {key: `${data.status} error`, message: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
+                }
+            })
+    }
+
+    const publishRuleHandler = async () => {
+      if (!ruleId) {
+        return;
+      }
+      await publishRule(ruleId);
+      await fetchRule(ruleId);
+      onUpdate();
+    }
+
+    const PublishTooltip: React.FC<{ children: ReactElement }> = ({ children }) => {
+        if (!publishValidationErrors) {
+          return <>{children}</>
+        }
+        return <EuiToolTip content={!!publishValidationErrors &&
+            <span>
+                This rule can't be published:
+                <br/>
+                <br/>
+                {publishValidationErrors?.map(error => <span>{`${capitalize(error.key)}: ${error.message}`}<br/></span>)}
+            </span>
+        }>
+          {children}
+        </EuiToolTip>
+    }
+
+    const archiveRuleHandler = () => {
+        if (!ruleFormData?.id) {
+          return;
+        }
+        if(formErrors.length > 0) {
+            setShowErrors(true);
+            return;
+        }
+
+        archiveRule(ruleFormData.id)
+            .then(data => {
+                if (data.status === 'ok'){
+                    setRuleFormData(baseForm);
+                    onClose();
+                } else {
+                    setFormErrors([...formErrors, {key: `${data.status} error`, message: `${data.errorMessage} - try again or contact the Editorial Tools team.`}])
                 }
             })
     }
@@ -100,22 +152,32 @@ export const RuleForm = ({ruleId, onClose}: {
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
-            <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
+            <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors} collapse={isInBatchUpdateMode}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-            {rule && <RuleHistory ruleHistory={rule.live} />}
-            <EuiFlexGroup>
-                <EuiFlexItem>
+            {rule && <RuleHistory ruleHistory={rule.live} collapse={isInBatchUpdateMode}/>}
+            <EuiFlexGroup gutterSize="m">
+                <EuiFlexItem grow={0}>
                     <EuiButton onClick={() => {
                         onClose();
                         setRuleFormData(baseForm);
                     }}>{ruleId ? "Discard Changes" : "Discard Rule"}</EuiButton>
                 </EuiFlexItem>
-                <EuiFlexItem>
+                <EuiFlexItem grow={0}>
                     <EuiButton fill={true} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
+                <EuiFlexItem>
+                  <PublishTooltip>
+                    <EuiButton disabled={!ruleId || isLoading || !!publishValidationErrors} isLoading={isPublishing} fill={true} onClick={publishRuleHandler}>{"Publish"}</EuiButton>
+                  </PublishTooltip>
+                </EuiFlexItem>
             </EuiFlexGroup>
+            {
+                !ruleFormData.isArchived ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={archiveRuleHandler} color={"danger"}>Archive Rule</EuiButton>
+                </EuiFlexItem> : null
+            }
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
-                {formErrors.map((error, index) => <EuiText key={index}>{`${error.value}`}</EuiText>)}
+                {formErrors.map((error, index) => <EuiText key={index}>{`${error.message}`}</EuiText>)}
             </EuiCallOut> : null}
         </EuiFlexGroup>}
     </EuiForm>

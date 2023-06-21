@@ -64,9 +64,21 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
+  def findLatestRevision(externalId: String)(implicit
+      session: DBSession = autoSession
+  ): Option[DbRuleLive] = {
+    withSQL {
+      select
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.externalId, externalId)
+        .orderBy(r.revisionId.desc)
+    }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
+  }
+
   /** Find live rules by `externalId`. Because there may be many inactive live rules with the same
     * id, unlike the `find` method for draft rules, this method returns a list. To return a single
-    * rule, use `findRevision`.
+    * rule, use `findRevision` or `findLatestActiveRevision`.
     */
   def find(
       externalId: String
@@ -99,6 +111,25 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       .apply()
   }
 
+  def setInactive(externalId: String, user: String)(implicit
+      session: DBSession = autoSession
+  ): Option[DbRuleLive] = {
+    withSQL {
+      update(DbRuleLive)
+        .set(
+          column.isActive -> false,
+          column.updatedBy -> user,
+          column.updatedAt -> OffsetDateTime.now
+        )
+        .where
+        .eq(column.externalId, externalId)
+        .and
+        .eq(column.isActive, true)
+    }.update().apply()
+
+    findLatestRevision(externalId)
+  }
+
   /** Create a new live rule. This rule will supercede the previous active live rule.
     */
   def create(liveRule: DbRuleLive, user: String)(implicit
@@ -109,6 +140,8 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .set(column.isActive -> false)
         .where
         .eq(column.isActive, true)
+        .and
+        .eq(column.externalId, liveRule.externalId)
     }.update().apply()
 
     val generatedKey = withSQL {

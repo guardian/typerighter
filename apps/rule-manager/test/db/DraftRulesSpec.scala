@@ -1,7 +1,6 @@
 package db
 
-import model.CreateRuleForm
-import model.UpdateRuleForm
+import model.{CreateRuleForm, UpdateRuleForm}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
@@ -175,14 +174,13 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       .get
 
     val existingIds = List(existingRule1, existingRule2, existingRule3).map(_.id.get)
-
-    val formRule = UpdateRuleForm(
-      category = Some("Style guide and names"),
-      tags = Some("Names,SG,Legal,Coronavirus,Typos,Semantics")
-    )
+    val newCategory = "Style guide and names"
+    val newTags = "Names,SG,Legal,Coronavirus,Typos,Semantics"
 
     val updatedRules =
-      DbRuleDraft.batchUpdateFromFormRule(formRule, existingIds, "another.user").getOrElse(null)
+      DbRuleDraft
+        .batchUpdateFromFormRule(existingIds, newCategory, newTags, "another.user")
+        .getOrElse(null)
 
     val updatedRulesFromDb = updatedRules.map { rule =>
       DbRuleDraft.find(rule.id.get)

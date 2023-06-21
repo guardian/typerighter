@@ -12,11 +12,12 @@ type RuleTypeOption = {
   label: string,
 }
 
-export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErrors}: {
+export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErrors, collapse}: {
         ruleData: DraftRule,
         partiallyUpdateRuleData: PartiallyUpdateRuleData,
         errors: FormError[],
-        showErrors: boolean
+        showErrors: boolean,
+        collapse: boolean,
     }) => {
 
     const ruleTypeOptions: RuleTypeOption[] = [
@@ -32,7 +33,7 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
     const [ruleTypeSelected, setRuleTypeSelected] = useState(ruleTypeOptions[0].id);
 
     return <RuleFormSection title="RULE CONTENT">
-        <LineBreak/>
+        {!collapse && (<><LineBreak/>
         <EuiFlexItem>
             <EuiFormRow
                 label={<Label text='Pattern' required={true}/>}
@@ -74,6 +75,6 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
                         margin-top: 8px;
                     `}
             />
-        </EuiFlexItem>
+        </EuiFlexItem></>)}
     </RuleFormSection>
 }

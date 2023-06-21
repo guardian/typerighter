@@ -1,7 +1,7 @@
 package db
 
 import db.DbRule._
-import model.{BatchUpdateRuleForm, CreateRuleForm, UpdateRuleForm}
+import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
@@ -28,7 +28,8 @@ case class DbRuleDraft(
     updatedAt: OffsetDateTime,
     updatedBy: String,
     revisionId: Int = 0,
-    isPublished: Boolean
+    isPublished: Boolean,
+    isArchived: Boolean
 ) extends DbRuleCommon {
 
   def toLive(reason: String): DbRuleLive = {
@@ -68,7 +69,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   override val columns: Seq[String] = dbColumns ++ Seq(
     "ignore",
-    "id"
+    "id",
+    "is_archived"
   )
 
   def fromResultName(r: ResultName[DbRuleDraft])(rs: WrappedResultSet): DbRuleDraft =
@@ -93,7 +95,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       updatedAt = rs.offsetDateTime("updated_at"),
       updatedBy = rs.string("updated_by"),
       revisionId = rs.int("revision_id"),
-      isPublished = rs.boolean("is_published")
+      isPublished = rs.boolean("is_published"),
+      isArchived = rs.boolean("is_archived")
     )
   }
 
@@ -130,7 +133,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       createdBy = user,
       updatedAt = createdAt,
       updatedBy = user,
-      isPublished = false
+      isPublished = false,
+      isArchived = false
     )
   }
 
@@ -191,7 +195,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       notes: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
-      user: String
+      user: String,
+      isArchived: Boolean = false
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
     val generatedKey = withSQL {
       insert
@@ -208,7 +213,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.forceRedRule -> forceRedRule,
           column.advisoryRule -> advisoryRule,
           column.createdBy -> user,
-          column.updatedBy -> user
+          column.updatedBy -> user,
+          column.isArchived -> isArchived
         )
     }.updateAndReturnGeneratedKey().apply()
 
@@ -270,38 +276,41 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       case Left(result) => Left(result)
     }
   }
-  def batchUpdateFromFormRule(formRule: BatchUpdateRuleForm, ids: List[Int], user: String)
-       (implicit session: DBSession = autoSession): Try[List[DbRuleDraft]] = {
+  def batchUpdateFromFormRule(ids: List[Int], category: String, tags: String, user: String)(implicit
+      session: DBSession = autoSession
+  ): Try[List[DbRuleDraft]] = {
     Try {
-      val updatedRules = ids.map { id =>
-        val existingRule = find(id)
-          .toRight(
-            new Exception(s"Error updating rule with id ${id}: could not read existing rule")
+      val updatedRows = withSQL {
+        update(DbRuleDraft)
+          .set(
+            column.category -> category,
+            column.tags -> tags,
+            column.updatedBy -> user,
+            column.revisionId -> sqls"${column.revisionId} + 1"
           )
-          .map { rule =>
-          val mergedRule = rule.copy(
-            category = Some(formRule.fields.category),
-            tags = Some(formRule.fields.tags)
-          )
-          val updatedRows = withSQL {
-            update(DbRuleDraft)
-              .set(
-                column.category -> mergedRule.category,
-                column.tags -> mergedRule.tags,
-                column.updatedBy -> user,
-                column.revisionId -> sqls"${column.revisionId} + 1"
-              )
-              .where
-              .in(column.id, ids)
-          }.update().apply()
+          .where
+          .in(column.id, ids)
+      }.update().apply()
 
-          if (updatedRows > 0) mergedRule
-          else throw new Exception(s"Error updating rule with id ${id}: no rows updated")
+      if (updatedRows > 0) {
+        ids.flatMap { id =>
+          find(id) match {
+            case Some(rule) =>
+              Some(
+                rule.copy(
+                  category = Some(category),
+                  tags = Some(tags)
+                )
+              )
+            case None =>
+              println(s"Rule not found matching ID $id")
+              None
+          }
         }
-        existingRule
+      } else {
+        throw new Exception("No rows updated")
       }
-      updatedRules.collect { case Right(rule) => rule }
-    }.recoverWith { case e: Throwable => Failure(e)}
+    }
   }
 
   def batchInsert(
@@ -323,7 +332,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("createdBy") -> entity.createdBy,
         Symbol("createdAt") -> entity.createdAt,
         Symbol("updatedBy") -> entity.updatedBy,
-        Symbol("updatedAt") -> entity.updatedAt
+        Symbol("updatedAt") -> entity.updatedAt,
+        Symbol("isArchived") -> entity.isArchived
       )
     )
     SQL(s"""insert into $tableName(
@@ -341,7 +351,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       created_by,
       created_at,
       updated_by,
-      updated_at
+      updated_at,
+      is_archived
     ) values (
       {ruleType},
       {pattern},
@@ -357,7 +368,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {createdBy},
       {createdAt},
       {updatedBy},
-      {updatedAt}
+      {updatedAt},
+      {isArchived}
     )""").batchByName(params.toSeq: _*).apply[List]()
   }
 
@@ -382,6 +394,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.createdBy -> entity.createdBy,
           column.updatedAt -> OffsetDateTime.now(),
           column.updatedBy -> user,
+          column.isArchived -> entity.isArchived,
           column.revisionId -> sqls"${column.revisionId} + 1"
         )
         .where
