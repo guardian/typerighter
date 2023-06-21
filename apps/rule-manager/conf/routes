@@ -22,6 +22,8 @@ GET     /rules/:id                  controllers.RulesController.get(id: Int)
 POST    /rules/:id                  controllers.RulesController.update(id: Int)
 +nocsrf
 POST    /rules/:id/publish          controllers.RulesController.publish(id: Int)
++nocsrf
+POST    /rules/:id/archive          controllers.RulesController.archive(id: Int)
 
 # Tags
 +nocsrf

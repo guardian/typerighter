@@ -121,4 +121,21 @@ class RulesController(
           )
     }
   }
+
+  def archive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to archive rules")
+      case true =>
+        RuleManager.archiveRule(id, request.user.email) match {
+          case Left(e: Throwable) => InternalServerError(e.getMessage)
+          case Right((draftRule, liveRule)) =>
+            Ok(
+              Json.obj(
+                "draft" -> Json.toJson(draftRule),
+                "live" -> Json.toJson(liveRule)
+              )
+            )
+        }
+    }
+  }
 }
