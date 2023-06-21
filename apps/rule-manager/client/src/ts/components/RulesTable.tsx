@@ -23,6 +23,7 @@ import {PageContext} from '../utils/window';
 import {hasCreateEditPermissions} from './helpers/hasCreateEditPermissions';
 import styled from '@emotion/styled';
 import {FeatureSwitchesContext} from "./context/featureSwitches";
+import {DraftRule} from "./hooks/useRule";
 
 const sorting = {
   sort: {
@@ -36,26 +37,13 @@ type Category = {
   id: string;
 }
 
-export type Rule = {
-  type: string;
-  id: string;
-  description: string;
-  replacement: {
-    type: 'TEXT_SUGGESTION',
-    text: string,
-  };
-  category: Category;
-  enabled: boolean;
-  regex: string;
-}
-
 export const useCreateEditPermissions = () => {
   const permissions = useContext(PageContext).permissions;
   // Do not recalculate permissions if the permissions list has not changed
   return useMemo(() => hasCreateEditPermissions(permissions), [permissions]);
 }
 
-const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<Rule>> => {
+const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<DraftRule>> => {
   const hasEditPermissions = useCreateEditPermissions();
   return [
     {
@@ -80,7 +68,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     },
     {
       name: 'State',
-      render: (rule: Rule) =>  {
+      render: (rule: DraftRule) =>  {
         if(rule.isPublished) {
           return <><EuiHealth color="success"/>Live</>;
         }

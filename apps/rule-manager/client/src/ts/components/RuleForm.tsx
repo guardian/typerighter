@@ -4,8 +4,9 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiForm,
-  EuiLoadingSpinner, EuiSpacer,
-  EuiText, EuiToolTip
+  EuiLoadingSpinner,
+  EuiText,
+  EuiToolTip
 } from "@elastic/eui";
 import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";

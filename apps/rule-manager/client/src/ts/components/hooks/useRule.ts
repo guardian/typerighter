@@ -21,7 +21,8 @@ export type BaseRule = {
   updatedBy: string,
   updatedAt: string,
   id?: number,
-  isArchived: boolean
+  isArchived: boolean,
+  isPublished: boolean
 }
 
 export type DraftRule = BaseRule
