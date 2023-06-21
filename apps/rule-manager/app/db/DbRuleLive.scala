@@ -140,6 +140,8 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .set(column.isActive -> false)
         .where
         .eq(column.isActive, true)
+        .and
+        .eq(column.externalId, liveRule.externalId)
     }.update().apply()
 
     val generatedKey = withSQL {

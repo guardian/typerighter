@@ -1,8 +1,8 @@
-import { RuleFormData } from "../RuleForm";
+import { DraftRule, RuleData } from "../hooks/useRule";
 import { transformRuleFormData } from "./createRule";
 import { ErrorIResponse, OkIResponse, responseHandler } from "./parseResponse";
 
-export const updateRule = async (ruleForm: RuleFormData): Promise<ErrorIResponse | OkIResponse> => {
+export const updateRule = async (ruleForm: DraftRule): Promise<ErrorIResponse | OkIResponse> => {
     const formDataForApi = transformRuleFormData(ruleForm);
     // We would always expect the ruleForm to include an ID when updating a rule
     if (!ruleForm.id) return ({status: 'error', errorMessage: "Update endpoint requires a rule ID"})

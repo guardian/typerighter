@@ -58,7 +58,7 @@ export const FeatureSwitchesContext = createContext<{
  *
  * const { featureSwitches, toggleFeatureSwitch, getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
  */
-export const FeatureSwitchesProvider = ({ children }) => {
+export const FeatureSwitchesProvider: React.FC = ({ children }) => {
   const [featureSwitches, setFeatureSwitches] = useState(
     initialFeatureSwitchValues
   );

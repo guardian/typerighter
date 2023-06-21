@@ -274,17 +274,56 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     allLiveRules(1).isActive shouldBe true
   }
 
+  "publishRule" should "not alter the active state of other rules when publishing a rule" in { () =>
+    val ruleToPublish = createPublishableRule
+    val anotherRuleToPublish = createPublishableRule
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+    RuleManager.publishRule(anotherRuleToPublish.id.get, user, reason, bucketRuleResource)
+
+    val allLiveRules = DbRuleLive.findAll()
+    allLiveRules(0).isActive shouldBe true
+    allLiveRules(1).isActive shouldBe true
+  }
+
   "publishRule" should "should not be able to publish the same revision of a rule" in { () =>
     val ruleToPublish = createPublishableRule
 
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
-      case Right(rule) => fail("This rule should not be publishable")
+      case Right(_) => fail("This rule should not be publishable")
       case Left(formErrors) =>
         formErrors.head.message should include(
-          "duplicate key value violates unique constraint \"rules_live_composite_pkey\""
+          "has not changed"
         )
     }
+  }
+
+  "parseDraftRuleForPublication" should "should give validation errors when the rule is incomplete" in {
+    () =>
+      val ruleToPublish = DbRuleDraft
+        .create(
+          ruleType = "regex",
+          user = user,
+          ignore = false
+        )
+        .get
+      RuleManager.parseDraftRuleForPublication(ruleToPublish.id.get, "reason") match {
+        case Right(_)         => fail("This rule should not be publishable")
+        case Left(formErrors) => formErrors.length shouldBe 3
+      }
+  }
+
+  "parseDraftRuleForPublication" should "should give validation errors when a live rule of that revision id already exists" in {
+    () =>
+      val ruleToPublish = createPublishableRule
+      RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
+      RuleManager.parseDraftRuleForPublication(ruleToPublish.id.get, "reason") match {
+        case Right(_) => fail("This rule should not be publishable")
+        case Left(formErrors) =>
+          formErrors.length shouldBe 1
+          formErrors.head.message should include("has not changed")
+      }
   }
 
   "getAllRuleData" should "return the current draft rule" in { () =>

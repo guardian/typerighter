@@ -122,6 +122,13 @@ class RulesController(
     }
   }
 
+  def canPublish(id: Int) = ApiAuthAction {
+    RuleManager.parseDraftRuleForPublication(id, "validate") match {
+      case Right(_)     => Ok
+      case Left(errors) => BadRequest(Json.toJson(errors))
+    }
+  }
+
   def archive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to archive rules")
