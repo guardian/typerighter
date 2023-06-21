@@ -103,7 +103,7 @@ const EditRule = ({
                     editIsEnabled,
                     editRule,
                     rule
-                  }: { editIsEnabled: boolean, editRule: (ruleId: number) => void, rule: Rule }) => {
+                  }: { editIsEnabled: boolean, editRule: (ruleId: number) => void, rule: DraftRule }) => {
   return <EuiToolTip
     content={editIsEnabled ? "" : "You do not have the correct permissions to edit a rule. Please contact Central Production if you need to edit rules."}>
     <EditRuleButton editIsEnabled={editIsEnabled}
@@ -143,14 +143,14 @@ const RulesTable = () => {
 
   const columns = createColumns(openEditRulePanel);
 
-  const [selectedRules, setSelectedRules] = useState<Rule[]>([]);
+  const [selectedRules, setSelectedRules] = useState<DraftRule[]>([]);
 
-  const onSelectionChange = (selectedRules: Rule[]) => {
+  const onSelectionChange = (selectedRules: DraftRule[]) => {
     setSelectedRules(selectedRules);
     openEditRulePanel(Number(selectedRules[0]?.id));
   }
 
-  const selection: EuiTableSelectionType<Rule> = {
+  const selection: EuiTableSelectionType<DraftRule> = {
     selectable: () => hasCreatePermissions,
     selectableMessage: (selectable, rule) => !selectable ? "You don't have edit permissions" : '',
     onSelectionChange,

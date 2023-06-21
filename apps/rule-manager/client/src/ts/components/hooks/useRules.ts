@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import {Rule} from "../RulesTable";
 import { errorToString } from '../../utils/error';
+import {DraftRule} from "./useRule";
 
 export function useRules() {
     const { location } = window;
-    const [rules, setRules] = useState<Rule[] | null>(null);
+    const [rules, setRules] = useState<DraftRule[] | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
     const [isRefreshing, setIsRefreshing] = useState(false);
