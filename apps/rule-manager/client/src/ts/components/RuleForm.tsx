@@ -16,6 +16,8 @@ import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
 import {capitalize} from "lodash";
 
+import { ReasonModal } from "./modals/Reason";
+
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
 export type FormError = { key: string; message: string };
@@ -50,6 +52,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
+    const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
       setRuleFormData({ ...ruleFormData, ...partialReplacement});
@@ -96,12 +99,23 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
       }
     };
 
-    const publishRuleHandler = async () => {
+    const maybePublishRuleHandler = () => {
+      if (rule?.live.length) {
+        setIsReasonModalVisible(true);
+      } else {
+        publishRuleHandler("First published");
+      }
+    }
+
+    const publishRuleHandler = async (reason: string) => {
       if (!ruleId) {
         return;
       }
-      await publishRule(ruleId);
+      await publishRule(ruleId, reason);
       await fetchRule(ruleId);
+      if (isReasonModalVisible) {
+        setIsReasonModalVisible(false);
+      };
       onUpdate(ruleId);
     }
 
@@ -161,7 +175,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                 </EuiFlexItem>
                 <EuiFlexItem>
                   <PublishTooltip>
-                    <EuiButton disabled={!ruleId || isLoading || !!publishValidationErrors} isLoading={isPublishing} fill={true} onClick={publishRuleHandler}>{"Publish"}</EuiButton>
+                    <EuiButton fill={true} disabled={!ruleId || isLoading || !!publishValidationErrors} isLoading={isPublishing} onClick={maybePublishRuleHandler}>{"Publish"}</EuiButton>
                   </PublishTooltip>
                 </EuiFlexItem>
             </EuiFlexGroup>
@@ -174,5 +188,6 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                 {formErrors.map((error, index) => <EuiText key={index}>{`${error.message}`}</EuiText>)}
             </EuiCallOut> : null}
         </EuiFlexGroup>}
+        {isReasonModalVisible && <ReasonModal onClose={() => setIsReasonModalVisible(false)} onSubmit={publishRuleHandler} isLoading={isPublishing} />}
     </EuiForm>
 }
