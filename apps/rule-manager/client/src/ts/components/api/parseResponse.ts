@@ -34,3 +34,7 @@ export const responseHandler = async (response: Response) => {
         return createErrorResponse(response.statusText, response.status)
     }
 }
+
+export const transformRuleFormData = (ruleForm: DraftRule): DraftRuleFromServer => {
+  return {...ruleForm, tags: ruleForm?.tags?.length ? ruleForm.tags.join(",") : undefined};
+}

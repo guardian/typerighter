@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
-import { ErrorIResponse, responseHandler, transformApiFormData} from "../api/parseResponse";
+import {ErrorIResponse, responseHandler, transformApiFormData, transformRuleFormData} from "../api/parseResponse";
 import { errorToString } from "../../utils/error";
-import { transformRuleFormData } from "../api/createRule";
 import { FormError } from "../RuleForm";
 
 export type RuleType = 'regex' | 'languageToolXML';
