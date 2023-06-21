@@ -106,7 +106,7 @@ export function useRule(ruleId: number | undefined) {
       const response = await fetch(`${location}rules/${ruleId}/publish`);
       if (response.status === 400) {
         const validationErrors: FormError[] = await response.json();
-        return setPublishingErrors(validationErrors);
+        return setPublishValidationErrors(validationErrors);
       }
       setPublishValidationErrors(undefined);
     } catch (error) {
