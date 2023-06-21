@@ -49,7 +49,7 @@ export function useRule(ruleId: number | undefined) {
   const [isLoading, setIsLoading] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [publishingErrors, setPublishingErrors] = useState<FormError[] | undefined>(undefined);
+  const [publishValidationErrors, setPublishValidationErrors] = useState<FormError[] | undefined>(undefined);
   const [errors, setErrors] = useState<string | undefined>(undefined);
   const [rule, setRule] = useState<RuleData | undefined>(undefined);
 
@@ -108,7 +108,7 @@ export function useRule(ruleId: number | undefined) {
         const validationErrors: FormError[] = await response.json();
         return setPublishingErrors(validationErrors);
       }
-      setPublishingErrors(undefined);
+      setPublishValidationErrors(undefined);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -124,5 +124,5 @@ export function useRule(ruleId: number | undefined) {
     }
   }, [ruleId])
 
-  return { fetchRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishingErrors }
+  return { fetchRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors }
 }

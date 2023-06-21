@@ -49,7 +49,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         onUpdate: () => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishingErrors } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, validateRule, publishValidationErrors } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
 
@@ -111,19 +111,19 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const PublishTooltip: React.FC<{ children: ReactElement }> = ({ children }) => {
-      if (!publishingErrors) {
-        return <>{children}</>
-      }
-      return <EuiToolTip content={!!publishingErrors &&
-        <span>
+        if (!publishValidationErrors) {
+          return <>{children}</>
+        }
+        return <EuiToolTip content={!!publishValidationErrors &&
+            <span>
                 This rule can't be published:
                 <br/>
                 <br/>
-          {publishingErrors?.map(error => <span>{`${capitalize(error.key)}: ${error.message}`}<br/></span>)}
+                {publishValidationErrors?.map(error => <span>{`${capitalize(error.key)}: ${error.message}`}<br/></span>)}
             </span>
-      }>
-        {children}
-      </EuiToolTip>
+        }>
+          {children}
+        </EuiToolTip>
     }
 
     const archiveRuleHandler = () => {
@@ -164,7 +164,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                 </EuiFlexItem>
                 <EuiFlexItem>
                   <PublishTooltip>
-                    <EuiButton disabled={!ruleId || isLoading || !!publishingErrors} isLoading={isPublishing} fill={true} onClick={publishRuleHandler}>{"Publish"}</EuiButton>
+                    <EuiButton disabled={!ruleId || isLoading || !!publishValidationErrors} isLoading={isPublishing} fill={true} onClick={publishRuleHandler}>{"Publish"}</EuiButton>
                   </PublishTooltip>
                 </EuiFlexItem>
             </EuiFlexGroup>
@@ -173,7 +173,6 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                     <EuiButton onClick={archiveRuleHandler} color={"danger"}>Archive Rule</EuiButton>
                 </EuiFlexItem> : null
             }
-
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
                 {formErrors.map((error, index) => <EuiText key={index}>{`${error.message}`}</EuiText>)}
             </EuiCallOut> : null}
