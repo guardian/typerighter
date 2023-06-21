@@ -14,7 +14,20 @@ import db.{DbRuleDraft, DbRuleLive}
 import db.DbRuleDraft.autoSession
 import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
+import play.api.libs.json.Json
 import scalikejdbc.DBSession
+
+object AllRuleData {
+  implicit val writes = Json.writes[AllRuleData]
+}
+
+/* All the data associated with a rule, including the current draft rule, the active
+ * live rule if present, and all previous published versions of the rule.
+ */
+case class AllRuleData(
+    draft: DbRuleDraft,
+    live: Seq[DbRuleLive]
+)
 
 object RuleManager extends Loggable {
   object RuleType {
@@ -121,29 +134,31 @@ object RuleManager extends Loggable {
 
   def getAllRuleData(id: Int)(implicit
       session: DBSession = autoSession
-  ): Option[(DbRuleDraft, List[DbRuleLive])] = {
+  ): Option[AllRuleData] = {
     DbRuleDraft.find(id).map { draftRule =>
       val liveRules = draftRule.externalId match {
         case Some(externalId) => DbRuleLive.find(externalId).sortBy(-_.revisionId)
         case None             => List.empty
       }
 
-      (draftRule, liveRules)
+      AllRuleData(draftRule, liveRules)
     }
   }
 
   def publishRule(id: Int, user: String, reason: String, bucketRuleResource: BucketRuleResource)(
       implicit session: DBSession = autoSession
-  ): Either[Seq[FormError], DbRuleLive] = {
+  ): Either[Seq[FormError], AllRuleData] = {
     for {
       liveRule <- parseDraftRuleForPublication(id, reason)
-      persistedLiveRule <- DbRuleLive
+      _ <- DbRuleLive
         .create(liveRule, user)
         .toEither
         .left
         .map(e => Seq(FormError("Error writing rule to live table", e.getMessage)))
       _ <- publishLiveRules(bucketRuleResource)
-    } yield persistedLiveRule
+      allRuleData <- getAllRuleData(id)
+        .toRight(Seq(FormError("Error reading rule from live table", "Rule not found")))
+    } yield allRuleData
   }
 
   /** Given a draft rule and a reason for publication, validates the draft rule for publication and
