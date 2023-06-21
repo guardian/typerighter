@@ -1,7 +1,7 @@
 package db
 
 import db.DbRule._
-import model.{CreateRuleForm, UpdateRuleForm}
+import model.{BatchUpdateRuleForm, CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
 import play.api.mvc.Results.{InternalServerError, NotFound}
@@ -270,21 +270,18 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       case Left(result) => Left(result)
     }
   }
-  def batchUpdateFromFormRule(formRule: UpdateRuleForm, ids: List[Int], user: String)(implicit
-      session: DBSession = autoSession
-  ): Try[List[DbRuleDraft]] = {
-    try {
-      val updatedRules = ids.flatMap { id =>
+  def batchUpdateFromFormRule(formRule: BatchUpdateRuleForm, ids: List[Int], user: String)
+       (implicit session: DBSession = autoSession): Try[List[DbRuleDraft]] = {
+    Try {
+      val updatedRules = ids.map { id =>
         val existingRule = find(id)
           .toRight(
             new Exception(s"Error updating rule with id ${id}: could not read existing rule")
           )
-          .toOption
-
-        existingRule.map { rule =>
+          .map { rule =>
           val mergedRule = rule.copy(
-            category = formRule.category.orElse(rule.category),
-            tags = formRule.tags.orElse(rule.tags)
+            category = Some(formRule.fields.category),
+            tags = Some(formRule.fields.tags)
           )
           val updatedRows = withSQL {
             update(DbRuleDraft)
@@ -295,18 +292,16 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
                 column.revisionId -> sqls"${column.revisionId} + 1"
               )
               .where
-              .eq(column.id, id)
+              .in(column.id, ids)
           }.update().apply()
 
           if (updatedRows > 0) mergedRule
           else throw new Exception(s"Error updating rule with id ${id}: no rows updated")
         }
+        existingRule
       }
-
-      Success(updatedRules)
-    } catch {
-      case e: Throwable => Failure(e)
-    }
+      updatedRules.collect { case Right(rule) => rule }
+    }.recoverWith { case e: Throwable => Failure(e)}
   }
 
   def batchInsert(
