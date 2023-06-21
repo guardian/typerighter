@@ -234,27 +234,24 @@ const RulesTable = () => {
           />
         }
       </EuiFlexItem>
-      <EuiFlexItem grow={1}>
-        {getFeatureSwitchValue("create-and-edit") &&
-          <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
-            <EuiButton
-              isDisabled={!hasCreatePermissions}
-              onClick={() => openEditRulePanel(undefined)}
-            >Create Rule</EuiButton>
-          </EuiToolTip>
-        }
-        <EuiSpacer />
-        {formMode !== 'closed' &&
+      {formMode !== 'closed' && (
+        <EuiFlexItem grow={1}>
           <RuleForm
             onClose={() => {
               setFormMode('closed');
               fetchRules();
             }}
-            onUpdate={fetchRules}
+            onUpdate={(id) => {
+              fetchRules();
+              setCurrentRuleId(id);
+              if (formMode === 'create') {
+                setFormMode('edit');
+              }
+            }}
             ruleId={currentRuleId}
           />
-        }
-      </EuiFlexItem>
+        </EuiFlexItem>
+      )}
     </EuiFlexGroup>
   </>
 }
