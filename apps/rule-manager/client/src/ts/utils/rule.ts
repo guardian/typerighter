@@ -18,7 +18,7 @@ export const getRuleState = (rule: DraftRule): RuleState => {
 export const getRuleStateColour = (rule: DraftRule): IconColor =>
   stateToColourMap[getRuleState(rule)];
 
-const stateToColourMap: {[state: RuleState]: IconColor} = {
+const stateToColourMap: {[state in RuleState]: IconColor} = {
   live: "success",
   archived: "danger",
   draft: "#DA8B45"
