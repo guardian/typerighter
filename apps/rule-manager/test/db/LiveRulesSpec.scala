@@ -10,7 +10,7 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
 
   override def fixture(implicit session: DBSession) = {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
-    sql"insert into rules_live (rule_type, pattern, replacement, category, tags, description, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by, rule_order) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user', 1)"
+    sql"insert into rules_live (rule_type, pattern, replacement, category, tags, description, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by, is_active, rule_order) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user', true, 1)"
       .update()
       .apply()
   }

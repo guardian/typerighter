@@ -11,7 +11,7 @@ export interface ErrorIResponse {
     statusCode?: number;
 }
 
-export const transformApiFormData = <Rule extends { tags: string }>(draftRule: Rule): Omit<Rule, "tags"> & { tags: string[] } => (
+export const transformApiFormData = <Rule extends { tags: string | undefined }>(draftRule: Rule): Omit<Rule, "tags"> & { tags: string[] } => (
     {...draftRule, tags: draftRule.tags ? draftRule.tags.split(",") : []}
 )
 

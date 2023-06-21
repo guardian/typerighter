@@ -15,6 +15,5 @@ object BatchUpdateRuleForm {
   )
 }
 
-case class BatchUpdateRuleForm(ids: List[Int], fields:BatchUpdateFields)
+case class BatchUpdateRuleForm(ids: List[Int], fields: BatchUpdateFields)
 case class BatchUpdateFields(category: String, tags: String)
-

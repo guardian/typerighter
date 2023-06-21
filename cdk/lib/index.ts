@@ -75,6 +75,11 @@ export class Typerighter extends GuStack {
       bucketName: "pan-domain-auth-settings",
     });
 
+    const permissionsFilePolicyStatement = new GuGetS3ObjectsPolicy(this, "PermissionsPolicy", {
+      bucketName: "permissions-cache",
+      paths: [`${this.stage}/*`]
+    });
+
     const lowercaseStage = this.stage.toLowerCase();
 
     const typerighterBucketName = `typerighter-app-${lowercaseStage}`;
@@ -103,7 +108,10 @@ export class Typerighter extends GuStack {
         noMonitoring: true,
       },
       roleConfiguration: {
-        additionalPolicies: [pandaAuthPolicy],
+        additionalPolicies: [
+          pandaAuthPolicy,
+          permissionsFilePolicyStatement
+        ],
       },
       scaling: {
         minimumInstances: props.instanceCount,
