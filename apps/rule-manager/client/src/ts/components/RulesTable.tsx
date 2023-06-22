@@ -46,6 +46,12 @@ export const useCreateEditPermissions = () => {
   return useMemo(() => hasCreateEditPermissions(permissions), [permissions]);
 }
 
+const TagWrapContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 5px;
+ `;
+
 const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<DraftRule>> => {
   const hasEditPermissions = useCreateEditPermissions();
   return [
@@ -75,7 +81,10 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     {
       field: 'tags',
       name: 'Tags',
-      render: (value: string) => value ? value.split(',').map(tagName => <EuiBadge key={tagName}>{tagName}</EuiBadge>) : undefined,
+      render: (value: string) => value ?
+        <TagWrapContainer>{value.split(',').map(tagName =>
+          <span><EuiBadge key={tagName}>{tagName}</EuiBadge></span>
+        )}</TagWrapContainer> : undefined,
       width: '13.2%'
     },
     {
