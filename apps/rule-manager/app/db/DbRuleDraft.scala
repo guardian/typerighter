@@ -147,7 +147,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
     sql"""
         SELECT
-             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published, array_agg(${rt.tag_id})
+             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published, array_agg(${rt.tag_id}) as ${rd.resultName.tags}
         FROM
             ${DbRuleDraft as rd}
         LEFT JOIN ${DbRuleLive as rl}
@@ -181,10 +181,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     sql"""
         SELECT
-             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
+             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published, array_agg(${rt.tag_id}) as ${rd.resultName.tags}
         FROM
             ${DbRuleDraft as rd}
         LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
+        INNER JOIN ${RuleTagDraft as rt}
+              ON ${rd.id} = ${rt.rule_id}
+              GROUP BY ${rd.id}
         ORDER BY ${rd.id}
        """
       .map(DbRuleDraft.fromRow)
