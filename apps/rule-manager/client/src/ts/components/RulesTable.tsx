@@ -50,6 +50,7 @@ const TagWrapContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0 5px;
+  width: 100%;
  `;
 
 const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<DraftRule>> => {
@@ -83,7 +84,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
       name: 'Tags',
       render: (value: string) => value ?
         <TagWrapContainer>{value.split(',').map(tagName =>
-          <span><EuiBadge key={tagName}>{tagName}</EuiBadge></span>
+          <span style={{width: '100%'}}><EuiBadge key={tagName}>{tagName}</EuiBadge></span>
         )}</TagWrapContainer> : undefined,
       width: '13.2%'
     },
