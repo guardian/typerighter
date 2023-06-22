@@ -140,20 +140,22 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   val rd = DbRuleDraft.syntax("rd")
   val rl = DbRuleLive.syntax("rl")
+  val rt = RuleTagDraft.syntax("rt")
 
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
     sql"""
         SELECT
-             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
+             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published, array_agg(${rt.tag_id})
         FROM
             ${DbRuleDraft as rd}
         LEFT JOIN ${DbRuleLive as rl}
             ON ${rd.externalId} = ${rl.externalId}
             AND ${rl.isActive} = TRUE
-        WHERE
-            ${rd.id} = $id
+        INNER JOIN ${RuleTagDraft as rt}
+          ON ${rd.id} = ${rt.rule_id}
+          GROUP BY ${rd.id}
        """
       .map(DbRuleDraft.fromRow)
       .single()
