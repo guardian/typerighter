@@ -24,6 +24,8 @@ abstract class CommonConfig(
     val awsCredentials: AWSCredentialsProvider,
     val ws: WSClient
 ) extends Loggable {
+  val capiApiKey = playConfig.get[String]("capi.apiKey")
+
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 
