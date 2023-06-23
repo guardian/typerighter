@@ -17,10 +17,10 @@ class ContentClient(client: GuardianContentClient) {
   )(implicit ec: ExecutionContext): Future[SearchResponse] = {
     val query = ContentApiClient.search
       .q(queryStr)
-      .showFields("body")
+      .showBlocks("all")
       .orderBy("newest")
       .page(page)
-      .pageSize(100)
+      .pageSize(1)
     val queryWithTags = tags.foldLeft(query) { case (q, tag) => q.tag(tag) }
     val queryWithSections = sections.foldLeft(queryWithTags) { case (q, section) =>
       q.section(section)

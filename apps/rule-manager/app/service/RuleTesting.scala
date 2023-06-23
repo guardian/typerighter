@@ -1,30 +1,44 @@
 package service
 
+import akka.stream.Materializer
 import play.api.libs.ws.WSClient
 import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
-import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, CheckerRule, Document}
+import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document}
 import db.DbRuleDraft
-import play.api.libs.json.{JsError, JsSuccess, Json}
+import play.api.libs.json.{Format, JsError, JsSuccess, Json}
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
+case class TestRuleCapiQuery(
+    queryStr: String,
+    tags: List[String] = List.empty,
+    sections: List[String] = List.empty,
+)
+
+object TestRuleCapiQuery {
+  implicit val format: Format[TestRuleCapiQuery] = Json.format[TestRuleCapiQuery]
+}
+
+/** Test rules against content.
+  */
 class RuleTesting(
     ws: WSClient,
     hmacClient: HMACClient,
     contentClient: ContentClient,
     checkerUrl: String
-) extends Loggable {
-  def testRule(
-      rule: CheckerRule,
-      queryStr: String,
-      tags: List[String] = List.empty,
-      sections: List[String] = List.empty
+)(implicit materializer: Materializer) extends Loggable {
+
+  /** Test a rule against a given CAPI query. Return a list of matches from the checker
+    * service endpoint as a stream of json-seq records.
+    */
+  def testRuleWithCapiQuery(
+      ruleId: Int,
+      query: TestRuleCapiQuery
   )(implicit ec: ExecutionContext) = {
     for {
-      content <- contentClient.searchContent(queryStr, tags, sections)
-    } yield {
-      content.results.map { result =>
+      content <- contentClient.searchContent(query.queryStr, query.tags, query.sections)
+      documents = content.results.map { result =>
         Document(
           result.id,
           result.blocks
@@ -34,18 +48,8 @@ class RuleTesting(
             .toList
         )
       }
-    }
+    } yield testRule(ruleId, documents.toList)
   }
-
-  def testRule(rule: CheckerRule, documents: List[Document]) = {
-    val path = "/checkSingle"
-    val headers = hmacClient.getHMACHeaders(path)
-    val requestId = UUID.randomUUID().toString()
-    val checkSingleRule = CheckSingleRule(
-      requestId = requestId,
-      documents = documents,
-      rule = rule
-    )
 
   /** Test a rule against the given list of documents. Return a list of matches from the checker
     * service endpoint as a stream of json-seq records.
