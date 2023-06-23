@@ -20,7 +20,7 @@ class ContentClient(client: GuardianContentClient) {
       .showBlocks("all")
       .orderBy("newest")
       .page(page)
-      .pageSize(1)
+      .pageSize(5)
     val queryWithTags = tags.foldLeft(query) { case (q, tag) => q.tag(tag) }
     val queryWithSections = sections.foldLeft(queryWithTags) { case (q, section) =>
       q.section(section)

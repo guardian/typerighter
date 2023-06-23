@@ -1,9 +1,24 @@
 package service
 
+<<<<<<< HEAD
 import akka.stream.Materializer
 import play.api.libs.ws.WSClient
 import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
 import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document}
+=======
+import akka.NotUsed
+import akka.stream.{KillSwitches, Materializer}
+import akka.stream.scaladsl.{Keep, MergeHub, Sink, Source}
+import play.api.libs.ws.WSClient
+import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
+import com.gu.typerighter.model.{
+  CheckSingleRule,
+  CheckSingleRuleResult,
+  Document,
+  RuleMatch,
+  TextBlock
+}
+>>>>>>> f4dadf1c (Recursively paginate through CAPI results, merging the resulting match streams)
 import db.DbRuleDraft
 import play.api.libs.json.{Format, JsError, JsSuccess, Json}
 
@@ -13,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 case class TestRuleCapiQuery(
     queryStr: String,
     tags: List[String] = List.empty,
-    sections: List[String] = List.empty,
+    sections: List[String] = List.empty
 )
 
 object TestRuleCapiQuery {
@@ -27,28 +42,75 @@ class RuleTesting(
     hmacClient: HMACClient,
     contentClient: ContentClient,
     checkerUrl: String
-)(implicit materializer: Materializer) extends Loggable {
+)(implicit materializer: Materializer)
+    extends Loggable {
 
-  /** Test a rule against a given CAPI query. Return a list of matches from the checker
-    * service endpoint as a stream of json-seq records.
+  /** Test a rule against a given CAPI query. Paginates through CAPI content to return matches
+    * until:
+    *   - `matchCount` is met.
+    *   - `maxPageCount` is met.
     */
   def testRuleWithCapiQuery(
       ruleId: Int,
-      query: TestRuleCapiQuery
+      query: TestRuleCapiQuery,
+      matchCount: Int = 10,
+      maxPageCount: Int = 20
   )(implicit ec: ExecutionContext) = {
-    for {
-      content <- contentClient.searchContent(query.queryStr, query.tags, query.sections)
-      documents = content.results.map { result =>
-        Document(
-          result.id,
-          result.blocks
-            .flatMap(_.body)
-            .getOrElse(Seq.empty)
-            .flatMap(TextBlock.fromCAPIBlock)
-            .toList
-        )
+    val publisher = Sink.asPublisher[RuleMatch](false)
+
+    val (resultSink, resultSource) =
+      Source
+        .asSubscriber[CheckSingleRuleResult]
+        .mapConcat { _.matches }
+        .take(matchCount)
+        .toMat(publisher)(Keep.both)
+        .mapMaterializedValue { case (sub, pub) =>
+          (Sink.fromSubscriber(sub), Source.fromPublisher(pub))
+        }
+        .run()
+
+    val (hubSink, killSwitch) = MergeHub
+      .source[CheckSingleRuleResult](perProducerBufferSize = 16)
+      .viaMat(KillSwitches.single)(Keep.both)
+      .to(resultSink)
+      .run()
+
+    def checkNextPage: Int => Future[NotUsed] = (page: Int) => {
+      log.info(s"Checking page $page/$maxPageCount")
+      contentClient.searchContent(query.queryStr, query.tags, query.sections, page).flatMap {
+        response =>
+          val documents = response.results.map { result =>
+            Document(
+              result.id,
+              result.blocks
+                .flatMap(_.body)
+                .getOrElse(Seq.empty)
+                .flatMap(TextBlock.fromCAPIBlock)
+                .toList
+            )
+          }
+
+          val streamCompleteCallbackSink = Sink.onComplete { _ =>
+            log.info(s"Page $page complete")
+            if (page == maxPageCount) {
+              log.info(s"Checked $page pages, shutting down stream")
+              killSwitch.shutdown()
+            } else {
+              checkNextPage(page + 1)
+            }
+          }
+
+          testRule(ruleId, documents.toList).map { ruleSource =>
+            ruleSource
+              .alsoTo(streamCompleteCallbackSink)
+              .runWith(hubSink)
+          }
       }
-    } yield testRule(ruleId, documents.toList)
+    }
+
+    checkNextPage(1)
+
+    resultSource
   }
 
   /** Test a rule against the given list of documents. Return a list of matches from the checker

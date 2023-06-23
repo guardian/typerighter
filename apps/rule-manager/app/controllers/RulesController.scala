@@ -215,14 +215,12 @@ class RulesController(
     }
   }
 
-  def testWithCapiQuery(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
+  def testWithCapiQuery(id: Int) = APIAuthAction[JsValue](parse.json) { implicit request =>
     request.body.validate[TestRuleCapiQuery].asEither match {
       case Right(query) =>
-        ruleTesting.testRuleWithCapiQuery(id, query).map {
-          case Success(stream) => Ok.chunked(stream)
-          case Failure(err) => InternalServerError(err.getMessage)
-        }
-      case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
+        val matchStream = ruleTesting.testRuleWithCapiQuery(id, query)
+        Ok.chunked(matchStream.map { Json.toJson(_) })
+      case Left(error) => BadRequest(s"Invalid request: $error")
     }
   }
 }
