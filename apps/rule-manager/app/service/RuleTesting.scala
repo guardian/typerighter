@@ -1,24 +1,12 @@
 package service
 
-<<<<<<< HEAD
 import akka.stream.Materializer
 import play.api.libs.ws.WSClient
 import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
-import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document}
-=======
+import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document, RuleMatch}
 import akka.NotUsed
-import akka.stream.{KillSwitches, Materializer}
+import akka.stream.KillSwitches
 import akka.stream.scaladsl.{Keep, MergeHub, Sink, Source}
-import play.api.libs.ws.WSClient
-import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
-import com.gu.typerighter.model.{
-  CheckSingleRule,
-  CheckSingleRuleResult,
-  Document,
-  RuleMatch,
-  TextBlock
-}
->>>>>>> f4dadf1c (Recursively paginate through CAPI results, merging the resulting match streams)
 import db.DbRuleDraft
 import play.api.libs.json.{Format, JsError, JsSuccess, Json}
 
@@ -55,40 +43,42 @@ class RuleTesting(
       query: TestRuleCapiQuery,
       matchCount: Int = 10,
       maxPageCount: Int = 20
-  )(implicit ec: ExecutionContext) = {
-    val publisher = Sink.asPublisher[RuleMatch](false)
-
+  )(implicit ec: ExecutionContext): Source[RuleMatch, NotUsed] = {
+    // The stream graph in this function looks like:
+    // [Stream per document check][] ~> HubSink ~> ResultSink ~> ResultSource
+    //
+    // We must materialise a MergeHub to access its sink. We connect it to
+    // this Sink/Source pair to provide a Source[RuleMatch, NotUsed] for the
+    // function output.
     val (resultSink, resultSource) =
       Source
         .asSubscriber[CheckSingleRuleResult]
         .mapConcat { _.matches }
         .take(matchCount)
-        .toMat(publisher)(Keep.both)
+        // Connect the resultSink to the resultSource.
+        // See https://discuss.lightbend.com/t/create-source-from-sink-and-vice-versa/605/6
+        .toMat(Sink.asPublisher[RuleMatch](fanout = false))(Keep.both)
         .mapMaterializedValue { case (sub, pub) =>
           (Sink.fromSubscriber(sub), Source.fromPublisher(pub))
         }
         .run()
 
+    // The MergeHub sink is responsible for receiving input from arbitrary numbers of
+    // streams produced by `testRule`, and passing the output on to the `resultSink`.
+    // `killSwitch` lets us manually terminate the stream.
     val (hubSink, killSwitch) = MergeHub
       .source[CheckSingleRuleResult](perProducerBufferSize = 16)
       .viaMat(KillSwitches.single)(Keep.both)
       .to(resultSink)
       .run()
 
+    /** Check the next page of content, forwarding the results to the `hubSink` stream.
+      */
     def checkNextPage: Int => Future[NotUsed] = (page: Int) => {
       log.info(s"Checking page $page/$maxPageCount")
       contentClient.searchContent(query.queryStr, query.tags, query.sections, page).flatMap {
         response =>
-          val documents = response.results.map { result =>
-            Document(
-              result.id,
-              result.blocks
-                .flatMap(_.body)
-                .getOrElse(Seq.empty)
-                .flatMap(TextBlock.fromCAPIBlock)
-                .toList
-            )
-          }
+          val documents = response.results.map(Document.fromCapiContent).toList
 
           val streamCompleteCallbackSink = Sink.onComplete { _ =>
             log.info(s"Page $page complete")
@@ -100,7 +90,8 @@ class RuleTesting(
             }
           }
 
-          testRule(ruleId, documents.toList).map { ruleSource =>
+          // Stream the results into our hub sink.
+          testRule(ruleId, documents).map { ruleSource =>
             ruleSource
               .alsoTo(streamCompleteCallbackSink)
               .runWith(hubSink)
