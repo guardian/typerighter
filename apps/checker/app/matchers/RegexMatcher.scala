@@ -16,14 +16,13 @@ object RegexMatcher extends MatcherCompanion {
 /** A Matcher for rules based on regular expressions.
   */
 class RegexMatcher(rules: List[RegexRule]) extends Matcher {
-  val sentenceHelper = new SentenceHelpers()
-
   def getType() = RegexMatcher.getType()
 
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     Future {
+      val sentenceHelper = new SentenceHelpers()
       // We compute these per-block and pass them through to avoid duplicating work
       val blocksAndSentenceStarts = request.blocks.map { block =>
         (block, sentenceHelper.getFirstWordsInSentences(block.text))
