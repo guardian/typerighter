@@ -46,7 +46,7 @@ class RuleTesting(
   )(implicit ec: ExecutionContext): Source[RuleMatch, NotUsed] = {
     // The stream graph in this function looks like:
     // [Stream per document check][] ~> HubSink ~> ResultSink ~> ResultSource
-    //
+
     // We must materialise a MergeHub to access its sink. We connect it to
     // this Sink/Source pair to provide a Source[RuleMatch, NotUsed] for the
     // function output.
