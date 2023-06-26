@@ -236,7 +236,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       }.updateAndReturnGeneratedKey().apply()
       // Turn the tag string into a list of ids
       RuleTagDraft.findTagsByRule(id.toInt).map(tagId =>
-        sql"""s
+        sql"""
              INSERT into ${RuleTagDraft.tableName} (rule_id, tag_id) values($id,$tagId);
            """
       )
@@ -347,7 +347,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("isArchived") -> entity.isArchived
       )
     )
-    SQL(s"""insert into $tableName(
+    SQL(
+      s"""insert into $tableName(
       rule_type,
       pattern,
       replacement,
@@ -381,12 +382,19 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {isArchived}
     )""").batchByName(params.toSeq: _*).apply[Seq]().toList
 
-    val lastId = sql"SELECT currval(pg_get_serial_sequence('${tableName}','id')) as last_id".map(rs => rs.int("last_id")).single().apply()
-    val ruleIds = ((lastId.get - entities.size) to lastId.get).toList
+    // Get the last inserted ID to produce the ids generated in the batch update.
+    val lastInsertedId = sql"SELECT currval(pg_get_serial_sequence($tableName,'id')) as last_id"
+      .map(_.int("last_id"))
+      .single()
+      .apply()
+      .get
+    val ruleIds = ((lastInsertedId - entities.size + 1) to lastInsertedId).toList
     val ruleTags = ruleIds.zip(entities).flatMap {
       case (id, rule) => rule.tags.map(tag => RuleTag(id, tag))
     }
+
     RuleTagDraft.batchInsert(ruleTags)
+
     ruleIds
   }
 
