@@ -347,7 +347,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("isArchived") -> entity.isArchived
       )
     )
-    val ruleIds = SQL(s"""insert into $tableName(
+    SQL(s"""insert into $tableName(
       rule_type,
       pattern,
       replacement,
@@ -379,7 +379,10 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {updatedBy},
       {updatedAt},
       {isArchived}
-    )""").batchByName(params.toSeq: _*).apply[List]()
+    )""").batchByName(params.toSeq: _*).apply[Seq]().toList
+
+    val lastId = sql"SELECT currval(pg_get_serial_sequence('${tableName}','id')) as last_id".map(rs => rs.int("last_id")).single().apply()
+    val ruleIds = ((lastId.get - entities.size) to lastId.get).toList
     val ruleTags = ruleIds.zip(entities).flatMap {
       case (id, rule) => rule.tags.map(tag => RuleTag(id, tag))
     }

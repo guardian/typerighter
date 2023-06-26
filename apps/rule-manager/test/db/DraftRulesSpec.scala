@@ -13,9 +13,13 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   override def fixture(implicit session: DBSession) = {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
-    sql"insert into rules_draft (rule_type, pattern, replacement, category, description, ignore, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"description"}, false, ${"notes"}, ${"externalId"}, false, false, 'test.user', 'test.user')"
-      .update()
+    val testRuleId = sql"insert into rules_draft (rule_type, pattern, replacement, category, description, ignore, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"description"}, false, ${"notes"}, ${"externalId"}, false, false, 'test.user', 'test.user')"
+      .updateAndReturnGeneratedKey()
       .apply()
+      .toInt
+    sql"ALTER SEQUENCE tags_id_seq RESTART WITH 1".update().apply()
+    val testTagId = sql"insert into tags (name) values (${"testTag"})".update().apply()
+    sql"insert into rule_tag_draft (rule_id, tag_id) values ($testRuleId, $testTagId)".update().apply()
   }
 
   def assertDatesAreWithinRangeMs(date1: OffsetDateTime, date2: OffsetDateTime, range: Int) = {
@@ -139,9 +143,12 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   it should "perform batch insert" in { implicit session =>
     val entities = DbRuleDraft.findAll()
+    RuleTagDraft.findAll().map(ruleTag => RuleTagDraft.destroy(ruleTag))
     entities.foreach(e => DbRuleDraft.destroy(e))
     val batchInserted = DbRuleDraft.batchInsert(entities)
     batchInserted.size should be > (0)
+    val insertedRules = DbRuleDraft.findAll()
+    insertedRules.head.tags shouldBe List(1)
   }
 
   it should "perform a batch edit on tags and categories" in { implicit session =>
