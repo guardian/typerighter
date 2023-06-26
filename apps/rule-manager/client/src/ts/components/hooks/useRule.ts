@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {ErrorIResponse, responseHandler, transformApiFormData, transformRuleFormData} from "../../utils/api";
 import { errorToString } from "../../utils/error";
 import { FormError } from "../RuleForm";
+import {getRuleState, RuleState} from "../../utils/rule";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -53,6 +54,7 @@ export function useRule(ruleId: number | undefined) {
   const [publishValidationErrors, setPublishValidationErrors] = useState<FormError[] | undefined>(undefined);
   const [errors, setErrors] = useState<string | undefined>(undefined);
   const [rule, setRule] = useState<RuleData | undefined>(undefined);
+  const [ruleState, setRuleState] = useState<RuleState>("draft")
 
   const fetchRule = async (ruleId: number) => {
     setIsLoading(true);
@@ -192,5 +194,9 @@ export function useRule(ruleId: number | undefined) {
     }
   }, [ruleId])
 
-  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule }
+  useEffect(() => {
+    setRuleState(getRuleState(rule?.draft));
+  }, [rule])
+
+  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule, ruleState }
 }
