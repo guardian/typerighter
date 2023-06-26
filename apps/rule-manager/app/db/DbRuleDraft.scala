@@ -80,7 +80,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern = rs.stringOpt("pattern"),
       replacement = rs.stringOpt("replacement"),
       category = rs.stringOpt("category"),
-      tags = rs.array("tags").getArray.asInstanceOf[Array[Integer]].toList.map {_.intValue()},
+      tags = rs.array("tags").getArray.asInstanceOf[Array[Integer]].toList.map { _.intValue() },
       description = rs.stringOpt("description"),
       ignore = rs.boolean("ignore"),
       notes = rs.stringOpt("notes"),
@@ -138,7 +138,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val rd = DbRuleDraft.syntax("rd")
   val rl = DbRuleLive.syntax("rl")
   val rt = RuleTagDraft.syntax("rt")
-  val dbColumnsToFind = SQLSyntax.createUnsafely(rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", "))
+  val dbColumnsToFind = SQLSyntax.createUnsafely(
+    rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
+  )
 
   override val autoSession = AutoSession
 
@@ -235,11 +237,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           )
       }.updateAndReturnGeneratedKey().apply()
       // Turn the tag string into a list of ids
-      RuleTagDraft.findTagsByRule(id.toInt).map(tagId =>
-        sql"""
+      RuleTagDraft
+        .findTagsByRule(id.toInt)
+        .map(tagId => sql"""
              INSERT into ${RuleTagDraft.tableName} (rule_id, tag_id) values($id,$tagId);
-           """
-      )
+           """)
       id
     }
 
@@ -347,8 +349,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("isArchived") -> entity.isArchived
       )
     )
-    SQL(
-      s"""insert into $tableName(
+    SQL(s"""insert into $tableName(
       rule_type,
       pattern,
       replacement,
@@ -389,8 +390,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
       .get
     val ruleIds = ((lastInsertedId - entities.size + 1) to lastInsertedId).toList
-    val ruleTags = ruleIds.zip(entities).flatMap {
-      case (id, rule) => rule.tags.map(tag => RuleTag(id, tag))
+    val ruleTags = ruleIds.zip(entities).flatMap { case (id, rule) =>
+      rule.tags.map(tag => RuleTag(id, tag))
     }
 
     RuleTagDraft.batchInsert(ruleTags)

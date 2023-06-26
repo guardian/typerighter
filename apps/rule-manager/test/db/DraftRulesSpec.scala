@@ -13,13 +13,16 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   override def fixture(implicit session: DBSession) = {
     sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
-    val testRuleId = sql"insert into rules_draft (rule_type, pattern, replacement, category, description, ignore, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"description"}, false, ${"notes"}, ${"externalId"}, false, false, 'test.user', 'test.user')"
-      .updateAndReturnGeneratedKey()
-      .apply()
-      .toInt
+    val testRuleId =
+      sql"insert into rules_draft (rule_type, pattern, replacement, category, description, ignore, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"description"}, false, ${"notes"}, ${"externalId"}, false, false, 'test.user', 'test.user')"
+        .updateAndReturnGeneratedKey()
+        .apply()
+        .toInt
     sql"ALTER SEQUENCE tags_id_seq RESTART WITH 1".update().apply()
     val testTagId = sql"insert into tags (name) values (${"testTag"})".update().apply()
-    sql"insert into rule_tag_draft (rule_id, tag_id) values ($testRuleId, $testTagId)".update().apply()
+    sql"insert into rule_tag_draft (rule_id, tag_id) values ($testRuleId, $testTagId)"
+      .update()
+      .apply()
   }
 
   def assertDatesAreWithinRangeMs(date1: OffsetDateTime, date2: OffsetDateTime, range: Int) = {

@@ -187,7 +187,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         )
         .returning(column.externalId)
     }.map(_.string(column.externalId)).single().apply()
- // TODO: also handle tag creation
+    // TODO: also handle tag creation
     findRevision(generatedKey.get, liveRule.revisionId) match {
       case Some(rule) => rule
       case None =>
