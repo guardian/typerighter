@@ -49,7 +49,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         onUpdate: (id: number) => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, ruleState } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unpublishRule, ruleState } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
@@ -148,6 +148,19 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         })
     }
 
+    const unpublishRuleHandler = () => {
+        if (!ruleFormData?.id) {
+            return;
+        }
+
+        unpublishRule(ruleFormData.id).then(data => {
+            if (data.status === 'ok'){
+                setRuleFormData(baseForm);
+                onClose();
+            }
+        })
+    }
+
     const hasUnsavedChanges = ruleFormData !== rule?.draft;
 
 
@@ -188,6 +201,13 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                 ruleState === 'draft' ? <EuiFlexItem grow={0}>
                     <EuiButton onClick={archiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
                         Archive Rule
+                    </EuiButton>
+                </EuiFlexItem> : null
+            }
+            {
+                ruleState === 'live' ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={unpublishRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                        Unpublish Rule
                     </EuiButton>
                 </EuiFlexItem> : null
             }
