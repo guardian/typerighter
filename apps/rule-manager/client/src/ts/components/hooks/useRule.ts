@@ -75,14 +75,14 @@ export function useRule(ruleId: number | undefined) {
     setIsLoading(false);
   }
 
-  const publishRule = async (ruleId: number) => {
+  const publishRule = async (ruleId: number, reason: string) => {
     setIsPublishing(true);
 
     try {
       const response = await fetch(`${location}rules/${ruleId}/publish`, {
         method: "POST",
         headers: [["Content-Type", "application/json"]],
-        body: JSON.stringify({ reason: "Placeholder reason" })
+        body: JSON.stringify({ reason })
       });
       if (!response.ok) {
         throw new Error(`Failed to publish rules: ${response.status} ${response.statusText}`);
