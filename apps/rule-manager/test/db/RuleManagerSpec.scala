@@ -235,10 +235,9 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     () =>
       val ruleToPublish = createPublishableRule
 
-      val publishedRule =
-        RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
+      RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
 
-      DbRuleLive.findRevision(publishedRule.externalId.get, ruleToPublish.revisionId) match {
+      DbRuleLive.findRevision(ruleToPublish.externalId.get, ruleToPublish.revisionId) match {
         case Some(liveRule) =>
           liveRule.ruleType shouldBe ruleToPublish.ruleType
           liveRule.pattern shouldBe ruleToPublish.pattern
@@ -331,9 +330,9 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
     RuleManager.getAllRuleData(ruleToPublish.id.get) match {
       case None => fail("Rule should exist")
-      case Some((draftRule, liveRules)) =>
-        draftRule shouldMatchTo ruleToPublish
-        liveRules shouldMatchTo List.empty
+      case Some(allRuleData) =>
+        allRuleData.draft shouldMatchTo ruleToPublish
+        allRuleData.live shouldMatchTo List.empty
     }
   }
 
@@ -347,12 +346,11 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       val secondLiveRule =
         RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
 
-      RuleManager.getAllRuleData(ruleToPublish.id.get) match {
-        case None => fail("Rule should exist")
-        case Some((draftRule, history)) =>
-          draftRule shouldMatchTo revisedRuleToPublish
-          history shouldMatchTo List(secondLiveRule, firstLiveRule.copy(isActive = false))
-      }
+      secondLiveRule.draft shouldMatchTo revisedRuleToPublish
+      secondLiveRule.live shouldMatchTo List(
+        secondLiveRule.live(0),
+        firstLiveRule.live(0).copy(isActive = false)
+      )
   }
 
   "archiveRule" should "not archive the rule if it does not exist in draft" in { () =>

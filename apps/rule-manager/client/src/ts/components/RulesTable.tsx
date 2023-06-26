@@ -7,14 +7,14 @@ import {
   EuiFlexItem,
   EuiButton,
   EuiFlexGroup,
-  EuiLoadingSpinner,
   EuiButtonIcon,
   EuiFlexGrid,
   EuiIcon,
   EuiToolTip,
-  EuiSpacer,
   EuiHealth,
-  EuiTableSelectionType
+  EuiTableSelectionType,
+  EuiBadge,
+  EuiText
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -24,6 +24,9 @@ import {hasCreateEditPermissions} from './helpers/hasCreateEditPermissions';
 import styled from '@emotion/styled';
 import {FeatureSwitchesContext} from "./context/featureSwitches";
 import {DraftRule} from "./hooks/useRule";
+import {getRuleState, getRuleStateColour} from "../utils/rule";
+import {capitalize} from "lodash";
+import {euiTextTruncate} from "@elastic/eui/src/global_styling/mixins/_typography";
 
 const sorting = {
   sort: {
@@ -43,45 +46,62 @@ export const useCreateEditPermissions = () => {
   return useMemo(() => hasCreateEditPermissions(permissions), [permissions]);
 }
 
+const TagWrapContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 5px;
+  width: 100%;
+ `;
+
 const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<DraftRule>> => {
   const hasEditPermissions = useCreateEditPermissions();
   return [
     {
-      field: 'ruleType',
-      name: 'Type',
+      field: 'replacement',
+      name: 'Replacement',
+      width: '14.2%'
     },
     {
-      field: 'category',
-      name: 'Category',
+      field: 'description',
+      name: 'Description',
+      textOnly: true,
+      truncateText: true,
+      width: '21.4%'
     },
     {
       field: 'pattern',
       name: 'Match',
+      truncateText: true,
+      width: '21.4%'
     },
     {
-      field: 'replacement',
-      name: 'Replacement',
+      field: 'category',
+      name: 'Rule source',
+      width: '14.2%'
     },
     {
-      field: 'description',
-      name: 'Description'
+      field: 'tags',
+      name: 'Tags',
+      render: (value: string) => value ?
+        <TagWrapContainer>{value.split(',').map(tagName =>
+          <span style={{width: '100%'}}><EuiBadge key={tagName}>{tagName}</EuiBadge></span>
+        )}</TagWrapContainer> : undefined,
+      width: '13.2%'
     },
     {
       name: 'State',
-      render: (rule: DraftRule) =>  {
-        if(rule.isPublished) {
-          return <><EuiHealth color="success"/>Live</>;
-        }
-
-        if(rule.isArchived) {
-          return <><EuiHealth color="danger"/>Archived</>;
-        }
-
-        return <><EuiHealth color="#DA8B45"/>Draft</>;
+      width: '8.1%',
+      render: (rule: DraftRule) => {
+        const state = capitalize(getRuleState(rule));
+        return <>
+          <EuiHealth color={getRuleStateColour(rule)} />
+          <EuiText css={css`${euiTextTruncate()}`}>{state}</EuiText>
+        </>
       }
     },
     {
       name: <EuiIcon type="pencil"/>,
+      width: '7.1%',
       actions: [{
         name: 'Edit',
         render: (item, enabled) => <EditRule editIsEnabled={enabled} editRule={editRule} rule={item}/>,
@@ -94,7 +114,7 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
         'data-test-subj': 'action-edit',
       }]
     }
-  ]
+  ] as Array<EuiBasicTableColumn<DraftRule>>;
 }
 
 // We use our own button rather than an EuiIconButton because that component won't allow us to
@@ -124,17 +144,25 @@ const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
 
 const RulesTable = () => {
   const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
-  const search: EuiSearchBarProps = {
-    box: {
-      incremental: true,
-      schema: true,
-    }
-  };
 
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
   const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
   const hasCreatePermissions = useCreateEditPermissions();
+
+  const search: EuiSearchBarProps = {
+    box: {
+      incremental: true,
+      schema: true,
+    },
+    toolsRight: getFeatureSwitchValue("create-and-edit") ?
+    <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
+      <EuiButton
+        isDisabled={!hasCreatePermissions}
+        onClick={() => openEditRulePanel(undefined)}
+      >Create Rule</EuiButton>
+    </EuiToolTip> : <></>
+};
 
   const openEditRulePanel = (ruleId: number | undefined) => {
     setCurrentRuleId(ruleId);
@@ -177,17 +205,6 @@ const RulesTable = () => {
       </EuiFlexItem>
     </EuiFlexGroup>
     <EuiFlexGrid>
-      {isLoading &&
-        <EuiFlexItem grow={true} css={css`
-                  align-content: center;
-                  display: flex;
-                  justify-content: center;
-                  width: 100%;
-                  padding-bottom: 20px;
-                `}>
-          <EuiLoadingSpinner size="m"/>
-        </EuiFlexItem>
-      }
       {error &&
         <EuiFlexItem grow={true} style={{
           display: 'flex',
@@ -209,11 +226,11 @@ const RulesTable = () => {
 
       }
     </EuiFlexGrid>
-
     <EuiFlexGroup>
       <EuiFlexItem grow={2}>
         {rules &&
           <EuiInMemoryTable
+            loading={isLoading}
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
             itemId="id"
@@ -227,27 +244,24 @@ const RulesTable = () => {
           />
         }
       </EuiFlexItem>
-      <EuiFlexItem grow={1}>
-        {getFeatureSwitchValue("create-and-edit") &&
-          <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
-            <EuiButton
-              isDisabled={!hasCreatePermissions}
-              onClick={() => openEditRulePanel(undefined)}
-            >Create Rule</EuiButton>
-          </EuiToolTip>
-        }
-        <EuiSpacer />
-        {formMode !== 'closed' &&
+      {formMode !== 'closed' && (
+        <EuiFlexItem grow={1}>
           <RuleForm
             onClose={() => {
               setFormMode('closed');
               fetchRules();
             }}
-            onUpdate={fetchRules}
+            onUpdate={(id) => {
+              fetchRules();
+              setCurrentRuleId(id);
+              if (formMode === 'create') {
+                setFormMode('edit');
+              }
+            }}
             ruleId={currentRuleId}
           />
-        }
-      </EuiFlexItem>
+        </EuiFlexItem>
+      )}
     </EuiFlexGroup>
   </>
 }

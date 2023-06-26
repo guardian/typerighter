@@ -1,4 +1,4 @@
-import {DraftRule, DraftRuleFromServer} from "../hooks/useRule";
+import {DraftRule, DraftRuleFromServer} from "../components/hooks/useRule";
 
 export interface OkIResponse {
     status: 'ok'
@@ -33,4 +33,8 @@ export const responseHandler = async (response: Response) => {
     } else {
         return createErrorResponse(response.statusText, response.status)
     }
+}
+
+export const transformRuleFormData = (ruleForm: DraftRule): DraftRuleFromServer => {
+  return {...ruleForm, tags: ruleForm?.tags?.length ? ruleForm.tags.join(",") : undefined};
 }

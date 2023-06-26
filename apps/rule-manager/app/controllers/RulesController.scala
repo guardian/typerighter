@@ -49,13 +49,8 @@ class RulesController(
   def get(id: Int) = ApiAuthAction {
     RuleManager.getAllRuleData(id) match {
       case None => NotFound("Rule not found matching ID")
-      case Some((draftRule, liveRules)) =>
-        Ok(
-          Json.obj(
-            "draft" -> Json.toJson(draftRule),
-            "live" -> Json.toJson(liveRules)
-          )
-        )
+      case Some(allRuleData) =>
+        Ok(Json.toJson(allRuleData))
     }
   }
 
