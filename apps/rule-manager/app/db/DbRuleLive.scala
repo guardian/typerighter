@@ -78,7 +78,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   /** Find live rules by `externalId`. Because there may be many inactive live rules with the same
     * id, unlike the `find` method for draft rules, this method returns a list. To return a single
-    * rule, use `findRevision` or `findLatestActiveRevision`.
+    * rule, use `findRevision` or `findLatestRevision`.
     */
   def find(
       externalId: String
