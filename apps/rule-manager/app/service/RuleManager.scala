@@ -297,6 +297,7 @@ object RuleManager extends Loggable {
 
       val maybeUpdatedDraftRule = for {
         draftRule <- maybeDraftRule
+        if !draftRule.isArchived
         archivedDraftRule = draftRule.copy(isArchived = true)
         updatedDraftRule <- DbRuleDraft.save(archivedDraftRule, user).toOption
       } yield updatedDraftRule

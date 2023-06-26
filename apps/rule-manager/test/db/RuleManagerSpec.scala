@@ -353,7 +353,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       )
   }
 
-  "archiveRule" should "not do nothing if the rule does not exist in draft" in { () =>
+  "archiveRule" should "do nothing if the rule does not exist in draft" in { () =>
     val invalidId = 100
 
     RuleManager.archiveRule(invalidId, user) match {
@@ -364,7 +364,18 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
-  "archiveRule" should "archive the rule if it exists in draft" in { () =>
+  "archiveRule" should "do nothing if the rule is already archived" in { () =>
+    val ruleToArchive = createPublishableRule
+
+    RuleManager.archiveRule(ruleToArchive.id.get, user) match {
+      case Left(e) =>
+        fail(s"Unexpected error on archiving id: $ruleToArchive.id.get: ${e.getMessage}")
+      case Right(maybeDraftRule) =>
+        maybeDraftRule shouldBe None
+    }
+  }
+
+  "archiveRule" should "archive the rule if it (a) exists in draft and (b) is unarchived" in { () =>
     val ruleToArchive = createPublishableRule
 
     RuleManager.archiveRule(ruleToArchive.id.get, user) match {
@@ -391,7 +402,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
-  "unpublishRule" should "should do nothing if the rule does not exist in live" in { () =>
+  "unpublishRule" should "do nothing if the rule does not exist in draft" in { () =>
     val invalidId = 100
 
     RuleManager.unpublishRule(invalidId, user) match {
@@ -402,7 +413,18 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
-  "unpublishRule" should "should do nothing to the live rule if it is inactive" in { () =>
+  "unpublishRule" should "do nothing if the rule does not exist in live" in { () =>
+    val ruleToArchive = createPublishableRule
+
+    RuleManager.unpublishRule(ruleToArchive.id.get, user) match {
+      case Left(e) =>
+        fail(s"Unexpected error on unpublishing id: $ruleToArchive.id.get: ${e.getMessage}")
+      case Right(maybeLiveRule) =>
+        maybeLiveRule shouldBe None
+    }
+  }
+
+  "unpublishRule" should "do nothing to the live rule if it is already inactive" in { () =>
     val ruleToUnpublish = createPublishableRule
 
     RuleManager.publishRule(ruleToUnpublish.id.get, user, reason, bucketRuleResource)
