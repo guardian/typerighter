@@ -155,4 +155,20 @@ class RulesController(
         }
     }
   }
+
+  def unarchive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to unarchive rules")
+      case true =>
+        RuleManager.unarchiveRule(id, request.user.email) match {
+          case Left(e: Throwable) => InternalServerError(e.getMessage)
+          case Right(draftRule) =>
+            Ok(
+              Json.obj(
+                "draft" -> Json.toJson(draftRule)
+              )
+            )
+        }
+    }
+  }
 }

@@ -28,6 +28,8 @@ GET     /rules/:id/publish          controllers.RulesController.canPublish(id: I
 POST    /rules/:id/unpublish        controllers.RulesController.unpublish(id: Int)
 +nocsrf
 POST    /rules/:id/archive          controllers.RulesController.archive(id: Int)
++nocsrf
+POST    /rules/:id/unarchive        controllers.RulesController.unarchive(id: Int)
 
 # Tags
 +nocsrf

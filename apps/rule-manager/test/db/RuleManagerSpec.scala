@@ -391,15 +391,52 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
-  "unpublishRule" should "should do nothing if the rule does not exist in draft" in { () =>
+  "unarchiveRule" should "do nothing if the rule does not exist in draft" in { () =>
+    val invalidId = 100
+
+    RuleManager.unarchiveRule(invalidId, user) match {
+      case Left(e) =>
+        fail(s"Unexpected error on unarchiving id: $invalidId: ${e.getMessage}")
+      case Right(maybeDraftRule) =>
+        maybeDraftRule shouldBe None
+    }
+  }
+
+  "unarchiveRule" should "do nothing if the rule is not already archived" in { () =>
     val ruleToArchive = createPublishableRule
 
-    RuleManager.unpublishRule(ruleToArchive.id.get, user) match {
+    RuleManager.unarchiveRule(ruleToArchive.id.get, user) match {
       case Left(e) =>
-        fail(s"Unexpected error on unpublishing id: $ruleToArchive.id.get: ${e.getMessage}")
-      case Right(maybeLiveRule) =>
-        maybeLiveRule shouldBe None
+        fail(s"Unexpected error on unarchiving id: $ruleToArchive.id.get: ${e.getMessage}")
+      case Right(maybeDraftRule) =>
+        maybeDraftRule shouldBe None
     }
+  }
+
+  "unarchiveRule" should "unarchive the rule if it (a) exists in draft and (b) is archived" in {
+    () =>
+      val ruleToArchive = createPublishableRule
+      val maybeRuleToUnarchive = RuleManager.archiveRule(ruleToArchive.id.get, user) match {
+        case Left(e) =>
+          fail(s"Unexpected error on archiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
+        case Right(maybeDraftRule) => maybeDraftRule
+      }
+
+      maybeRuleToUnarchive shouldBe defined
+
+      val ruleToUnarchive = maybeRuleToUnarchive.get
+
+      RuleManager.unarchiveRule(ruleToUnarchive.id.get, user) match {
+        case Left(e) =>
+          fail(s"Unexpected error on unarchiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
+        case Right(maybeDraftRule) =>
+          val draftRule = maybeDraftRule.get
+          draftRule.revisionId shouldMatchTo (ruleToUnarchive.revisionId + 1)
+          draftRule.isArchived shouldBe false
+          draftRule.isPublished shouldBe false
+          draftRule.updatedBy shouldBe user
+          draftRule.updatedAt shouldBe >(ruleToUnarchive.updatedAt)
+      }
   }
 
   "unpublishRule" should "do nothing if the rule does not exist in draft" in { () =>

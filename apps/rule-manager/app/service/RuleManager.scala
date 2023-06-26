@@ -307,4 +307,24 @@ object RuleManager extends Loggable {
       case e: Exception => Left(e)
     }
   }
+
+  def unarchiveRule(
+      id: Int,
+      user: String
+  ): Either[Exception, Option[DbRuleDraft]] = {
+    try {
+      val maybeDraftRule = DbRuleDraft.find(id)
+
+      val maybeUpdatedDraftRule = for {
+        draftRule <- maybeDraftRule
+        if draftRule.isArchived
+        archivedDraftRule = draftRule.copy(isArchived = false)
+        updatedDraftRule <- DbRuleDraft.save(archivedDraftRule, user).toOption
+      } yield updatedDraftRule
+
+      Right(maybeUpdatedDraftRule)
+    } catch {
+      case e: Exception => Left(e)
+    }
+  }
 }
