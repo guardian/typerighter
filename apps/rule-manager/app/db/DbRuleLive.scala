@@ -73,6 +73,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .where
         .eq(r.externalId, externalId)
         .orderBy(r.revisionId.desc)
+        .limit(1)
     }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
   }
 
