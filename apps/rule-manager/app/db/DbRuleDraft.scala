@@ -219,25 +219,34 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       user: String,
       isArchived: Boolean = false
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
-    val generatedKey = withSQL {
-      insert
-        .into(DbRuleDraft)
-        .namedValues(
-          column.ruleType -> ruleType,
-          column.pattern -> pattern,
-          column.replacement -> replacement,
-          column.category -> category,
-          column.tags -> tags,
-          column.description -> description,
-          column.ignore -> ignore,
-          column.notes -> notes,
-          column.forceRedRule -> forceRedRule,
-          column.advisoryRule -> advisoryRule,
-          column.createdBy -> user,
-          column.updatedBy -> user,
-          column.isArchived -> isArchived
-        )
-    }.updateAndReturnGeneratedKey().apply()
+    val generatedKey = DB localTx { implicit session =>
+      val id = withSQL {
+        insert
+          .into(DbRuleDraft)
+          .namedValues(
+            column.ruleType -> ruleType,
+            column.pattern -> pattern,
+            column.replacement -> replacement,
+            column.category -> category,
+            column.tags -> tags,
+            column.description -> description,
+            column.ignore -> ignore,
+            column.notes -> notes,
+            column.forceRedRule -> forceRedRule,
+            column.advisoryRule -> advisoryRule,
+            column.createdBy -> user,
+            column.updatedBy -> user,
+            column.isArchived -> isArchived
+          )
+      }.updateAndReturnGeneratedKey().apply()
+      // Turn the tag string into a list of ids
+      RuleTagDraft.findTagsByRule(id.toInt).map(tagId =>
+        sql"""s
+             INSERT into ${RuleTagDraft.tableName} (rule_id, tag_id) values($id,$tagId);
+           """
+      )
+      id
+    }
 
     find(generatedKey.toInt) match {
       case Some(rule) => Success(rule)
