@@ -116,7 +116,8 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
                 pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
                 replacement = cellToOptionalString(row, PatternRuleCols.Replacement),
                 category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
-                tags = cellToOptionalString(row, PatternRuleCols.Tags),
+//                tags = cellToOptionalString(row, PatternRuleCols.Tags),
+                //TODO: handle tags here please
                 description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
                 ignore = if (ignore.toString == "TRUE") true else false,
                 notes = cellToOptionalString(row, PatternRuleCols.Notes),

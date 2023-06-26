@@ -7,7 +7,7 @@ trait DbRuleCommon {
   def pattern: Option[String]
   def replacement: Option[String]
   def category: Option[String]
-  def tags: Option[String]
+  def tags: List[Int]
   def description: Option[String]
   def notes: Option[String]
   def externalId: Option[String]

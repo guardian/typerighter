@@ -16,7 +16,7 @@ case class DbRuleDraft(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[String] = None,
+    tags: List[Int] = List.empty,
     description: Option[String] = None,
     ignore: Boolean,
     notes: Option[String] = None,
@@ -73,9 +73,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     "is_archived"
   )
 
-  def fromResultName(r: ResultName[DbRuleDraft])(rs: WrappedResultSet): DbRuleDraft =
-    autoConstruct(rs, r)
-
   def fromRow(rs: WrappedResultSet): DbRuleDraft = {
     DbRuleDraft(
       id = rs.intOpt("id"),
@@ -83,7 +80,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern = rs.stringOpt("pattern"),
       replacement = rs.stringOpt("replacement"),
       category = rs.stringOpt("category"),
-      tags = rs.stringOpt("tags"),
+      tags = rs.array("tags").getArray.asInstanceOf[Array[Integer]].toList.map {_.intValue()},
       description = rs.stringOpt("description"),
       ignore = rs.boolean("ignore"),
       notes = rs.stringOpt("notes"),
@@ -106,7 +103,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern: Option[String] = None,
       replacement: Option[String] = None,
       category: Option[String] = None,
-      tags: Option[String] = None,
+      tags: List[Int] = List.empty,
       description: Option[String] = None,
       ignore: Boolean,
       notes: Option[String] = None,
@@ -141,17 +138,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val rd = DbRuleDraft.syntax("rd")
   val rl = DbRuleLive.syntax("rl")
   val rt = RuleTagDraft.syntax("rt")
-
-  val dbColumnsToFind = dbColumns.filter(c => c != "tags").map(c => s"${rd.tableAliasName}.$c").mkString(", ")
-
+  val dbColumnsToFind = SQLSyntax.createUnsafely(rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", "))
 
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
-    println(dbColumnsToFind)
     sql"""
-        SELECT
-             $dbColumnsToFind, ${rl.externalId} IS NOT NULL AS is_published, array_agg(${rt.tag_id}) as ${rd.resultName.tags}
+        SELECT $dbColumnsToFind, ${rl.externalId} IS NOT NULL AS is_published, COALESCE(ARRAY_AGG(${rt.tag_id}) FILTER (WHERE ${rt.tag_id} IS NOT NULL), '{}') AS tags
         FROM
             ${DbRuleDraft as rd}
         LEFT JOIN ${DbRuleLive as rl}
@@ -184,7 +177,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     sql"""
-        SELECT $dbColumnsToFind, ${rl.externalId} IS NOT NULL AS is_published, array_agg(${rt.tag_id}) as ${rd.resultName.tags}
+        SELECT $dbColumnsToFind, ${rl.externalId} IS NOT NULL AS is_published, COALESCE(ARRAY_AGG(${rt.tag_id}) FILTER (WHERE ${rt.tag_id} IS NOT NULL), '{}') AS tags
         FROM ${DbRuleDraft as rd}
         LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
         LEFT JOIN ${RuleTagDraft as rt}
@@ -293,7 +286,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           pattern = formRule.pattern,
           replacement = formRule.replacement,
           category = formRule.category,
-          tags = formRule.tags,
+          tags = formRule.tags.getOrElse(existingRule.tags),
           description = formRule.description,
           advisoryRule = formRule.advisoryRule
         )
@@ -341,7 +334,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("pattern") -> entity.pattern,
         Symbol("replacement") -> entity.replacement,
         Symbol("category") -> entity.category,
-        Symbol("tags") -> entity.tags,
         Symbol("description") -> entity.description,
         Symbol("ignore") -> entity.ignore,
         Symbol("notes") -> entity.notes,
@@ -355,12 +347,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("isArchived") -> entity.isArchived
       )
     )
-    SQL(s"""insert into $tableName(
+    val ruleIds = SQL(s"""insert into $tableName(
       rule_type,
       pattern,
       replacement,
       category,
-      tags,
       description,
       ignore,
       notes,
@@ -377,7 +368,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {pattern},
       {replacement},
       {category},
-      {tags},
       {description},
       {ignore},
       {notes},
@@ -390,6 +380,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {updatedAt},
       {isArchived}
     )""").batchByName(params.toSeq: _*).apply[List]()
+    val ruleTags = ruleIds.zip(entities).flatMap {
+      case (id, rule) => rule.tags.map(tag => RuleTag(id, tag))
+    }
+    RuleTagDraft.batchInsert(ruleTags)
+    ruleIds
   }
 
   def save(entity: DbRuleDraft, user: String)(implicit
@@ -402,7 +397,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.pattern -> entity.pattern,
           column.replacement -> entity.replacement,
           column.category -> entity.category,
-          column.tags -> entity.tags,
           column.description -> entity.description,
           column.ignore -> entity.ignore,
           column.notes -> entity.notes,
@@ -419,7 +413,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .where
         .eq(column.id, entity.id)
     }.update().apply()
-
+    // TODO: also update tag relationships?
     find(entity.id.get)
       .toRight(
         new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")

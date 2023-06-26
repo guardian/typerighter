@@ -16,7 +16,7 @@ case class DbRuleLive(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[String] = None,
+    tags: List[Int] = List.empty,
     description: Option[String] = None,
     notes: Option[String] = None,
     externalId: Option[String] = None,
@@ -44,12 +44,32 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     "rule_order"
   )
 
-  def fromResultName(r: ResultName[DbRuleLive])(rs: WrappedResultSet): DbRuleLive =
-    autoConstruct(rs, r)
-
   val r = DbRuleLive.syntax("r")
 
   override val autoSession = AutoSession
+
+  def fromRow(rs: WrappedResultSet): DbRuleLive = {
+    DbRuleLive(
+      ruleType = rs.string("rule_type"),
+      pattern = rs.stringOpt("pattern"),
+      replacement = rs.stringOpt("replacement"),
+      category = rs.stringOpt("category"),
+      tags = rs.array("tags").getArray.asInstanceOf[Array[Int]].toList,
+      description = rs.stringOpt("description"),
+      notes = rs.stringOpt("notes"),
+      externalId = rs.stringOpt("external_id"),
+      forceRedRule = rs.booleanOpt("force_red_rule"),
+      advisoryRule = rs.booleanOpt("advisory_rule"),
+      createdAt = rs.offsetDateTime("created_at"),
+      createdBy = rs.string("created_by"),
+      updatedAt = rs.offsetDateTime("updated_at"),
+      updatedBy = rs.string("updated_by"),
+      revisionId = rs.int("revision_id"),
+      reason = rs.string("reason"),
+      isActive = rs.boolean("is_active"),
+      ruleOrder = rs.int("rule_order")
+    )
+  }
 
   def findRevision(externalId: String, revisionId: Int)(implicit
       session: DBSession = autoSession
@@ -61,7 +81,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .eq(r.externalId, externalId)
         .and
         .eq(r.revisionId, revisionId)
-    }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
+    }.map(DbRuleLive.fromRow).single().apply()
   }
 
   def findLatestRevision(externalId: String)(implicit
@@ -74,7 +94,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .eq(r.externalId, externalId)
         .orderBy(r.revisionId.desc)
         .limit(1)
-    }.map(DbRuleLive.fromResultName(r.resultName)).single().apply()
+    }.map(DbRuleLive.fromRow).single().apply()
   }
 
   /** Find live rules by `externalId`. Because there may be many inactive live rules with the same
@@ -89,12 +109,12 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .from(DbRuleLive as r)
         .where
         .eq(r.externalId, externalId)
-    }.map(DbRuleLive.fromResultName(r.resultName)).list().apply()
+    }.map(DbRuleLive.fromRow).list().apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
     withSQL(select.from(DbRuleLive as r).orderBy(r.ruleOrder))
-      .map(DbRuleLive.fromResultName(r.resultName))
+      .map(DbRuleLive.fromRow)
       .list()
       .apply()
   }
@@ -107,7 +127,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .eq(r.isActive, true)
         .orderBy(r.ruleOrder)
     )
-      .map(DbRuleLive.fromResultName(r.resultName))
+      .map(DbRuleLive.fromRow)
       .list()
       .apply()
   }
@@ -153,7 +173,6 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
           column.pattern -> liveRule.pattern,
           column.replacement -> liveRule.replacement,
           column.category -> liveRule.category,
-          column.tags -> liveRule.tags,
           column.description -> liveRule.description,
           column.notes -> liveRule.notes,
           column.externalId -> liveRule.externalId,
@@ -168,7 +187,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         )
         .returning(column.externalId)
     }.map(_.string(column.externalId)).single().apply()
-
+ // TODO: also handle tag creation
     findRevision(generatedKey.get, liveRule.revisionId) match {
       case Some(rule) => rule
       case None =>

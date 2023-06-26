@@ -1,7 +1,7 @@
 package model
 
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional, text}
+import play.api.data.Forms.{boolean, list, mapping, number, optional, text}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import service.RuleManager.RuleType
 
@@ -32,7 +32,7 @@ object UpdateRuleForm {
       "pattern" -> optional(text()),
       "replacement" -> optional(text()),
       "category" -> optional(text()),
-      "tags" -> optional(text()),
+      "tags" -> optional(list(number())),
       "description" -> optional(text()),
       "advisoryRule" -> optional(boolean)
     )(UpdateRuleForm.apply)(UpdateRuleForm.unapply)
@@ -44,7 +44,7 @@ case class UpdateRuleForm(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[String] = None,
+    tags: Option[List[Int]] = None,
     description: Option[String] = None,
     advisoryRule: Option[Boolean] = None
 )

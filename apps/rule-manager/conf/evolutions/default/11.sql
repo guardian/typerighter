@@ -23,6 +23,3 @@ ALTER TABLE rule_tag_draft
 ALTER TABLE rule_tag_live
     DROP CONSTRAINT fk_rule_id,
     DROP CONSTRAINT fk_tag_id;
-
-ALTER TABLE rules_live
-    DROP CONSTRAINT unique_external_id;
