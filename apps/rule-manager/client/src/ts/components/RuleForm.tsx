@@ -49,7 +49,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         onUpdate: (id: number) => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unpublishRule, ruleState } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
@@ -148,6 +148,19 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         })
     }
 
+    const unarchiveRuleHandler = () => {
+        if (!ruleFormData?.id) {
+            return;
+        }
+
+        unarchiveRule(ruleFormData.id).then(data => {
+            if (data.status === 'ok'){
+                setRuleFormData(baseForm);
+                onClose();
+            }
+        })
+    }
+
     const unpublishRuleHandler = () => {
         if (!ruleFormData?.id) {
             return;
@@ -196,6 +209,13 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
                         </PublishTooltip>
                     </EuiFlexItem>
                 </EuiFlexGroup> : null
+            }
+            {
+                ruleState === 'archived' ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={unarchiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                        Unarchive Rule
+                    </EuiButton>
+                </EuiFlexItem> : null
             }
             {
                 ruleState === 'draft' ? <EuiFlexItem grow={0}>

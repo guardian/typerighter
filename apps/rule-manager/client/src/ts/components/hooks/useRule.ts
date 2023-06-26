@@ -114,6 +114,18 @@ export function useRule(ruleId: number | undefined) {
     return result;
   }
 
+  const unarchiveRule = async (ruleId: number) => {
+    setIsLoading(true);
+
+    const result = await fetch(`${location}rules/${ruleId}/unarchive`, {
+      method: 'POST',
+    }).then(responseHandler)
+
+    setIsLoading(false);
+
+    return result;
+  }
+
   const unpublishRule = async (ruleId: number) => {
     setIsLoading(true);
 
@@ -210,5 +222,5 @@ export function useRule(ruleId: number | undefined) {
     setRuleState(getRuleState(rule?.draft));
   }, [rule])
 
-  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule, unpublishRule, ruleState }
+  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState }
 }
