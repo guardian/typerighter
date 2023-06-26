@@ -124,17 +124,32 @@ class RulesController(
     }
   }
 
+  def unpublish(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to unpublish rules")
+      case true =>
+        RuleManager.unpublishRule(id, request.user.email) match {
+          case Left(e: Throwable) => InternalServerError(e.getMessage)
+          case Right(liveRule) =>
+            Ok(
+              Json.obj(
+                "live" -> Json.toJson(liveRule)
+              )
+            )
+        }
+    }
+  }
+
   def archive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to archive rules")
       case true =>
         RuleManager.archiveRule(id, request.user.email) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
-          case Right((draftRule, liveRule)) =>
+          case Right(draftRule) =>
             Ok(
               Json.obj(
-                "draft" -> Json.toJson(draftRule),
-                "live" -> Json.toJson(liveRule)
+                "draft" -> Json.toJson(draftRule)
               )
             )
         }

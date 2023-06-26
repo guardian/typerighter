@@ -267,10 +267,10 @@ object RuleManager extends Loggable {
     }
   }
 
-  def archiveRule(
+  def unpublishRule(
       id: Int,
       user: String
-  ): Either[Exception, (Option[DbRuleDraft], Option[DbRuleLive])] = {
+  ): Either[Exception, Option[DbRuleLive]] = {
     try {
       val maybeDraftRule = DbRuleDraft.find(id)
 
@@ -282,13 +282,26 @@ object RuleManager extends Loggable {
         updatedLiveRule <- DbRuleLive.setInactive(externalId, user)
       } yield updatedLiveRule
 
+      Right(maybeUpdatedLiveRule)
+    } catch {
+      case e: Exception => Left(e)
+    }
+  }
+
+  def archiveRule(
+      id: Int,
+      user: String
+  ): Either[Exception, Option[DbRuleDraft]] = {
+    try {
+      val maybeDraftRule = DbRuleDraft.find(id)
+
       val maybeUpdatedDraftRule = for {
         draftRule <- maybeDraftRule
         archivedDraftRule = draftRule.copy(isArchived = true)
         updatedDraftRule <- DbRuleDraft.save(archivedDraftRule, user).toOption
       } yield updatedDraftRule
 
-      Right(maybeUpdatedDraftRule, maybeUpdatedLiveRule)
+      Right(maybeUpdatedDraftRule)
     } catch {
       case e: Exception => Left(e)
     }

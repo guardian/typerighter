@@ -353,82 +353,90 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       )
   }
 
-  "archiveRule" should "not archive the rule if it does not exist in draft" in { () =>
+  "archiveRule" should "not do nothing if the rule does not exist in draft" in { () =>
     val invalidId = 100
 
     RuleManager.archiveRule(invalidId, user) match {
       case Left(e) =>
-        fail(s"Unexpected error on archiving id: ${invalidId}: ${e.getMessage}")
-      case Right((maybeDraftRule, maybeLiveRule)) =>
+        fail(s"Unexpected error on archiving id: $invalidId: ${e.getMessage}")
+      case Right(maybeDraftRule) =>
         maybeDraftRule shouldBe None
-        maybeLiveRule shouldBe None
     }
   }
 
-  "archiveRule" should "archive the rule if it exists in draft, but not live" in { () =>
+  "archiveRule" should "archive the rule if it exists in draft" in { () =>
     val ruleToArchive = createPublishableRule
 
     RuleManager.archiveRule(ruleToArchive.id.get, user) match {
       case Left(e) =>
         fail(s"Unexpected error on archiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
-      case Right((maybeDraftRule, maybeLiveRule)) =>
+      case Right(maybeDraftRule) =>
         val draftRule = maybeDraftRule.get
         draftRule.revisionId shouldMatchTo (ruleToArchive.revisionId + 1)
         draftRule.isArchived shouldBe true
         draftRule.isPublished shouldBe false
         draftRule.updatedBy shouldBe user
         draftRule.updatedAt shouldBe >(ruleToArchive.updatedAt)
+    }
+  }
 
+  "unpublishRule" should "should do nothing if the rule does not exist in draft" in { () =>
+    val ruleToArchive = createPublishableRule
+
+    RuleManager.unpublishRule(ruleToArchive.id.get, user) match {
+      case Left(e) =>
+        fail(s"Unexpected error on unpublishing id: $ruleToArchive.id.get: ${e.getMessage}")
+      case Right(maybeLiveRule) =>
         maybeLiveRule shouldBe None
     }
   }
 
-  "archiveRule" should "should do nothing to the live rule if it is inactive" in { () =>
-    val ruleToArchive = createPublishableRule
+  "unpublishRule" should "should do nothing if the rule does not exist in live" in { () =>
+    val invalidId = 100
 
-    RuleManager.publishRule(ruleToArchive.id.get, user, reason, bucketRuleResource)
+    RuleManager.unpublishRule(invalidId, user) match {
+      case Left(e) =>
+        fail(s"Unexpected error on unpublishing id: $invalidId: ${e.getMessage}")
+      case Right(maybeLiveRule) =>
+        maybeLiveRule shouldBe None
+    }
+  }
+
+  "unpublishRule" should "should do nothing to the live rule if it is inactive" in { () =>
+    val ruleToUnpublish = createPublishableRule
+
+    RuleManager.publishRule(ruleToUnpublish.id.get, user, reason, bucketRuleResource)
 
     for {
-      liveRule <- DbRuleLive.findRevision(ruleToArchive.externalId.get, ruleToArchive.revisionId)
+      liveRule <- DbRuleLive.findRevision(
+        ruleToUnpublish.externalId.get,
+        ruleToUnpublish.revisionId
+      )
       externalId <- liveRule.externalId
       _ <- DbRuleLive.setInactive(externalId, user)
     }
-      RuleManager.archiveRule(ruleToArchive.id.get, user) match {
+      RuleManager.unpublishRule(ruleToUnpublish.id.get, user) match {
         case Left(e) =>
-          fail(s"Unexpected error on archiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
-        case Right((maybeDraftRule, maybeLiveRule)) =>
-          val draftRule = maybeDraftRule.get
-          draftRule.revisionId shouldMatchTo (ruleToArchive.revisionId + 1)
-          draftRule.isArchived shouldBe true
-          draftRule.isPublished shouldBe false
-          draftRule.updatedBy shouldBe user
-          draftRule.updatedAt shouldBe >(ruleToArchive.updatedAt)
-
+          fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
+        case Right(maybeLiveRule) =>
           maybeLiveRule shouldBe None
       }
   }
 
-  "archiveRule" should "make the rule inactive if it (a) exists in live, and (b) is active" in {
+  "unpublishRule" should "make the rule inactive if it (a) exists in live, and (b) is active" in {
     () =>
-      val ruleToArchive = createPublishableRule
+      val ruleToUnpublish = createPublishableRule
 
-      RuleManager.publishRule(ruleToArchive.id.get, user, reason, bucketRuleResource)
+      RuleManager.publishRule(ruleToUnpublish.id.get, user, reason, bucketRuleResource)
 
-      RuleManager.archiveRule(ruleToArchive.id.get, user) match {
+      RuleManager.unpublishRule(ruleToUnpublish.id.get, user) match {
         case Left(e) =>
-          fail(s"Unexpected error on archiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
-        case Right((maybeDraftRule, maybeLiveRule)) =>
-          val draftRule = maybeDraftRule.get
-          draftRule.revisionId shouldMatchTo (ruleToArchive.revisionId + 1)
-          draftRule.isArchived shouldBe true
-          draftRule.isPublished shouldBe false
-          draftRule.updatedBy shouldBe user
-          draftRule.updatedAt shouldBe >(ruleToArchive.updatedAt)
-
+          fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
+        case Right(maybeLiveRule) =>
           val liveRule = maybeLiveRule.get
           liveRule.isActive shouldBe false
           liveRule.updatedBy shouldBe user
-          liveRule.updatedAt shouldBe >(ruleToArchive.updatedAt)
+          liveRule.updatedAt shouldBe >(ruleToUnpublish.updatedAt)
       }
   }
 }

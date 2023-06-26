@@ -23,7 +23,9 @@ POST    /rules/:id                  controllers.RulesController.update(id: Int)
 +nocsrf
 POST    /rules/:id/publish          controllers.RulesController.publish(id: Int)
 +nocsrf
-GET    /rules/:id/publish           controllers.RulesController.canPublish(id: Int)
+GET     /rules/:id/publish          controllers.RulesController.canPublish(id: Int)
++nocsrf
+POST    /rules/:id/unpublish        controllers.RulesController.unpublish(id: Int)
 +nocsrf
 POST    /rules/:id/archive          controllers.RulesController.archive(id: Int)
 
