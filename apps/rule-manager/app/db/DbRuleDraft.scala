@@ -160,6 +160,22 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
+  def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+    sql"""
+        SELECT
+            ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
+        FROM
+            ${DbRuleDraft as rd}
+        LEFT JOIN ${DbRuleLive as rl}
+            ON ${rd.externalId} = ${rl.externalId}
+            AND ${rl.isActive} = TRUE
+        WHERE ${rd.id} IN ($ids)
+        """
+      .map(DbRuleDraft.fromRow)
+      .list()
+      .apply()
+  }
+
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     sql"""
         SELECT
@@ -293,20 +309,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       }.update().apply()
 
       if (updatedRows > 0) {
-        ids.flatMap { id =>
-          find(id) match {
-            case Some(rule) =>
-              Some(
-                rule.copy(
-                  category = Some(category),
-                  tags = Some(tags)
-                )
-              )
-            case None =>
-              println(s"Rule not found matching ID $id")
-              None
-          }
-        }
+        findRules(ids)
       } else {
         throw new Exception("No rows updated")
       }
