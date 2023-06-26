@@ -44,6 +44,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     "rule_order"
   )
 
+  val rtl = RuleTagLive.syntax("rt")
   val r = DbRuleLive.syntax("r")
 
   override val autoSession = AutoSession
@@ -54,7 +55,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       pattern = rs.stringOpt("pattern"),
       replacement = rs.stringOpt("replacement"),
       category = rs.stringOpt("category"),
-      tags = rs.array("tags").getArray.asInstanceOf[Array[Int]].toList,
+      tags = rs.array("tags").getArray.asInstanceOf[Array[Integer]].toList.map { _.intValue() },
       description = rs.stringOpt("description"),
       notes = rs.stringOpt("notes"),
       externalId = rs.stringOpt("external_id"),
@@ -71,16 +72,25 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     )
   }
 
+  val dbColumnsToFind = SQLSyntax.createUnsafely(
+    r.columns.filter(_.value != "tags").map(c => s"${r.tableAliasName}.${c.value}").mkString(", ")
+  )
+
+  val tagColumn = sqls"COALESCE(ARRAY_AGG(${rtl.tag_id}) FILTER (WHERE ${rtl.tag_id} IS NOT NULL), '{}') AS tags"
+
   def findRevision(externalId: String, revisionId: Int)(implicit
       session: DBSession = autoSession
   ): Option[DbRuleLive] = {
     withSQL {
-      select
+      select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
+        .leftJoin(RuleTagLive as rtl)
+        .on(r.externalId, rtl.rule_id)
         .where
         .eq(r.externalId, externalId)
         .and
         .eq(r.revisionId, revisionId)
+        .groupBy(dbColumnsToFind)
     }.map(DbRuleLive.fromRow).single().apply()
   }
 
@@ -88,10 +98,13 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       session: DBSession = autoSession
   ): Option[DbRuleLive] = {
     withSQL {
-      select
+      select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
+        .leftJoin(RuleTagLive as rtl)
+        .on(r.externalId, rtl.rule_id)
         .where
         .eq(r.externalId, externalId)
+        .groupBy(dbColumnsToFind)
         .orderBy(r.revisionId.desc)
         .limit(1)
     }.map(DbRuleLive.fromRow).single().apply()
@@ -105,15 +118,25 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       externalId: String
   )(implicit session: DBSession = autoSession): List[DbRuleLive] = {
     withSQL {
-      select
+      select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
+        .leftJoin(RuleTagLive as rtl)
+        .on(r.externalId, rtl.rule_id)
         .where
         .eq(r.externalId, externalId)
+        .groupBy(dbColumnsToFind)
     }.map(DbRuleLive.fromRow).list().apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
-    withSQL(select.from(DbRuleLive as r).orderBy(r.ruleOrder))
+    withSQL(
+      select(dbColumnsToFind, tagColumn)
+        .from(DbRuleLive as r)
+        .leftJoin(RuleTagLive as rtl)
+        .on(r.externalId, rtl.rule_id)
+        .groupBy(dbColumnsToFind)
+        .orderBy(r.ruleOrder)
+    )
       .map(DbRuleLive.fromRow)
       .list()
       .apply()
@@ -121,10 +144,13 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   def findAllActive()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
     withSQL(
-      select
+      select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
+        .leftJoin(RuleTagLive as rtl)
+        .on(r.externalId, rtl.rule_id)
         .where
         .eq(r.isActive, true)
+        .groupBy(dbColumnsToFind)
         .orderBy(r.ruleOrder)
     )
       .map(DbRuleLive.fromRow)
@@ -206,7 +232,6 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         Symbol("pattern") -> entity.pattern,
         Symbol("replacement") -> entity.replacement,
         Symbol("category") -> entity.category,
-        Symbol("tags") -> entity.tags,
         Symbol("description") -> entity.description,
         Symbol("notes") -> entity.notes,
         Symbol("externalId") -> entity.externalId,
@@ -226,7 +251,6 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       pattern,
       replacement,
       category,
-      tags,
       description,
       notes,
       external_id,
@@ -244,7 +268,6 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {pattern},
       {replacement},
       {category},
-      {tags},
       {description},
       {notes},
       {externalId},

@@ -150,11 +150,10 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         FROM
             ${DbRuleDraft as rd}
         LEFT JOIN ${DbRuleLive as rl}
-          ON ${rd.externalId} = ${rl.externalId}
-          AND ${rl.isActive} = TRUE
-        INNER JOIN ${RuleTagDraft as rt}
-          ON ${rd.id} = ${rt.rule_id}
-        GROUP BY ${rd.id}
+            ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
+        LEFT JOIN ${RuleTagDraft as rt}
+            ON ${rd.id} = ${rt.rule_id}
+        GROUP BY ${rd.id}, ${rl.externalId}
        """
       .map(DbRuleDraft.fromRow)
       .single()
@@ -181,7 +180,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     sql"""
         SELECT $dbColumnsToFind, ${rl.externalId} IS NOT NULL AS is_published, COALESCE(ARRAY_AGG(${rt.tag_id}) FILTER (WHERE ${rt.tag_id} IS NOT NULL), '{}') AS tags
         FROM ${DbRuleDraft as rd}
-        LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
+        LEFT JOIN ${DbRuleLive as rl}
+            ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
         LEFT JOIN ${RuleTagDraft as rt}
           ON ${rd.id} = ${rt.rule_id}
         GROUP BY ${rd.id}, ${rl.externalId}

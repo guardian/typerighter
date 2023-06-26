@@ -102,4 +102,10 @@ trait RuleTagCommon extends SQLSyntaxSupport[RuleTag] {
         .eq(column.tag_id, entity.tag_id)
     }.update().apply()
   }
+
+  def destroyAll()(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete.from(this)
+    }.update().apply()
+  }
 }
