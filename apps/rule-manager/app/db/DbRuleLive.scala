@@ -226,7 +226,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   def batchInsert(
       entities: collection.Seq[DbRuleLive]
-  )(implicit session: DBSession = autoSession): List[Int] = {
+  )(implicit session: DBSession = autoSession): Unit = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
         Symbol("ruleType") -> entity.ruleType,
@@ -282,6 +282,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {isActive},
       {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[List]()
+    val ruleTags = entities.flatMap(entity => entity.tags.map(tag => RuleTagLive(entity.externalId.get, entity.revisionId, tag)))
+    RuleTagLive.batchInsert(ruleTags)
+    ()
   }
 
   def destroyAll()(implicit session: DBSession = autoSession): Int = {
