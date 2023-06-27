@@ -54,7 +54,7 @@ class RulesController(
     }
   }
 
-  //make some changes
+  // make some changes
 
   def publish(id: Int) = ApiAuthAction { implicit request =>
     PublishRuleForm.form
