@@ -444,7 +444,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   "unpublishRule" should "do nothing if the rule does not exist in draft" in { () =>
     val invalidId = 100
 
-    RuleManager.unpublishRule(invalidId, user) match {
+    RuleManager.unpublishRule(invalidId, user, bucketRuleResource) match {
       case Left(e) =>
         fail(s"Unexpected error on unpublishing id: $invalidId: ${e.getMessage}")
       case Right((maybeDraftRule, maybeLiveRule)) =>
@@ -456,7 +456,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   "unpublishRule" should "do nothing if the rule does not exist in live" in { () =>
     val ruleToArchive = createPublishableRule
 
-    RuleManager.unpublishRule(ruleToArchive.id.get, user) match {
+    RuleManager.unpublishRule(ruleToArchive.id.get, user, bucketRuleResource) match {
       case Left(e) =>
         fail(s"Unexpected error on unpublishing id: $ruleToArchive.id.get: ${e.getMessage}")
       case Right((maybeDraftRule, maybeLiveRule)) =>
@@ -478,7 +478,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       externalId <- liveRule.externalId
       _ <- DbRuleLive.setInactive(externalId, user)
     }
-      RuleManager.unpublishRule(ruleToUnpublish.id.get, user) match {
+      RuleManager.unpublishRule(ruleToUnpublish.id.get, user, bucketRuleResource) match {
         case Left(e) =>
           fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
         case Right((maybeDraftRule, maybeLiveRule)) =>
@@ -493,7 +493,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
       RuleManager.publishRule(ruleToUnpublish.id.get, user, reason, bucketRuleResource)
 
-      RuleManager.unpublishRule(ruleToUnpublish.id.get, user) match {
+      RuleManager.unpublishRule(ruleToUnpublish.id.get, user, bucketRuleResource) match {
         case Left(e) =>
           fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
         case Right((maybeDraftRule, maybeLiveRule)) =>
