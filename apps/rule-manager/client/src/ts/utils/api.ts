@@ -1,4 +1,4 @@
-import {DraftRule, DraftRuleFromServer} from "../components/hooks/useRule";
+import {DraftRule} from "../components/hooks/useRule";
 
 export interface OkIResponse {
     status: 'ok'
@@ -11,19 +11,15 @@ export interface ErrorIResponse {
     statusCode?: number;
 }
 
-export const transformApiFormData = <Rule extends { tags: string | undefined }>(draftRule: Rule): Omit<Rule, "tags"> & { tags: string[] } => (
-    {...draftRule, tags: draftRule.tags ? draftRule.tags.split(",") : []}
-)
-
 export const createErrorResponse = (errorMessage: string, statusCode: number): ErrorIResponse => ({
     status: 'error',
     errorMessage,
     statusCode
 });
 
-export const createOkResponse = (apiRule: DraftRuleFromServer): OkIResponse => ({
+export const createOkResponse = (apiRule: DraftRule): OkIResponse => ({
     status: 'ok',
-    data: transformApiFormData(apiRule)
+    data: apiRule
 })
 
 export const responseHandler = async (response: Response) => {
@@ -35,6 +31,3 @@ export const responseHandler = async (response: Response) => {
     }
 }
 
-export const transformRuleFormData = (ruleForm: DraftRule): DraftRuleFromServer => {
-  return {...ruleForm, tags: ruleForm?.tags?.length ? ruleForm.tags.join(",") : undefined};
-}

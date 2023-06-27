@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {ErrorIResponse, responseHandler, transformApiFormData, transformRuleFormData} from "../../utils/api";
+import {ErrorIResponse, responseHandler} from "../../utils/api";
 import { errorToString } from "../../utils/error";
 import { FormError } from "../RuleForm";
 import {getRuleState, RuleState} from "../../utils/rule";
@@ -11,7 +11,7 @@ export type BaseRule = {
   pattern?: string,
   replacement?: string,
   category?: string,
-  tags: string[],
+  tags: number[],
   description?: string,
   ignore: boolean,
   forceRedRule?: boolean,
@@ -27,19 +27,8 @@ export type BaseRule = {
 }
 
 export type DraftRule = BaseRule
-export type DraftRuleFromServer = Omit<BaseRule, "tags"> & {
-  tags: string | undefined;
-}
 export type LiveRule = BaseRule & {
   reason: string
-}
-export type LiveRuleFromServer = Omit<LiveRule, "tags"> & {
-  tags: string | undefined;
-}
-
-export type RuleDataFromServer = {
-  draft: DraftRuleFromServer
-  live: LiveRuleFromServer[]
 }
 
 export type RuleData = {
@@ -65,11 +54,8 @@ export function useRule(ruleId: number | undefined) {
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
-      const rules: RuleDataFromServer = await response.json();
-      setRule({
-        draft: transformApiFormData(rules.draft),
-        live: rules.live.map(transformApiFormData)
-      });
+      const rules: RuleData = await response.json();
+      setRule(rules);
     } catch (error) {
       setErrors(errorToString(error));
     }
@@ -90,11 +76,8 @@ export function useRule(ruleId: number | undefined) {
         throw new Error(`Failed to publish rules: ${response.status} ${response.statusText}`);
       }
 
-      const rules: RuleDataFromServer = await response.json();
-      setRule({
-        draft: transformApiFormData(rules.draft),
-        live: rules.live.map(transformApiFormData)
-      });
+      const rules: RuleData = await response.json();
+      setRule(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -199,7 +182,6 @@ export function useRule(ruleId: number | undefined) {
   const updateRule = async (ruleForm: DraftRule) => {
     setIsLoading(true);
 
-    const formDataForApi = transformRuleFormData(ruleForm);
     // We would always expect the ruleForm to include an ID when updating a rule
     if (!ruleForm.id) return {status: 'error', errorMessage: "Update endpoint requires a rule ID"} as ErrorIResponse;
 
@@ -208,9 +190,8 @@ export function useRule(ruleId: number | undefined) {
       headers: {
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify(formDataForApi)
+      body: JSON.stringify(ruleForm)
     })
-
 
     const parsedResponse = await responseHandler(response);
     if (parsedResponse.status === "ok") {
@@ -227,13 +208,12 @@ export function useRule(ruleId: number | undefined) {
   const createRule = async (ruleForm: DraftRule) => {
     setIsLoading(true);
 
-    const transformedRuleFormData = transformRuleFormData(ruleForm);
     const createRuleResponse = await fetch(`${location}rules`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(transformedRuleFormData)
+        body: JSON.stringify(ruleForm)
     })
 
     const parsedResponse = await responseHandler(createRuleResponse);

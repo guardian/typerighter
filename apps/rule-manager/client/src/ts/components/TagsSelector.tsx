@@ -1,34 +1,37 @@
 import {useEffect, useState} from "react";
 import {EuiFormRow, EuiComboBox} from "@elastic/eui";
 import React from "react";
-import { MetadataOption } from "./CategorySelector";
 import { PartiallyUpdateRuleData } from "./RuleForm";
 import { existingTags } from "../constants/constants";
 import {DraftRule} from "./hooks/useRule";
+import {TagMap} from "./hooks/useTags";
 
-export const TagsSelector = ({ruleData, partiallyUpdateRuleData}: {
+type TagOption = { label: string, value?: number }
+
+export const TagsSelector = ({tags, ruleData, partiallyUpdateRuleData}: {
+    tags: TagMap,
     ruleData: DraftRule,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
-    const options = existingTags.map(tag => {return {label: tag}});
+    const options = tags ? Object.values(tags).map(tag => ({ label: tag.name })) : [];
+    const tagOptions = ruleData.tags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
+    const [selectedTags, setSelectedTags] = useState<TagOption[]>(tagOptions);
 
-    const [selectedTags, setSelectedTags] = useState<MetadataOption[]>(ruleData.tags ? ruleData.tags.map(tag => ({label: tag})) : []);
+    const onChange = (selectedTags: TagOption[]) => {
 
-    const onChange = (selectedTags: MetadataOption[]) => {
-        setSelectedTags(selectedTags);
     };
 
     useEffect(() => {
-        const newTags = selectedTags.map(tag => tag.label)
+        const newTags = selectedTags.map(tag => tag.value!)
         partiallyUpdateRuleData({tags: newTags})
     }, [selectedTags])
 
     return (
         <EuiFormRow label='Tags' fullWidth={true}>
-            <EuiComboBox
+            <EuiComboBox<number>
                 options={options}
-                selectedOptions={ruleData.tags ? ruleData.tags.map(tag => ({label: tag})) : undefined}
-                onChange={onChange}
+                selectedOptions={tagOptions}
+                onChange={options => setSelectedTags(options)}
                 isClearable={true}
                 isCaseSensitive
                 fullWidth={true}

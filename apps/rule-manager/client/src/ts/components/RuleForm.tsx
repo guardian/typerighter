@@ -11,14 +11,12 @@ import {
 import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
-import {DraftRule, RuleDataFromServer, RuleType, useRule} from "./hooks/useRule";
+import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
 import {capitalize} from "lodash";
-
 import { ReasonModal } from "./modals/Reason";
-import {transformApiFormData} from "../utils/api";
-import {errorToString} from "../utils/error";
+import {TagMap} from "./hooks/useTags";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -45,7 +43,8 @@ const SpinnerContainer = styled.div`
 
 const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 
-export const RuleForm = ({ruleId, onClose, onUpdate}: {
+export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
+        tags: TagMap,
         ruleId: number | undefined,
         onClose: () => void,
         onUpdate: (id: number) => void
@@ -170,7 +169,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
-            <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
+            <RuleContent tags={tags} ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             {rule && <RuleHistory ruleHistory={rule.live} />}
             {
