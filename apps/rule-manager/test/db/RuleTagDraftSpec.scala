@@ -67,7 +67,8 @@ class RuleTagDraftSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
   it should "perform batch insert" in { implicit session =>
     val entities = RuleTagDraft.findAll()
     entities.foreach(e => RuleTagDraft.destroy(e))
-    val batchInserted = RuleTagDraft.batchInsert(entities)
-    batchInserted.size should be > (0)
+    RuleTagDraft.batchInsert(entities)
+    val entitiesAfterBatchInsert = RuleTagDraft.findAll()
+    entitiesAfterBatchInsert should be(entities)
   }
 }

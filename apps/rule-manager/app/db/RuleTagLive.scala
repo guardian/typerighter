@@ -86,7 +86,8 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
     )
     SQL(s"""insert into $tableName(
       rule_external_id,
-      rule_revision_id
+      rule_revision_id,
+      tag_id
     ) values (
       {rule_external_id},
       {rule_revision_id},

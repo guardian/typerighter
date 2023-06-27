@@ -19,7 +19,7 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
       .update()
       .apply()
     val testTagId = sql"insert into tags (name) values ('testTag')".update().apply()
-    sql"insert into rule_tag_live (rule_revision_id, rule_external_id, tag_id) values ($externalId, $revisionId, $testTagId)"
+    sql"insert into rule_tag_live (rule_external_id, rule_revision_id, tag_id) values ($externalId, $revisionId, $testTagId)"
       .update()
       .apply()
   }

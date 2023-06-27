@@ -21,12 +21,12 @@ class RuleTagLiveSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       .update()
       .apply()
     val testTagId = sql"insert into tags (name) values ('testTag')".update().apply()
-    sql"insert into rule_tag_live (rule_revision_id, rule_external_id, tag_id) values ($initialExternalId, $initialRevisionId, $testTagId)"
+    sql"insert into rule_tag_live (rule_external_id, rule_revision_id, tag_id) values ($initialExternalId, $initialRevisionId, $testTagId)"
       .update()
       .apply()
   }
 
-  behavior of "Rule Draft - Tag join table"
+  behavior of "Rule Live - Tag join table"
 
   it should "find by composite key" in { implicit session =>
     val maybeFound = RuleTagLive.find(initialExternalId, initialRevisionId, 1)
@@ -40,7 +40,7 @@ class RuleTagLiveSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
   it should "find rules by tag" in { implicit session =>
     val maybeFound = RuleTagLive.findRulesByTag(1)
-    maybeFound should be(List(1))
+    maybeFound should be(List(("googleSheetId", 0)))
   }
 
   it should "find all records" in { implicit session =>
@@ -48,7 +48,7 @@ class RuleTagLiveSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     allResults should be(List(RuleTagLive(initialExternalId, initialRevisionId, 1)))
   }
 
-  it should "create new 'rule draft -> tag' join record" in { implicit session =>
+  it should "create new 'rule live -> tag' join record" in { implicit session =>
     val newTag = Tags.create("New tag").get
     val created = RuleTagLive
       .create(externalId = initialExternalId, revisionId = initialRevisionId, tagId = newTag.id.get)
@@ -72,7 +72,8 @@ class RuleTagLiveSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   it should "perform batch insert" in { implicit session =>
     val entities = RuleTagLive.findAll()
     entities.foreach(e => RuleTagLive.destroy(e))
-    val batchInserted = RuleTagLive.batchInsert(entities)
-    entities shouldBe batchInserted
+    RuleTagLive.batchInsert(entities)
+    val entitiesAfterBatchInsert = RuleTagLive.findAll()
+    entitiesAfterBatchInsert should be(entities)
   }
 }
