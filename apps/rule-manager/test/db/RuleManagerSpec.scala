@@ -367,6 +367,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   "archiveRule" should "do nothing if the rule is already archived" in { () =>
     val ruleToArchive = createPublishableRule
 
+    RuleManager.archiveRule(ruleToArchive.id.get, user)
+
     RuleManager.archiveRule(ruleToArchive.id.get, user) match {
       case Left(e) =>
         fail(s"Unexpected error on archiving id: $ruleToArchive.id.get: ${e.getMessage}")
@@ -445,7 +447,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.unpublishRule(invalidId, user) match {
       case Left(e) =>
         fail(s"Unexpected error on unpublishing id: $invalidId: ${e.getMessage}")
-      case Right(maybeLiveRule) =>
+      case Right((maybeDraftRule, maybeLiveRule)) =>
+        maybeDraftRule shouldBe None
         maybeLiveRule shouldBe None
     }
   }
@@ -456,12 +459,13 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.unpublishRule(ruleToArchive.id.get, user) match {
       case Left(e) =>
         fail(s"Unexpected error on unpublishing id: $ruleToArchive.id.get: ${e.getMessage}")
-      case Right(maybeLiveRule) =>
+      case Right((maybeDraftRule, maybeLiveRule)) =>
+        maybeDraftRule shouldBe None
         maybeLiveRule shouldBe None
     }
   }
 
-  "unpublishRule" should "do nothing to the live rule if it is already inactive" in { () =>
+  "unpublishRule" should "do nothing to the rule if it is already inactive" in { () =>
     val ruleToUnpublish = createPublishableRule
 
     RuleManager.publishRule(ruleToUnpublish.id.get, user, reason, bucketRuleResource)
@@ -477,7 +481,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       RuleManager.unpublishRule(ruleToUnpublish.id.get, user) match {
         case Left(e) =>
           fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
-        case Right(maybeLiveRule) =>
+        case Right((maybeDraftRule, maybeLiveRule)) =>
+          maybeDraftRule shouldBe None
           maybeLiveRule shouldBe None
       }
   }
@@ -491,11 +496,17 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       RuleManager.unpublishRule(ruleToUnpublish.id.get, user) match {
         case Left(e) =>
           fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
-        case Right(maybeLiveRule) =>
+        case Right((maybeDraftRule, maybeLiveRule)) =>
+          maybeLiveRule shouldBe defined
           val liveRule = maybeLiveRule.get
           liveRule.isActive shouldBe false
           liveRule.updatedBy shouldBe user
           liveRule.updatedAt shouldBe >(ruleToUnpublish.updatedAt)
+
+          maybeDraftRule shouldBe defined
+          val draftRule = maybeDraftRule.get
+          draftRule.isPublished shouldBe false
+          draftRule.revisionId shouldBe >(ruleToUnpublish.revisionId)
       }
   }
 }
