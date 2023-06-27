@@ -298,6 +298,18 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
+  "publishRule" should "not be able to publish an archived rule" in { () =>
+    val ruleToPublish = createPublishableRule
+    RuleManager.archiveRule(ruleToPublish.id.get, user)
+
+    RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
+      case Right(_) => fail("This rule should not be publishable")
+      case Left(formErrors) =>
+        formErrors.length shouldBe 1
+        formErrors.head.message should be("Only unarchived rules can be published")
+    }
+  }
+
   "parseDraftRuleForPublication" should "give validation errors when the rule is incomplete" in {
     () =>
       val ruleToPublish = DbRuleDraft
@@ -322,6 +334,19 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
         case Left(formErrors) =>
           formErrors.length shouldBe 1
           formErrors.head.message should include("has not changed")
+      }
+  }
+
+  "parseDraftRuleForPublication" should "give validations errors if the draft rule is archived" in {
+    () =>
+      val ruleToPublish = createPublishableRule
+      RuleManager.archiveRule(ruleToPublish.id.get, user)
+
+      RuleManager.parseDraftRuleForPublication(ruleToPublish.id.get, "reason") match {
+        case Right(_) => fail("This rule should not be publishable")
+        case Left(formErrors) =>
+          formErrors.length shouldBe 1
+          formErrors.head.message should be("Only unarchived rules can be published")
       }
   }
 

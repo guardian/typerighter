@@ -176,6 +176,18 @@ object RuleManager extends Loggable {
             )
           )
         )
+      _ <- draftRule match {
+        case _ if draftRule.isArchived =>
+          Left(
+            Seq(
+              FormError(
+                "Rule is archived",
+                "Only unarchived rules can be published"
+              )
+            )
+          )
+        case _ => Right(())
+      }
       liveRule = draftRule.toLive(reason)
       externalId <- liveRule.externalId.toRight(Seq(FormError("External id", "required")))
       _ <- liveDbRuleToCheckerRule(liveRule)
