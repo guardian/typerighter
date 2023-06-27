@@ -140,6 +140,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   it should "destroy a record" in { implicit session =>
     val entity = DbRuleDraft.findAll().head
+    RuleTagDraft.destroyAll() // Necessary to remove fk
     val deleted = DbRuleDraft.destroy(entity)
     deleted should be(1)
     val shouldBeNone = DbRuleDraft.find(123)
@@ -150,8 +151,10 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
     val entities = DbRuleDraft.findAll()
     RuleTagDraft.findAll().map(ruleTag => RuleTagDraft.destroy(ruleTag))
     entities.foreach(e => DbRuleDraft.destroy(e))
+
     val batchInserted = DbRuleDraft.batchInsert(entities)
     batchInserted.size should be > (0)
+
     val insertedRules = DbRuleDraft.findAll()
     insertedRules.head.tags shouldBe List(1)
   }

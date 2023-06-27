@@ -138,6 +138,12 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val rd = DbRuleDraft.syntax("rd")
   val rl = DbRuleLive.syntax("rl")
   val rt = RuleTagDraft.syntax("rt")
+
+  val tagColumn =
+    sqls"COALESCE(ARRAY_AGG(${rt.tag_id}) FILTER (WHERE ${rt.tag_id} IS NOT NULL), '{}') AS tags"
+
+  val isPublishedColumn = sqls"${rl.externalId} IS NOT NULL AS is_published"
+
   val dbColumnsToFind = SQLSyntax.createUnsafely(
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
   )
@@ -145,17 +151,17 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
-    sql"""
-        SELECT $dbColumnsToFind, ${rl.externalId} IS NOT NULL AS is_published, COALESCE(ARRAY_AGG(${rt.tag_id}) FILTER (WHERE ${rt.tag_id} IS NOT NULL), '{}') AS tags
-        FROM
-            ${DbRuleDraft as rd}
-        LEFT JOIN ${DbRuleLive as rl}
-            ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
-        LEFT JOIN ${RuleTagDraft as rt}
-            ON ${rd.id} = ${rt.rule_id}
-        GROUP BY ${rd.id}, ${rl.externalId}
-       """
-      .map(DbRuleDraft.fromRow)
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.rule_id)
+        .where
+        .eq(rd.id, id)
+        .groupBy(dbColumnsToFind, rl.externalId)
+    }.map(DbRuleDraft.fromRow)
       .single()
       .apply()
   }
@@ -177,17 +183,16 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
-    sql"""
-        SELECT $dbColumnsToFind, ${rl.externalId} IS NOT NULL AS is_published, COALESCE(ARRAY_AGG(${rt.tag_id}) FILTER (WHERE ${rt.tag_id} IS NOT NULL), '{}') AS tags
-        FROM ${DbRuleDraft as rd}
-        LEFT JOIN ${DbRuleLive as rl}
-            ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
-        LEFT JOIN ${RuleTagDraft as rt}
-          ON ${rd.id} = ${rt.rule_id}
-        GROUP BY ${rd.id}, ${rl.externalId}
-        ORDER BY ${rd.id}
-       """
-      .map(DbRuleDraft.fromRow)
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.rule_id)
+        .groupBy(dbColumnsToFind, rl.externalId)
+        .orderBy(rd.id)
+    }.map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }
@@ -207,50 +212,43 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern: Option[String] = None,
       replacement: Option[String] = None,
       category: Option[String] = None,
-      tags: Option[String] = None,
       description: Option[String] = None,
       ignore: Boolean,
       notes: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
       user: String,
-      isArchived: Boolean = false
+      isArchived: Boolean = false,
+      tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
-    val generatedKey = DB localTx { implicit session =>
-      val id = withSQL {
-        insert
-          .into(DbRuleDraft)
-          .namedValues(
-            column.ruleType -> ruleType,
-            column.pattern -> pattern,
-            column.replacement -> replacement,
-            column.category -> category,
-            column.tags -> tags,
-            column.description -> description,
-            column.ignore -> ignore,
-            column.notes -> notes,
-            column.forceRedRule -> forceRedRule,
-            column.advisoryRule -> advisoryRule,
-            column.createdBy -> user,
-            column.updatedBy -> user,
-            column.isArchived -> isArchived
-          )
-      }.updateAndReturnGeneratedKey().apply()
-      // Turn the tag string into a list of ids
-      RuleTagDraft
-        .findTagsByRule(id.toInt)
-        .map(tagId => sql"""
-             INSERT into ${RuleTagDraft.tableName} (rule_id, tag_id) values($id,$tagId);
-           """)
-      id
-    }
+    val id = withSQL {
+      insert
+        .into(DbRuleDraft)
+        .namedValues(
+          column.ruleType -> ruleType,
+          column.pattern -> pattern,
+          column.replacement -> replacement,
+          column.category -> category,
+          column.description -> description,
+          column.ignore -> ignore,
+          column.notes -> notes,
+          column.forceRedRule -> forceRedRule,
+          column.advisoryRule -> advisoryRule,
+          column.createdBy -> user,
+          column.updatedBy -> user,
+          column.isArchived -> isArchived
+        )
+    }.updateAndReturnGeneratedKey().apply().toInt
 
-    find(generatedKey.toInt) match {
+    val tagRelations = tags.map(tagId => RuleTag(id, tagId))
+    RuleTagDraft.batchInsert(tagRelations)
+
+    find(id) match {
       case Some(rule) => Success(rule)
       case None =>
         Failure(
           new Exception(
-            s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
+            s"Attempted to create a rule with id $id, but no result found attempting to read it back"
           )
         )
     }
@@ -264,7 +262,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern = formRule.pattern,
       replacement = formRule.replacement,
       category = formRule.category,
-      tags = formRule.tags,
+      tags = formRule.tags.getOrElse(List.empty),
       description = formRule.description,
       ignore = formRule.ignore,
       notes = formRule.notes,
@@ -389,7 +387,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .single()
       .apply()
       .get
-    val ruleIds = ((lastInsertedId - entities.size + 1) to lastInsertedId).toList
+
+    val firstInsertedId = (lastInsertedId - entities.size + 1)
+    val ruleIds = (firstInsertedId to lastInsertedId).toList
     val ruleTags = ruleIds.zip(entities).flatMap { case (id, rule) =>
       rule.tags.map(tag => RuleTag(id, tag))
     }

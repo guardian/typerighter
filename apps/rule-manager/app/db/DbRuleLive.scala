@@ -76,7 +76,8 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     r.columns.filter(_.value != "tags").map(c => s"${r.tableAliasName}.${c.value}").mkString(", ")
   )
 
-  val tagColumn = sqls"COALESCE(ARRAY_AGG(${rtl.tag_id}) FILTER (WHERE ${rtl.tag_id} IS NOT NULL), '{}') AS tags"
+  val tagColumn =
+    sqls"COALESCE(ARRAY_AGG(${rtl.tag_id}) FILTER (WHERE ${rtl.tag_id} IS NOT NULL), '{}') AS tags"
 
   def findRevision(externalId: String, revisionId: Int)(implicit
       session: DBSession = autoSession
