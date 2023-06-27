@@ -108,14 +108,15 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const publishRuleHandler = async (reason: string) => {
-      if (!ruleId) {
+      const isDraftOrLive = (ruleState === 'draft' || ruleState === 'live')
+      if (!ruleId || !isDraftOrLive) {
         return;
       }
       await publishRule(ruleId, reason);
       await fetchRule(ruleId);
       if (isReasonModalVisible) {
         setIsReasonModalVisible(false);
-      };
+      }
       onUpdate(ruleId);
     }
 
@@ -136,7 +137,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const archiveRuleHandler = () => {
-        if (!ruleFormData?.id) {
+        if (!ruleFormData?.id || ruleState !== 'draft') {
           return;
         }
 
@@ -149,7 +150,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const unarchiveRuleHandler = () => {
-        if (!ruleFormData?.id) {
+        if (!ruleFormData?.id || ruleState !== 'archived') {
             return;
         }
 
@@ -162,7 +163,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const unpublishRuleHandler = () => {
-        if (!ruleFormData?.id) {
+        if (!ruleFormData?.id || ruleState !== 'live') {
             return;
         }
 
