@@ -41,7 +41,8 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
     val entities = DbRuleLive.findAll()
     RuleTagLive.destroyAll()
     DbRuleLive.destroyAll()
-    val batchInserted = DbRuleLive.batchInsert(entities)
-    batchInserted.size should be > (0)
+    DbRuleLive.batchInsert(entities)
+    val batchInserted = DbRuleLive.findAll()
+    batchInserted shouldBe entities
   }
 }
