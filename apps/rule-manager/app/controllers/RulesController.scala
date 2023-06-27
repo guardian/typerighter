@@ -128,7 +128,7 @@ class RulesController(
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to unpublish rules")
       case true =>
-        RuleManager.unpublishRule(id, request.user.email) match {
+        RuleManager.unpublishRule(id, request.user.email, bucketRuleResource) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
           case Right((draftRule, liveRule)) =>
             Ok(
