@@ -157,7 +157,9 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
     val insertedRules = DbRuleDraft.findAll()
     val indexOffset = entities.size // The
-    val insertedRuleWithNormalisedIds = insertedRules.zipWithIndex.map { case (rule, index) => rule.copy(id = Some(index + indexOffset))}
+    val insertedRuleWithNormalisedIds = insertedRules.zipWithIndex.map { case (rule, index) =>
+      rule.copy(id = Some(index + indexOffset))
+    }
     insertedRuleWithNormalisedIds shouldMatchTo entities
   }
 

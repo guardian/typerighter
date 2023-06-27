@@ -110,8 +110,15 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
         case (Some(_), None, _) =>
           Failure(new Exception(s"no Ignore column for rule (row: ${rowNumber})"))
         case (Some(id), Some(ignore), Some(ruleType)) =>
-          val tagNames = cellToOptionalString(row, PatternRuleCols.Tags).getOrElse("").split(",").toList.map(_.trim).filter(_.nonEmpty)
-          val tagsToAdd = tagNames.filter(tagName => !availableTags.exists(tag => tag.name == tagName)).map(name => Tag(None, name))
+          val tagNames = cellToOptionalString(row, PatternRuleCols.Tags)
+            .getOrElse("")
+            .split(",")
+            .toList
+            .map(_.trim)
+            .filter(_.nonEmpty)
+          val tagsToAdd = tagNames
+            .filter(tagName => !availableTags.exists(tag => tag.name == tagName))
+            .map(name => Tag(None, name))
           if (tagsToAdd.size > 0) {
             Tags.batchInsert(tagsToAdd)
             availableTags = Tags.findAll()

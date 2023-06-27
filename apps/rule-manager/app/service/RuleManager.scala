@@ -1,7 +1,14 @@
 package service
 
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, LTRule, LTRuleCore, LTRuleXML, RegexRule}
+import com.gu.typerighter.model.{
+  CheckerRule,
+  CheckerRuleResource,
+  LTRule,
+  LTRuleCore,
+  LTRuleXML,
+  RegexRule
+}
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
 import db.DbRuleDraft.autoSession
@@ -248,9 +255,12 @@ object RuleManager extends Loggable {
 
     val persistedRules = getDraftRules()
 
-    val persistedRulesToCompare = persistedRules.map(rule => rule.copy(id = None, tags = rule.tags.sorted))
+    val persistedRulesToCompare =
+      persistedRules.map(rule => rule.copy(id = None, tags = rule.tags.sorted))
     val incomingRulesToCompare =
-      incomingRules.map(rule => rule.copy(id = None, isPublished = !rule.ignore, tags = rule.tags.sorted))
+      incomingRules.map(rule =>
+        rule.copy(id = None, isPublished = !rule.ignore, tags = rule.tags.sorted)
+      )
 
     if (persistedRulesToCompare == incomingRulesToCompare) {
       publishLiveRules(bucketRuleResource)

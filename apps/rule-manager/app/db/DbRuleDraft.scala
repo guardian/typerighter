@@ -167,16 +167,17 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   }
 
   def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
-    sql"""
-        SELECT
-            ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
-        FROM
-            ${DbRuleDraft as rd}
-        LEFT JOIN ${DbRuleLive as rl}
-            ON ${rd.externalId} = ${rl.externalId}
-            AND ${rl.isActive} = TRUE
-        WHERE ${rd.id} IN ($ids)
-        """
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .in(rd.id, ids)
+        .groupBy(dbColumnsToFind, rl.externalId)
+    }
       .map(DbRuleDraft.fromRow)
       .list()
       .apply()
@@ -301,15 +302,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       case Left(result) => Left(result)
     }
   }
-  def batchUpdateFromFormRule(ids: List[Int], category: String, tags: String, user: String)(implicit
+  def batchUpdate(ids: List[Int], category: String, tags: List[Int], user: String)(implicit
       session: DBSession = autoSession
   ): Try[List[DbRuleDraft]] = {
     Try {
-      val updatedRows = withSQL {
+      withSQL {
         update(DbRuleDraft)
           .set(
             column.category -> category,
-            column.tags -> tags,
             column.updatedBy -> user,
             column.revisionId -> sqls"${column.revisionId} + 1"
           )
@@ -317,11 +317,12 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           .in(column.id, ids)
       }.update().apply()
 
-      if (updatedRows > 0) {
-        findRules(ids)
-      } else {
-        throw new Exception("No rows updated")
-      }
+      val newTag = ids.flatMap(ruleId => tags.map(tagId => RuleTagDraft(ruleId, tagId)))
+      RuleTagDraft.batchInsert(newTag)
+
+      val rules = findRules(ids)
+
+      rules
     }
   }
 

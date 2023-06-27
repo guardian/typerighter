@@ -5,8 +5,8 @@ import scalikejdbc._
 import scala.util.{Failure, Success, Try}
 
 case class RuleTagDraft(
-                         ruleId: Int,
-                         tagId: Int
+    ruleId: Int,
+    tagId: Int
 )
 
 object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
@@ -18,7 +18,9 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
   def fromResultName(r: ResultName[RuleTagDraft])(rs: WrappedResultSet): RuleTagDraft =
     autoConstruct(rs, r)
 
-  def find(ruleId: Int, tagId: Int)(implicit session: DBSession = autoSession): Option[RuleTagDraft] = {
+  def find(ruleId: Int, tagId: Int)(implicit
+      session: DBSession = autoSession
+  ): Option[RuleTagDraft] = {
     withSQL {
       select.from(this as rt).where.eq(rt.ruleId, ruleId).and.eq(rt.tagId, tagId)
     }.map(this.fromResultName(rt.resultName)).single().apply()
@@ -80,7 +82,7 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
     ) values (
       {rule_id},
       {tag_id}
-    )""").batchByName(params.toSeq: _*).apply[List]()
+    ) ON CONFLICT DO NOTHING""").batchByName(params.toSeq: _*).apply[List]()
   }
 
   def destroy(entity: RuleTagDraft)(implicit session: DBSession = autoSession): Int = {

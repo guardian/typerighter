@@ -282,7 +282,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {isActive},
       {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[List]()
-    val ruleTags = entities.flatMap(entity => entity.tags.map(tag => RuleTagLive(entity.externalId.get, entity.revisionId, tag)))
+    val ruleTags = entities.flatMap(entity =>
+      entity.tags.map(tag => RuleTagLive(entity.externalId.get, entity.revisionId, tag))
+    )
     RuleTagLive.batchInsert(ruleTags)
     ()
   }

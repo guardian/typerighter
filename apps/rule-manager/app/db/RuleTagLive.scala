@@ -5,9 +5,9 @@ import scalikejdbc._
 import scala.util.{Failure, Success, Try}
 
 case class RuleTagLive(
-                        ruleExternalId: String,
-                        ruleRevisionId: Int,
-                        tagId: Int
+    ruleExternalId: String,
+    ruleRevisionId: Int,
+    tagId: Int
 )
 
 object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
@@ -19,27 +19,41 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
   def fromResultName(r: ResultName[RuleTagLive])(rs: WrappedResultSet): RuleTagLive =
     autoConstruct(rs, r)
 
-  def find(externalId: String, revisionId: Int, tagId: Int)(implicit session: DBSession = autoSession): Option[RuleTagLive] = {
+  def find(externalId: String, revisionId: Int, tagId: Int)(implicit
+      session: DBSession = autoSession
+  ): Option[RuleTagLive] = {
     withSQL {
-      select.from(this as rt)
-        .where.eq(rt.ruleExternalId, externalId)
-        .and.eq(rt.ruleRevisionId, revisionId)
-        .and.eq(rt.tagId, tagId)
+      select
+        .from(this as rt)
+        .where
+        .eq(rt.ruleExternalId, externalId)
+        .and
+        .eq(rt.ruleRevisionId, revisionId)
+        .and
+        .eq(rt.tagId, tagId)
     }.map(this.fromResultName(rt.resultName)).single().apply()
   }
 
-  def findTagsByRule(externalId: String, revisionId: Int)(implicit session: DBSession = autoSession): List[Int] = {
+  def findTagsByRule(externalId: String, revisionId: Int)(implicit
+      session: DBSession = autoSession
+  ): List[Int] = {
     withSQL {
-      select.from(this as rt)
-        .where.eq(rt.ruleExternalId, externalId)
-        .and.eq(rt.ruleRevisionId, revisionId)
+      select
+        .from(this as rt)
+        .where
+        .eq(rt.ruleExternalId, externalId)
+        .and
+        .eq(rt.ruleRevisionId, revisionId)
     }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => rt.tagId)
   }
 
   def findRulesByTag(tagId: Int)(implicit session: DBSession = autoSession): List[(String, Int)] = {
     withSQL {
       select.from(this as rt).where.eq(rt.tagId, tagId)
-    }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => (rt.ruleExternalId, rt.ruleRevisionId))
+    }.map(this.fromResultName(rt.resultName))
+      .list()
+      .apply()
+      .map(rt => (rt.ruleExternalId, rt.ruleRevisionId))
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[RuleTagLive] = {
@@ -50,9 +64,9 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
   }
 
   def create(
-    externalId: String,
-    revisionId: Int,
-    tagId: Int
+      externalId: String,
+      revisionId: Int,
+      tagId: Int
   )(implicit session: DBSession = autoSession): Try[RuleTagLive] = {
     withSQL {
       insert

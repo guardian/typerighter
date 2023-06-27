@@ -5,8 +5,6 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 
-
-
 class RuleTagLiveSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val rt = RuleTagLive.syntax("rt")
   val initialExternalId = "googleSheetId"
