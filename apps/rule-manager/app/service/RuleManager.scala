@@ -270,7 +270,7 @@ object RuleManager extends Loggable {
   def unpublishRule(
       id: Int,
       user: String
-  ): Either[Exception, Option[DbRuleLive]] = {
+  ): Either[Exception, (Option[DbRuleDraft], Option[DbRuleLive])] = {
     try {
       val maybeDraftRule = DbRuleDraft.find(id)
 
@@ -282,7 +282,15 @@ object RuleManager extends Loggable {
         updatedLiveRule <- DbRuleLive.setInactive(externalId, user)
       } yield updatedLiveRule
 
-      Right(maybeUpdatedLiveRule)
+      // The draft rule needs to be updated to reflect the fact that it is no longer published
+      // This also allows us to republish without editing the rule
+      val maybeUpdatedDraftRule = for {
+        _ <- maybeUpdatedLiveRule
+        draftRule <- maybeDraftRule
+        updatedDraftRule <- DbRuleDraft.save(draftRule, user).toOption
+      } yield updatedDraftRule
+
+      Right(maybeUpdatedDraftRule, maybeUpdatedLiveRule)
     } catch {
       case e: Exception => Left(e)
     }
