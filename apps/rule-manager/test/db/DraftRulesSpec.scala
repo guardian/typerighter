@@ -1,7 +1,6 @@
 package db
 
-import model.CreateRuleForm
-import model.UpdateRuleForm
+import model.{CreateRuleForm, UpdateRuleForm}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
@@ -143,5 +142,57 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
     entities.foreach(e => DbRuleDraft.destroy(e))
     val batchInserted = DbRuleDraft.batchInsert(entities)
     batchInserted.size should be > (0)
+  }
+
+  it should "perform a batch edit on tags and categories" in { implicit session =>
+    val existingRule1 = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("General"),
+        tags = Some("Names,SG,Legal"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+    val existingRule2 = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("General"),
+        tags = Some("Coronavirus"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+    val existingRule3 = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("General"),
+        tags = Some("Typos,Semantics"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val existingIds = List(existingRule1, existingRule2, existingRule3).map(_.id.get)
+    val newCategory = "Style guide and names"
+    val newTags = "Names,SG,Legal,Coronavirus,Typos,Semantics"
+
+    val updatedRules =
+      DbRuleDraft
+        .batchUpdateFromFormRule(existingIds, newCategory, newTags, "another.user")
+        .getOrElse(null)
+
+    val updatedRulesFromDb = updatedRules.map { rule =>
+      DbRuleDraft.find(rule.id.get)
+    }
+
+    updatedRulesFromDb.foreach { maybeRule =>
+      maybeRule.foreach { rule =>
+        rule.category should be(Some("Style guide and names"))
+        rule.tags should be(Some("Names,SG,Legal,Coronavirus,Typos,Semantics"))
+      }
+    }
+
+    updatedRulesFromDb.size shouldBe 3
   }
 }

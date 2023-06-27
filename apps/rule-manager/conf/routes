@@ -17,6 +17,8 @@ GET     /rules                      controllers.RulesController.list()
 +nocsrf
 POST    /rules                      controllers.RulesController.create()
 +nocsrf
+POST    /rules/batch                controllers.RulesController.batchUpdate()
++nocsrf
 GET     /rules/:id                  controllers.RulesController.get(id: Int)
 +nocsrf
 POST    /rules/:id                  controllers.RulesController.update(id: Int)

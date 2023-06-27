@@ -160,6 +160,22 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
+  def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+    sql"""
+        SELECT
+            ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
+        FROM
+            ${DbRuleDraft as rd}
+        LEFT JOIN ${DbRuleLive as rl}
+            ON ${rd.externalId} = ${rl.externalId}
+            AND ${rl.isActive} = TRUE
+        WHERE ${rd.id} IN ($ids)
+        """
+      .map(DbRuleDraft.fromRow)
+      .list()
+      .apply()
+  }
+
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     sql"""
         SELECT
@@ -274,6 +290,29 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         }
       }
       case Left(result) => Left(result)
+    }
+  }
+  def batchUpdateFromFormRule(ids: List[Int], category: String, tags: String, user: String)(implicit
+      session: DBSession = autoSession
+  ): Try[List[DbRuleDraft]] = {
+    Try {
+      val updatedRows = withSQL {
+        update(DbRuleDraft)
+          .set(
+            column.category -> category,
+            column.tags -> tags,
+            column.updatedBy -> user,
+            column.revisionId -> sqls"${column.revisionId} + 1"
+          )
+          .where
+          .in(column.id, ids)
+      }.update().apply()
+
+      if (updatedRows > 0) {
+        findRules(ids)
+      } else {
+        throw new Exception("No rows updated")
+      }
     }
   }
 

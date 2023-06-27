@@ -6,7 +6,7 @@ import com.gu.typerighter.lib.PandaAuthentication
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.Json
 import db.DbRuleDraft
-import model.{CreateRuleForm, PublishRuleForm, UpdateRuleForm}
+import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
 import service.{RuleManager, SheetsRuleResource}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
@@ -111,6 +111,30 @@ class RulesController(
               DbRuleDraft.updateFromFormRule(formRule, id, request.user.email) match {
                 case Left(result)  => result
                 case Right(dbRule) => Ok(Json.toJson(dbRule))
+              }
+            }
+          )
+    }
+  }
+
+  def batchUpdate() = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        BatchUpdateRuleForm.form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              val errors = formWithErrors.errors
+              BadRequest(Json.toJson(errors))
+            },
+            formRule => {
+              val ids = formRule.ids
+              val category = formRule.fields.category
+              val tags = formRule.fields.tags
+              DbRuleDraft.batchUpdateFromFormRule(ids, category, tags, request.user.email) match {
+                case Failure(e)     => InternalServerError(e.getMessage())
+                case Success(rules) => Ok(Json.toJson(rules))
               }
             }
           )
