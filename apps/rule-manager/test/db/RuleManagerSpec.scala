@@ -285,7 +285,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     allLiveRules(1).isActive shouldBe true
   }
 
-  "publishRule" should "should not be able to publish the same revision of a rule" in { () =>
+  "publishRule" should "not be able to publish the same revision of a rule" in { () =>
     val ruleToPublish = createPublishableRule
 
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
@@ -298,7 +298,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     }
   }
 
-  "parseDraftRuleForPublication" should "should give validation errors when the rule is incomplete" in {
+  "parseDraftRuleForPublication" should "give validation errors when the rule is incomplete" in {
     () =>
       val ruleToPublish = DbRuleDraft
         .create(
@@ -313,7 +313,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       }
   }
 
-  "parseDraftRuleForPublication" should "should give validation errors when a live rule of that revision id already exists" in {
+  "parseDraftRuleForPublication" should "give validation errors when a live rule of that revision id already exists" in {
     () =>
       val ruleToPublish = createPublishableRule
       RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
