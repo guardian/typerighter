@@ -9,9 +9,12 @@ ALTER TABLE rule_tag_draft
     ADD CONSTRAINT fk_tag_id FOREIGN KEY (tag_id) REFERENCES tags(id);
 
 ALTER TABLE rule_tag_live
-    ALTER COLUMN rule_id SET DATA TYPE TEXT,
-    ADD COLUMN revision_id INT NOT NULL DEFAULT 0,
-    ADD CONSTRAINT fk_rule_id FOREIGN KEY (rule_id, revision_id) REFERENCES rules_live(external_id, revision_id),
+  RENAME COLUMN rule_id TO rule_external_id;
+
+ALTER TABLE rule_tag_live
+    ALTER COLUMN rule_external_id SET DATA TYPE TEXT,
+    ADD COLUMN rule_revision_id INT NOT NULL,
+    ADD CONSTRAINT fk_rule_id FOREIGN KEY (rule_external_id, rule_revision_id) REFERENCES rules_live(external_id, revision_id),
     ADD CONSTRAINT fk_tag_id FOREIGN KEY (tag_id) REFERENCES tags(id);
 
 -- !Downs
@@ -22,4 +25,8 @@ ALTER TABLE rule_tag_draft
 
 ALTER TABLE rule_tag_live
     DROP CONSTRAINT fk_rule_id,
-    DROP CONSTRAINT fk_tag_id;
+    DROP CONSTRAINT fk_tag_id,
+    DROP COLUMN rule_revision_id;
+
+ALTER TABLE rule_tag_live
+  RENAME COLUMN rule_external_id TO rule_id;

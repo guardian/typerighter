@@ -13,11 +13,13 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
         ALTER SEQUENCE rules_id_seq RESTART WITH 1;
         ALTER SEQUENCE tags_id_seq RESTART WITH 1;
     """.update().apply()
-    sql"insert into rules_live (rule_type, pattern, replacement, category, description, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by, is_active, rule_order) values ('regex', 'pattern', 'replacement', 'category', 'description', 'notes', 'googleSheetId', false, false, 'test.user', 'test.user', true, 1)"
+    val externalId = "googleSheetId"
+    val revisionId = 0
+    sql"insert into rules_live (rule_type, pattern, replacement, category, description, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by, is_active, rule_order, revision_id) values ('regex', 'pattern', 'replacement', 'category', 'description', 'notes', ${externalId}, false, false, 'test.user', 'test.user', true, 1, $revisionId)"
       .update()
       .apply()
     val testTagId = sql"insert into tags (name) values ('testTag')".update().apply()
-    sql"insert into rule_tag_live (rule_id, tag_id) values ('googleSheetId', $testTagId)"
+    sql"insert into rule_tag_live (rule_revision_id, rule_external_id, tag_id) values ($externalId, $revisionId, $testTagId)"
       .update()
       .apply()
   }

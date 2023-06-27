@@ -140,7 +140,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val rt = RuleTagDraft.syntax("rt")
 
   val tagColumn =
-    sqls"COALESCE(ARRAY_AGG(${rt.tag_id}) FILTER (WHERE ${rt.tag_id} IS NOT NULL), '{}') AS tags"
+    sqls"COALESCE(ARRAY_AGG(${rt.tagId}) FILTER (WHERE ${rt.tagId} IS NOT NULL), '{}') AS tags"
 
   val isPublishedColumn = sqls"${rl.externalId} IS NOT NULL AS is_published"
 
@@ -157,7 +157,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
-        .on(rd.id, rt.rule_id)
+        .on(rd.id, rt.ruleId)
         .where
         .eq(rd.id, id)
         .groupBy(dbColumnsToFind, rl.externalId)
@@ -189,7 +189,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
-        .on(rd.id, rt.rule_id)
+        .on(rd.id, rt.ruleId)
         .groupBy(dbColumnsToFind, rl.externalId)
         .orderBy(rd.id)
     }.map(DbRuleDraft.fromRow)
@@ -240,7 +240,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         )
     }.updateAndReturnGeneratedKey().apply().toInt
 
-    val tagRelations = tags.map(tagId => RuleTag(id, tagId))
+    val tagRelations = tags.map(tagId => RuleTagDraft(id, tagId))
     RuleTagDraft.batchInsert(tagRelations)
 
     find(id) match {
@@ -391,7 +391,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     val firstInsertedId = (lastInsertedId - entities.size + 1)
     val ruleIds = (firstInsertedId to lastInsertedId).toList
     val ruleTags = ruleIds.zip(entities).flatMap { case (id, rule) =>
-      rule.tags.map(tag => RuleTag(id, tag))
+      rule.tags.map(tag => RuleTagDraft(id, tag))
     }
 
     RuleTagDraft.batchInsert(ruleTags)

@@ -77,7 +77,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   )
 
   val tagColumn =
-    sqls"COALESCE(ARRAY_AGG(${rtl.tag_id}) FILTER (WHERE ${rtl.tag_id} IS NOT NULL), '{}') AS tags"
+    sqls"COALESCE(ARRAY_AGG(${rtl.tagId}) FILTER (WHERE ${rtl.tagId} IS NOT NULL), '{}') AS tags"
 
   def findRevision(externalId: String, revisionId: Int)(implicit
       session: DBSession = autoSession
@@ -86,7 +86,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.rule_id)
+        .on(r.externalId, rtl.ruleExternalId)
         .where
         .eq(r.externalId, externalId)
         .and
@@ -102,7 +102,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.rule_id)
+        .on(r.externalId, rtl.ruleExternalId)
         .where
         .eq(r.externalId, externalId)
         .groupBy(dbColumnsToFind)
@@ -122,7 +122,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.rule_id)
+        .on(r.externalId, rtl.ruleExternalId)
         .where
         .eq(r.externalId, externalId)
         .groupBy(dbColumnsToFind)
@@ -134,7 +134,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.rule_id)
+        .on(r.externalId, rtl.ruleExternalId)
         .groupBy(dbColumnsToFind)
         .orderBy(r.ruleOrder)
     )
@@ -148,7 +148,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.rule_id)
+        .on(r.externalId, rtl.ruleExternalId)
         .where
         .eq(r.isActive, true)
         .groupBy(dbColumnsToFind)
