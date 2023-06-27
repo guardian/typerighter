@@ -29,6 +29,6 @@ export const getRuleStateColour = (rule: DraftRule): IconColor =>
 const stateToColourMap: {[state in RuleState]: IconColor} = {
   error: "danger",
   live: "success",
-  archived: "subdued",
+  archived: "danger",
   draft: "#DA8B45"
 }
