@@ -12,10 +12,9 @@ type RuleTypeOption = {
   label: string,
 }
 
-export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErrors}: {
+export const RuleContent = ({ruleData, partiallyUpdateRuleData, showErrors}: {
         ruleData: DraftRule,
         partiallyUpdateRuleData: PartiallyUpdateRuleData,
-        errors: FormError[],
         showErrors: boolean
     }) => {
 
