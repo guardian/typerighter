@@ -13,13 +13,9 @@ export const TagsSelector = ({tags, ruleData, partiallyUpdateRuleData}: {
     ruleData: DraftRule,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
-    const options = tags ? Object.values(tags).map(tag => ({ label: tag.name })) : [];
+    const options = tags ? Object.values(tags).map(tag => ({ label: tag.name, value: tag.id })) : [];
     const tagOptions = ruleData.tags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
     const [selectedTags, setSelectedTags] = useState<TagOption[]>(tagOptions);
-
-    const onChange = (selectedTags: TagOption[]) => {
-
-    };
 
     useEffect(() => {
         const newTags = selectedTags.map(tag => tag.value!)
