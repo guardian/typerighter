@@ -214,7 +214,10 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         )
         .returning(column.externalId)
     }.map(_.string(column.externalId)).single().apply()
-    // TODO: also handle tag creation
+
+    val tagRelations = liveRule.tags.map(tagId => RuleTagLive(liveRule.externalId.get,  liveRule.revisionId, tagId))
+    RuleTagLive.batchInsert(tagRelations)
+
     findRevision(generatedKey.get, liveRule.revisionId) match {
       case Some(rule) => rule
       case None =>
