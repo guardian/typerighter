@@ -8,7 +8,7 @@ export type Tag = {
   name: string
 }
 
-export type TagMap = Record<number, Tag>;
+export type TagMap = Record<string, Tag>;
 
 export function useTags() {
   const [tags, setTags] = useState<Record<number, Tag>>(defaultTags)
@@ -24,7 +24,7 @@ export function useTags() {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
       const tags: Tag[] = await response.json();
-      const tagMap = {};
+      const tagMap = {} as Record<string, Tag>;
       for (const tag of tags) {
         tagMap[tag.id] = tag
       }

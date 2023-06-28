@@ -24,7 +24,7 @@ export type FormError = { key: string; message: string };
 
 export const baseForm = {
   ruleType: 'regex' as RuleType,
-  tags: [] as string[],
+  tags: [] as number[],
   ignore: false,
 } as DraftRule;
 

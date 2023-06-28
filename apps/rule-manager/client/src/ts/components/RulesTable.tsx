@@ -146,7 +146,7 @@ const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
 }))
 
 const RulesTable = () => {
-  const {tags} = useTags();
+  const {tags, fetchTags} = useTags();
   const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
@@ -194,6 +194,11 @@ const RulesTable = () => {
     }
   }, [selectedRules])
 
+  const handleRefreshRules = async () => {
+    await refreshRules();
+    await fetchTags();
+  }
+
   return <>
     <EuiFlexGroup>
       <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
@@ -202,7 +207,7 @@ const RulesTable = () => {
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EuiButton size="s" fill={true} color={"primary"} onClick={() => refreshRules()} isLoading={isRefreshing}>
+        <EuiButton size="s" fill={true} color={"primary"} onClick={handleRefreshRules} isLoading={isRefreshing}>
           Refresh{isRefreshing ? "ing" : ""} rules
         </EuiButton>
       </EuiFlexItem>

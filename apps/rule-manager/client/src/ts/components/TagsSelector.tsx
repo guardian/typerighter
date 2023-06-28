@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {EuiFormRow, EuiComboBox} from "@elastic/eui";
+import {EuiFormRow, EuiComboBox, EuiLoadingSpinner} from "@elastic/eui";
 import React from "react";
 import { PartiallyUpdateRuleData } from "./RuleForm";
 import { existingTags } from "../constants/constants";
@@ -13,6 +13,10 @@ export const TagsSelector = ({tags, ruleData, partiallyUpdateRuleData}: {
     ruleData: DraftRule,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
+    if (Object.keys(tags).length === 0) {
+      return <EuiFormRow label='Tags' fullWidth={true}><EuiLoadingSpinner/></EuiFormRow>
+    }
+
     const options = tags ? Object.values(tags).map(tag => ({ label: tag.name, value: tag.id })) : [];
     const tagOptions = ruleData.tags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
     const [selectedTags, setSelectedTags] = useState<TagOption[]>(tagOptions);
