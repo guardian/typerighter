@@ -88,7 +88,8 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
       val existingId = existingRule.id.get
       val formRule = UpdateRuleForm(
         ruleType = Some("regex"),
-        pattern = Some("NewString")
+        pattern = Some("NewString"),
+        tags = List.empty
       )
 
       val dbRule =
@@ -115,7 +116,8 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     implicit session =>
       val formRule = UpdateRuleForm(
         ruleType = Some("regex"),
-        pattern = Some("NewString")
+        pattern = Some("NewString"),
+        tags = List.empty
       )
       val nonExistentRuleId = 2000
       val dbRule = DbRuleDraft.updateFromFormRule(formRule, nonExistentRuleId, "test.user")
