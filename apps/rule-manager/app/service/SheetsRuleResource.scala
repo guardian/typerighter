@@ -47,7 +47,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
-  private var availableTags = Tags.findAll()
+  private var availableTags: List[Tag] = List.empty
 
   def getRules(): Either[List[String], List[DbRuleDraft]] = {
     getPatternRules()
@@ -64,6 +64,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
       sheetRange: String,
       rowToRule: (List[Object], Int) => Try[Option[RuleData]]
   ): Either[List[String], List[RuleData]] = {
+    availableTags = Tags.findAll()
     val response = service.spreadsheets.values
       .get(spreadsheetId, s"$sheetName!$sheetRange")
       .execute
