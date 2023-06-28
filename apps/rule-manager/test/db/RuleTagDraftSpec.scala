@@ -2,28 +2,9 @@ package db
 
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import scalikejdbc.scalatest.AutoRollback
-import scalikejdbc._
 
-class RuleTagDraftSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
+class RuleTagDraftSpec extends FixtureAnyFlatSpec with Matchers with RuleFixture with DBTest {
   val rt = RuleTagDraft.syntax("rt")
-
-  override def fixture(implicit session: DBSession) = {
-    // Todo: DRY out fixtures
-    sql"""
-    ALTER SEQUENCE rules_id_seq RESTART WITH 1;
-    ALTER SEQUENCE tags_id_seq RESTART WITH 1;
-   """.update().apply()
-    val testRuleId =
-      sql"insert into rules_draft (rule_type, pattern, replacement, category, description, ignore, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"description"}, false, ${"notes"}, ${"externalId"}, false, false, 'test.user', 'test.user')"
-        .updateAndReturnGeneratedKey()
-        .apply()
-        .toInt
-    val testTagId = sql"insert into tags (name) values (${"testTag"})".update().apply()
-    sql"insert into rule_tag_draft (rule_id, tag_id) values ($testRuleId, $testTagId)"
-      .update()
-      .apply()
-  }
 
   behavior of "Rule Draft - Tag join table"
 

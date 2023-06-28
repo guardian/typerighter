@@ -1,33 +1,15 @@
 package db
 
 import model.{CreateRuleForm, UpdateRuleForm}
-import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.generic.auto.diffForCaseClass
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
-import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 import play.api.mvc.Results.NotFound
 
 import java.time.OffsetDateTime
 
-class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
-
-  override def fixture(implicit session: DBSession) = {
-    sql"""
-        ALTER SEQUENCE rules_id_seq RESTART WITH 1;
-        ALTER SEQUENCE tags_id_seq RESTART WITH 1;
-       """.update().apply()
-    val testRuleId =
-      sql"insert into rules_draft (rule_type, pattern, replacement, category, description, ignore, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"description"}, false, ${"notes"}, ${"externalId"}, false, false, 'test.user', 'test.user')"
-        .updateAndReturnGeneratedKey()
-        .apply()
-        .toInt
-    val testTagId = sql"insert into tags (name) values (${"testTag"})".update().apply()
-    sql"insert into rule_tag_draft (rule_id, tag_id) values ($testRuleId, $testTagId)"
-      .update()
-      .apply()
-  }
+class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
 
   def assertDatesAreWithinRangeMs(date1: OffsetDateTime, date2: OffsetDateTime, range: Int) = {
     date1.toInstant().toEpochMilli should be(date2.toInstant().toEpochMilli +- range)

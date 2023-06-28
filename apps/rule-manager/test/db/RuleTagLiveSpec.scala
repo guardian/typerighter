@@ -1,28 +1,11 @@
 package db
 
-import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import scalikejdbc.scalatest.AutoRollback
-import scalikejdbc._
 
-class RuleTagLiveSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
+class RuleTagLiveSpec extends RuleFixture with Matchers with DBTest {
   val rt = RuleTagLive.syntax("rt")
   val initialExternalId = "googleSheetId"
   val initialRevisionId = 0
-
-  override def fixture(implicit session: DBSession) = {
-    sql"""
-        ALTER SEQUENCE rules_id_seq RESTART WITH 1;
-        ALTER SEQUENCE tags_id_seq RESTART WITH 1;
-    """.update().apply()
-    sql"insert into rules_live (rule_type, pattern, replacement, category, description, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by, is_active, rule_order, revision_id) values ('regex', 'pattern', 'replacement', 'category', 'description', 'notes', $initialExternalId, false, false, 'test.user', 'test.user', true, 1, $initialRevisionId)"
-      .update()
-      .apply()
-    val testTagId = sql"insert into tags (name) values ('testTag')".update().apply()
-    sql"insert into rule_tag_live (rule_external_id, rule_revision_id, tag_id) values ($initialExternalId, $initialRevisionId, $testTagId)"
-      .update()
-      .apply()
-  }
 
   behavior of "Rule Live - Tag join table"
 
