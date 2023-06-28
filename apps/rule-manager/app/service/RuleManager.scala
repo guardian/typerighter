@@ -155,6 +155,7 @@ object RuleManager extends Loggable {
         .toEither
         .left
         .map(e => Seq(FormError("Error writing rule to live table", e.getMessage)))
+
       _ <- publishLiveRules(bucketRuleResource)
       allRuleData <- getAllRuleData(id)
         .toRight(Seq(FormError("Error reading rule from live table", "Rule not found")))

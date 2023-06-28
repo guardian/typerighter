@@ -37,6 +37,13 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
     allResults should be(List(maybeFound.get))
   }
 
+  it should "create a new rule" in { implicit session =>
+    val dbRuleLive = DbRuleLive.findRevision("googleSheetId", 0).get
+    val newRule = dbRuleLive.copy(revisionId = dbRuleLive.revisionId + 1)
+    val savedRule = DbRuleLive.create(newRule, "test.user").get
+    savedRule shouldBe newRule
+  }
+
   it should "perform batch insert" in { implicit session =>
     val entities = DbRuleLive.findAll()
     RuleTagLive.destroyAll()

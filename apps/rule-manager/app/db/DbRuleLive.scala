@@ -86,7 +86,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.ruleExternalId)
+        .on(
+          sqls"${r.externalId} = ${rtl.ruleExternalId} and ${r.revisionId} = ${rtl.ruleRevisionId}"
+        )
         .where
         .eq(r.externalId, externalId)
         .and
@@ -102,7 +104,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.ruleExternalId)
+        .on(
+          sqls"${r.externalId} = ${rtl.ruleExternalId} and ${r.revisionId} = ${rtl.ruleRevisionId}"
+        )
         .where
         .eq(r.externalId, externalId)
         .groupBy(dbColumnsToFind)
@@ -122,7 +126,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.ruleExternalId)
+        .on(
+          sqls"${r.externalId} = ${rtl.ruleExternalId} and ${r.revisionId} = ${rtl.ruleRevisionId}"
+        )
         .where
         .eq(r.externalId, externalId)
         .groupBy(dbColumnsToFind)
@@ -134,7 +140,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.ruleExternalId)
+        .on(
+          sqls"${r.externalId} = ${rtl.ruleExternalId} and ${r.revisionId} = ${rtl.ruleRevisionId}"
+        )
         .groupBy(dbColumnsToFind)
         .orderBy(r.ruleOrder)
     )
@@ -148,7 +156,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.externalId, rtl.ruleExternalId)
+        .on(
+          sqls"${r.externalId} = ${rtl.ruleExternalId} and ${r.revisionId} = ${rtl.ruleRevisionId}"
+        )
         .where
         .eq(r.isActive, true)
         .groupBy(dbColumnsToFind)
@@ -215,7 +225,8 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .returning(column.externalId)
     }.map(_.string(column.externalId)).single().apply()
 
-    val tagRelations = liveRule.tags.map(tagId => RuleTagLive(liveRule.externalId.get,  liveRule.revisionId, tagId))
+    val tagRelations =
+      liveRule.tags.map(tagId => RuleTagLive(liveRule.externalId.get, liveRule.revisionId, tagId))
     RuleTagLive.batchInsert(tagRelations)
 
     findRevision(generatedKey.get, liveRule.revisionId) match {
