@@ -14,7 +14,8 @@ import {
   EuiHealth,
   EuiTableSelectionType,
   EuiBadge,
-  EuiText
+  EuiText,
+  EuiTableRow
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -147,6 +148,7 @@ const RulesTable = () => {
 
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
+  const [selectedRules, setSelectedRules] = useState<DraftRule[]>([]);
   const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
   const hasCreatePermissions = useCreateEditPermissions();
 
@@ -171,8 +173,6 @@ const RulesTable = () => {
 
   const columns = createColumns(openEditRulePanel);
 
-  const [selectedRules, setSelectedRules] = useState<DraftRule[]>([]);
-
   const onSelectionChange = (selectedRules: DraftRule[]) => {
     setSelectedRules(selectedRules);
     openEditRulePanel(Number(selectedRules[0]?.id));
@@ -190,6 +190,11 @@ const RulesTable = () => {
         setFormMode('closed')
     }
   }, [selectedRules])
+
+  const getRowProps = useMemo(() => (rule: DraftRule) =>
+    rule.id === currentRuleId && {
+      isSelected: true
+    }, [currentRuleId])
 
   return <>
     <EuiFlexGroup>
@@ -230,6 +235,7 @@ const RulesTable = () => {
       <EuiFlexItem grow={2}>
         {rules &&
           <EuiInMemoryTable
+            rowProps={getRowProps}
             loading={isLoading}
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
