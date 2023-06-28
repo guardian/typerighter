@@ -283,28 +283,22 @@ object RuleManager extends Loggable {
       id: Int,
       user: String,
       bucketRuleResource: BucketRuleResource
-  ): Either[Exception, (Option[DbRuleDraft], Option[DbRuleLive])] = {
+  ): Either[Exception, Option[AllRuleData]] = {
     try {
-      val maybeDraftRule = DbRuleDraft.find(id)
-
-      val maybeUpdatedLiveRule = for {
-        draftRule <- maybeDraftRule
+      val maybeAllRuleData = for {
+        draftRule <- DbRuleDraft.find(id)
         externalId <- draftRule.externalId
         liveRule <- DbRuleLive.findLatestRevision(externalId)
         if liveRule.isActive
-        updatedLiveRule <- DbRuleLive.setInactive(externalId, user)
+        _ <- DbRuleLive.setInactive(externalId, user)
         _ <- publishLiveRules(bucketRuleResource).toOption
-      } yield updatedLiveRule
+        // The draft rule needs to be updated to reflect the fact that it is no longer published
+        // This also allows us to republish without editing the rule
+        _ <- DbRuleDraft.save(draftRule, user).toOption
+        allRuleData <- getAllRuleData(id)
+      } yield allRuleData
 
-      // The draft rule needs to be updated to reflect the fact that it is no longer published
-      // This also allows us to republish without editing the rule
-      val maybeUpdatedDraftRule = for {
-        _ <- maybeUpdatedLiveRule
-        draftRule <- maybeDraftRule
-        updatedDraftRule <- DbRuleDraft.save(draftRule, user).toOption
-      } yield updatedDraftRule
-
-      Right(maybeUpdatedDraftRule, maybeUpdatedLiveRule)
+      Right(maybeAllRuleData)
     } catch {
       case e: Exception => Left(e)
     }

@@ -130,13 +130,7 @@ class RulesController(
       case true =>
         RuleManager.unpublishRule(id, request.user.email, bucketRuleResource) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
-          case Right((draftRule, liveRule)) =>
-            Ok(
-              Json.obj(
-                "draft" -> Json.toJson(draftRule),
-                "live" -> Json.toJson(liveRule)
-              )
-            )
+          case Right(allRuleData) => Ok(Json.toJson(allRuleData))
         }
     }
   }

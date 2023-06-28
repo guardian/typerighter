@@ -472,9 +472,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.unpublishRule(invalidId, user, bucketRuleResource) match {
       case Left(e) =>
         fail(s"Unexpected error on unpublishing id: $invalidId: ${e.getMessage}")
-      case Right((maybeDraftRule, maybeLiveRule)) =>
-        maybeDraftRule shouldBe None
-        maybeLiveRule shouldBe None
+      case Right(allRuleData) =>
+        allRuleData shouldBe None
     }
   }
 
@@ -484,9 +483,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.unpublishRule(ruleToArchive.id.get, user, bucketRuleResource) match {
       case Left(e) =>
         fail(s"Unexpected error on unpublishing id: $ruleToArchive.id.get: ${e.getMessage}")
-      case Right((maybeDraftRule, maybeLiveRule)) =>
-        maybeDraftRule shouldBe None
-        maybeLiveRule shouldBe None
+      case Right(allRuleData) =>
+        allRuleData shouldBe None
     }
   }
 
@@ -506,9 +504,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       RuleManager.unpublishRule(ruleToUnpublish.id.get, user, bucketRuleResource) match {
         case Left(e) =>
           fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
-        case Right((maybeDraftRule, maybeLiveRule)) =>
-          maybeDraftRule shouldBe None
-          maybeLiveRule shouldBe None
+        case Right(allRuleData) =>
+          allRuleData shouldBe None
       }
   }
 
@@ -521,17 +518,17 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       RuleManager.unpublishRule(ruleToUnpublish.id.get, user, bucketRuleResource) match {
         case Left(e) =>
           fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
-        case Right((maybeDraftRule, maybeLiveRule)) =>
-          maybeLiveRule shouldBe defined
-          val liveRule = maybeLiveRule.get
-          liveRule.isActive shouldBe false
-          liveRule.updatedBy shouldBe user
-          liveRule.updatedAt shouldBe >(ruleToUnpublish.updatedAt)
+        case Right(allRuleData) =>
+          allRuleData match {
+            case None => fail("Expected rule data to be returned")
+            case Some(allRuleData) =>
+              allRuleData.draft.isPublished shouldBe false
+              allRuleData.draft.revisionId shouldBe >(ruleToUnpublish.revisionId)
 
-          maybeDraftRule shouldBe defined
-          val draftRule = maybeDraftRule.get
-          draftRule.isPublished shouldBe false
-          draftRule.revisionId shouldBe >(ruleToUnpublish.revisionId)
+              allRuleData.live.head.isActive shouldBe false
+              allRuleData.live.head.updatedBy shouldBe user
+              allRuleData.live.head.updatedAt shouldBe >(ruleToUnpublish.updatedAt)
+          }
       }
   }
 }
