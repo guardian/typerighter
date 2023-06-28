@@ -97,11 +97,8 @@ export function useRule(ruleId: number | undefined) {
         throw new Error(`Failed to archive rule: ${response.status} ${response.statusText}`);
       }
 
-      const rules: RuleDataFromServer = await response.json();
-      setRule({
-        draft: transformApiFormData(rules.draft),
-        live: rules.live.map(transformApiFormData)
-      });
+      const rules = await response.json();
+      setRule(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -121,11 +118,8 @@ export function useRule(ruleId: number | undefined) {
         throw new Error(`Failed to unarchive rule: ${response.status} ${response.statusText}`);
       }
 
-      const rules: RuleDataFromServer = await response.json();
-      setRule({
-        draft: transformApiFormData(rules.draft),
-        live: rules.live.map(transformApiFormData)
-      });
+      const rules: RuleData = await response.json();
+      setRule(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -145,11 +139,8 @@ export function useRule(ruleId: number | undefined) {
         throw new Error(`Failed to unpublish rule: ${response.status} ${response.statusText}`);
       }
 
-      const rules: RuleDataFromServer = await response.json();
-      setRule({
-        draft: transformApiFormData(rules.draft),
-        live: rules.live.map(transformApiFormData)
-      });
+      const rules: RuleData = await response.json();
+      setRule(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
