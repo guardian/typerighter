@@ -403,7 +403,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   def save(entity: DbRuleDraft, user: String)(implicit
       session: DBSession = autoSession
   ): Try[DbRuleDraft] = {
-    withSQL {
+    val id = withSQL {
       update(DbRuleDraft)
         .set(
           column.ruleType -> entity.ruleType,
@@ -425,8 +425,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         )
         .where
         .eq(column.id, entity.id)
-    }.update().apply()
-    // TODO: also update tag relationships?
+    }.updateAndReturnGeneratedKey().apply().toInt
+
+    val tagRelations = entity.tags.map(tagId => RuleTagDraft(id, tagId))
+    RuleTagDraft.batchInsert(tagRelations)
+
     find(entity.id.get)
       .toRight(
         new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
