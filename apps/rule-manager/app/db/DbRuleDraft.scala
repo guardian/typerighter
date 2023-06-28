@@ -427,6 +427,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .eq(column.id, entity.id)
     }.updateAndReturnGeneratedKey().apply().toInt
 
+    RuleTagDraft.destroyForRule(id)
     val tagRelations = entity.tags.map(tagId => RuleTagDraft(id, tagId))
     RuleTagDraft.batchInsert(tagRelations)
 

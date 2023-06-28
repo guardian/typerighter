@@ -96,6 +96,15 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
     }.update().apply()
   }
 
+  def destroyForRule(ruleId: Int)(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete
+        .from(this)
+        .where
+        .eq(column.ruleId, ruleId)
+    }.update().apply()
+  }
+
   def destroyAll()(implicit session: DBSession = autoSession): Int = {
     withSQL {
       delete.from(this)
