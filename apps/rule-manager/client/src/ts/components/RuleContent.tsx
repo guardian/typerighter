@@ -1,6 +1,6 @@
-import {EuiFieldText, EuiFlexItem, EuiFormRow, EuiRadioGroup} from "@elastic/eui"
+import {EuiFieldText, EuiFlexItem, EuiFormLabel, EuiFormRow, EuiRadioGroup, EuiSpacer, EuiTextArea} from "@elastic/eui"
 import {css} from "@emotion/react";
-import React, {useState} from "react"
+import React from "react"
 import {RuleFormSection} from "./RuleFormSection";
 import {LineBreak} from "./LineBreak";
 import {FormError, PartiallyUpdateRuleData} from "./RuleForm";
@@ -29,17 +29,31 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
             label: "LanguageTool",
         },
     ]
-    const [ruleTypeSelected, setRuleTypeSelected] = useState(ruleTypeOptions[0].id);
+    const TextField = ruleData.ruleType === "languageToolXML" ? EuiTextArea : EuiFieldText;
 
     return <RuleFormSection title="RULE CONTENT">
         <LineBreak/>
         <EuiFlexItem>
+          <EuiFormLabel>Rule type</EuiFormLabel>
+            <EuiRadioGroup
+                options={ruleTypeOptions}
+                idSelected={ruleData.ruleType}
+                onChange={(ruleType) => {
+                    partiallyUpdateRuleData({ruleType: ruleType as RuleType});
+                }}
+                css={css`
+                        display: flex;
+                        gap: 1rem;
+                        align-items: flex-end;
+                    `}
+            />
+            <EuiSpacer size="s" />
             <EuiFormRow
                 label={<Label text='Pattern' required={true}/>}
                 isInvalid={showErrors && !ruleData.pattern}
                 fullWidth={true}
             >
-                <EuiFieldText
+                <TextField
                     value={ruleData.pattern || ""}
                     onChange={(_ => partiallyUpdateRuleData({pattern: _.target.value}))}
                     required={true}
@@ -65,21 +79,6 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, errors, showErro
                               onChange={(_ => partiallyUpdateRuleData({description: _.target.value}))}
                               fullWidth={true} />
             </EuiFormRow>
-            <EuiRadioGroup
-                options={ruleTypeOptions}
-                idSelected={ruleTypeSelected}
-                onChange={(ruleType) => {
-                    setRuleTypeSelected(ruleType as RuleType);
-                    partiallyUpdateRuleData({ruleType: ruleType as RuleType});
-                }}
-                css={css`
-                        flex-direction: row;
-                        display: flex;
-                        gap: 1rem;
-                        align-items: flex-end;
-                        margin-top: 8px;
-                    `}
-            />
         </EuiFlexItem>
     </RuleFormSection>
 }
