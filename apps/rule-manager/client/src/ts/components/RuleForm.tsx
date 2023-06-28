@@ -11,12 +11,14 @@ import {
 import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
-import {DraftRule, RuleType, useRule} from "./hooks/useRule";
+import {DraftRule, RuleDataFromServer, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
 import {capitalize} from "lodash";
 
 import { ReasonModal } from "./modals/Reason";
+import {transformApiFormData} from "../utils/api";
+import {errorToString} from "../utils/error";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -49,7 +51,7 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         onUpdate: (id: number) => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
@@ -108,14 +110,14 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const publishRuleHandler = async (reason: string) => {
-      if (!ruleId) {
+      const isDraftOrLive = (ruleState === 'draft' || ruleState === 'live')
+      if (!ruleId || !isDraftOrLive) {
         return;
       }
       await publishRule(ruleId, reason);
-      await fetchRule(ruleId);
       if (isReasonModalVisible) {
         setIsReasonModalVisible(false);
-      };
+      }
       onUpdate(ruleId);
     }
 
@@ -135,17 +137,31 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         </EuiToolTip>
     }
 
-    const archiveRuleHandler = () => {
-        if (!ruleFormData?.id) {
+    const archiveRuleHandler = async () => {
+        if (!ruleId || ruleState !== 'draft') {
           return;
         }
 
-        archiveRule(ruleFormData.id).then(data => {
-            if (data.status === 'ok'){
-                setRuleFormData(baseForm);
-                onClose();
-            }
-        })
+        await archiveRule(ruleId);
+        onUpdate(ruleId);
+    }
+
+    const unarchiveRuleHandler = async () => {
+        if (!ruleId || ruleState !== 'archived') {
+            return;
+        }
+
+        await unarchiveRule(ruleId);
+        onUpdate(ruleId);
+    }
+
+    const unpublishRuleHandler = async () => {
+        if (!ruleId || ruleState !== 'live') {
+            return;
+        }
+
+        await unpublishRule(ruleId);
+        onUpdate(ruleId);
     }
 
     const hasUnsavedChanges = ruleFormData !== rule?.draft;
@@ -157,31 +173,52 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} errors={formErrors} showErrors={showErrors}/>
             <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             {rule && <RuleHistory ruleHistory={rule.live} />}
-            <EuiFlexGroup gutterSize="m">
-                <EuiFlexItem>
-                    <EuiButton onClick={() => {
-                        const shouldClose = hasUnsavedChanges
-                          ? window.confirm("Your rule has unsaved changes. Are you sure you want to discard them?")
-                          : true;
-                        if (!shouldClose) {
-                          return;
-                        }
-                        onClose();
-                        setRuleFormData(baseForm);
-                    }}>Close</EuiButton>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                    <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading} onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
-                </EuiFlexItem>
-                <EuiFlexItem>
-                  <PublishTooltip>
-                    <EuiButton fill={true} disabled={!ruleId || isLoading || !!publishValidationErrors} isLoading={isPublishing} onClick={maybePublishRuleHandler}>{"Publish"}</EuiButton>
-                  </PublishTooltip>
-                </EuiFlexItem>
-            </EuiFlexGroup>
             {
-                !ruleFormData.isArchived ? <EuiFlexItem grow={0}>
-                    <EuiButton onClick={archiveRuleHandler} color={"danger"}>Archive Rule</EuiButton>
+                ruleState === 'draft' || ruleState === 'live' ? <EuiFlexGroup gutterSize="m">
+                    <EuiFlexItem>
+                        <EuiButton onClick={() => {
+                            const shouldClose = hasUnsavedChanges
+                                ? window.confirm("Your rule has unsaved changes. Are you sure you want to discard them?")
+                                : true;
+                            if (!shouldClose) {
+                                return;
+                            }
+                            onClose();
+                            setRuleFormData(baseForm);
+                        }}>Close</EuiButton>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                        <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading}
+                                   onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
+                    </EuiFlexItem>
+                    <EuiFlexItem>
+                        <PublishTooltip>
+                            <EuiButton fill={true} disabled={!ruleId || isLoading || !!publishValidationErrors}
+                                       isLoading={isPublishing}
+                                       onClick={maybePublishRuleHandler}>{"Publish"}</EuiButton>
+                        </PublishTooltip>
+                    </EuiFlexItem>
+                </EuiFlexGroup> : null
+            }
+            {
+                ruleState === 'archived' ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={unarchiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                        Unarchive Rule
+                    </EuiButton>
+                </EuiFlexItem> : null
+            }
+            {
+                ruleState === 'draft' ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={archiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                        Archive Rule
+                    </EuiButton>
+                </EuiFlexItem> : null
+            }
+            {
+                ruleState === 'live' ? <EuiFlexItem grow={0}>
+                    <EuiButton onClick={unpublishRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                        Unpublish Rule
+                    </EuiButton>
                 </EuiFlexItem> : null
             }
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">

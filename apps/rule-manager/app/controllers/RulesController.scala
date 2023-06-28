@@ -148,19 +148,35 @@ class RulesController(
     }
   }
 
+  def unpublish(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to unpublish rules")
+      case true =>
+        RuleManager.unpublishRule(id, request.user.email, bucketRuleResource) match {
+          case Left(e: Throwable) => InternalServerError(e.getMessage)
+          case Right(allRuleData) => Ok(Json.toJson(allRuleData))
+        }
+    }
+  }
+
   def archive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to archive rules")
       case true =>
         RuleManager.archiveRule(id, request.user.email) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
-          case Right((draftRule, liveRule)) =>
-            Ok(
-              Json.obj(
-                "draft" -> Json.toJson(draftRule),
-                "live" -> Json.toJson(liveRule)
-              )
-            )
+          case Right(allRuleData) => Ok(Json.toJson(allRuleData))
+        }
+    }
+  }
+
+  def unarchive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to unarchive rules")
+      case true =>
+        RuleManager.unarchiveRule(id, request.user.email) match {
+          case Left(e: Throwable) => InternalServerError(e.getMessage)
+          case Right(allRuleData) => Ok(Json.toJson(allRuleData))
         }
     }
   }

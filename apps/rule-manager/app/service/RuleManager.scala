@@ -176,6 +176,18 @@ object RuleManager extends Loggable {
             )
           )
         )
+      _ <- draftRule match {
+        case _ if draftRule.isArchived =>
+          Left(
+            Seq(
+              FormError(
+                "Rule is archived",
+                "Only unarchived rules can be published"
+              )
+            )
+          )
+        case _ => Right(())
+      }
       liveRule = draftRule.toLive(reason)
       externalId <- liveRule.externalId.toRight(Seq(FormError("External id", "required")))
       _ <- liveDbRuleToCheckerRule(liveRule)
@@ -267,28 +279,64 @@ object RuleManager extends Loggable {
     }
   }
 
-  def archiveRule(
+  def unpublishRule(
       id: Int,
-      user: String
-  ): Either[Exception, (Option[DbRuleDraft], Option[DbRuleLive])] = {
+      user: String,
+      bucketRuleResource: BucketRuleResource
+  ): Either[Exception, Option[AllRuleData]] = {
     try {
-      val maybeDraftRule = DbRuleDraft.find(id)
-
-      val maybeUpdatedLiveRule = for {
-        draftRule <- maybeDraftRule
+      val maybeAllRuleData = for {
+        draftRule <- DbRuleDraft.find(id)
         externalId <- draftRule.externalId
         liveRule <- DbRuleLive.findLatestRevision(externalId)
         if liveRule.isActive
-        updatedLiveRule <- DbRuleLive.setInactive(externalId, user)
-      } yield updatedLiveRule
+        _ <- DbRuleLive.setInactive(externalId, user)
+        _ <- publishLiveRules(bucketRuleResource).toOption
+        // The draft rule needs to be updated to reflect the fact that it is no longer published
+        // This also allows us to republish without editing the rule
+        _ <- DbRuleDraft.save(draftRule, user).toOption
+        allRuleData <- getAllRuleData(id)
+      } yield allRuleData
 
-      val maybeUpdatedDraftRule = for {
-        draftRule <- maybeDraftRule
+      Right(maybeAllRuleData)
+    } catch {
+      case e: Exception => Left(e)
+    }
+  }
+
+  def archiveRule(
+      id: Int,
+      user: String
+  ): Either[Exception, Option[AllRuleData]] = {
+    try {
+      val maybeAllRuleData = for {
+        draftRule <- DbRuleDraft.find(id)
+        if !draftRule.isArchived
         archivedDraftRule = draftRule.copy(isArchived = true)
-        updatedDraftRule <- DbRuleDraft.save(archivedDraftRule, user).toOption
-      } yield updatedDraftRule
+        _ <- DbRuleDraft.save(archivedDraftRule, user).toOption
+        allRuleData <- getAllRuleData(id)
+      } yield allRuleData
 
-      Right(maybeUpdatedDraftRule, maybeUpdatedLiveRule)
+      Right(maybeAllRuleData)
+    } catch {
+      case e: Exception => Left(e)
+    }
+  }
+
+  def unarchiveRule(
+      id: Int,
+      user: String
+  ): Either[Exception, Option[AllRuleData]] = {
+    try {
+      val maybeAllRuleData = for {
+        draftRule <- DbRuleDraft.find(id)
+        if draftRule.isArchived
+        archivedDraftRule = draftRule.copy(isArchived = false)
+        _ <- DbRuleDraft.save(archivedDraftRule, user).toOption
+        allRuleData <- getAllRuleData(id)
+      } yield allRuleData
+
+      Right(maybeAllRuleData)
     } catch {
       case e: Exception => Left(e)
     }
