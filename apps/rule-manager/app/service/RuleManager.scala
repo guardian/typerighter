@@ -307,18 +307,17 @@ object RuleManager extends Loggable {
   def archiveRule(
       id: Int,
       user: String
-  ): Either[Exception, Option[DbRuleDraft]] = {
+  ): Either[Exception, Option[AllRuleData]] = {
     try {
-      val maybeDraftRule = DbRuleDraft.find(id)
-
-      val maybeUpdatedDraftRule = for {
-        draftRule <- maybeDraftRule
+      val maybeAllRuleData = for {
+        draftRule <- DbRuleDraft.find(id)
         if !draftRule.isArchived
         archivedDraftRule = draftRule.copy(isArchived = true)
-        updatedDraftRule <- DbRuleDraft.save(archivedDraftRule, user).toOption
-      } yield updatedDraftRule
+        _ <- DbRuleDraft.save(archivedDraftRule, user).toOption
+        allRuleData <- getAllRuleData(id)
+      } yield allRuleData
 
-      Right(maybeUpdatedDraftRule)
+      Right(maybeAllRuleData)
     } catch {
       case e: Exception => Left(e)
     }
@@ -327,18 +326,17 @@ object RuleManager extends Loggable {
   def unarchiveRule(
       id: Int,
       user: String
-  ): Either[Exception, Option[DbRuleDraft]] = {
+  ): Either[Exception, Option[AllRuleData]] = {
     try {
-      val maybeDraftRule = DbRuleDraft.find(id)
-
-      val maybeUpdatedDraftRule = for {
-        draftRule <- maybeDraftRule
+      val maybeAllRuleData = for {
+        draftRule <- DbRuleDraft.find(id)
         if draftRule.isArchived
         archivedDraftRule = draftRule.copy(isArchived = false)
-        updatedDraftRule <- DbRuleDraft.save(archivedDraftRule, user).toOption
-      } yield updatedDraftRule
+        _ <- DbRuleDraft.save(archivedDraftRule, user).toOption
+        allRuleData <- getAllRuleData(id)
+      } yield allRuleData
 
-      Right(maybeUpdatedDraftRule)
+      Right(maybeAllRuleData)
     } catch {
       case e: Exception => Left(e)
     }

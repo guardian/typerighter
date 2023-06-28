@@ -384,8 +384,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.archiveRule(invalidId, user) match {
       case Left(e) =>
         fail(s"Unexpected error on archiving id: $invalidId: ${e.getMessage}")
-      case Right(maybeDraftRule) =>
-        maybeDraftRule shouldBe None
+      case Right(maybeAllRuleData) =>
+        maybeAllRuleData shouldBe None
     }
   }
 
@@ -397,8 +397,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.archiveRule(ruleToArchive.id.get, user) match {
       case Left(e) =>
         fail(s"Unexpected error on archiving id: $ruleToArchive.id.get: ${e.getMessage}")
-      case Right(maybeDraftRule) =>
-        maybeDraftRule shouldBe None
+      case Right(maybeAllRuleData) =>
+        maybeAllRuleData shouldBe None
     }
   }
 
@@ -408,13 +408,14 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.archiveRule(ruleToArchive.id.get, user) match {
       case Left(e) =>
         fail(s"Unexpected error on archiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
-      case Right(maybeDraftRule) =>
-        val draftRule = maybeDraftRule.get
-        draftRule.revisionId shouldMatchTo (ruleToArchive.revisionId + 1)
-        draftRule.isArchived shouldBe true
-        draftRule.isPublished shouldBe false
-        draftRule.updatedBy shouldBe user
-        draftRule.updatedAt shouldBe >(ruleToArchive.updatedAt)
+      case Right(maybeAllRuleData) =>
+        val updatedDraftRule = maybeAllRuleData.get.draft
+        updatedDraftRule.isArchived shouldBe true
+        updatedDraftRule.revisionId shouldMatchTo (ruleToArchive.revisionId + 1)
+        updatedDraftRule.isArchived shouldBe true
+        updatedDraftRule.isPublished shouldBe false
+        updatedDraftRule.updatedBy shouldBe user
+        updatedDraftRule.updatedAt shouldBe >(ruleToArchive.updatedAt)
     }
   }
 
@@ -424,8 +425,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.unarchiveRule(invalidId, user) match {
       case Left(e) =>
         fail(s"Unexpected error on unarchiving id: $invalidId: ${e.getMessage}")
-      case Right(maybeDraftRule) =>
-        maybeDraftRule shouldBe None
+      case Right(maybeAllRuleData) =>
+        maybeAllRuleData shouldBe None
     }
   }
 
@@ -435,8 +436,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.unarchiveRule(ruleToArchive.id.get, user) match {
       case Left(e) =>
         fail(s"Unexpected error on unarchiving id: $ruleToArchive.id.get: ${e.getMessage}")
-      case Right(maybeDraftRule) =>
-        maybeDraftRule shouldBe None
+      case Right(maybeAllRuleData) =>
+        maybeAllRuleData shouldBe None
     }
   }
 
@@ -446,23 +447,22 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       val maybeRuleToUnarchive = RuleManager.archiveRule(ruleToArchive.id.get, user) match {
         case Left(e) =>
           fail(s"Unexpected error on archiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
-        case Right(maybeDraftRule) => maybeDraftRule
+        case Right(maybeAllRuleData) => maybeAllRuleData
       }
 
       maybeRuleToUnarchive shouldBe defined
-
-      val ruleToUnarchive = maybeRuleToUnarchive.get
+      val ruleToUnarchive = maybeRuleToUnarchive.get.draft
 
       RuleManager.unarchiveRule(ruleToUnarchive.id.get, user) match {
         case Left(e) =>
           fail(s"Unexpected error on unarchiving id: ${ruleToArchive.id.get}: ${e.getMessage}")
-        case Right(maybeDraftRule) =>
-          val draftRule = maybeDraftRule.get
-          draftRule.revisionId shouldMatchTo (ruleToUnarchive.revisionId + 1)
-          draftRule.isArchived shouldBe false
-          draftRule.isPublished shouldBe false
-          draftRule.updatedBy shouldBe user
-          draftRule.updatedAt shouldBe >(ruleToUnarchive.updatedAt)
+        case Right(maybeAllRuleData) =>
+          val updatedDraftRule = maybeAllRuleData.get.draft
+          updatedDraftRule.revisionId shouldMatchTo (ruleToUnarchive.revisionId + 1)
+          updatedDraftRule.isArchived shouldBe false
+          updatedDraftRule.isPublished shouldBe false
+          updatedDraftRule.updatedBy shouldBe user
+          updatedDraftRule.updatedAt shouldBe >(ruleToUnarchive.updatedAt)
       }
   }
 

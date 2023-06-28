@@ -141,12 +141,7 @@ class RulesController(
       case true =>
         RuleManager.archiveRule(id, request.user.email) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
-          case Right(draftRule) =>
-            Ok(
-              Json.obj(
-                "draft" -> Json.toJson(draftRule)
-              )
-            )
+          case Right(allRuleData) => Ok(Json.toJson(allRuleData))
         }
     }
   }
@@ -157,12 +152,7 @@ class RulesController(
       case true =>
         RuleManager.unarchiveRule(id, request.user.email) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
-          case Right(draftRule) =>
-            Ok(
-              Json.obj(
-                "draft" -> Json.toJson(draftRule)
-              )
-            )
+          case Right(allRuleData) => Ok(Json.toJson(allRuleData))
         }
     }
   }
