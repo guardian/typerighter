@@ -136,43 +136,34 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         </EuiToolTip>
     }
 
-    const archiveRuleHandler = () => {
+    const archiveRuleHandler = async () => {
         if (!ruleFormData?.id || ruleState !== 'draft') {
           return;
         }
 
-        archiveRule(ruleFormData.id).then(data => {
-            if (data.status === 'ok'){
-                setRuleFormData(baseForm);
-                onClose();
-            }
-        })
+        await archiveRule(ruleFormData.id);
+        await fetchRule(ruleFormData.id);
+        onUpdate(ruleFormData.id);
     }
 
-    const unarchiveRuleHandler = () => {
+    const unarchiveRuleHandler = async () => {
         if (!ruleFormData?.id || ruleState !== 'archived') {
             return;
         }
 
-        unarchiveRule(ruleFormData.id).then(data => {
-            if (data.status === 'ok'){
-                setRuleFormData(baseForm);
-                onClose();
-            }
-        })
+        await unarchiveRule(ruleFormData.id);
+        await fetchRule(ruleFormData.id);
+        onUpdate(ruleFormData.id);
     }
 
-    const unpublishRuleHandler = () => {
+    const unpublishRuleHandler = async () => {
         if (!ruleFormData?.id || ruleState !== 'live') {
             return;
         }
 
-        unpublishRule(ruleFormData.id).then(data => {
-            if (data.status === 'ok'){
-                setRuleFormData(baseForm);
-                onClose();
-            }
-        })
+        await unpublishRule(ruleFormData.id);
+        await fetchRule(ruleFormData.id);
+        onUpdate(ruleFormData.id);
     }
 
     const hasUnsavedChanges = ruleFormData !== rule?.draft;
