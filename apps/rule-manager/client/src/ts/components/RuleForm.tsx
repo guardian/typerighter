@@ -8,7 +8,7 @@ import {
   EuiText,
   EuiToolTip
 } from "@elastic/eui";
-import React, {ReactElement, useEffect, useState} from "react"
+import React, {ReactElement, useCallback, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
@@ -58,9 +58,9 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const [formErrors, setFormErrors] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
-    const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
-      setRuleFormData({ ...ruleFormData, ...partialReplacement});
-    }
+    const partiallyUpdateRuleData: PartiallyUpdateRuleData = useCallback((partialReplacement) => {
+      setRuleFormData({ ...ruleFormData, ...partialReplacement})
+    },[]);
 
     useEffect(() => {
         if (rule) {

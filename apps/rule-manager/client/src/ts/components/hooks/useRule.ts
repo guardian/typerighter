@@ -167,7 +167,6 @@ export function useRule(ruleId: number | undefined) {
     }
   }
 
-
   const resetPublishValidationErrors = () => setPublishValidationErrors(undefined);
 
   const updateRule = async (ruleForm: DraftRule) => {

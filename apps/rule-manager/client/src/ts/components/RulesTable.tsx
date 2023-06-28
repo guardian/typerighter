@@ -29,6 +29,7 @@ import {getRuleState, getRuleStateColour} from "../utils/rule";
 import {capitalize} from "lodash";
 import {euiTextTruncate} from "@elastic/eui/src/global_styling/mixins/_typography";
 import {TagMap, useTags} from "./hooks/useTags";
+import {RuleFormBatchEdit} from "./RuleFormBatchEdit";
 
 const sorting = {
   sort: {
@@ -265,21 +266,31 @@ const RulesTable = () => {
       </EuiFlexItem>
       {formMode !== 'closed' && (
         <EuiFlexItem grow={1}>
-          <RuleForm
-            tags={tags}
-            onClose={() => {
-              setFormMode('closed');
-              fetchRules();
-            }}
-            onUpdate={(id) => {
-              fetchRules();
-              setCurrentRuleId(id);
-              if (formMode === 'create') {
-                setFormMode('edit');
-              }
-            }}
-            ruleId={currentRuleId}
-          />
+          {selectedRules.length > 1
+              ? <RuleFormBatchEdit
+                  onClose={() => {
+                    setFormMode('closed');
+                    fetchRules()
+                  }}
+                  onUpdate={(ids) => {
+                    fetchRules();
+                  }}
+                  ruleIds={selectedRules.map(rule => rule.id) as number[]}
+                />
+              : <RuleForm
+                  onClose={() => {
+                    setFormMode('closed');
+                    fetchRules();
+                  }}
+                  onUpdate={(id) => {
+                    fetchRules();
+                    setCurrentRuleId(id);
+                    if (formMode === 'create') {
+                      setFormMode('edit');
+                    }
+                  }}
+                  ruleId={currentRuleId}
+                />}
         </EuiFlexItem>
       )}
     </EuiFlexGroup>

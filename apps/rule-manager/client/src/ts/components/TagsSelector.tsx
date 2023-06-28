@@ -11,7 +11,6 @@ type TagOption = { label: string, value?: number }
 export const TagsSelector = ({tags, ruleData, partiallyUpdateRuleData}: {
     tags: TagMap,
     ruleData: DraftRule,
-    partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
     if (Object.keys(tags).length === 0) {
       return <EuiFormRow label='Tags' fullWidth={true}><EuiLoadingSpinner/></EuiFormRow>
