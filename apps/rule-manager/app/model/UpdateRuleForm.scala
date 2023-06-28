@@ -32,7 +32,7 @@ object UpdateRuleForm {
       "pattern" -> optional(text()),
       "replacement" -> optional(text()),
       "category" -> optional(text()),
-      "tags" -> optional(list(number())),
+      "tags" -> list(number()),
       "description" -> optional(text()),
       "advisoryRule" -> optional(boolean)
     )(UpdateRuleForm.apply)(UpdateRuleForm.unapply)
@@ -44,7 +44,7 @@ case class UpdateRuleForm(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[List[Int]] = None,
+    tags: List[Int],
     description: Option[String] = None,
     advisoryRule: Option[Boolean] = None
 )

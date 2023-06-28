@@ -287,7 +287,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           pattern = formRule.pattern,
           replacement = formRule.replacement,
           category = formRule.category,
-          tags = formRule.tags.getOrElse(existingRule.tags),
+          tags = formRule.tags,
           description = formRule.description,
           advisoryRule = formRule.advisoryRule
         )
