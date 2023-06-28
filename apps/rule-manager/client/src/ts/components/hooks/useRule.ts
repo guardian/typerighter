@@ -105,37 +105,73 @@ export function useRule(ruleId: number | undefined) {
   const archiveRule = async (ruleId: number) => {
     setIsLoading(true);
 
-    const result = await fetch(`${location}rules/${ruleId}/archive`, {
-      method: 'POST',
-    }).then(responseHandler)
+    try {
+      const response = await fetch(`${location}rules/${ruleId}/archive`, {
+        method: 'POST',
+      });
 
-    setIsLoading(false);
+      if (!response.ok) {
+        throw new Error(`Failed to archive rule: ${response.status} ${response.statusText}`);
+      }
 
-    return result;
+      const rules: RuleDataFromServer = await response.json();
+      setRule({
+        draft: transformApiFormData(rules.draft),
+        live: rules.live.map(transformApiFormData)
+      });
+    } catch (error) {
+      setErrors(errorToString(error));
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const unarchiveRule = async (ruleId: number) => {
     setIsLoading(true);
 
-    const result = await fetch(`${location}rules/${ruleId}/unarchive`, {
-      method: 'POST',
-    }).then(responseHandler)
+    try {
+      const response = await fetch(`${location}rules/${ruleId}/unarchive`, {
+        method: 'POST',
+      });
 
-    setIsLoading(false);
+      if (!response.ok) {
+        throw new Error(`Failed to unarchive rule: ${response.status} ${response.statusText}`);
+      }
 
-    return result;
+      const rules: RuleDataFromServer = await response.json();
+      setRule({
+        draft: transformApiFormData(rules.draft),
+        live: rules.live.map(transformApiFormData)
+      });
+    } catch (error) {
+      setErrors(errorToString(error));
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const unpublishRule = async (ruleId: number) => {
     setIsLoading(true);
 
-    const result = await fetch(`${location}rules/${ruleId}/unpublish`, {
-      method: 'POST',
-    }).then(responseHandler)
+    try {
+      const response = await fetch(`${location}rules/${ruleId}/unpublish`, {
+        method: 'POST',
+      });
 
-    setIsLoading(false);
+      if (!response.ok) {
+        throw new Error(`Failed to unpublish rule: ${response.status} ${response.statusText}`);
+      }
 
-    return result;
+      const rules: RuleDataFromServer = await response.json();
+      setRule({
+        draft: transformApiFormData(rules.draft),
+        live: rules.live.map(transformApiFormData)
+      });
+    } catch (error) {
+      setErrors(errorToString(error));
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const validateRule = async (ruleId: number) => {

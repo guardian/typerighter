@@ -11,12 +11,14 @@ import {
 import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
-import {DraftRule, RuleType, useRule} from "./hooks/useRule";
+import {DraftRule, RuleDataFromServer, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
 import {capitalize} from "lodash";
 
 import { ReasonModal } from "./modals/Reason";
+import {transformApiFormData} from "../utils/api";
+import {errorToString} from "../utils/error";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -113,7 +115,6 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
         return;
       }
       await publishRule(ruleId, reason);
-      await fetchRule(ruleId);
       if (isReasonModalVisible) {
         setIsReasonModalVisible(false);
       }
@@ -137,33 +138,30 @@ export const RuleForm = ({ruleId, onClose, onUpdate}: {
     }
 
     const archiveRuleHandler = async () => {
-        if (!ruleFormData?.id || ruleState !== 'draft') {
+        if (!ruleId || ruleState !== 'draft') {
           return;
         }
 
-        await archiveRule(ruleFormData.id);
-        await fetchRule(ruleFormData.id);
-        onUpdate(ruleFormData.id);
+        await archiveRule(ruleId);
+        onUpdate(ruleId);
     }
 
     const unarchiveRuleHandler = async () => {
-        if (!ruleFormData?.id || ruleState !== 'archived') {
+        if (!ruleId || ruleState !== 'archived') {
             return;
         }
 
-        await unarchiveRule(ruleFormData.id);
-        await fetchRule(ruleFormData.id);
-        onUpdate(ruleFormData.id);
+        await unarchiveRule(ruleId);
+        onUpdate(ruleId);
     }
 
     const unpublishRuleHandler = async () => {
-        if (!ruleFormData?.id || ruleState !== 'live') {
+        if (!ruleId || ruleState !== 'live') {
             return;
         }
 
-        await unpublishRule(ruleFormData.id);
-        await fetchRule(ruleFormData.id);
-        onUpdate(ruleFormData.id);
+        await unpublishRule(ruleId);
+        onUpdate(ruleId);
     }
 
     const hasUnsavedChanges = ruleFormData !== rule?.draft;
