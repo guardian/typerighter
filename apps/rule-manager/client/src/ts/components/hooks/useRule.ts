@@ -117,9 +117,11 @@ export function useRule(ruleId: number | undefined) {
 
     try {
       const response = await fetch(`${location}rules/${ruleId}/publish`);
-      if (response.status === 400) {
+      if (response.status === 200) {
         const validationErrors: FormError[] = await response.json();
-        return setPublishValidationErrors(validationErrors);
+        return validationErrors.length > 0
+            ? setPublishValidationErrors(validationErrors)
+            : setPublishValidationErrors(undefined);
       }
       setPublishValidationErrors(undefined);
     } catch (error) {
