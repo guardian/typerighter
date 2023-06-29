@@ -132,7 +132,7 @@ class RulesController(
               val ids = formRule.ids
               val category = formRule.fields.category
               val tags = formRule.fields.tags
-              DbRuleDraft.batchUpdateFromFormRule(ids, category, tags, request.user.email) match {
+              DbRuleDraft.batchUpdate(ids, category, tags, request.user.email) match {
                 case Failure(e)     => InternalServerError(e.getMessage())
                 case Success(rules) => Ok(Json.toJson(rules))
               }

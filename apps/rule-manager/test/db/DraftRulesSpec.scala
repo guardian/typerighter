@@ -1,22 +1,15 @@
 package db
 
 import model.{CreateRuleForm, UpdateRuleForm}
-import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import scalikejdbc.scalatest.AutoRollback
+import com.softwaremill.diffx.generic.auto.diffForCaseClass
+import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import scalikejdbc._
 import play.api.mvc.Results.NotFound
 
 import java.time.OffsetDateTime
 
-class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
-
-  override def fixture(implicit session: DBSession) = {
-    sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
-    sql"insert into rules_draft (rule_type, pattern, replacement, category, tags, description, ignore, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, false, ${"notes"}, ${"externalId"}, false, false, 'test.user', 'test.user')"
-      .update()
-      .apply()
-  }
+class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
 
   def assertDatesAreWithinRangeMs(date1: OffsetDateTime, date2: OffsetDateTime, range: Int) = {
     date1.toInstant().toEpochMilli should be(date2.toInstant().toEpochMilli +- range)
@@ -95,7 +88,8 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       val existingId = existingRule.id.get
       val formRule = UpdateRuleForm(
         ruleType = Some("regex"),
-        pattern = Some("NewString")
+        pattern = Some("NewString"),
+        tags = List.empty
       )
 
       val dbRule =
@@ -122,7 +116,8 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
     implicit session =>
       val formRule = UpdateRuleForm(
         ruleType = Some("regex"),
-        pattern = Some("NewString")
+        pattern = Some("NewString"),
+        tags = List.empty
       )
       val nonExistentRuleId = 2000
       val dbRule = DbRuleDraft.updateFromFormRule(formRule, nonExistentRuleId, "test.user")
@@ -131,6 +126,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   it should "destroy a record" in { implicit session =>
     val entity = DbRuleDraft.findAll().head
+    RuleTagDraft.destroyAll() // Necessary to remove fk
     val deleted = DbRuleDraft.destroy(entity)
     deleted should be(1)
     val shouldBeNone = DbRuleDraft.find(123)
@@ -139,17 +135,26 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
   it should "perform batch insert" in { implicit session =>
     val entities = DbRuleDraft.findAll()
+    RuleTagDraft.findAll().map(ruleTag => RuleTagDraft.destroy(ruleTag))
     entities.foreach(e => DbRuleDraft.destroy(e))
-    val batchInserted = DbRuleDraft.batchInsert(entities)
-    batchInserted.size should be > (0)
+    DbRuleDraft.batchInsert(entities)
+
+    val insertedRules = DbRuleDraft.findAll()
+    val indexOffset = entities.size // The
+    val insertedRuleWithNormalisedIds = insertedRules.zipWithIndex.map { case (rule, index) =>
+      rule.copy(id = Some(index + indexOffset))
+    }
+    insertedRuleWithNormalisedIds shouldMatchTo entities
   }
 
   it should "perform a batch edit on tags and categories" in { implicit session =>
+    Tags.create("Another tag")
+    val tags = Tags.findAll()
     val existingRule1 = DbRuleDraft
       .create(
         ruleType = "regex",
         category = Some("General"),
-        tags = Some("Names,SG,Legal"),
+        tags = List(tags.head.id.get),
         user = "test.user",
         ignore = false
       )
@@ -158,7 +163,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       .create(
         ruleType = "regex",
         category = Some("General"),
-        tags = Some("Coronavirus"),
+        tags = List(tags.head.id.get, tags(1).id.get),
         user = "test.user",
         ignore = false
       )
@@ -167,7 +172,7 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
       .create(
         ruleType = "regex",
         category = Some("General"),
-        tags = Some("Typos,Semantics"),
+        tags = List.empty,
         user = "test.user",
         ignore = false
       )
@@ -175,21 +180,20 @@ class DraftRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback 
 
     val existingIds = List(existingRule1, existingRule2, existingRule3).map(_.id.get)
     val newCategory = "Style guide and names"
-    val newTags = "Names,SG,Legal,Coronavirus,Typos,Semantics"
+    val newTags = tags.map(_.id.get)
 
     val updatedRules =
       DbRuleDraft
-        .batchUpdateFromFormRule(existingIds, newCategory, newTags, "another.user")
-        .getOrElse(null)
+        .batchUpdate(existingIds, newCategory, newTags, "another.user")
 
-    val updatedRulesFromDb = updatedRules.map { rule =>
+    val updatedRulesFromDb = updatedRules.get.map { rule =>
       DbRuleDraft.find(rule.id.get)
     }
 
     updatedRulesFromDb.foreach { maybeRule =>
       maybeRule.foreach { rule =>
         rule.category should be(Some("Style guide and names"))
-        rule.tags should be(Some("Names,SG,Legal,Coronavirus,Typos,Semantics"))
+        rule.tags should be(newTags)
       }
     }
 
