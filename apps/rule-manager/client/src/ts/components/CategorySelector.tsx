@@ -8,7 +8,7 @@ import { RuleData } from "./hooks/useRule";
 export type MetadataOption = {label: string};
 const singleSelectionOptions = { asPlainText: true };
 export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
-    ruleData: RuleData['draft']
+    ruleData: RuleData['draft'],
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
     // This is an array in order to match the expected type for EuiComboBox, but

@@ -268,6 +268,7 @@ const RulesTable = () => {
         <EuiFlexItem grow={1}>
           {selectedRules.length > 1
               ? <RuleFormBatchEdit
+                  tags={tags}
                   onClose={() => {
                     setFormMode('closed');
                     fetchRules()
@@ -278,6 +279,7 @@ const RulesTable = () => {
                   ruleIds={selectedRules.map(rule => rule.id) as number[]}
                 />
               : <RuleForm
+                  tags={tags}
                   onClose={() => {
                     setFormMode('closed');
                     fetchRules();
@@ -290,7 +292,7 @@ const RulesTable = () => {
                     }
                   }}
                   ruleId={currentRuleId}
-                />}
+              />}
         </EuiFlexItem>
       )}
     </EuiFlexGroup>

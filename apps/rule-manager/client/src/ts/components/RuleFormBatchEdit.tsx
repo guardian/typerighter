@@ -6,77 +6,47 @@ import {
     EuiForm,
     EuiLoadingSpinner,
     EuiText,
-    EuiToolTip
 } from "@elastic/eui";
 import React, {ReactElement, useEffect, useState} from "react"
-import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
-import {DraftRule, RuleType, useRule} from "./hooks/useRule";
-import {RuleHistory} from "./RuleHistory";
-import styled from "@emotion/styled";
-import {capitalize} from "lodash";
+import {DraftRule} from "./hooks/useRule";
 
-import { ReasonModal } from "./modals/Reason";
 import {useBatchRules} from "./hooks/useBatchRules";
 import {RuleFormSection} from "./RuleFormSection";
+import {TagMap} from "./hooks/useTags";
+import {baseForm, FormError, PartiallyUpdateRuleData, SpinnerContainer, SpinnerOuter, SpinnerOverlay} from "./RuleForm";
 
-export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
-
-export type FormError = { key: string; message: string };
-
-export const baseForm = {
-    ruleType: 'regex' as RuleType,
-    tags: [] as string[],
-    ignore: false,
-} as DraftRule;
-
-const SpinnerOverlay = styled.div`
-  display: flex;
-  justify-content: center;
-`
-
-const SpinnerOuter = styled.div`
-  position: relative;
-`;
-const SpinnerContainer = styled.div`
-  position: absolute;
-  top: 10px;
-`;
-
-// const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
-
-export const RuleFormBatchEdit = ({ruleIds, onClose, onUpdate}: {
-    ruleIds: number[] | undefined,
+export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
+    tags: TagMap,
+    ruleIds: number[],
     onClose: () => void,
     onUpdate: (ids: number) => void
 }) => {
     const [showErrors, setShowErrors] = useState(false);
     const { isLoading, errors, rules, fetchRules, updateRules } = useBatchRules(ruleIds);
-    const [ruleFormData, setRuleFormData] = useState(rules) // (RuleData | undefined)[]
+    const [ruleFormData, setRuleFormData] = useState(rules ?? [baseForm])
     const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
-    const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
-        setRuleFormData({ ...ruleFormData, ...partialReplacement});
-    }
+        const updatedRules = ruleFormData.map(rule => ({
+            ...rule,
+            ...partialReplacement
+        })) as DraftRule[]
+        setRuleFormData(updatedRules);
+    };
+
+    useEffect(() => {
+    }, [ruleFormData])
 
     useEffect(() => {
         if (rules) {
-            setRuleFormData(rules);
+            setRuleFormData(rules.map(rule => rule.draft));
             // rules.draft.id && validateRules(rules.draft.id);
         } else {
-            setRuleFormData([]);
+            setRuleFormData(baseForm);
             // resetPublishValidationErrors();
         }
     }, [rules]);
-
-    // useEffect(() => {
-    //     if(!ruleFormData.pattern) {
-    //         setFormErrors([emptyPatternFieldError]);
-    //     } else {
-    //         setFormErrors([]);
-    //     }
-    // }, [ruleFormData]);
 
     useEffect(() => {
         if(errors?.length === 0) {
@@ -101,64 +71,13 @@ export const RuleFormBatchEdit = ({ruleIds, onClose, onUpdate}: {
         }
     };
 
-    // const maybePublishRuleHandler = () => {
-    //     if (rules?.live.length) {
-    //         setIsReasonModalVisible(true);
-    //     } else {
-    //         publishRuleHandler("First published");
-    //     }
-    // }
-
-    // const publishRuleHandler = async (reason: string) => {
-    //     if (!ruleIds) {
-    //         return;
-    //     }
-    //     await publishRule(ruleIds, reason);
-    //     await fetchRule(ruleIds);
-    //     if (isReasonModalVisible) {
-    //         setIsReasonModalVisible(false);
-    //     };
-    //     onUpdate(ruleIds);
-    // }
-    //
-    // const PublishTooltip: React.FC<{ children: ReactElement }> = ({ children }) => {
-    //     if (!publishValidationErrors) {
-    //         return <>{children}</>
-    //     }
-    //     return <EuiToolTip content={!!publishValidationErrors &&
-    //         <span>
-    //             This rule can't be published:
-    //             <br/>
-    //             <br/>
-    //             {publishValidationErrors?.map(error => <span key={error.key}>{`${capitalize(error.key)}: ${error.message}`}<br/></span>)}
-    //         </span>
-    //     }>
-    //         {children}
-    //     </EuiToolTip>
-    // }
-
-    // const archiveRuleHandler = () => {
-    //     if (!ruleFormData?.id) {
-    //         return;
-    //     }
-    //
-    //     archiveRule(ruleFormData.id).then(data => {
-    //         if (data.status === 'ok'){
-    //             setRuleFormData(baseForm);
-    //             onClose();
-    //         }
-    //     })
-    // }
-
     const hasUnsavedChanges = ruleFormData !== rules?.draft;
-
 
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
             <RuleFormSection title="RULE CONTENT"/>
-            <RuleMetadata ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-            {/*{rule && <RuleHistory ruleHistory={rule.live} />}*/}
+            <RuleMetadata tags={tags} ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             <EuiFlexGroup gutterSize="m">
                 <EuiFlexItem>
                     <EuiButton onClick={() => {
@@ -169,27 +88,16 @@ export const RuleFormBatchEdit = ({ruleIds, onClose, onUpdate}: {
                             return;
                         }
                         onClose();
-                        setRuleFormData(baseForm);
+                        setRuleFormData([baseForm]);
                     }}>Close</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
                     <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading} onClick={saveRuleHandler}>{ruleIds ? "Update Rule" : "Save Rule"}</EuiButton>
                 </EuiFlexItem>
-                {/*<EuiFlexItem>*/}
-                {/*    <PublishTooltip>*/}
-                {/*        <EuiButton fill={true} disabled={!ruleIds || isLoading || !!publishValidationErrors} isLoading={isPublishing} onClick={maybePublishRuleHandler}>{"Publish"}</EuiButton>*/}
-                {/*    </PublishTooltip>*/}
-                {/*</EuiFlexItem>*/}
             </EuiFlexGroup>
-            {/*{*/}
-            {/*    !ruleFormData.isArchived ? <EuiFlexItem grow={0}>*/}
-            {/*        <EuiButton onClick={archiveRuleHandler} color={"danger"}>Archive Rule</EuiButton>*/}
-            {/*    </EuiFlexItem> : null*/}
-            {/*}*/}
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
                 {formErrors.map((error, index) => <EuiText key={index}>{`${error.message}`}</EuiText>)}
             </EuiCallOut> : null}
         </EuiFlexGroup>}
-        {/*{isReasonModalVisible && <ReasonModal onClose={() => setIsReasonModalVisible(false)} onSubmit={publishRuleHandler} isLoading={isPublishing} />}*/}
     </EuiForm>
 }

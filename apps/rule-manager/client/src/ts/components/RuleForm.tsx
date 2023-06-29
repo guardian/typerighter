@@ -29,21 +29,21 @@ export const baseForm = {
   ignore: false,
 } as DraftRule;
 
-const SpinnerOverlay = styled.div`
+export const SpinnerOverlay = styled.div`
   display: flex;
   justify-content: center;
 `
 
-const SpinnerOuter = styled.div`
+export const SpinnerOuter = styled.div`
   position: relative;
 `;
-const SpinnerContainer = styled.div`
+export const SpinnerContainer = styled.div`
   position: absolute;
   top: 10px;
 `;
 
-const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 const formDebounceMs = 1000;
+export const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 
 export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         tags: TagMap,
@@ -58,9 +58,9 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const [formErrors, setFormErrors] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
-    const partiallyUpdateRuleData: PartiallyUpdateRuleData = useCallback((partialReplacement) => {
-      setRuleFormData({ ...ruleFormData, ...partialReplacement})
-    },[]);
+    const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
+        setRuleFormData({ ...ruleFormData, ...partialReplacement});
+    }
 
     useEffect(() => {
         if (rule) {

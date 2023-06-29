@@ -1,23 +1,37 @@
-import {useEffect, useState} from "react";
-import {EuiFormRow, EuiComboBox, EuiLoadingSpinner} from "@elastic/eui";
-import React from "react";
-import { PartiallyUpdateRuleData } from "./RuleForm";
-import { existingTags } from "../constants/constants";
+import React, {useEffect, useState} from "react";
+import {EuiComboBox, EuiFormRow, EuiLoadingSpinner} from "@elastic/eui";
 import {DraftRule} from "./hooks/useRule";
 import {TagMap} from "./hooks/useTags";
+import {PartiallyUpdateRuleData} from "./RuleForm";
 
 type TagOption = { label: string, value?: number }
 
 export const TagsSelector = ({tags, ruleData, partiallyUpdateRuleData}: {
     tags: TagMap,
-    ruleData: DraftRule,
+    ruleData: DraftRule | DraftRule[],
+    partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
     if (Object.keys(tags).length === 0) {
       return <EuiFormRow label='Tags' fullWidth={true}><EuiLoadingSpinner/></EuiFormRow>
     }
 
     const options = tags ? Object.values(tags).map(tag => ({ label: tag.name, value: tag.id })) : [];
-    const tagOptions = ruleData.tags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
+
+    const transformTags = (ruleData: DraftRule[]) => {
+        let seenTags = new Set<number>();
+        let uniqueTags = [];
+
+        ruleData.map(rule => rule.tags.map(tag => {
+            if (!seenTags.has(tag)) {
+                seenTags.add(tag);
+                uniqueTags.push(tag);
+            }
+        }))
+
+        return uniqueTags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
+    }
+
+    const tagOptions = Array.isArray(ruleData) ? transformTags(ruleData) : ruleData.tags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
     const [selectedTags, setSelectedTags] = useState<TagOption[]>(tagOptions);
 
     useEffect(() => {

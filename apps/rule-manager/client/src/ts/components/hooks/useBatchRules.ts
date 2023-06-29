@@ -57,10 +57,9 @@ export function useBatchRules(ruleIds: number[] | undefined) {
   const [isValidating, setIsValidating] = useState(false);
   const [publishValidationErrors, setPublishValidationErrors] = useState<FormError[] | undefined>(undefined);
   const [errors, setErrors] = useState<string | undefined>(undefined);
-  const [rules, setRules] = useState<(RuleData | undefined)[]>([]);
+  const [rules, setRules] = useState<RuleData[] | undefined>(undefined);
 
-
-  const fetchRule = async (ruleIds: number[]) => {
+  const fetchRules = async (ruleIds: number[]) => {
     setIsLoading(true);
     setIsValidating(true); // Mark the rule as pending validation until the server tells us otherwise
 
@@ -69,27 +68,8 @@ export function useBatchRules(ruleIds: number[] | undefined) {
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
-      const rulesFromServer: RuleDataFromServer[] = await response.json();
-
-      const draftRules = rulesFromServer.map(rule => {
-        if (rule.draft) {
-            return {
-                ...rule.draft,
-                tags: rule.draft.tags ? rule.draft.tags.split(',') : []
-            }
-        } else if (rule.live) {
-          return rule.live.map(liveRule => ({...liveRule, tags: liveRule.tags ? liveRule.tags.split(',') : []}))
-        } else {
-          return undefined;
-        }
-      })
-
-      setRules(draftRules.map(rule => {
-        if (rule && !Array.isArray(rule)) {
-          return rule as RuleData
-        }
-        return undefined
-      }));
+      const rulesData: RuleData[] = await response.json();
+      setRules(rulesData)
 
     } catch (error) {
       setErrors(errorToString(error));
@@ -113,8 +93,6 @@ export function useBatchRules(ruleIds: number[] | undefined) {
         "tags": ruleForm.map(rule => rule.tags),
       }
     }
-
-    console.log('formdata', formDataForApi)
 
     const response = await fetch(`${location}rules/batch`, {
       method: 'POST',
@@ -163,11 +141,11 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
   useEffect(() => {
     if (ruleIds) {
-      fetchRule(ruleIds);
+      fetchRules(ruleIds);
     } else {
       setRules([]);
     }
   }, [ruleIds])
 
-  return { fetchRule, updateRules, /*createRule,*/ isLoading, errors, rules}
+  return { fetchRule: fetchRules, updateRules, /*createRule,*/ isLoading, errors, rules}
 }
