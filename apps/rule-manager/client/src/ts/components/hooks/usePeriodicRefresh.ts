@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 /**
- * Force a re-render for the given period.
+ * Force a re-render every given interval.
  */
 export const usePeriodicRefresh = (periodInMs: number) => {
   const [_, setTime] = useState(Date.now());
