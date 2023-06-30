@@ -18,21 +18,24 @@ const cache = createCache({
 });
 
 export const Page = () => (
-  <Routes>
-    <Route path="/" element={
-      <PageDataProvider>
-        <FeatureSwitchesProvider>
-          <EuiProvider modify={euiThemeOverrides} cache={cache}>
-            <EuiPageTemplate>
-              <Header />
-              <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
-                <RulesTable />
-              </EuiPageTemplate.Section>
-            </EuiPageTemplate>
-          </EuiProvider>
-        </FeatureSwitchesProvider>
-      </PageDataProvider>
-      } 
-    />
-  </Routes>
+  <PageDataProvider>
+    <FeatureSwitchesProvider>
+      <EuiProvider modify={euiThemeOverrides} cache={cache}>
+        <EuiPageTemplate>
+          <Header />
+          <Routes>
+            <Route path="/" element={
+                <>
+                  <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
+                    <RulesTable />
+                  </EuiPageTemplate.Section>
+                </>
+              }
+            />
+          </Routes>
+        </EuiPageTemplate>
+      </EuiProvider>
+    </FeatureSwitchesProvider>
+  </PageDataProvider>
+  
 );
