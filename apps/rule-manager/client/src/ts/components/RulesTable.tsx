@@ -206,11 +206,15 @@ const RulesTable = () => {
           <h1>Current rules</h1>
         </EuiTitle>
       </EuiFlexItem>
-      <EuiFlexItem grow={false}>
-        <EuiButton size="s" fill={true} color={"primary"} onClick={handleRefreshRules} isLoading={isRefreshing}>
-          Refresh{isRefreshing ? "ing" : ""} rules
-        </EuiButton>
-      </EuiFlexItem>
+      {
+        getFeatureSwitchValue("enable-destructive-reload") ?
+          <EuiFlexItem grow={false}>
+            <EuiButton size="s" fill={true} color={"danger"} onClick={handleRefreshRules} isLoading={isRefreshing}>
+              <strong>Destroy all rules in the manager and reload from the original Google Sheet</strong>
+            </EuiButton>
+          </EuiFlexItem> : 
+          null
+      }
     </EuiFlexGroup>
     <EuiFlexGrid>
       {error &&
