@@ -31,7 +31,7 @@ class RuleTesting(
           rule = rule
         )
 
-        ws.url(s"https://$checkerUrl$path")
+        ws.url(s"$checkerUrl$path")
           .withHttpHeaders(headers: _*)
           .withBody(Json.toJson(checkSingleRule))
           .stream()

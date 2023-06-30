@@ -1,7 +1,7 @@
 package utils
 
 import org.scalatest.flatspec.AnyFlatSpec
-import org.mockito.{IdiomaticMockito}
+import org.mockito.IdiomaticMockito
 import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.Future
