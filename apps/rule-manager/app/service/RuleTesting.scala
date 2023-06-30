@@ -39,7 +39,7 @@ class RuleTesting(
     *   - `maxPageCount` is met.
     */
   def testRuleWithCapiQuery(
-      ruleId: Int,
+      rule: DbRuleDraft,
       query: TestRuleCapiQuery,
       matchCount: Int = 10,
       maxPageCount: Int = 20
@@ -91,7 +91,7 @@ class RuleTesting(
           }
 
           // Stream the results into our hub sink.
-          testRule(ruleId, documents).map { ruleSource =>
+          testRule(rule, documents).map { ruleSource =>
             ruleSource
               .alsoTo(streamCompleteCallbackSink)
               .runWith(hubSink)

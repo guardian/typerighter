@@ -56,7 +56,7 @@ object TextBlock {
     fromHtml(block.bodyHtml)
 
   private val validBlockTagNames = List("h2", "p")
-  def fromHtml(htmlFragment: String): Seq[TextBlock] = {
+  def fromHtml(htmlFragment: String): List[TextBlock] = {
     val writer = new StringWriter()
     htmlCleaner
       .clean(htmlFragment)

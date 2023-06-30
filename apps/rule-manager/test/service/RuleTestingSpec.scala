@@ -3,46 +3,54 @@ package service
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
+import com.gu.contentapi.client.model.v1.SearchResponse
 import com.gu.typerighter.lib.{HMACClient, JsonHelpers}
 import com.gu.typerighter.model.{CheckSingleRuleResult, Document, TextBlock}
 import fixtures.RuleFixtures
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import play.api.mvc.Results.Ok
+import play.api.BuiltInComponentsFromContext
+import play.api.mvc._
+import play.api.routing.Router
 import play.api.routing.sird._
 import play.core.server.Server
 import play.api.test._
+import play.filters.HttpFiltersComponents
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
-
   val as: ActorSystem = ActorSystem()
   implicit val materializer: Materializer = Materializer(as)
+  private implicit val ec = ExecutionContext.global
 
-  /** Mock responses from our checker service when parsing responses.
-    *
-    * The matches are passed as an iterator to allow us to assert their state when tests are
-    * finished running – to check that they've been consumed.
-    */
+  // Mock responses from our CAPI client and checker service when parsing responses
   def withRuleTestingClient[T](
-      matchResponses: Iterator[Seq[CheckSingleRuleResult]]
-  )(block: RuleTesting => T): T = {
-    Server.withRouterFromComponents() { cs =>
-      { case POST(p"/checkSingle") =>
-        cs.defaultActionBuilder { _ =>
-          Ok.chunked(
-            Source(matchResponses.next()).map(result => JsonHelpers.toJsonSeq(result))
-          ).as("application/json-seq")
+      searchResponses: Seq[SearchResponse],
+      matchResponses: Seq[Seq[CheckSingleRuleResult]]
+  )(block: RuleTesting => T)(implicit ec: ExecutionContext): T = {
+    val searchIterator = Iterator(searchResponses)
+    val matchResponseIterator = Iterator(matchResponses)
+
+    Server.withApplicationFromContext() { context =>
+      new BuiltInComponentsFromContext(context) with HttpFiltersComponents {
+        override def router: Router = Router.from { case GET(p"/checkSingle") =>
+          Action { req =>
+            Results.Ok
+              .chunked(
+                Source(matchResponseIterator.next()).map(result => JsonHelpers.toNDJson(result))
+              )
+              .as("application/json-seq")
+          }
         }
-      }
+      }.application
     } { implicit port =>
       WsTestClient.withClient { client =>
         val hmacClient = new HMACClient("TEST", secretKey = "🤫")
-        block(new RuleTesting(client, hmacClient, ""))
+        val contentClient = mock[ContentClient]
+        contentClient.searchContent(*, *, *, *) answers Future.successful(searchIterator.next())
+        block(new RuleTesting(client, hmacClient, contentClient, ""))
       }
     }
   }

@@ -218,7 +218,8 @@ class RulesController(
   def testWithCapiQuery(id: Int) = APIAuthAction[JsValue](parse.json) { implicit request =>
     request.body.validate[TestRuleCapiQuery].asEither match {
       case Right(query) =>
-        val matchStream = ruleTesting.testRuleWithCapiQuery(id, query)
+        val rule = DbRuleDraft.find(id).get
+        val matchStream = ruleTesting.testRuleWithCapiQuery(rule, query)
         Ok.chunked(matchStream.map { Json.toJson(_) })
       case Left(error) => BadRequest(s"Invalid request: $error")
     }
