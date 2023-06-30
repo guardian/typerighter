@@ -2,10 +2,12 @@ package service
 
 import play.api.libs.ws.WSClient
 import com.gu.typerighter.lib.{HMACClient, Loggable}
-import com.gu.typerighter.model.{CheckSingleRule, CheckerRule, Document}
-import play.api.libs.json.Json
+import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, CheckerRule, Document}
+import db.DbRuleDraft
+import play.api.libs.json.{JsError, JsSuccess, Json}
 
 import java.util.UUID
+import scala.concurrent.{ExecutionContext, Future}
 
 class RuleTesting(
     ws: WSClient,
@@ -15,11 +17,10 @@ class RuleTesting(
   /** Test a rule against the given list of documents. Return a list of matches from the checker
     * service endpoint as streamed NDJSON.
     */
-  def testRule(ruleId: Int, documents: List[Document])(implicit ec: ExecutionContext) = {
-    DbRuleDraft.find(ruleId).flatMap { draftRule =>
-      val liveRule = draftRule.toLive("placeholder")
-      RuleManager.liveDbRuleToCheckerRule(liveRule).toOption
-    } match {
+  def testRule(rule: DbRuleDraft, documents: List[Document])(implicit ec: ExecutionContext) = {
+    val liveRule = rule.toLive("placeholder")
+
+    RuleManager.liveDbRuleToCheckerRule(liveRule).toOption match {
       case Some(rule) =>
         val path = "/checkSingle"
         val headers = hmacClient.getHMACHeaders(path)
@@ -47,8 +48,7 @@ class RuleTesting(
               }
           }
       case None =>
-        Future.failed(new Error(s"Could not test rule: $ruleId"))
+        Future.failed(new Error(s"Could not test rule: ${rule.id}"))
     }
->>>>>>> 2eb177c4 (Add mock for test)
   }
 }

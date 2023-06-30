@@ -198,17 +198,9 @@ class RulesController(
   def test(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
     request.body.validate[Document].asEither match {
       case Right(document) =>
-        DbRuleDraft.find(id).flatMap { draftRule =>
-          val liveRule = draftRule.toLive("placeholder")
-          RuleManager.liveDbRuleToCheckerRule(liveRule).toOption
-        } match {
-          case Some(rule) =>
-            ruleTesting
-              .testRule(rule, List(document))
-              .map { resultStream =>
-                Ok.chunked(resultStream.bodyAsSource)
-              }
-          case None => Future.successful(NotFound(s"No rule with ID: ${id}"))
+        val rule = DbRuleDraft.find(id).get
+        ruleTesting.testRule(rule, List(document)).map { stream =>
+          Ok.chunked(stream.map { Json.toJson(_) })
         }
 
       case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
