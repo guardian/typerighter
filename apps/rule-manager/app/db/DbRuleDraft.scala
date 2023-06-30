@@ -16,7 +16,7 @@ case class DbRuleDraft(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[String] = None,
+    tags: List[Int] = List.empty,
     description: Option[String] = None,
     ignore: Boolean,
     notes: Option[String] = None,
@@ -73,9 +73,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     "is_archived"
   )
 
-  def fromResultName(r: ResultName[DbRuleDraft])(rs: WrappedResultSet): DbRuleDraft =
-    autoConstruct(rs, r)
-
   def fromRow(rs: WrappedResultSet): DbRuleDraft = {
     DbRuleDraft(
       id = rs.intOpt("id"),
@@ -83,7 +80,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern = rs.stringOpt("pattern"),
       replacement = rs.stringOpt("replacement"),
       category = rs.stringOpt("category"),
-      tags = rs.stringOpt("tags"),
+      tags = rs.array("tags").getArray.asInstanceOf[Array[Integer]].toList.map { _.intValue() },
       description = rs.stringOpt("description"),
       ignore = rs.boolean("ignore"),
       notes = rs.stringOpt("notes"),
@@ -106,7 +103,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern: Option[String] = None,
       replacement: Option[String] = None,
       category: Option[String] = None,
-      tags: Option[String] = None,
+      tags: List[Int] = List.empty,
       description: Option[String] = None,
       ignore: Boolean,
       notes: Option[String] = None,
@@ -140,52 +137,63 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   val rd = DbRuleDraft.syntax("rd")
   val rl = DbRuleLive.syntax("rl")
+  val rt = RuleTagDraft.syntax("rt")
+
+  val tagColumn =
+    sqls"COALESCE(ARRAY_AGG(${rt.tagId}) FILTER (WHERE ${rt.tagId} IS NOT NULL), '{}') AS tags"
+
+  val isPublishedColumn = sqls"${rl.externalId} IS NOT NULL AS is_published"
+
+  val dbColumnsToFind = SQLSyntax.createUnsafely(
+    rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
+  )
 
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
-    sql"""
-        SELECT
-             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
-        FROM
-            ${DbRuleDraft as rd}
-        LEFT JOIN ${DbRuleLive as rl}
-            ON ${rd.externalId} = ${rl.externalId}
-            AND ${rl.isActive} = TRUE
-        WHERE
-            ${rd.id} = $id
-       """
-      .map(DbRuleDraft.fromRow)
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .eq(rd.id, id)
+        .groupBy(dbColumnsToFind, rl.externalId)
+    }.map(DbRuleDraft.fromRow)
       .single()
       .apply()
   }
 
   def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
-    sql"""
-        SELECT
-            ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
-        FROM
-            ${DbRuleDraft as rd}
-        LEFT JOIN ${DbRuleLive as rl}
-            ON ${rd.externalId} = ${rl.externalId}
-            AND ${rl.isActive} = TRUE
-        WHERE ${rd.id} IN ($ids)
-        """
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .in(rd.id, ids)
+        .groupBy(dbColumnsToFind, rl.externalId)
+    }
       .map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
-    sql"""
-        SELECT
-             ${rd.*}, ${rl.externalId} IS NOT NULL AS is_published
-        FROM
-            ${DbRuleDraft as rd}
-        LEFT JOIN ${DbRuleLive as rl} ON ${rd.externalId} = ${rl.externalId} AND ${rl.isActive} = true
-        ORDER BY ${rd.id}
-       """
-      .map(DbRuleDraft.fromRow)
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .groupBy(dbColumnsToFind, rl.externalId)
+        .orderBy(rd.id)
+    }.map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }
@@ -205,16 +213,16 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern: Option[String] = None,
       replacement: Option[String] = None,
       category: Option[String] = None,
-      tags: Option[String] = None,
       description: Option[String] = None,
       ignore: Boolean,
       notes: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
       user: String,
-      isArchived: Boolean = false
+      isArchived: Boolean = false,
+      tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
-    val generatedKey = withSQL {
+    val id = withSQL {
       insert
         .into(DbRuleDraft)
         .namedValues(
@@ -222,7 +230,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.pattern -> pattern,
           column.replacement -> replacement,
           column.category -> category,
-          column.tags -> tags,
           column.description -> description,
           column.ignore -> ignore,
           column.notes -> notes,
@@ -232,14 +239,17 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.updatedBy -> user,
           column.isArchived -> isArchived
         )
-    }.updateAndReturnGeneratedKey().apply()
+    }.updateAndReturnGeneratedKey().apply().toInt
 
-    find(generatedKey.toInt) match {
+    val tagRelations = tags.map(tagId => RuleTagDraft(id, tagId))
+    RuleTagDraft.batchInsert(tagRelations)
+
+    find(id) match {
       case Some(rule) => Success(rule)
       case None =>
         Failure(
           new Exception(
-            s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
+            s"Attempted to create a rule with id $id, but no result found attempting to read it back"
           )
         )
     }
@@ -253,7 +263,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern = formRule.pattern,
       replacement = formRule.replacement,
       category = formRule.category,
-      tags = formRule.tags,
+      tags = formRule.tags.getOrElse(List.empty),
       description = formRule.description,
       ignore = formRule.ignore,
       notes = formRule.notes,
@@ -292,15 +302,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       case Left(result) => Left(result)
     }
   }
-  def batchUpdateFromFormRule(ids: List[Int], category: String, tags: String, user: String)(implicit
+  def batchUpdate(ids: List[Int], category: String, tags: List[Int], user: String)(implicit
       session: DBSession = autoSession
   ): Try[List[DbRuleDraft]] = {
     Try {
-      val updatedRows = withSQL {
+      withSQL {
         update(DbRuleDraft)
           .set(
             column.category -> category,
-            column.tags -> tags,
             column.updatedBy -> user,
             column.revisionId -> sqls"${column.revisionId} + 1"
           )
@@ -308,11 +317,12 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           .in(column.id, ids)
       }.update().apply()
 
-      if (updatedRows > 0) {
-        findRules(ids)
-      } else {
-        throw new Exception("No rows updated")
-      }
+      val newTag = ids.flatMap(ruleId => tags.map(tagId => RuleTagDraft(ruleId, tagId)))
+      RuleTagDraft.batchInsert(newTag)
+
+      val rules = findRules(ids)
+
+      rules
     }
   }
 
@@ -325,7 +335,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("pattern") -> entity.pattern,
         Symbol("replacement") -> entity.replacement,
         Symbol("category") -> entity.category,
-        Symbol("tags") -> entity.tags,
         Symbol("description") -> entity.description,
         Symbol("ignore") -> entity.ignore,
         Symbol("notes") -> entity.notes,
@@ -344,7 +353,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       pattern,
       replacement,
       category,
-      tags,
       description,
       ignore,
       notes,
@@ -361,7 +369,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {pattern},
       {replacement},
       {category},
-      {tags},
       {description},
       {ignore},
       {notes},
@@ -373,20 +380,36 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {updatedBy},
       {updatedAt},
       {isArchived}
-    )""").batchByName(params.toSeq: _*).apply[List]()
+    )""").batchByName(params.toSeq: _*).apply[Seq]().toList
+
+    // Get the last inserted ID to produce the ids generated in the batch update.
+    val lastInsertedId = sql"SELECT currval(pg_get_serial_sequence($tableName,'id')) as last_id"
+      .map(_.int("last_id"))
+      .single()
+      .apply()
+      .get
+
+    val firstInsertedId = (lastInsertedId - entities.size + 1)
+    val ruleIds = (firstInsertedId to lastInsertedId).toList
+    val ruleTags = ruleIds.zip(entities).flatMap { case (id, rule) =>
+      rule.tags.map(tag => RuleTagDraft(id, tag))
+    }
+
+    RuleTagDraft.batchInsert(ruleTags)
+
+    ruleIds
   }
 
   def save(entity: DbRuleDraft, user: String)(implicit
       session: DBSession = autoSession
   ): Try[DbRuleDraft] = {
-    withSQL {
+    val id = withSQL {
       update(DbRuleDraft)
         .set(
           column.ruleType -> entity.ruleType,
           column.pattern -> entity.pattern,
           column.replacement -> entity.replacement,
           column.category -> entity.category,
-          column.tags -> entity.tags,
           column.description -> entity.description,
           column.ignore -> entity.ignore,
           column.notes -> entity.notes,
@@ -402,7 +425,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         )
         .where
         .eq(column.id, entity.id)
-    }.update().apply()
+    }.updateAndReturnGeneratedKey().apply().toInt
+
+    RuleTagDraft.destroyForRule(id)
+    val tagRelations = entity.tags.map(tagId => RuleTagDraft(id, tagId))
+    RuleTagDraft.batchInsert(tagRelations)
 
     find(entity.id.get)
       .toRight(

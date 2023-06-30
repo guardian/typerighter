@@ -1,6 +1,7 @@
 package service
 
 import play.api.Logging
+
 import java.io._
 import java.util.Collections
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential
@@ -10,7 +11,7 @@ import com.google.api.services.sheets.v4.{Sheets, SheetsScopes}
 
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
-import db.DbRuleDraft
+import db.{DbRuleDraft, Tag, Tags}
 
 object PatternRuleCols {
   val Type = 0
@@ -46,6 +47,8 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
     credentials
   ).setApplicationName(APPLICATION_NAME).build
 
+  private var availableTags: List[Tag] = List.empty
+
   def getRules(): Either[List[String], List[DbRuleDraft]] = {
     getPatternRules()
   }
@@ -61,6 +64,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
       sheetRange: String,
       rowToRule: (List[Object], Int) => Try[Option[RuleData]]
   ): Either[List[String], List[RuleData]] = {
+    availableTags = Tags.findAll()
     val response = service.spreadsheets.values
       .get(spreadsheetId, s"$sheetName!$sheetRange")
       .execute
@@ -98,7 +102,6 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
         "lt" -> "languageToolXML",
         "lt_core" -> "languageToolCore"
       ).get(ruleType.asInstanceOf[String])
-
       (maybeId, maybeIgnore, maybeRuleType) match {
         case (None, _, _) => Failure(new Exception(s"no id for rule (row: ${rowNumber})"))
         case (Some(id), _, _) if id.isEmpty =>
@@ -108,6 +111,20 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
         case (Some(_), None, _) =>
           Failure(new Exception(s"no Ignore column for rule (row: ${rowNumber})"))
         case (Some(id), Some(ignore), Some(ruleType)) =>
+          val tagNames = cellToOptionalString(row, PatternRuleCols.Tags)
+            .getOrElse("")
+            .split(",")
+            .toList
+            .map(_.trim)
+            .filter(_.nonEmpty)
+          val tagsToAdd = tagNames
+            .filter(tagName => !availableTags.exists(tag => tag.name == tagName))
+            .map(name => Tag(None, name))
+          if (tagsToAdd.size > 0) {
+            Tags.batchInsert(tagsToAdd)
+            availableTags = Tags.findAll()
+          }
+          val tagIds = tagNames.map(name => availableTags.find(tag => tag.name == name).get.id.get)
           Success(
             Some(
               DbRuleDraft.withUser(
@@ -116,7 +133,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
                 pattern = row.lift(PatternRuleCols.Pattern).asInstanceOf[Option[String]],
                 replacement = cellToOptionalString(row, PatternRuleCols.Replacement),
                 category = row.lift(PatternRuleCols.Category).asInstanceOf[Option[String]],
-                tags = cellToOptionalString(row, PatternRuleCols.Tags),
+                tags = tagIds,
                 description = row.lift(PatternRuleCols.Description).asInstanceOf[Option[String]],
                 ignore = if (ignore.toString == "TRUE") true else false,
                 notes = cellToOptionalString(row, PatternRuleCols.Notes),

@@ -10,7 +10,7 @@ import com.gu.typerighter.model.{
   RegexRule
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DbRuleDraft, DbRuleLive}
+import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
 import db.DbRuleDraft.autoSession
 import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
@@ -155,6 +155,7 @@ object RuleManager extends Loggable {
         .toEither
         .left
         .map(e => Seq(FormError("Error writing rule to live table", e.getMessage)))
+
       _ <- publishLiveRules(bucketRuleResource)
       allRuleData <- getAllRuleData(id)
         .toRight(Seq(FormError("Error reading rule from live table", "Rule not found")))
@@ -234,6 +235,8 @@ object RuleManager extends Loggable {
       incomingRules: List[DbRuleDraft],
       bucketRuleResource: BucketRuleResource
   ): Either[Seq[FormError], CheckerRuleResource] = {
+    RuleTagDraft.destroyAll()
+    RuleTagLive.destroyAll()
     DbRuleDraft.destroyAll()
     DbRuleLive.destroyAll()
 
@@ -253,9 +256,12 @@ object RuleManager extends Loggable {
 
     val persistedRules = getDraftRules()
 
-    val persistedRulesToCompare = persistedRules.map(_.copy(id = None))
+    val persistedRulesToCompare =
+      persistedRules.map(rule => rule.copy(id = None, tags = rule.tags.sorted))
     val incomingRulesToCompare =
-      incomingRules.map(rule => rule.copy(id = None, isPublished = !rule.ignore))
+      incomingRules.map(rule =>
+        rule.copy(id = None, isPublished = !rule.ignore, tags = rule.tags.sorted)
+      )
 
     if (persistedRulesToCompare == incomingRulesToCompare) {
       publishLiveRules(bucketRuleResource)

@@ -1,19 +1,9 @@
 package db
 
-import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import scalikejdbc._
-import scalikejdbc.scalatest.AutoRollback
 
-class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
+class LiveRulesSpec extends RuleFixture with Matchers with DBTest {
   val r = DbRuleLive.syntax("r")
-
-  override def fixture(implicit session: DBSession) = {
-    sql"ALTER SEQUENCE rules_id_seq RESTART WITH 1".update().apply()
-    sql"insert into rules_live (rule_type, pattern, replacement, category, tags, description, notes, external_id, force_red_rule, advisory_rule, created_by, updated_by, is_active, rule_order) values (${"regex"}, ${"pattern"}, ${"replacement"}, ${"category"}, ${"someTags"}, ${"description"}, ${"notes"}, ${"googleSheetId"}, false, false, 'test.user', 'test.user', true, 1)"
-      .update()
-      .apply()
-  }
 
   behavior of "Live rules"
 
@@ -28,10 +18,19 @@ class LiveRulesSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback w
     allResults should be(List(maybeFound.get))
   }
 
+  it should "create a new rule" in { implicit session =>
+    val dbRuleLive = DbRuleLive.findRevision("googleSheetId", 0).get
+    val newRule = dbRuleLive.copy(revisionId = dbRuleLive.revisionId + 1)
+    val savedRule = DbRuleLive.create(newRule, "test.user").get
+    savedRule shouldBe newRule
+  }
+
   it should "perform batch insert" in { implicit session =>
     val entities = DbRuleLive.findAll()
+    RuleTagLive.destroyAll()
     DbRuleLive.destroyAll()
-    val batchInserted = DbRuleLive.batchInsert(entities)
-    batchInserted.size should be > (0)
+    DbRuleLive.batchInsert(entities)
+    val batchInserted = DbRuleLive.findAll()
+    batchInserted shouldBe entities
   }
 }

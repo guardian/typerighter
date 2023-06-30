@@ -28,6 +28,7 @@ import {DraftRule} from "./hooks/useRule";
 import {getRuleState, getRuleStateColour} from "../utils/rule";
 import {capitalize} from "lodash";
 import {euiTextTruncate} from "@elastic/eui/src/global_styling/mixins/_typography";
+import {TagMap, useTags} from "./hooks/useTags";
 
 const sorting = {
   sort: {
@@ -54,7 +55,7 @@ const TagWrapContainer = styled.div`
   width: 100%;
  `;
 
-const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<DraftRule>> => {
+const createColumns = (tags: TagMap, editRule: (ruleId: number) => void): Array<EuiBasicTableColumn<DraftRule>> => {
   const hasEditPermissions = useCreateEditPermissions();
   return [
     {
@@ -83,10 +84,12 @@ const createColumns = (editRule: (ruleId: number) => void): Array<EuiBasicTableC
     {
       field: 'tags',
       name: 'Tags',
-      render: (value: string) => value ?
-        <TagWrapContainer>{value.split(',').map(tagName =>
-          <span style={{width: '100%'}}><EuiBadge key={tagName}>{tagName}</EuiBadge></span>
-        )}</TagWrapContainer> : undefined,
+      render: (value: number[]) => value ?
+        <TagWrapContainer>{value.map(tagId =>
+          <span style={{width: '100%'}} key={tagId}>
+            <EuiBadge>{tags[tagId.toString()]?.name ?? "Unknown tag"}</EuiBadge>
+          </span>
+        )}</TagWrapContainer> : <></>,
       width: '13.2%'
     },
     {
@@ -144,8 +147,8 @@ const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
 }))
 
 const RulesTable = () => {
+  const {tags, fetchTags} = useTags();
   const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
-
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
   const [selectedRules, setSelectedRules] = useState<DraftRule[]>([]);
@@ -171,7 +174,7 @@ const RulesTable = () => {
     setFormMode(ruleId ? 'edit' : 'create');
   }
 
-  const columns = createColumns(openEditRulePanel);
+  const columns = createColumns(tags, openEditRulePanel);
 
   const onSelectionChange = (selectedRules: DraftRule[]) => {
     setSelectedRules(selectedRules);
@@ -195,6 +198,11 @@ const RulesTable = () => {
     rule.id === currentRuleId && {
       isSelected: true
     }, [currentRuleId])
+  
+  const handleRefreshRules = async () => {
+    await refreshRules();
+    await fetchTags();
+  }
 
   return <>
     <EuiFlexGroup>
@@ -204,7 +212,7 @@ const RulesTable = () => {
         </EuiTitle>
       </EuiFlexItem>
       <EuiFlexItem grow={false}>
-        <EuiButton size="s" fill={true} color={"primary"} onClick={() => refreshRules()} isLoading={isRefreshing}>
+        <EuiButton size="s" fill={true} color={"primary"} onClick={handleRefreshRules} isLoading={isRefreshing}>
           Refresh{isRefreshing ? "ing" : ""} rules
         </EuiButton>
       </EuiFlexItem>
@@ -253,6 +261,7 @@ const RulesTable = () => {
       {formMode !== 'closed' && (
         <EuiFlexItem grow={1}>
           <RuleForm
+            tags={tags}
             onClose={() => {
               setFormMode('closed');
               fetchRules();
