@@ -3,6 +3,7 @@ import { EuiPageTemplate, EuiProvider } from "@elastic/eui";
 import { Header } from "./Header";
 import { Rules } from "../pages/Rules";
 import { euiThemeOverrides } from "../../constants/euiTheme";
+import { Routes, Route } from 'react-router-dom';
 
 import createCache from "@emotion/cache";
 import { FeatureSwitchesProvider } from "../context/featureSwitches";
@@ -17,16 +18,21 @@ const cache = createCache({
 });
 
 export const Page = () => (
-  <PageDataProvider>
-    <FeatureSwitchesProvider>
-      <EuiProvider modify={euiThemeOverrides} cache={cache}>
-        <EuiPageTemplate>
-          <Header />
-          <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
-            <RulesTable />
-          </EuiPageTemplate.Section>
-        </EuiPageTemplate>
-      </EuiProvider>
-    </FeatureSwitchesProvider>
-  </PageDataProvider>
+  <Routes>
+    <Route path="/" element={
+      <PageDataProvider>
+        <FeatureSwitchesProvider>
+          <EuiProvider modify={euiThemeOverrides} cache={cache}>
+            <EuiPageTemplate>
+              <Header />
+              <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
+                <RulesTable />
+              </EuiPageTemplate.Section>
+            </EuiPageTemplate>
+          </EuiProvider>
+        </FeatureSwitchesProvider>
+      </PageDataProvider>
+      } 
+    />
+  </Routes>
 );
