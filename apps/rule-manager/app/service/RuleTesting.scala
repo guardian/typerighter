@@ -50,7 +50,7 @@ class RuleTesting(
       rule: DbRuleDraft,
       query: TestRuleCapiQuery,
       matchCount: Int = 10,
-      maxPageCount: Int = 20
+      maxPageCount: Int = 100
   )(implicit ec: ExecutionContext): Source[PaginatedCheckRuleResult, NotUsed] = {
     class PaginatedContentQuery(pageLimit: Int) {
       var currentPage = 1
@@ -71,7 +71,10 @@ class RuleTesting(
     val readFromResource = (paginatedQuery: PaginatedContentQuery) =>
       if (paginatedQuery.hasNext) {
         paginatedQuery.nextPage().map(Some.apply)
-      } else Future.successful(None)
+      } else {
+        log.info(s"No more pages to fetch")
+        Future.successful(None)
+      }
     val closeResource = (_: PaginatedContentQuery) => Future.successful(Done)
 
     Source
@@ -88,7 +91,12 @@ class RuleTesting(
           .lazyFutureSource(() => testRule(rule, documents))
           .map(source => PaginatedCheckRuleResult(page, maxPageCount, source))
       }
-      .take(matchCount)
+      // Maintain a count of the matches so we can stop once our limit is reached
+      .scan((0, Option.empty[PaginatedCheckRuleResult])) { case ((count, _), result) =>
+        (count + result.result.matches.size, Some(result))
+      }
+      .takeWhile { case (count, _) => count <= matchCount }
+      .mapConcat { case (_, result) => result }
       // Adding a buffer that accepts a single element ensures that we apply backpressure
       // to the resource that's fetching our CAPI documents when we're checking downstream.
       .withAttributes(Attributes.inputBuffer(initial = 1, max = 1))
@@ -133,7 +141,7 @@ class RuleTesting(
                 .mapConcat { str =>
                   Json.parse(str.utf8String).validate[CheckSingleRuleResult] match {
                     case JsSuccess(value, _) =>
-                      log.error(
+                      log.info(
                         s"Received ${value.matches.length} matches from checker service${value.percentageRequestComplete
                             .map(p => s", $p% complete")
                             .getOrElse("")}"

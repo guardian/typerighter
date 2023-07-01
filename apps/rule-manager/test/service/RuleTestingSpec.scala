@@ -138,11 +138,12 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
   it should "stop polling CAPI once the match count is reached" in {
     val desiredMatchCount = 6
-    val responses = List.fill(3)(CAPI.searchResponseWithBodyField).iterator
-    // Respond with six matches over two documents, hitting our match limit
+    val responses = List.fill(4)(CAPI.searchResponseWithBodyField).iterator
+    // Respond with seven matches over three documents, hitting our match limit
     val matches = List(
       List.fill(desiredMatchCount / 2)(checkResultWithSingleMatch),
-      List.fill(desiredMatchCount / 2)(checkResultWithSingleMatch)
+      List.fill(desiredMatchCount / 2)(checkResultWithSingleMatch),
+      List.fill(1)(checkResultWithSingleMatch)
     )
     val matchesIterator = matches.iterator
 
@@ -164,7 +165,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       matchesIterator.hasNext shouldBe false
       responses.hasNext shouldBe false
 
-      val expectedResult = matches.flatten.zipWithIndex.map { case (result, index) =>
+      val expectedResult = matches.take(2).flatten.zipWithIndex.map { case (result, index) =>
         PaginatedCheckRuleResult(if (index < 3) 1 else 2, 6, result)
       }
 

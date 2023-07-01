@@ -1,7 +1,6 @@
 package controllers
 
 import com.gu.contentapi.json.CirceEncoders._
-import com.gu.contentapi.json.CirceDecoders._
 import io.circe.syntax._
 import play.api.mvc._
 import com.gu.typerighter.controllers.PandaAuthController
