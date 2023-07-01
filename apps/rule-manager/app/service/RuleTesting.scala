@@ -19,6 +19,16 @@ case class TestRuleCapiQuery(
     sections: List[String] = List.empty
 )
 
+case class PaginatedCheckRuleResult(
+    currentPage: Int,
+    maxPages: Int,
+    result: CheckSingleRuleResult
+)
+
+object PaginatedCheckRuleResult {
+  implicit val formats: Format[PaginatedCheckRuleResult] = Json.format[PaginatedCheckRuleResult]
+}
+
 object TestRuleCapiQuery {
   implicit val format: Format[TestRuleCapiQuery] = Json.format[TestRuleCapiQuery]
 }
@@ -34,7 +44,7 @@ class RuleTesting(
     extends Loggable {
 
   /** Test a rule against a given CAPI query. Paginates through CAPI content to return matches
-    * until:
+    * until either:
     *   - `matchCount` is met.
     *   - `maxPageCount` is met.
     */
@@ -43,21 +53,21 @@ class RuleTesting(
       query: TestRuleCapiQuery,
       matchCount: Int = 10,
       maxPageCount: Int = 20
-  )(implicit ec: ExecutionContext): Source[RuleMatch, NotUsed] = {
+  )(implicit ec: ExecutionContext): Source[PaginatedCheckRuleResult, NotUsed] = {
     // The stream graph in this function looks like:
     // [Stream per document check][] ~> HubSink ~> ResultSink ~> ResultSource
 
     // We must materialise a MergeHub to access its sink. We connect it to
     // this Sink/Source pair to provide a Source[RuleMatch, NotUsed] for the
     // function output.
+    //var checkComplete = false
     val (resultSink, resultSource) =
       Source
-        .asSubscriber[CheckSingleRuleResult]
-        .mapConcat { _.matches }
+        .asSubscriber[PaginatedCheckRuleResult]
         .take(matchCount)
         // Connect the resultSink to the resultSource.
         // See https://discuss.lightbend.com/t/create-source-from-sink-and-vice-versa/605/6
-        .toMat(Sink.asPublisher[RuleMatch](fanout = false))(Keep.both)
+        .toMat(Sink.asPublisher[PaginatedCheckRuleResult](fanout = false))(Keep.both)
         .mapMaterializedValue { case (sub, pub) =>
           (Sink.fromSubscriber(sub), Source.fromPublisher(pub))
         }
@@ -67,7 +77,7 @@ class RuleTesting(
     // streams produced by `testRule`, and passing the output on to the `resultSink`.
     // `killSwitch` lets us manually terminate the stream.
     val (hubSink, killSwitch) = MergeHub
-      .source[CheckSingleRuleResult](perProducerBufferSize = 16)
+      .source[PaginatedCheckRuleResult](perProducerBufferSize = 16)
       .viaMat(KillSwitches.single)(Keep.both)
       .to(resultSink)
       .run()
@@ -80,8 +90,9 @@ class RuleTesting(
         response =>
           val documents = response.results.map(Document.fromCapiContent).toList
 
-          val streamCompleteCallbackSink = Sink.onComplete { _ =>
+          val checkStreamCompleteSink = Sink.onComplete { _ =>
             log.info(s"Page $page complete")
+
             if (page == maxPageCount) {
               log.info(s"Checked $page pages, shutting down stream")
               killSwitch.shutdown()
@@ -93,7 +104,8 @@ class RuleTesting(
           // Stream the results into our hub sink.
           testRule(rule, documents).map { ruleSource =>
             ruleSource
-              .alsoTo(streamCompleteCallbackSink)
+              .map(result => PaginatedCheckRuleResult(page, maxPageCount, result))
+              .alsoTo(checkStreamCompleteSink)
               .runWith(hubSink)
           }
       }
