@@ -24,33 +24,31 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
   implicit val materializer: Materializer = Materializer(as)
   private implicit val ec = ExecutionContext.global
 
-  /**
-    * Mock responses from our CAPI client and checker service when parsing responses.
+  /** Mock responses from our CAPI client and checker service when parsing responses.
     *
-    * The responses and matches are passed as iterators to allow us to assert their state
-    * when tests are finished running – to check that they've been consumed.
+    * The responses and matches are passed as iterators to allow us to assert their state when tests
+    * are finished running – to check that they've been consumed.
     */
   def withRuleTestingClient[T](
       searchResponses: Iterator[SearchResponse] = List.empty.iterator,
       matchResponses: Iterator[Seq[CheckSingleRuleResult]]
   )(block: RuleTesting => T): T = {
-    Server.withRouterFromComponents() { cs => {
-      case GET(p"/checkSingle") =>
-          cs.defaultActionBuilder { _ =>
-            Ok.chunked(
-              Source(matchResponses.next()).map(result =>
-                JsonHelpers.toJsonSeq(result)
-              )
-            )
-            .as("application/json-seq")
-          }
+    Server.withRouterFromComponents() { cs =>
+      { case GET(p"/checkSingle") =>
+        cs.defaultActionBuilder { _ =>
+          Ok.chunked(
+            Source(matchResponses.next()).map(result => JsonHelpers.toJsonSeq(result))
+          ).as("application/json-seq")
         }
-      } { implicit port =>
+      }
+    } { implicit port =>
       WsTestClient.withClient { client =>
         val hmacClient = new HMACClient("TEST", secretKey = "🤫")
         val contentClient = mock[ContentClient]
         if (searchResponses.nonEmpty) {
-          when(contentClient.searchContent(any, any, any, any)(any)) thenAnswer(_ => Future.successful(searchResponses.next()))
+          when(contentClient.searchContent(any, any, any, any)(any)) thenAnswer (_ =>
+            Future.successful(searchResponses.next())
+          )
         }
 
         block(new RuleTesting(client, hmacClient, contentClient, ""))
@@ -68,7 +66,8 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
     matches = List.empty,
     percentageRequestComplete = Some(100)
   )
-  val checkResultWithSingleMatch = CheckSingleRuleResult(List(RuleMatchFixtures.getRuleMatch(0, 10)), Some(100))
+  val checkResultWithSingleMatch =
+    CheckSingleRuleResult(List(RuleMatchFixtures.getRuleMatch(0, 10)), Some(100))
   val exampleQuery = TestRuleCapiQuery("An example query")
 
   it should "handle an empty stream" in {
@@ -111,7 +110,14 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
     withRuleTestingClient(searchResponses = responses, matchResponses = matches) { client =>
       val eventualResult =
-        client.testRuleWithCapiQuery(rule = exampleRule, query = exampleQuery, matchCount = 5, maxPageCount = desiredPageCount).runWith(Sink.seq)
+        client
+          .testRuleWithCapiQuery(
+            rule = exampleRule,
+            query = exampleQuery,
+            matchCount = 5,
+            maxPageCount = desiredPageCount
+          )
+          .runWith(Sink.seq)
       val result = Await.result(eventualResult, 60 seconds)
 
       // We should have exhausted both iterators, to show we
@@ -130,10 +136,9 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
     }
   }
 
-
   it should "stop polling CAPI once the match count is reached" in {
     val desiredMatchCount = 6
-    val responses = List.fill(2)(CAPI.searchResponseWithBodyField).iterator
+    val responses = List.fill(3)(CAPI.searchResponseWithBodyField).iterator
     // Respond with six matches over two documents, hitting our match limit
     val matches = List(
       List.fill(desiredMatchCount / 2)(checkResultWithSingleMatch),
@@ -143,7 +148,14 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
     withRuleTestingClient(searchResponses = responses, matchResponses = matchesIterator) { client =>
       val eventualResult =
-        client.testRuleWithCapiQuery(rule = exampleRule, query = exampleQuery, matchCount = desiredMatchCount, maxPageCount = 6).runWith(Sink.seq)
+        client
+          .testRuleWithCapiQuery(
+            rule = exampleRule,
+            query = exampleQuery,
+            matchCount = desiredMatchCount,
+            maxPageCount = 6
+          )
+          .runWith(Sink.seq)
       val result = Await.result(eventualResult, 60 seconds)
 
       // We should have exhausted both iterators, to show we
@@ -152,9 +164,8 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       matchesIterator.hasNext shouldBe false
       responses.hasNext shouldBe false
 
-      val expectedResult = matches.flatten.zipWithIndex.map {
-        case (result, index) =>
-          PaginatedCheckRuleResult(if (index < 3) 1 else 2, 6, result)
+      val expectedResult = matches.flatten.zipWithIndex.map { case (result, index) =>
+        PaginatedCheckRuleResult(if (index < 3) 1 else 2, 6, result)
       }
 
       result shouldBe expectedResult

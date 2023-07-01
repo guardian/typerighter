@@ -1,12 +1,11 @@
 package service
 
-import akka.stream.Materializer
+import akka.stream.Attributes
+import akka.{Done, NotUsed}
+import akka.stream.scaladsl.Source
 import play.api.libs.ws.WSClient
 import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
-import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document, RuleMatch}
-import akka.NotUsed
-import akka.stream.KillSwitches
-import akka.stream.scaladsl.{Keep, MergeHub, Sink, Source}
+import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document}
 import db.DbRuleDraft
 import play.api.libs.json.{Format, JsError, JsSuccess, Json}
 
@@ -40,11 +39,10 @@ class RuleTesting(
     hmacClient: HMACClient,
     contentClient: ContentClient,
     checkerUrl: String
-)(implicit materializer: Materializer)
-    extends Loggable {
+) extends Loggable {
 
-  /** Test a rule against a given CAPI query. Paginates through CAPI content to return matches
-    * until either:
+  /** Test a rule against a given CAPI query. Paginates through CAPI content to return matches until
+    * either:
     *   - `matchCount` is met.
     *   - `maxPageCount` is met.
     */
@@ -54,66 +52,46 @@ class RuleTesting(
       matchCount: Int = 10,
       maxPageCount: Int = 20
   )(implicit ec: ExecutionContext): Source[PaginatedCheckRuleResult, NotUsed] = {
-    // The stream graph in this function looks like:
-    // [Stream per document check][] ~> HubSink ~> ResultSink ~> ResultSource
-
-    // We must materialise a MergeHub to access its sink. We connect it to
-    // this Sink/Source pair to provide a Source[RuleMatch, NotUsed] for the
-    // function output.
-    //var checkComplete = false
-    val (resultSink, resultSource) =
-      Source
-        .asSubscriber[PaginatedCheckRuleResult]
-        .take(matchCount)
-        // Connect the resultSink to the resultSource.
-        // See https://discuss.lightbend.com/t/create-source-from-sink-and-vice-versa/605/6
-        .toMat(Sink.asPublisher[PaginatedCheckRuleResult](fanout = false))(Keep.both)
-        .mapMaterializedValue { case (sub, pub) =>
-          (Sink.fromSubscriber(sub), Source.fromPublisher(pub))
+    class PaginatedContentQuery(pageLimit: Int) {
+      var currentPage = 1
+      def hasNext = currentPage <= pageLimit
+      def nextPage(): Future[(Int, List[Document])] = {
+        log.info(s"Fetching content page $currentPage/$maxPageCount")
+        val pageToFetch = currentPage
+        currentPage = currentPage + 1
+        contentClient.searchContent(query.queryStr, query.tags, query.sections, pageToFetch).map {
+          response =>
+            log.info(s"Received content page $pageToFetch/$maxPageCount")
+            (pageToFetch, response.results.map(Document.fromCapiContent).toList)
         }
-        .run()
-
-    // The MergeHub sink is responsible for receiving input from arbitrary numbers of
-    // streams produced by `testRule`, and passing the output on to the `resultSink`.
-    // `killSwitch` lets us manually terminate the stream.
-    val (hubSink, killSwitch) = MergeHub
-      .source[PaginatedCheckRuleResult](perProducerBufferSize = 16)
-      .viaMat(KillSwitches.single)(Keep.both)
-      .to(resultSink)
-      .run()
-
-    /** Check the next page of content, forwarding the results to the `hubSink` stream.
-      */
-    def checkNextPage: Int => Future[NotUsed] = (page: Int) => {
-      log.info(s"Checking page $page/$maxPageCount")
-      contentClient.searchContent(query.queryStr, query.tags, query.sections, page).flatMap {
-        response =>
-          val documents = response.results.map(Document.fromCapiContent).toList
-
-          val checkStreamCompleteSink = Sink.onComplete { _ =>
-            log.info(s"Page $page complete")
-
-            if (page == maxPageCount) {
-              log.info(s"Checked $page pages, shutting down stream")
-              killSwitch.shutdown()
-            } else {
-              checkNextPage(page + 1)
-            }
-          }
-
-          // Stream the results into our hub sink.
-          testRule(rule, documents).map { ruleSource =>
-            ruleSource
-              .map(result => PaginatedCheckRuleResult(page, maxPageCount, result))
-              .alsoTo(checkStreamCompleteSink)
-              .runWith(hubSink)
-          }
       }
     }
 
-    checkNextPage(1)
+    val createResource = () => Future.successful(new PaginatedContentQuery(maxPageCount))
+    val readFromResource = (paginatedQuery: PaginatedContentQuery) =>
+      if (paginatedQuery.hasNext) {
+        paginatedQuery.nextPage().map(Some.apply)
+      } else Future.successful(None)
+    val closeResource = (_: PaginatedContentQuery) => Future.successful(Done)
 
-    resultSource
+    Source
+      // Create a stream that produces pages of CAPI content
+      .unfoldResourceAsync[(Int, List[Document]), PaginatedContentQuery](
+        createResource,
+        readFromResource,
+        closeResource
+      )
+      // Check each page of documents, merging the resulting stream from `testRule`
+      .flatMapConcat { case (page, documents) =>
+        // The lazy source ensures that we only trigger `testRule` when there is demand
+        Source
+          .lazyFutureSource(() => testRule(rule, documents))
+          .map(source => PaginatedCheckRuleResult(page, maxPageCount, source))
+      }
+      .take(matchCount)
+      // Adding a buffer that accepts a single element ensures that we apply backpressure
+      // to the resource that's fetching our CAPI documents when we're checking downstream.
+      .withAttributes(Attributes.inputBuffer(initial = 1, max = 1))
   }
 
   /** Test a rule against the given list of documents. Return a list of matches from the checker
@@ -125,8 +103,8 @@ class RuleTesting(
     RuleManager.liveDbRuleToCheckerRule(liveRule).toOption match {
       case Some(rule) =>
         val path = "/checkSingle"
+        val url = s"$checkerUrl$path"
         val headers = hmacClient.getHMACHeaders(path)
-        val url = checkerUrl + path
         val requestId = UUID.randomUUID().toString()
         val checkSingleRule = CheckSingleRule(
           requestId = requestId,
@@ -154,7 +132,13 @@ class RuleTesting(
                 .via(JsonHelpers.JsonSeqFraming)
                 .mapConcat { str =>
                   Json.parse(str.utf8String).validate[CheckSingleRuleResult] match {
-                    case JsSuccess(value, _) => Some(value)
+                    case JsSuccess(value, _) =>
+                      log.error(
+                        s"Received ${value.matches.length} matches from checker service${value.percentageRequestComplete
+                            .map(p => s", $p% complete")
+                            .getOrElse("")}"
+                      )
+                      Some(value)
                     case JsError(error) =>
                       log.error(s"Error parsing checker result: ${error.toString}")
                       None
