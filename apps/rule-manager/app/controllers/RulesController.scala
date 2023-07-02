@@ -136,13 +136,18 @@ class RulesController(
           .fold(
             formWithErrors => {
               val errors = formWithErrors.errors
+              println("errors", errors)
               BadRequest(Json.toJson(errors))
             },
             formRule => {
               val ids = formRule.ids
               val category = formRule.fields.category
               val tags = formRule.fields.tags
-              DbRuleDraft.batchUpdate(ids, category, tags, request.user.email) match {
+
+              val updatedCategory = category.filter(_.nonEmpty)
+              val updatedTags = tags.filter(_.nonEmpty)
+
+              DbRuleDraft.batchUpdate(ids, updatedCategory, updatedTags, request.user.email) match {
                 case Failure(e)     => InternalServerError(e.getMessage())
                 case Success(rules) => Ok(Json.toJson(rules))
               }

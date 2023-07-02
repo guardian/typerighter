@@ -302,29 +302,88 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       case Left(result) => Left(result)
     }
   }
-  def batchUpdate(ids: List[Int], category: String, tags: List[Int], user: String)(implicit
-      session: DBSession = autoSession
-  ): Try[List[DbRuleDraft]] = {
+
+//  def batchUpdate(ids: List[Int], category: Option[String], tags: Option[List[Int]], user: String)(implicit session: DBSession = autoSession): Try[List[DbRuleDraft]] = {
+//    Try {
+//      withSQL {
+//        val updateColumns = if (category.isDefined && tags.isDefined) {
+//          val newTags = tags.toList.flatten.map(tagId => RuleTagDraft(ids.head, tagId))
+//          ids.map(id => RuleTagDraft.destroyForRule(id))
+//          newTags.map(tags => RuleTagDraft.batchInsert(tags))
+//
+//          update(DbRuleDraft)
+//            .set(
+//              column.category -> category.get,
+//              column.updatedBy -> user,
+//              column.revisionId -> sqls"${column.revisionId} + 1"
+//            )
+//            .where
+//            .in(column.id, ids)
+//        } else if (category.isDefined) {
+//          update(DbRuleDraft)
+//            .set(
+//              column.category -> category.get,
+//              column.updatedBy -> user,
+//              column.revisionId -> sqls"${column.revisionId} + 1"
+//            )
+//            .where
+//            .in(column.id, ids)
+//        } else if (tags.isDefined) {
+//          val newTags = ids.map(id => tags.toList.flatten.map(tagId => RuleTagDraft(id, tagId)))
+//          ids.map(id =>  RuleTagDraft.destroyForRule(id))
+//          newTags.map(tags => RuleTagDraft.batchInsert(tags))
+//
+//          update(DbRuleDraft)
+//          .set(
+//            column.updatedBy -> user,
+//            column.revisionId -> sqls"${column.revisionId} + 1"
+//          )
+//          .where
+//          .in(column.id, ids)
+//        } else {
+//          throw new IllegalArgumentException("No update fields provided")
+//        }
+//
+//        updateColumns
+//      }.update().apply()
+//      val rules = findRules(ids)
+//      rules
+//    }
+//  }
+
+  def batchUpdate(ids: List[Int], category: Option[String], tags: Option[List[Int]], user: String)(implicit session: DBSession = autoSession): Try[List[DbRuleDraft]] = {
     Try {
-      withSQL {
+      val updateColumns = if (category.isDefined) {
         update(DbRuleDraft)
           .set(
-            column.category -> category,
+            column.category -> category.get,
             column.updatedBy -> user,
             column.revisionId -> sqls"${column.revisionId} + 1"
           )
           .where
           .in(column.id, ids)
-      }.update().apply()
+      } else {
+        update(DbRuleDraft)
+          .set(
+            column.updatedBy -> user,
+            column.revisionId -> sqls"${column.revisionId} + 1"
+          )
+          .where
+          .in(column.id, ids)
+      }
 
-      val newTag = ids.flatMap(ruleId => tags.map(tagId => RuleTagDraft(ruleId, tagId)))
-      RuleTagDraft.batchInsert(newTag)
+      tags.foreach { tagList =>
+        ids.foreach(RuleTagDraft.destroyForRule)
+        val newTags = ids.flatMap(id => tagList.map(tagId => RuleTagDraft(id, tagId)))
+        RuleTagDraft.batchInsert(newTags)
+      }
 
+      withSQL(updateColumns).update().apply()
       val rules = findRules(ids)
-
       rules
     }
   }
+
 
   def batchInsert(
       entities: collection.Seq[DbRuleDraft]

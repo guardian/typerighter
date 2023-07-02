@@ -8,6 +8,8 @@ import {
 } from "../../utils/api";
 import { errorToString } from "../../utils/error";
 import { FormError } from "../RuleForm";
+import {getRuleState, RuleState} from "../../utils/rule";
+import {update} from "lodash";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -55,7 +57,6 @@ export type RuleData = {
 export function useBatchRules(ruleIds: number[] | undefined) {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [publishValidationErrors, setPublishValidationErrors] = useState<FormError[] | undefined>(undefined);
   const [errors, setErrors] = useState<string | undefined>(undefined);
   const [rules, setRules] = useState<RuleData[] | undefined>(undefined);
 
@@ -80,8 +81,23 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
   const updateRules = async (ruleForm: DraftRule[]) => {
     setIsLoading(true);
+    console.log('rules inside updateRules', rules)
+    console.log('ruleForm inside updateRules', ruleForm)
 
-    const formDataForApi = {
+    const hasCategoryChanged = rules && rules[0].draft.category !== ruleForm[0].category;
+
+    const haveTagsChanged = () => {
+        if (!rules) return false;
+        const oldTags = rules.map(rule => rule.draft.tags).flat()
+        const newTags = ruleForm.map(rule => rule.tags).flat()
+        return !(oldTags.length === newTags.length && oldTags.every((tag, index) => tag === newTags[index]))
+    }
+
+    const newTags = [...new Set(ruleForm.map(rule => rule.tags).flat())]
+
+    if (!ruleForm.some(rule => rule.id)) return {status: 'error', errorMessage: "Update endpoint requires a rule ID"} as ErrorIResponse;
+
+    const ruleFormData = {
       "ids": ruleForm.map(rule => {
         if (!rule.id) {
           throw new Error("Update endpoint requires a rule ID")
@@ -89,23 +105,31 @@ export function useBatchRules(ruleIds: number[] | undefined) {
         return rule.id
       }),
       "fields": {
-        "category": ruleForm[0].category,
-        "tags": ruleForm.map(rule => rule.tags),
+        ...(hasCategoryChanged ? { "category": ruleForm[0].category } : {}),
+        ...(haveTagsChanged() ? { "tags": newTags } : {})
       }
     }
+
+    console.log('formDataForApi', ruleFormData)
 
     const response = await fetch(`${location}rules/batch`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
       },
-      body: JSON.stringify(formDataForApi)
+      body: JSON.stringify(ruleFormData)
     })
-
 
     const parsedResponse = await responseHandler(response);
     if (parsedResponse.status === "ok") {
-      setRules({ ...rules, draft: parsedResponse.data});
+      if (rules) {
+        rules.map(rule => {
+          if (rule.draft.id === parsedResponse.data.id) {
+            return setRules({...rules, draft: parsedResponse.data});
+          }
+          return rule;
+        })
+      }
     } else {
       setErrors(parsedResponse.errorMessage);
     }

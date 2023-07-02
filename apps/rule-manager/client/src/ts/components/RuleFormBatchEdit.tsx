@@ -24,10 +24,11 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
 }) => {
     const [showErrors, setShowErrors] = useState(false);
     const { isLoading, errors, rules, fetchRules, updateRules } = useBatchRules(ruleIds);
-    const [ruleFormData, setRuleFormData] = useState(rules ?? [baseForm])
-    const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
+    const [ruleFormData, setRuleFormData] = useState<DraftRule[]>([baseForm])
+    const [ formErrors, setFormErrors ] = useState<FormError[]>([])
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
+        console.log('partial replacement', partialReplacement)
         const updatedRules = ruleFormData.map(rule => ({
             ...rule,
             ...partialReplacement
@@ -36,16 +37,10 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
     };
 
     useEffect(() => {
-    }, [ruleFormData])
-
-    useEffect(() => {
         if (rules) {
-            setRuleFormData(rules.map(rule => rule.draft));
+            setRuleFormData(rules.map(rule => rule.draft) as DraftRule[]);
             // rules.draft.id && validateRules(rules.draft.id);
-        } else {
-            setRuleFormData(baseForm);
-            // resetPublishValidationErrors();
-        }
+            }
     }, [rules]);
 
     useEffect(() => {
@@ -64,14 +59,17 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
             return;
         }
 
-        const response = await updateRules(ruleFormData);
+        const response = await updateRules(ruleFormData as DraftRule[]);
 
         if (response.status === "ok" && response.data.id) {
             onUpdate(response.data.id);
         }
+
+        console.log('rule form data', ruleFormData.map(data => data.tags))
+        console.log('rules', rules && rules.map(rule => rule.draft.tags))
     };
 
-    const hasUnsavedChanges = ruleFormData !== rules?.draft;
+    const hasUnsavedChanges = rules && ruleFormData.some((data, index) => data !== rules[index].draft);
 
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
@@ -92,7 +90,7 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
                     }}>Close</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                    <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading} onClick={saveRuleHandler}>{ruleIds ? "Update Rule" : "Save Rule"}</EuiButton>
+                    <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading} onClick={saveRuleHandler}>{"Update Rule"}</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
