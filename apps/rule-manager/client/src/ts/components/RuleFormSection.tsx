@@ -14,7 +14,7 @@ const Title = styled.h2`
   font-weight: 700;
 `
 
-export const RuleFormSection = ({title, additionalInfo, children} : {title?: string, additionalInfo?: React.ReactNode, children: JSX.Element | JSX.Element[]}) => {
+export const RuleFormSection = ({title, additionalInfo, children} : {title?: string, additionalInfo?: React.ReactNode, children?: JSX.Element | JSX.Element[]}) => {
     return <EuiFlexItem css={css`
             background-color: #D3DAE6;
             padding-top: 12px;

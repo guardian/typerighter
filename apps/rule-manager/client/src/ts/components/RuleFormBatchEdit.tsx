@@ -62,7 +62,7 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
-            <RuleFormSection title="RULE CONTENT"/>
+            <RuleFormSection title="RULE CONTENT" />
             <RuleMetadata tags={tags} ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             <EuiFlexGroup gutterSize="m">
                 <EuiFlexItem>
