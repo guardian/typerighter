@@ -14,7 +14,8 @@ import {
   EuiHealth,
   EuiTableSelectionType,
   EuiBadge,
-  EuiText
+  EuiText,
+  EuiTableRow
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -150,6 +151,7 @@ const RulesTable = () => {
   const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
+  const [selectedRules, setSelectedRules] = useState<DraftRule[]>([]);
   const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
   const hasCreatePermissions = useCreateEditPermissions();
 
@@ -174,8 +176,6 @@ const RulesTable = () => {
 
   const columns = createColumns(tags, openEditRulePanel);
 
-  const [selectedRules, setSelectedRules] = useState<DraftRule[]>([]);
-
   const onSelectionChange = (selectedRules: DraftRule[]) => {
     setSelectedRules(selectedRules);
     openEditRulePanel(Number(selectedRules[0]?.id));
@@ -194,6 +194,11 @@ const RulesTable = () => {
     }
   }, [selectedRules])
 
+  const getRowProps = useMemo(() => (rule: DraftRule) =>
+    rule.id === currentRuleId && {
+      isSelected: true
+    }, [currentRuleId])
+  
   const handleRefreshRules = async () => {
     await refreshRules();
     await fetchTags();
@@ -238,7 +243,9 @@ const RulesTable = () => {
       <EuiFlexItem grow={2}>
         {rules &&
           <EuiInMemoryTable
-            loading={isLoading}
+            rowProps={getRowProps}
+	css={css`.euiTableRow.euiTableRow-isSelected { background-color: rgba(0, 119, 204, 0.1); }`}
+        loading={isLoading}
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
             itemId="id"
