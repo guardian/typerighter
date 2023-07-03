@@ -307,24 +307,15 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       implicit session: DBSession = autoSession
   ): Try[List[DbRuleDraft]] = {
     Try {
-      val updateColumns = if (category.isDefined) {
-        update(DbRuleDraft)
-          .set(
-            column.category -> category.get,
-            column.updatedBy -> user,
-            column.revisionId -> sqls"${column.revisionId} + 1"
-          )
-          .where
-          .in(column.id, ids)
-      } else {
-        update(DbRuleDraft)
-          .set(
-            column.updatedBy -> user,
-            column.revisionId -> sqls"${column.revisionId} + 1"
-          )
-          .where
-          .in(column.id, ids)
-      }
+      val fieldsToUpdate = List(
+        column.updatedBy -> user,
+        column.revisionId -> sqls"${column.revisionId} + 1"
+      ) ++ (if (category.isDefined) List(column.category -> category.get) else Nil)
+
+      val updateColumns = update(DbRuleDraft)
+        .set(fieldsToUpdate: _*)
+        .where
+        .in(column.id, ids)
 
       tags.foreach { tagList =>
         ids.foreach(RuleTagDraft.destroyForRule)
