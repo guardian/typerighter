@@ -45,7 +45,7 @@ flowchart LR
   manager--"Write rules"-->db
   db--"Read rules"--> manager
   manager--"Write rule artefact"-->s3
-  s3--"Read rule artefact"-->checker
+  checker--"Read rule artefact"-->s3
   client--"Request matches"-->checker
 
   owner-."Force manager to re-fetch sheet".->manager
