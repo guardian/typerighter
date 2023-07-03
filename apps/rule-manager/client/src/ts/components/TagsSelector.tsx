@@ -18,17 +18,8 @@ export const TagsSelector = ({tags, ruleData, partiallyUpdateRuleData}: {
     const options = tags ? Object.values(tags).map(tag => ({ label: tag.name, value: tag.id })) : [];
 
     const transformTags = (ruleData: DraftRule[]) => {
-        let seenTags = new Set<number>();
-        let uniqueTags:number[] = [];
-
-        ruleData.map(rule => rule.tags.map(tag => {
-            if (!seenTags.has(tag)) {
-                seenTags.add(tag);
-                uniqueTags.push(tag);
-            }
-        }))
-
-        return uniqueTags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
+        const uniqueTags = new Set(ruleData.flatMap(rule => rule.tags));
+        return [...uniqueTags].map(tag => ({label: tags[tag].name, value: tags[tag].id}));
     }
 
     const tagOptions = Array.isArray(ruleData) ? transformTags(ruleData) : ruleData.tags.map(tag => ({label: tags[tag].name, value: tags[tag].id}));
