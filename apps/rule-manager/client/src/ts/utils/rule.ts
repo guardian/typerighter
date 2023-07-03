@@ -34,4 +34,4 @@ const stateToColourMap: {[state in RuleState]: IconColor} = {
 }
 
 export const hasUnpublishedChanges = (ruleData: RuleData) =>
-  ruleData.live.length && !ruleData.live.some(liveRule => liveRule.revisionId === ruleData.draft.revisionId)
+  !!ruleData.live.length && !ruleData.live.some(liveRule => liveRule.revisionId === ruleData.draft.revisionId)

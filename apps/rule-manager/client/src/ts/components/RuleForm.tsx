@@ -182,7 +182,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
             <RuleStatus ruleData={rule} />
             <RuleContent tags={tags}  ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
             {rule && <RuleHistory ruleHistory={rule.live} />}
-            <EuiFlexGroup>
+            <EuiFlexGroup gutterSize="m">
             {
                 canEditRuleContent &&
                     <EuiFlexItem>

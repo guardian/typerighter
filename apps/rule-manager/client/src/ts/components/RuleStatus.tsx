@@ -25,7 +25,7 @@ export const RuleStatus = ({ruleData}: {
         <EuiText css={css`${euiTextTruncate()}`}>{state}</EuiText>
       </AnotherContainer>
       <UnpublishedChangesContainer>
-        {ruleData && hasUnpublishedChanges(ruleData) && <EuiTextColor color="subdued">Has unpublished changes</EuiTextColor>}
+        {!!ruleData && hasUnpublishedChanges(ruleData) && <EuiTextColor color="subdued">Has unpublished changes</EuiTextColor>}
       </UnpublishedChangesContainer>
     </RuleStatusContainer>
   </RuleFormSection>
