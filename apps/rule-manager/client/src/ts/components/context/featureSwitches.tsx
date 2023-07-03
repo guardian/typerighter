@@ -13,6 +13,11 @@ const allFeatureSwitches = [
     id: "create-and-edit",
     default: false,
   },
+  {
+    name: "Enable destructive reload from rules sheet",
+    id: "enable-destructive-reload",
+    default: false,
+  },
 ] as const;
 
 type FeatureSwitchIds = (typeof allFeatureSwitches)[number]["id"];
