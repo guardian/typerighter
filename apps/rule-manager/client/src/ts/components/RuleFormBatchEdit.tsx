@@ -7,14 +7,16 @@ import {
     EuiLoadingSpinner,
     EuiText,
 } from "@elastic/eui";
-import React, {ReactElement, useEffect, useState} from "react"
-import { RuleMetadata } from "./RuleMetadata";
+import React, {useEffect, useState} from "react"
 import {DraftRule} from "./hooks/useRule";
 
 import {useBatchRules} from "./hooks/useBatchRules";
 import {RuleFormSection} from "./RuleFormSection";
 import {TagMap} from "./hooks/useTags";
-import {baseForm, FormError, PartiallyUpdateRuleData, SpinnerContainer, SpinnerOuter, SpinnerOverlay} from "./RuleForm";
+import {baseForm, PartiallyUpdateRuleData, SpinnerContainer, SpinnerOuter, SpinnerOverlay} from "./RuleForm";
+import {LineBreak} from "./LineBreak";
+import {CategorySelector} from "./CategorySelector";
+import {TagsSelector} from "./TagsSelector";
 
 export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
     tags: TagMap,
@@ -22,8 +24,7 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
     onClose: () => void,
     onUpdate: () => void
 }) => {
-    const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, rules, fetchRules, updateRules } = useBatchRules(ruleIds);
+    const { isLoading, rules, updateRules } = useBatchRules(ruleIds);
     const [ruleFormData, setRuleFormData] = useState<DraftRule[]>([baseForm])
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
@@ -37,7 +38,7 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
     useEffect(() => {
         if (rules) {
             setRuleFormData(rules.map(rule => rule.draft) as DraftRule[]);
-            }
+        }
     }, [rules]);
 
     // We need the errors at the form level, so that we can prevent save etc. when there are errors
@@ -52,18 +53,25 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
         }
     };
 
-    const categoryHasChanged = rules?.some((rule, index) => rule.draft.category !== ruleFormData[index].category);
+    const categoryHasChanged = rules?.some((rule, index) => ruleFormData[index] && rule.draft.category !== ruleFormData[index].category);
     const tagsHaveChanged = rules?.some((rule, index) => (
-        rule.draft.tags.length !== ruleFormData[index].tags.length ||
-        !rule.draft.tags.every((tag, i) => tag === ruleFormData[index].tags[i])
+      ruleFormData[index] && (
+      rule.draft.tags.length !== ruleFormData[index].tags.length ||
+        !rule.draft.tags.every((tag, i) => tag === ruleFormData[index].tags[i]))
     ));
     const hasUnsavedChanges = !isLoading && (categoryHasChanged || tagsHaveChanged);
+
+    const uniqueTagIds = [...new Set(ruleFormData.flatMap(rule => rule.tags))];
 
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
             <RuleFormSection title="RULE CONTENT" />
-            <RuleMetadata tags={tags} ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            <RuleFormSection title="RULE METADATA">
+              <LineBreak/>
+              <CategorySelector currentCategory={ruleFormData[0]?.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+              <TagsSelector tags={tags} selectedTagIds={uniqueTagIds} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            </RuleFormSection>
             <EuiFlexGroup gutterSize="m">
                 <EuiFlexItem>
                     <EuiButton onClick={() => {
