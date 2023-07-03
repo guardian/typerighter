@@ -1,22 +1,26 @@
 import {EuiFieldText, EuiFlexItem, EuiFormLabel, EuiFormRow, EuiRadioGroup, EuiSpacer, EuiTextArea} from "@elastic/eui"
 import {css} from "@emotion/react";
 import React from "react"
-import {RuleFormSection} from "./RuleFormSection";
+import {RuleFormSection, SectionHeader, Title} from "./RuleFormSection";
 import {LineBreak} from "./LineBreak";
 import {PartiallyUpdateRuleData} from "./RuleForm";
 import {Label} from "./Label";
 import {DraftRule, RuleType} from "./hooks/useRule";
 import { LastUpdated } from "./LastUpdated";
+import {CategorySelector} from "./CategorySelector";
+import {TagsSelector} from "./TagsSelector";
+import {TagMap} from "./hooks/useTags";
 
 type RuleTypeOption = {
   id: RuleType,
   label: string,
 }
 
-export const RuleContent = ({ruleData, partiallyUpdateRuleData, showErrors}: {
+export const RuleContent = ({ruleData, partiallyUpdateRuleData, tags, showErrors}: {
         ruleData: DraftRule,
         partiallyUpdateRuleData: PartiallyUpdateRuleData,
-        showErrors: boolean
+        showErrors: boolean,
+        tags: TagMap
     }) => {
 
     const ruleTypeOptions: RuleTypeOption[] = [
@@ -31,10 +35,8 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, showErrors}: {
     ]
     const TextField = ruleData.ruleType === "languageToolXML" ? EuiTextArea : EuiFieldText;
 
-    return <RuleFormSection title="RULE CONTENT" additionalInfo={
-      ruleData.updatedAt &&
-      <LastUpdated lastUpdated={ruleData.updatedAt} />
-    }>
+    return <RuleFormSection title="RULE CONTENT" additionalInfo={ruleData.updatedAt &&
+  <LastUpdated lastUpdated={ruleData.updatedAt!} />} >
         <LineBreak/>
         <EuiFlexItem>
           <EuiFormLabel>Rule type</EuiFormLabel>
@@ -83,5 +85,12 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, showErrors}: {
                               fullWidth={true} />
             </EuiFormRow>
         </EuiFlexItem>
+      <EuiSpacer size="l"></EuiSpacer>
+      <SectionHeader>
+        <Title>RULE METADATA</Title>
+      </SectionHeader>
+      <LineBreak/>
+      <CategorySelector currentCategory={ruleData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+      <TagsSelector tags={tags} selectedTagIds={ruleData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
     </RuleFormSection>
 }

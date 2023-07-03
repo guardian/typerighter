@@ -1,4 +1,4 @@
-import {DraftRule} from "../components/hooks/useRule";
+import {DraftRule, RuleData} from "../components/hooks/useRule";
 import {IconColor} from "@elastic/eui/src/components/icon";
 
 export type RuleState = "live" | "archived" | "draft" | "error";
@@ -23,8 +23,8 @@ export const getRuleState = (rule: DraftRule | undefined): RuleState => {
   return "draft"
 }
 
-export const getRuleStateColour = (rule: DraftRule): IconColor =>
-  stateToColourMap[getRuleState(rule)];
+export const getRuleStateColour = (rule: DraftRule | undefined): IconColor =>
+  rule ? stateToColourMap[getRuleState(rule)] : stateToColourMap.draft;
 
 const stateToColourMap: {[state in RuleState]: IconColor} = {
   error: "danger",
@@ -32,3 +32,6 @@ const stateToColourMap: {[state in RuleState]: IconColor} = {
   archived: "danger",
   draft: "#DA8B45"
 }
+
+export const hasUnpublishedChanges = (ruleData: RuleData) =>
+  ruleData.live.length && !ruleData.live.some(liveRule => liveRule.revisionId === ruleData.draft.revisionId)

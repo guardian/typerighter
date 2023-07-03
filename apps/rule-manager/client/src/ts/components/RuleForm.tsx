@@ -21,6 +21,7 @@ import {LineBreak} from "./LineBreak";
 import {CategorySelector} from "./CategorySelector";
 import {TagsSelector} from "./TagsSelector";
 import {RuleFormSection} from "./RuleFormSection";
+import {RuleStatus} from "./RuleStatus";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -177,15 +178,11 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
 
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
-        {<EuiFlexGroup  direction="column">
-            <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
-            <RuleFormSection title="RULE METADATA">
-              <LineBreak/>
-              <CategorySelector currentCategory={ruleFormData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-              <TagsSelector tags={tags} selectedTagIds={ruleFormData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-            </RuleFormSection>
+        {<EuiFlexGroup gutterSize="m" direction="column">
+            <RuleStatus ruleData={rule} />
+            <RuleContent tags={tags}  ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
             {rule && <RuleHistory ruleHistory={rule.live} />}
-            <EuiFlexGroup gutterSize="m">
+            <EuiFlexGroup>
             {
                 canEditRuleContent &&
                     <EuiFlexItem>
