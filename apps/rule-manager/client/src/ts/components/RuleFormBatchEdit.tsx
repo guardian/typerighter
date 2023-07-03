@@ -86,7 +86,7 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
                     }}>Close</EuiButton>
                 </EuiFlexItem>
                 <EuiFlexItem>
-                    <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading} onClick={saveRuleHandler}>{"Update Rule"}</EuiButton>
+                    <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading} onClick={saveRuleHandler}>{"Update Rules"}</EuiButton>
                 </EuiFlexItem>
             </EuiFlexGroup>
         </EuiFlexGroup>}
