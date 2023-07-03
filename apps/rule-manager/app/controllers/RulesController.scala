@@ -142,7 +142,6 @@ class RulesController(
               val ids = formRule.ids
               val category = formRule.fields.category
               val tags = formRule.fields.tags
-
               val updatedCategory = category.filter(_.nonEmpty)
               val updatedTags = tags.filter(_.nonEmpty)
 

@@ -8,7 +8,7 @@ import {
   EuiText,
   EuiToolTip
 } from "@elastic/eui";
-import React, {ReactElement, useCallback, useEffect, useState} from "react"
+import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
 import { RuleMetadata } from "./RuleMetadata";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
