@@ -136,7 +136,6 @@ class RulesController(
           .fold(
             formWithErrors => {
               val errors = formWithErrors.errors
-              println("errors", errors)
               BadRequest(Json.toJson(errors))
             },
             formRule => {

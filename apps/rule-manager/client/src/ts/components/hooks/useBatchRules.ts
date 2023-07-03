@@ -11,13 +11,11 @@ import {DraftRule, RuleData} from "./useRule";
 
 export function useBatchRules(ruleIds: number[] | undefined) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
   const [errors, setErrors] = useState<string | undefined>(undefined);
   const [rules, setRules] = useState<RuleData[] | undefined>(undefined);
 
   const fetchRules = async (ruleIds: number[]) => {
     setIsLoading(true);
-    setIsValidating(true); // Mark the rule as pending validation until the server tells us otherwise
 
     try {
       const response = await fetch(`${location}rules/batch/${ruleIds.join(',')}`);
@@ -97,5 +95,5 @@ export function useBatchRules(ruleIds: number[] | undefined) {
     }
   }, [ruleIds])
 
-  return { fetchRule: fetchRules, updateRules, isLoading, errors, rules}
+  return { fetchRule: fetchRules, updateRules, rules}
 }

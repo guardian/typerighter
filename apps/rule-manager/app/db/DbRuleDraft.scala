@@ -303,55 +303,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     }
   }
 
-//  def batchUpdate(ids: List[Int], category: Option[String], tags: Option[List[Int]], user: String)(implicit session: DBSession = autoSession): Try[List[DbRuleDraft]] = {
-//    Try {
-//      withSQL {
-//        val updateColumns = if (category.isDefined && tags.isDefined) {
-//          val newTags = tags.toList.flatten.map(tagId => RuleTagDraft(ids.head, tagId))
-//          ids.map(id => RuleTagDraft.destroyForRule(id))
-//          newTags.map(tags => RuleTagDraft.batchInsert(tags))
-//
-//          update(DbRuleDraft)
-//            .set(
-//              column.category -> category.get,
-//              column.updatedBy -> user,
-//              column.revisionId -> sqls"${column.revisionId} + 1"
-//            )
-//            .where
-//            .in(column.id, ids)
-//        } else if (category.isDefined) {
-//          update(DbRuleDraft)
-//            .set(
-//              column.category -> category.get,
-//              column.updatedBy -> user,
-//              column.revisionId -> sqls"${column.revisionId} + 1"
-//            )
-//            .where
-//            .in(column.id, ids)
-//        } else if (tags.isDefined) {
-//          val newTags = ids.map(id => tags.toList.flatten.map(tagId => RuleTagDraft(id, tagId)))
-//          ids.map(id =>  RuleTagDraft.destroyForRule(id))
-//          newTags.map(tags => RuleTagDraft.batchInsert(tags))
-//
-//          update(DbRuleDraft)
-//          .set(
-//            column.updatedBy -> user,
-//            column.revisionId -> sqls"${column.revisionId} + 1"
-//          )
-//          .where
-//          .in(column.id, ids)
-//        } else {
-//          throw new IllegalArgumentException("No update fields provided")
-//        }
-//
-//        updateColumns
-//      }.update().apply()
-//      val rules = findRules(ids)
-//      rules
-//    }
-//  }
-
-  def batchUpdate(ids: List[Int], category: Option[String], tags: Option[List[Int]], user: String)(implicit session: DBSession = autoSession): Try[List[DbRuleDraft]] = {
+  def batchUpdate(ids: List[Int], category: Option[String], tags: Option[List[Int]], user: String)(
+      implicit session: DBSession = autoSession
+  ): Try[List[DbRuleDraft]] = {
     Try {
       val updateColumns = if (category.isDefined) {
         update(DbRuleDraft)
@@ -383,7 +337,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       rules
     }
   }
-
 
   def batchInsert(
       entities: collection.Seq[DbRuleDraft]

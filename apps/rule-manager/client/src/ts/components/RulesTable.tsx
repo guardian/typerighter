@@ -273,7 +273,7 @@ const RulesTable = () => {
                     setFormMode('closed');
                     fetchRules()
                   }}
-                  onUpdate={(ids) => {
+                  onUpdate={() => {
                     fetchRules();
                   }}
                   ruleIds={selectedRules.map(rule => rule.id) as number[]}
