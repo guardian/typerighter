@@ -244,7 +244,8 @@ const RulesTable = () => {
         {rules &&
           <EuiInMemoryTable
             rowProps={getRowProps}
-            loading={isLoading}
+	css={css`.euiTableRow.euiTableRow-isSelected { background-color: rgba(0, 119, 204, 0.1); }`}
+        loading={isLoading}
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
             itemId="id"
