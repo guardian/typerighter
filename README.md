@@ -43,7 +43,7 @@ flowchart LR
 
   sheet--"Get rules"-->manager
   manager--"Write rules"-->db
-  manager<--"Read rules"--db
+  db--"Read rules"--> manager
   manager--"Write rule artefact"-->s3
   s3--"Read rule artefact"-->checker
   client--"Request matches"-->checker
