@@ -1,8 +1,20 @@
-import { EuiFlexItem } from "@elastic/eui"
+import { EuiFlexItem, EuiTextColor } from "@elastic/eui"
 import { css } from "@emotion/react"
+import styled from "@emotion/styled"
 import React from "react"
 
-export const RuleFormSection = ({title, children} : {title?: string, children: JSX.Element | JSX.Element[]}) => {
+const SectionHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Title = styled.h2`
+  font-family: 'Guardian Agate Sans';
+  color: #1A1C21;
+  font-weight: 700;
+`
+
+export const RuleFormSection = ({title, additionalInfo, children} : {title?: string, additionalInfo?: React.ReactNode, children: JSX.Element | JSX.Element[]}) => {
     return <EuiFlexItem css={css`
             background-color: #D3DAE6;
             padding-top: 12px;
@@ -11,13 +23,10 @@ export const RuleFormSection = ({title, children} : {title?: string, children: J
             padding-right: 12px;
             border-radius: 4px;
         `}>
-        {
-            title ? <h2 style={{
-                fontFamily: 'Guardian Agate Sans',
-                color: '#1A1C21',
-                fontWeight: '700',
-            }}>{title}</h2> : null
-        }
+        <SectionHeader>
+            {title && <Title>{title}</Title>}
+            {additionalInfo && <EuiTextColor color="subdued">{additionalInfo}</EuiTextColor>}
+        </SectionHeader>
         {children}
     </EuiFlexItem>
 }

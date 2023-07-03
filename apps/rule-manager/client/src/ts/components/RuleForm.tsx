@@ -17,6 +17,7 @@ import styled from "@emotion/styled";
 import {capitalize} from "lodash";
 import { ReasonModal } from "./modals/Reason";
 import {TagMap} from "./hooks/useTags";
+import { useDebouncedValue } from "./hooks/useDebounce";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -42,6 +43,7 @@ const SpinnerContainer = styled.div`
 `;
 
 const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
+const formDebounceMs = 1000;
 
 export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         tags: TagMap,
@@ -50,9 +52,10 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         onUpdate: (id: number) => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, fetchRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
-    const [ formErrors, setFormErrors ] = useState<FormError[]>([]);
+    const debouncedFormData = useDebouncedValue(ruleFormData, 1000);
+    const [formErrors, setFormErrors] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
@@ -83,22 +86,25 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         }
     }, [errors])
 
-    // We need the errors at the form level, so that we can prevent save etc. when there are errors
-    // We need to be able to change the errors depending on which fields are invalid
-    // We need to be able to show errors on a field by field basis
+    /**
+     * Automatically save the form data when it changes. Debounces saves.
+     */
+    useEffect(() => {
+      if (debouncedFormData === rule?.draft) {
+        return;
+      }
 
-    const saveRuleHandler = async () => {
-      if(formErrors.length > 0 || errors && errors.length > 0) {
+      if (formErrors.length > 0 || errors && errors.length > 0) {
           setShowErrors(true);
           return;
       }
 
-      const response = await (ruleId ? updateRule(ruleFormData) : createRule(ruleFormData));
-
-      if (response.status === "ok" && response.data.id) {
-        onUpdate(response.data.id);
-      }
-    };
+      (ruleId ? updateRule(ruleFormData) : createRule(ruleFormData)).then(response => {
+        if (response.status === "ok" && response.data.id) {
+          onUpdate(response.data.id);
+        }
+      });
+    }, [debouncedFormData]);
 
     const maybePublishRuleHandler = () => {
       if (rule?.live.length) {
@@ -164,6 +170,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const hasUnsavedChanges = ruleFormData !== rule?.draft;
+    const canEditRuleContent = ruleState === 'draft' || ruleState === 'live';
 
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
@@ -171,8 +178,9 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
             <RuleMetadata tags={tags} ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             {rule && <RuleHistory ruleHistory={rule.live} />}
+            <EuiFlexGroup gutterSize="m">
             {
-                ruleState === 'draft' || ruleState === 'live' ? <EuiFlexGroup gutterSize="m">
+                canEditRuleContent &&
                     <EuiFlexItem>
                         <EuiButton onClick={() => {
                             const shouldClose = hasUnsavedChanges
@@ -185,40 +193,42 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                             setRuleFormData(baseForm);
                         }}>Close</EuiButton>
                     </EuiFlexItem>
+            }
+            {
+                ruleState === 'archived' &&
                     <EuiFlexItem>
-                        <EuiButton fill={true} isDisabled={!hasUnsavedChanges} isLoading={isLoading}
-                                   onClick={saveRuleHandler}>{ruleId ? "Update Rule" : "Save Rule"}</EuiButton>
+                        <EuiButton onClick={unarchiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                            Unarchive Rule
+                        </EuiButton>
                     </EuiFlexItem>
+            }
+            {
+                ruleState === 'draft' &&
+                    <EuiFlexItem>
+                        <EuiButton onClick={archiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                            Archive Rule
+                        </EuiButton>
+                    </EuiFlexItem>
+            }
+            {
+                ruleState === 'live' &&
+                    <EuiFlexItem>
+                        <EuiButton onClick={unpublishRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
+                            Unpublish Rule
+                        </EuiButton>
+                    </EuiFlexItem>
+            }
+            {
+                canEditRuleContent &&
                     <EuiFlexItem>
                         <PublishTooltip>
                             <EuiButton fill={true} disabled={!ruleId || isLoading || !!publishValidationErrors}
-                                       isLoading={isPublishing}
-                                       onClick={maybePublishRuleHandler}>{"Publish"}</EuiButton>
+                                        isLoading={isPublishing}
+                                        onClick={maybePublishRuleHandler}>{"Publish"}</EuiButton>
                         </PublishTooltip>
                     </EuiFlexItem>
-                </EuiFlexGroup> : null
             }
-            {
-                ruleState === 'archived' ? <EuiFlexItem grow={0}>
-                    <EuiButton onClick={unarchiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
-                        Unarchive Rule
-                    </EuiButton>
-                </EuiFlexItem> : null
-            }
-            {
-                ruleState === 'draft' ? <EuiFlexItem grow={0}>
-                    <EuiButton onClick={archiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
-                        Archive Rule
-                    </EuiButton>
-                </EuiFlexItem> : null
-            }
-            {
-                ruleState === 'live' ? <EuiFlexItem grow={0}>
-                    <EuiButton onClick={unpublishRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
-                        Unpublish Rule
-                    </EuiButton>
-                </EuiFlexItem> : null
-            }
+            </EuiFlexGroup>
             {showErrors ? <EuiCallOut title="Please resolve the following errors:" color="danger" iconType="error">
                 {formErrors.map((error, index) => <EuiText key={index}>{`${error.message}`}</EuiText>)}
             </EuiCallOut> : null}

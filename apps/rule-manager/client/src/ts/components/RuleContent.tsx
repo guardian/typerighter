@@ -3,9 +3,10 @@ import {css} from "@emotion/react";
 import React from "react"
 import {RuleFormSection} from "./RuleFormSection";
 import {LineBreak} from "./LineBreak";
-import {FormError, PartiallyUpdateRuleData} from "./RuleForm";
+import {PartiallyUpdateRuleData} from "./RuleForm";
 import {Label} from "./Label";
 import {DraftRule, RuleType} from "./hooks/useRule";
+import { LastUpdated } from "./LastUpdated";
 
 type RuleTypeOption = {
   id: RuleType,
@@ -30,7 +31,10 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, showErrors}: {
     ]
     const TextField = ruleData.ruleType === "languageToolXML" ? EuiTextArea : EuiFieldText;
 
-    return <RuleFormSection title="RULE CONTENT">
+    return <RuleFormSection title="RULE CONTENT" additionalInfo={
+      ruleData.updatedAt &&
+      <LastUpdated lastUpdated={ruleData.updatedAt} />
+    }>
         <LineBreak/>
         <EuiFlexItem>
           <EuiFormLabel>Rule type</EuiFormLabel>
