@@ -3,12 +3,10 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-GET     /                           controllers.HomeController.index()
-GET     /oauthCallback              controllers.HomeController.oauthCallback()
-# A temporary endpoint to test permissions
-GET     /editPermissionCheck        controllers.HomeController.editPermissionCheck()
+GET     /                               controllers.HomeController.index()
+GET     /oauthCallback                  controllers.HomeController.oauthCallback()
 
-+anyhost
++anyhostå
 GET     /api/healthcheck                controllers.HomeController.healthcheck()
 +nocsrf
 POST    /api/refresh                    controllers.RulesController.refresh()
@@ -47,5 +45,7 @@ POST    /api/tags/:id                   controllers.TagsController.update(id: In
 +nocsrf
 DELETE  /api/tags/:id                   controllers.TagsController.delete(id: Int)
 
+
+GET     /tags                           controllers.HomeController.index()
 # Map static resources from the /public folder to the correct URL path
-GET     /*file                      controllers.Assets.versioned(path="/public/", file: Asset)
+GET     /files/*asset                   controllers.Assets.versioned(path="/public/", asset: Asset)
