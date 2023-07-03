@@ -7,52 +7,7 @@ import {
   transformRuleFormData
 } from "../../utils/api";
 import { errorToString } from "../../utils/error";
-import { FormError } from "../RuleForm";
-import {getRuleState, RuleState} from "../../utils/rule";
-import {update} from "lodash";
-
-export type RuleType = 'regex' | 'languageToolXML';
-
-export type BaseRule = {
-  ruleType: RuleType,
-  pattern?: string,
-  replacement?: string,
-  category?: string,
-  tags: string[],
-  description?: string,
-  ignore: boolean,
-  forceRedRule?: boolean,
-  advisoryRule?: boolean,
-  revisionId: number,
-  createdBy: string,
-  createdAt: string,
-  updatedBy: string,
-  updatedAt: string,
-  id?: number,
-  isArchived: boolean,
-  isPublished: boolean
-}
-
-export type DraftRule = BaseRule
-export type DraftRuleFromServer = Omit<BaseRule, "tags"> & {
-  tags: string | undefined;
-}
-export type LiveRule = BaseRule & {
-  reason: string
-}
-export type LiveRuleFromServer = Omit<LiveRule, "tags"> & {
-  tags: string | undefined;
-}
-
-export type RuleDataFromServer = {
-  draft: DraftRuleFromServer
-  live: LiveRuleFromServer[]
-}
-
-export type RuleData = {
-  draft: DraftRule
-  live: LiveRule[]
-}
+import {DraftRule, RuleData} from "./useRule";
 
 export function useBatchRules(ruleIds: number[] | undefined) {
   const [isLoading, setIsLoading] = useState(false);
@@ -81,8 +36,6 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
   const updateRules = async (ruleForm: DraftRule[]) => {
     setIsLoading(true);
-    console.log('rules inside updateRules', rules)
-    console.log('ruleForm inside updateRules', ruleForm)
 
     const hasCategoryChanged = rules && rules[0].draft.category !== ruleForm[0].category;
 
@@ -110,8 +63,6 @@ export function useBatchRules(ruleIds: number[] | undefined) {
       }
     }
 
-    console.log('formDataForApi', ruleFormData)
-
     const response = await fetch(`${location}rules/batch`, {
       method: 'POST',
       headers: {
@@ -123,12 +74,11 @@ export function useBatchRules(ruleIds: number[] | undefined) {
     const parsedResponse = await responseHandler(response);
     if (parsedResponse.status === "ok") {
       if (rules) {
-        rules.map(rule => {
-          if (rule.draft.id === parsedResponse.data.id) {
-            return setRules({...rules, draft: parsedResponse.data});
-          }
-          return rule;
+        const updatedRules = rules.map((rule, index) => {
+          const updatedRule = parsedResponse.data.find(updatedRule => rule.draft.id === updatedRule.id)
+          return updatedRule ? {...rule, draft: updatedRule} : rule
         })
+        setRules(updatedRules)
       }
     } else {
       setErrors(parsedResponse.errorMessage);
@@ -138,30 +88,6 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
     return parsedResponse;
   }
-  //
-  // const createRule = async (ruleForm: DraftRule) => {
-  //   setIsLoading(true);
-  //
-  //   const transformedRuleFormData = transformRuleFormData(ruleForm);
-  //   const createRuleResponse = await fetch(`${location}rules`, {
-  //       method: 'POST',
-  //       headers: {
-  //           'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify(transformedRuleFormData)
-  //   })
-  //
-  //   const parsedResponse = await responseHandler(createRuleResponse);
-  //   if (parsedResponse.status === "ok") {
-  //     setRules({ ...rules || { live: [] }, draft: parsedResponse.data });
-  //   } else {
-  //     setErrors(parsedResponse.errorMessage);
-  //   }
-  //
-  //   setIsLoading(false);
-  //
-  //   return parsedResponse;
-  // }
 
   useEffect(() => {
     if (ruleIds) {
@@ -171,5 +97,5 @@ export function useBatchRules(ruleIds: number[] | undefined) {
     }
   }, [ruleIds])
 
-  return { fetchRule: fetchRules, updateRules, /*createRule,*/ isLoading, errors, rules}
+  return { fetchRule: fetchRules, updateRules, isLoading, errors, rules}
 }

@@ -28,7 +28,6 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
     const [ formErrors, setFormErrors ] = useState<FormError[]>([])
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
-        console.log('partial replacement', partialReplacement)
         const updatedRules = ruleFormData.map(rule => ({
             ...rule,
             ...partialReplacement
@@ -64,12 +63,14 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
         if (response.status === "ok" && response.data.id) {
             onUpdate(response.data.id);
         }
-
-        console.log('rule form data', ruleFormData.map(data => data.tags))
-        console.log('rules', rules && rules.map(rule => rule.draft.tags))
     };
 
-    const hasUnsavedChanges = rules && ruleFormData.some((data, index) => data !== rules[index].draft);
+    const categoryHasChanged = rules?.some((rule, index) => rule.draft.category !== ruleFormData[index].category);
+    const tagsHaveChanged = rules?.some((rule, index) => (
+        rule.draft.tags.length !== ruleFormData[index].tags.length ||
+        !rule.draft.tags.every((tag, i) => tag === ruleFormData[index].tags[i])
+    ));
+    const hasUnsavedChanges = !isLoading && (categoryHasChanged || tagsHaveChanged);
 
     return <EuiForm component="form">
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
