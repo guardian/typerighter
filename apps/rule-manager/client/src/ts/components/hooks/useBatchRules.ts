@@ -1,13 +1,7 @@
 import {useEffect, useState} from "react";
-import {
-  ErrorIResponse,
-  responseHandler,
-  transformApiFormData,
-  transformApiFormDataBatchedit,
-  transformRuleFormData
-} from "../../utils/api";
 import { errorToString } from "../../utils/error";
 import {DraftRule, RuleData} from "./useRule";
+import {ErrorIResponse, responseHandler} from "../../utils/api";
 
 export function useBatchRules(ruleIds: number[] | undefined) {
   const [isLoading, setIsLoading] = useState(false);
@@ -71,9 +65,9 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
     const parsedResponse = await responseHandler(response);
     if (parsedResponse.status === "ok") {
-      if (rules) {
+      if (rules  && parsedResponse.data) {
         const updatedRules = rules.map((rule, index) => {
-          const updatedRule = parsedResponse.data.find(updatedRule => rule.draft.id === updatedRule.id)
+          const updatedRule = (parsedResponse.data as unknown as DraftRule[]).find(updatedRule => rule.draft.id === updatedRule.id)
           return updatedRule ? {...rule, draft: updatedRule} : rule
         })
         setRules(updatedRules)
@@ -95,5 +89,5 @@ export function useBatchRules(ruleIds: number[] | undefined) {
     }
   }, [ruleIds])
 
-  return { fetchRule: fetchRules, updateRules, rules}
+  return { isLoading, fetchRules, updateRules, rules}
 }

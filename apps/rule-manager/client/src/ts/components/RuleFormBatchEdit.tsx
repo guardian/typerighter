@@ -23,7 +23,7 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
     onUpdate: () => void
 }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rules, fetchRules, updateRules } = useBatchRules(ruleIds);
+    const { isLoading, rules, fetchRules, updateRules } = useBatchRules(ruleIds);
     const [ruleFormData, setRuleFormData] = useState<DraftRule[]>([baseForm])
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
@@ -39,12 +39,6 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
             setRuleFormData(rules.map(rule => rule.draft) as DraftRule[]);
             }
     }, [rules]);
-
-    useEffect(() => {
-        if(errors?.length === 0) {
-            setShowErrors(false);
-        }
-    }, [errors])
 
     // We need the errors at the form level, so that we can prevent save etc. when there are errors
     // We need to be able to change the errors depending on which fields are invalid

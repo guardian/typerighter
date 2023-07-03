@@ -19,7 +19,7 @@ export const TagsSelector = ({tags, ruleData, partiallyUpdateRuleData}: {
 
     const transformTags = (ruleData: DraftRule[]) => {
         let seenTags = new Set<number>();
-        let uniqueTags = [];
+        let uniqueTags:number[] = [];
 
         ruleData.map(rule => rule.tags.map(tag => {
             if (!seenTags.has(tag)) {
