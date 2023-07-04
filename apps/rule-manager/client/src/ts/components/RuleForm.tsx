@@ -176,7 +176,8 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const canEditRuleContent = ruleState === 'draft' || ruleState === 'live';
 
     return <EuiForm component="form">
-        {<EuiFlexGroup  direction="column">
+        {<EuiFlexGroup gutterSize="m" direction="column">
+            <RuleStatus ruleData={rule} />
             <RuleContent isLoading={isLoading} errors={errors} ruleData={rule} ruleFormData={ruleFormData}  partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
             <RuleFormSection title="RULE METADATA">
               <LineBreak/>
