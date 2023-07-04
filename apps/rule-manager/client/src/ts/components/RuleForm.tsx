@@ -80,20 +80,20 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }, [ruleFormData]);
 
     useEffect(() => {
-        if(errors?.length === 0) {
+        if (!errors && !formErrors.length) {
             setShowErrors(false);
         }
-    }, [errors])
+    }, [errors, formErrors])
 
     /**
      * Automatically save the form data when it changes. Debounces saves.
      */
     useEffect(() => {
-      if (debouncedFormData === rule?.draft) {
+      if (debouncedFormData === rule?.draft || debouncedFormData === baseForm) {
         return;
       }
 
-      if (formErrors.length > 0 || errors && errors.length > 0) {
+      if (formErrors.length > 0 || errors) {
           setShowErrors(true);
           return;
       }
@@ -103,7 +103,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
 
     useEffect(() => {
       rule?.draft.id && onUpdate(rule.draft.id);
-    }, [rule?.draft.id])
+    }, [rule?.draft.id]);
 
     const maybePublishRuleHandler = () => {
       if (rule?.live.length) {
