@@ -3,12 +3,12 @@ import { css } from "@emotion/react"
 import styled from "@emotion/styled"
 import React from "react"
 
-const SectionHeader = styled.div`
+export const SectionHeader = styled.div`
   display: flex;
   justify-content: space-between;
 `;
 
-const Title = styled.h2`
+export const Title = styled.h2`
   font-family: 'Guardian Agate Sans';
   color: #1A1C21;
   font-weight: 700;
@@ -25,7 +25,7 @@ export const RuleFormSection = ({title, additionalInfo, children} : {title?: str
         `}>
         <SectionHeader>
             {title && <Title>{title}</Title>}
-            {additionalInfo && <EuiTextColor color="subdued">{additionalInfo}</EuiTextColor>}
+            {additionalInfo && <EuiTextColor >{additionalInfo}</EuiTextColor>}
         </SectionHeader>
         {children}
     </EuiFlexItem>
