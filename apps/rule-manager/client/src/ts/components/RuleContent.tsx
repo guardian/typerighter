@@ -3,11 +3,10 @@ import {
   EuiFlexItem,
   EuiFormLabel,
   EuiFormRow,
-  EuiMarkdownEditor,
+  EuiMarkdownFormat,
   EuiRadioGroup,
   EuiSpacer,
   EuiTextArea,
-  getDefaultEuiMarkdownPlugins,
 } from "@elastic/eui";
 import { css } from "@emotion/react";
 import React from "react";
@@ -22,9 +21,6 @@ type RuleTypeOption = {
   id: RuleType;
   label: string;
 };
-
-const { parsingPlugins, processingPlugins, uiPlugins } =
-  getDefaultEuiMarkdownPlugins({ exclude: ["tooltip"] });
 
 export const RuleContent = ({
   ruleData,
@@ -104,16 +100,18 @@ export const RuleContent = ({
           helpText="What will the users see in Composer?"
           fullWidth={true}
         >
-          <EuiMarkdownEditor
-            value={ruleData.description || ""}
-            onChange={(value) =>
-              partiallyUpdateRuleData({ description: value })
-            }
-            aria-label={"Description editor"}
-            parsingPluginList={parsingPlugins}
-            processingPluginList={processingPlugins}
-            uiPlugins={uiPlugins}
-          />
+          <>
+            <EuiTextArea
+              value={ruleData.description || ""}
+              onChange={(_) =>
+                partiallyUpdateRuleData({ description: _.target.value })
+              }
+              fullWidth={true}
+            />
+            <EuiMarkdownFormat aria-label={"Description editor"}>
+              {ruleData.description || ""}
+            </EuiMarkdownFormat>
+          </>
         </EuiFormRow>
       </EuiFlexItem>
     </RuleFormSection>
