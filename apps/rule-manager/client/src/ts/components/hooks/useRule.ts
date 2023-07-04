@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {ErrorIResponse, responseHandler} from "../../utils/api";
 import { errorToString } from "../../utils/error";
 import { FormError } from "../RuleForm";
-import {getRuleState, RuleState} from "../../utils/rule";
+import {getRuleStatus, RuleStatus} from "../../utils/rule";
 
 export type RuleType = 'regex' | 'languageToolXML';
 
@@ -43,7 +43,7 @@ export function useRule(ruleId: number | undefined) {
   const [publishValidationErrors, setPublishValidationErrors] = useState<FormError[] | undefined>(undefined);
   const [errors, setErrors] = useState<string | undefined>(undefined);
   const [ruleData, setRuleData] = useState<RuleData | undefined>(undefined);
-  const [ruleState, setRuleState] = useState<RuleState>("draft")
+  const [ruleStatus, setRuleStatus] = useState<RuleStatus>("draft")
 
   const setRuleDataAndClearErrors = (ruleData: RuleData) => {
     setRuleData(ruleData);
@@ -239,8 +239,8 @@ export function useRule(ruleId: number | undefined) {
   }, [ruleId])
 
   useEffect(() => {
-    setRuleState(getRuleState(ruleData?.draft));
+    setRuleStatus(getRuleStatus(ruleData?.draft));
   }, [ruleData])
 
-  return { fetchRule, updateRule, createRule, isLoading, errors, rule: ruleData, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState }
+  return { fetchRule, updateRule, createRule, isLoading, errors, rule: ruleData, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleStatus }
 }

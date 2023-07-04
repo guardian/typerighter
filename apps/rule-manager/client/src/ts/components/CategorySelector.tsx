@@ -25,7 +25,7 @@ export const CategorySelector = ({currentCategory, partiallyUpdateRuleData}: {
     }, [selectedCategory])
 
     return (
-        <EuiFormRow label='Category' fullWidth={true}>
+        <EuiFormRow label='Source' fullWidth={true}>
             <EuiComboBox
                 options={categories}
                 singleSelection={singleSelectionOptions}

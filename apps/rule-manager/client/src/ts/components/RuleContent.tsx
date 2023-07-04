@@ -39,7 +39,17 @@ export const RuleContent = ({ruleData, ruleFormData, isLoading, errors, partiall
       additionalInfo={ruleData && <RuleDataLastUpdated ruleData={ruleData} isLoading={isLoading} hasErrors={!!errors} />}>
         <LineBreak/>
         <EuiFlexItem>
-          <EuiFormLabel>Rule type</EuiFormLabel>
+            <EuiFormRow
+                label="Description"
+                helpText="What will the users see in Composer?"
+                fullWidth={true}
+            >
+                <EuiFieldText value={ruleFormData.description || ""}
+                              onChange={(_ => partiallyUpdateRuleData({description: _.target.value}))}
+                              fullWidth={true}/>
+            </EuiFormRow>
+            <EuiSpacer size="m" />
+            <EuiFormLabel>Rule type</EuiFormLabel>
             <EuiRadioGroup
                 options={ruleTypeOptions}
                 idSelected={ruleFormData.ruleType}
@@ -73,15 +83,6 @@ export const RuleContent = ({ruleData, ruleFormData, isLoading, errors, partiall
             >
                 <EuiFieldText value={ruleFormData.replacement || ""}
                               onChange={(_ => partiallyUpdateRuleData({replacement: _.target.value}))}
-                              fullWidth={true} />
-            </EuiFormRow>
-            <EuiFormRow
-                label="Description"
-                helpText="What will the users see in Composer?"
-                fullWidth={true}
-            >
-                <EuiFieldText value={ruleFormData.description || ""}
-                              onChange={(_ => partiallyUpdateRuleData({description: _.target.value}))}
                               fullWidth={true} />
             </EuiFormRow>
         </EuiFlexItem>
