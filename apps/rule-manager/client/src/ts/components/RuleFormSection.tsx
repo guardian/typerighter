@@ -25,7 +25,7 @@ export const RuleFormSection = ({title, additionalInfo, children} : {title?: str
         `}>
         <SectionHeader>
             {title && <Title>{title}</Title>}
-            {additionalInfo && <EuiTextColor color="subdued">{additionalInfo}</EuiTextColor>}
+            {additionalInfo && <EuiTextColor >{additionalInfo}</EuiTextColor>}
         </SectionHeader>
         {children}
     </EuiFlexItem>

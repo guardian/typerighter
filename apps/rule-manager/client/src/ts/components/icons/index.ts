@@ -17,6 +17,7 @@ import { icon as returnKey } from "@elastic/eui/src/components/icon/assets/retur
 import { icon as warning } from "@elastic/eui/src/components/icon/assets/warning";
 import { icon as pageSelect } from "@elastic/eui/src/components/icon/assets/pageSelect";
 import { icon as dot } from "@elastic/eui/src/components/icon/assets/dot";
+import { icon as checkInCircleFilled } from "@elastic/eui/src/components/icon/assets/checkInCircleFilled";
 
 const cachedIcons = {
     arrowDown,
@@ -36,7 +37,8 @@ const cachedIcons = {
     returnKey,
     warning,
     pageSelect,
-    dot
+    dot,
+    checkInCircleFilled
 };
 
 appendIconComponentCache(cachedIcons);

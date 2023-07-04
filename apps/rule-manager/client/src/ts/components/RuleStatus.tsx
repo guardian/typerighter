@@ -17,16 +17,15 @@ export const RuleStatus = ({ruleData}: {
   ruleData: RuleData | undefined
 }) => {
   const state = capitalize(getRuleState(ruleData?.draft));
-  return <RuleFormSection title="RULE STATUS">
+  return <RuleFormSection title="RULE STATUS" additionalInfo={
+    !!ruleData && hasUnpublishedChanges(ruleData) && "Has unpublished changes"}>
     <LineBreak/>
     <RuleStatusContainer>
       <AnotherContainer>
         <EuiHealth textSize="m" color={getRuleStateColour(ruleData?.draft)} />
         <EuiText css={css`${euiTextTruncate()}`}>{state}</EuiText>
       </AnotherContainer>
-      <UnpublishedChangesContainer>
-        {!!ruleData && hasUnpublishedChanges(ruleData) && <EuiTextColor color="subdued">Has unpublished changes</EuiTextColor>}
-      </UnpublishedChangesContainer>
+
     </RuleStatusContainer>
   </RuleFormSection>
 }

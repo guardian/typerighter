@@ -4,7 +4,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiForm,
-  EuiLoadingSpinner,
   EuiText,
   EuiToolTip
 } from "@elastic/eui";
@@ -17,10 +16,6 @@ import {capitalize} from "lodash";
 import { ReasonModal } from "./modals/Reason";
 import {TagMap} from "./hooks/useTags";
 import { useDebouncedValue } from "./hooks/useDebounce";
-import {LineBreak} from "./LineBreak";
-import {CategorySelector} from "./CategorySelector";
-import {TagsSelector} from "./TagsSelector";
-import {RuleFormSection} from "./RuleFormSection";
 import {RuleStatus} from "./RuleStatus";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
@@ -103,12 +98,12 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
           return;
       }
 
-      (ruleId ? updateRule(ruleFormData) : createRule(ruleFormData)).then(response => {
-        if (response.status === "ok" && response.data.id) {
-          onUpdate(response.data.id);
-        }
-      });
+      ruleId ? updateRule(ruleFormData) : createRule(ruleFormData)
     }, [debouncedFormData]);
+
+    useEffect(() => {
+      rule?.draft.id && onUpdate(rule.draft.id);
+    }, [rule?.draft.id])
 
     const maybePublishRuleHandler = () => {
       if (rule?.live.length) {
@@ -177,10 +172,9 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const canEditRuleContent = ruleState === 'draft' || ruleState === 'live';
 
     return <EuiForm component="form">
-        {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup gutterSize="m" direction="column">
             <RuleStatus ruleData={rule} />
-            <RuleContent tags={tags}  ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
+            <RuleContent tags={tags} isLoading={isLoading} errors={errors} ruleData={rule} ruleFormData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
             {rule && <RuleHistory ruleHistory={rule.live} />}
             <EuiFlexGroup gutterSize="m">
             {

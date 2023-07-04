@@ -5,8 +5,8 @@ import {RuleFormSection, SectionHeader, Title} from "./RuleFormSection";
 import {LineBreak} from "./LineBreak";
 import {PartiallyUpdateRuleData} from "./RuleForm";
 import {Label} from "./Label";
-import {DraftRule, RuleType} from "./hooks/useRule";
-import { LastUpdated } from "./LastUpdated";
+import {DraftRule, RuleData, RuleType} from "./hooks/useRule";
+import { RuleDataLastUpdated } from "./RuleDataLastUpdated";
 import {CategorySelector} from "./CategorySelector";
 import {TagsSelector} from "./TagsSelector";
 import {TagMap} from "./hooks/useTags";
@@ -16,10 +16,13 @@ type RuleTypeOption = {
   label: string,
 }
 
-export const RuleContent = ({ruleData, partiallyUpdateRuleData, tags, showErrors}: {
-        ruleData: DraftRule,
+export const RuleContent = ({ruleData, ruleFormData, isLoading, errors, partiallyUpdateRuleData, tags, showErrors}: {
+        ruleData: RuleData | undefined,
+        ruleFormData: DraftRule,
         partiallyUpdateRuleData: PartiallyUpdateRuleData,
         showErrors: boolean,
+        isLoading: boolean,
+        errors: string | undefined
         tags: TagMap
     }) => {
 
@@ -33,16 +36,17 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, tags, showErrors
             label: "LanguageTool",
         },
     ]
-    const TextField = ruleData.ruleType === "languageToolXML" ? EuiTextArea : EuiFieldText;
+    const TextField = ruleFormData.ruleType === "languageToolXML" ? EuiTextArea : EuiFieldText;
 
-    return <RuleFormSection title="RULE CONTENT" additionalInfo={ruleData.updatedAt &&
-  <LastUpdated lastUpdated={ruleData.updatedAt!} />} >
+    return <RuleFormSection
+      title="RULE CONTENT"
+      additionalInfo={ruleData && <RuleDataLastUpdated ruleData={ruleData} isLoading={isLoading} hasErrors={!!errors} />}>
         <LineBreak/>
         <EuiFlexItem>
           <EuiFormLabel>Rule type</EuiFormLabel>
             <EuiRadioGroup
                 options={ruleTypeOptions}
-                idSelected={ruleData.ruleType}
+                idSelected={ruleFormData.ruleType}
                 onChange={(ruleType) => {
                     partiallyUpdateRuleData({ruleType: ruleType as RuleType});
                 }}
@@ -55,14 +59,14 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, tags, showErrors
             <EuiSpacer size="s" />
             <EuiFormRow
                 label={<Label text='Pattern' required={true}/>}
-                isInvalid={showErrors && !ruleData.pattern}
+                isInvalid={showErrors && !ruleFormData.pattern}
                 fullWidth={true}
             >
                 <TextField
-                    value={ruleData.pattern || ""}
+                    value={ruleFormData.pattern || ""}
                     onChange={(_ => partiallyUpdateRuleData({pattern: _.target.value}))}
                     required={true}
-                    isInvalid={showErrors && !ruleData.pattern}
+                    isInvalid={showErrors && !ruleFormData.pattern}
                     fullWidth={true}
                 />
             </EuiFormRow>
@@ -71,7 +75,7 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, tags, showErrors
                 helpText="What is the ideal term as per the house style?"
                 fullWidth={true}
             >
-                <EuiFieldText value={ruleData.replacement || ""}
+                <EuiFieldText value={ruleFormData.replacement || ""}
                               onChange={(_ => partiallyUpdateRuleData({replacement: _.target.value}))}
                               fullWidth={true} />
             </EuiFormRow>
@@ -80,7 +84,7 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, tags, showErrors
                 helpText="What will the users see in Composer?"
                 fullWidth={true}
             >
-                <EuiFieldText value={ruleData.description || ""}
+                <EuiFieldText value={ruleFormData.description || ""}
                               onChange={(_ => partiallyUpdateRuleData({description: _.target.value}))}
                               fullWidth={true} />
             </EuiFormRow>
@@ -90,7 +94,7 @@ export const RuleContent = ({ruleData, partiallyUpdateRuleData, tags, showErrors
         <Title>RULE METADATA</Title>
       </SectionHeader>
       <LineBreak/>
-      <CategorySelector currentCategory={ruleData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-      <TagsSelector tags={tags} selectedTagIds={ruleData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+      <CategorySelector currentCategory={ruleFormData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+      <TagsSelector tags={tags} selectedTagIds={ruleFormData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
     </RuleFormSection>
 }
