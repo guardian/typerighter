@@ -114,6 +114,7 @@ export const RuleContent = ({
                 partiallyUpdateRuleData({ description: _.target.value })
               }
               fullWidth={true}
+              compressed={true}
             />
             {showMarkdownPreview && (
               <EuiMarkdownFormat aria-label={"Description editor"}>
