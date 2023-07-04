@@ -1,17 +1,27 @@
-import {EuiFieldText, EuiFlexItem, EuiFormLabel, EuiFormRow, EuiRadioGroup, EuiSpacer, EuiTextArea} from "@elastic/eui"
-import {css} from "@emotion/react";
-import React from "react"
-import {RuleFormSection} from "./RuleFormSection";
-import {LineBreak} from "./LineBreak";
-import {PartiallyUpdateRuleData} from "./RuleForm";
-import {Label} from "./Label";
-import {DraftRule, RuleType} from "./hooks/useRule";
+import {
+  EuiFieldText,
+  EuiFlexItem,
+  EuiFormLabel,
+  EuiFormRow,
+  EuiMarkdownEditor,
+  EuiRadioGroup,
+  EuiSpacer,
+  EuiTextArea,
+  getDefaultEuiMarkdownPlugins,
+} from "@elastic/eui";
+import { css } from "@emotion/react";
+import React from "react";
+import { RuleFormSection } from "./RuleFormSection";
+import { LineBreak } from "./LineBreak";
+import { PartiallyUpdateRuleData } from "./RuleForm";
+import { Label } from "./Label";
+import { DraftRule, RuleType } from "./hooks/useRule";
 import { LastUpdated } from "./LastUpdated";
 
 type RuleTypeOption = {
-  id: RuleType,
-  label: string,
-}
+  id: RuleType;
+  label: string;
+};
 
 const { parsingPlugins, processingPlugins, uiPlugins } =
   getDefaultEuiMarkdownPlugins({ exclude: ["tooltip"] });
@@ -107,4 +117,5 @@ export const RuleContent = ({
         </EuiFormRow>
       </EuiFlexItem>
     </RuleFormSection>
-}
+  );
+};
