@@ -6,10 +6,11 @@ import {
   EuiMarkdownFormat,
   EuiRadioGroup,
   EuiSpacer,
+  EuiSwitch,
   EuiTextArea,
 } from "@elastic/eui";
 import { css } from "@emotion/react";
-import React from "react";
+import React, { useState } from "react";
 import { RuleFormSection } from "./RuleFormSection";
 import { LineBreak } from "./LineBreak";
 import { PartiallyUpdateRuleData } from "./RuleForm";
@@ -43,6 +44,12 @@ export const RuleContent = ({
   ];
   const TextField =
     ruleData.ruleType === "languageToolXML" ? EuiTextArea : EuiFieldText;
+
+  const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
+
+  const handleSwitchChange = () => {
+    setShowMarkdownPreview(!showMarkdownPreview);
+  };
 
   return (
     <RuleFormSection
@@ -108,9 +115,16 @@ export const RuleContent = ({
               }
               fullWidth={true}
             />
-            <EuiMarkdownFormat aria-label={"Description editor"}>
-              {ruleData.description || ""}
-            </EuiMarkdownFormat>
+            {showMarkdownPreview && (
+              <EuiMarkdownFormat aria-label={"Description editor"}>
+                {ruleData.description || ""}
+              </EuiMarkdownFormat>
+            )}
+            <EuiSwitch
+              label="Preview"
+              checked={showMarkdownPreview}
+              onChange={handleSwitchChange}
+            />
           </>
         </EuiFormRow>
       </EuiFlexItem>
