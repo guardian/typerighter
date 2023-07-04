@@ -33,12 +33,12 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
     const haveTagsChanged = () => {
         if (!rules) return false;
-        const oldTags = rules.map(rule => rule.draft.tags).flat()
-        const newTags = ruleForm.map(rule => rule.tags).flat()
+        const oldTags = rules.flatMap(rule => rule.draft.tags)
+        const newTags = ruleForm.flatMap(rule => rule.tags)
         return !(oldTags.length === newTags.length && oldTags.every((tag, index) => tag === newTags[index]))
     }
 
-    const newTags = [...new Set(ruleForm.map(rule => rule.tags).flat())]
+    const newTags = [...new Set(ruleForm.flatMap(rule => rule.tags))]
 
     if (!ruleForm.some(rule => rule.id)) return {status: 'error', errorMessage: "Update endpoint requires a rule ID"} as ErrorIResponse;
 
