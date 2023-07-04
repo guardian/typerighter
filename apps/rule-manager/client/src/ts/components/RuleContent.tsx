@@ -107,27 +107,25 @@ export const RuleContent = ({
           helpText="What will the users see in Composer?"
           fullWidth={true}
         >
-          <>
-            <EuiTextArea
-              value={ruleData.description || ""}
-              onChange={(_) =>
-                partiallyUpdateRuleData({ description: _.target.value })
-              }
-              fullWidth={true}
-              compressed={true}
-            />
-            {showMarkdownPreview && (
-              <EuiMarkdownFormat aria-label={"Description editor"}>
-                {ruleData.description || ""}
-              </EuiMarkdownFormat>
-            )}
-            <EuiSwitch
-              label="Preview"
-              checked={showMarkdownPreview}
-              onChange={handleSwitchChange}
-            />
-          </>
+          <EuiTextArea
+            value={ruleData.description || ""}
+            onChange={(_) =>
+              partiallyUpdateRuleData({ description: _.target.value })
+            }
+            fullWidth={true}
+            compressed={true}
+          />
         </EuiFormRow>
+        <EuiSwitch
+          label="Preview"
+          checked={showMarkdownPreview}
+          onChange={handleSwitchChange}
+        />
+        {showMarkdownPreview && (
+          <EuiMarkdownFormat aria-label={"Description editor"}>
+            {ruleData.description || ""}
+          </EuiMarkdownFormat>
+        )}
       </EuiFlexItem>
     </RuleFormSection>
   );
