@@ -4,7 +4,6 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiForm,
-  EuiLoadingSpinner,
   EuiText,
   EuiToolTip
 } from "@elastic/eui";
@@ -17,6 +16,7 @@ import {capitalize} from "lodash";
 import { ReasonModal } from "./modals/Reason";
 import {TagMap} from "./hooks/useTags";
 import { useDebouncedValue } from "./hooks/useDebounce";
+import {RuleStatus} from "./RuleStatus";
 import {LineBreak} from "./LineBreak";
 import {CategorySelector} from "./CategorySelector";
 import {TagsSelector} from "./TagsSelector";
@@ -84,30 +84,30 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }, [ruleFormData]);
 
     useEffect(() => {
-        if(errors?.length === 0) {
+        if (!errors && !formErrors.length) {
             setShowErrors(false);
         }
-    }, [errors])
+    }, [errors, formErrors])
 
     /**
      * Automatically save the form data when it changes. Debounces saves.
      */
     useEffect(() => {
-      if (debouncedFormData === rule?.draft) {
+      if (debouncedFormData === rule?.draft || debouncedFormData === baseForm) {
         return;
       }
 
-      if (formErrors.length > 0 || errors && errors.length > 0) {
+      if (formErrors.length > 0 || errors) {
           setShowErrors(true);
           return;
       }
 
-      (ruleId ? updateRule(ruleFormData) : createRule(ruleFormData)).then(response => {
-        if (response.status === "ok" && response.data.id) {
-          onUpdate(response.data.id);
-        }
-      });
+      ruleId ? updateRule(ruleFormData) : createRule(ruleFormData)
     }, [debouncedFormData]);
+
+    useEffect(() => {
+      rule?.draft.id && onUpdate(rule.draft.id);
+    }, [rule?.draft.id]);
 
     const maybePublishRuleHandler = () => {
       if (rule?.live.length) {
@@ -176,14 +176,14 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const canEditRuleContent = ruleState === 'draft' || ruleState === 'live';
 
     return <EuiForm component="form">
-        {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
-            <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
+            <RuleContent isLoading={isLoading} errors={errors} ruleData={rule} ruleFormData={ruleFormData}  partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
             <RuleFormSection title="RULE METADATA">
               <LineBreak/>
               <CategorySelector currentCategory={ruleFormData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
               <TagsSelector tags={tags} selectedTagIds={ruleFormData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             </RuleFormSection>
+
             {rule && <RuleHistory ruleHistory={rule.live} />}
             <EuiFlexGroup gutterSize="m">
             {
