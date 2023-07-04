@@ -302,26 +302,29 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       case Left(result) => Left(result)
     }
   }
-  def batchUpdate(ids: List[Int], category: String, tags: List[Int], user: String)(implicit
-      session: DBSession = autoSession
+
+  def batchUpdate(ids: List[Int], category: Option[String], tags: Option[List[Int]], user: String)(
+      implicit session: DBSession = autoSession
   ): Try[List[DbRuleDraft]] = {
     Try {
-      withSQL {
-        update(DbRuleDraft)
-          .set(
-            column.category -> category,
-            column.updatedBy -> user,
-            column.revisionId -> sqls"${column.revisionId} + 1"
-          )
-          .where
-          .in(column.id, ids)
-      }.update().apply()
+      val fieldsToUpdate = List(
+        column.updatedBy -> user,
+        column.revisionId -> sqls"${column.revisionId} + 1"
+      ) ++ (if (category.isDefined) List(column.category -> category.get) else Nil)
 
-      val newTag = ids.flatMap(ruleId => tags.map(tagId => RuleTagDraft(ruleId, tagId)))
-      RuleTagDraft.batchInsert(newTag)
+      val updateColumns = update(DbRuleDraft)
+        .set(fieldsToUpdate: _*)
+        .where
+        .in(column.id, ids)
 
+      tags.foreach { tagList =>
+        ids.foreach(RuleTagDraft.destroyForRule)
+        val newTags = ids.flatMap(id => tagList.map(tagId => RuleTagDraft(id, tagId)))
+        RuleTagDraft.batchInsert(newTags)
+      }
+
+      withSQL(updateColumns).update().apply()
       val rules = findRules(ids)
-
       rules
     }
   }

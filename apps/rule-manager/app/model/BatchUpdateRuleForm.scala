@@ -8,12 +8,12 @@ object BatchUpdateRuleForm {
     mapping(
       "ids" -> list(number),
       "fields" -> mapping(
-        "category" -> text,
-        "tags" -> list(number())
+        "category" -> optional(text),
+        "tags" -> optional(list(number()))
       )(BatchUpdateFields.apply)(BatchUpdateFields.unapply)
     )(BatchUpdateRuleForm.apply)(BatchUpdateRuleForm.unapply)
   )
 }
 
 case class BatchUpdateRuleForm(ids: List[Int], fields: BatchUpdateFields)
-case class BatchUpdateFields(category: String, tags: List[Int])
+case class BatchUpdateFields(category: Option[String], tags: Option[List[Int]])

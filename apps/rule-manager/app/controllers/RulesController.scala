@@ -117,6 +117,16 @@ class RulesController(
     }
   }
 
+  def getRules(ids: String) = ApiAuthAction {
+    val idList = ids.split(',').map(_.toInt).toList
+    val allRulesData = idList.flatMap(id => RuleManager.getAllRuleData(id))
+
+    allRulesData match {
+      case Nil => NotFound("No rules found matching IDs")
+      case _   => Ok(Json.toJson(allRulesData))
+    }
+  }
+
   def batchUpdate() = ApiAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
@@ -132,7 +142,10 @@ class RulesController(
               val ids = formRule.ids
               val category = formRule.fields.category
               val tags = formRule.fields.tags
-              DbRuleDraft.batchUpdate(ids, category, tags, request.user.email) match {
+              val updatedCategory = category.filter(_.nonEmpty)
+              val updatedTags = tags.filter(_.nonEmpty)
+
+              DbRuleDraft.batchUpdate(ids, updatedCategory, updatedTags, request.user.email) match {
                 case Failure(e)     => InternalServerError(e.getMessage())
                 case Success(rules) => Ok(Json.toJson(rules))
               }

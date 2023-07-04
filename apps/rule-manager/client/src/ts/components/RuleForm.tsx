@@ -10,7 +10,6 @@ import {
 } from "@elastic/eui";
 import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
-import { RuleMetadata } from "./RuleMetadata";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
@@ -18,6 +17,10 @@ import {capitalize} from "lodash";
 import { ReasonModal } from "./modals/Reason";
 import {TagMap} from "./hooks/useTags";
 import { useDebouncedValue } from "./hooks/useDebounce";
+import {LineBreak} from "./LineBreak";
+import {CategorySelector} from "./CategorySelector";
+import {TagsSelector} from "./TagsSelector";
+import {RuleFormSection} from "./RuleFormSection";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -29,21 +32,21 @@ export const baseForm = {
   ignore: false,
 } as DraftRule;
 
-const SpinnerOverlay = styled.div`
+export const SpinnerOverlay = styled.div`
   display: flex;
   justify-content: center;
 `
 
-const SpinnerOuter = styled.div`
+export const SpinnerOuter = styled.div`
   position: relative;
 `;
-const SpinnerContainer = styled.div`
+export const SpinnerContainer = styled.div`
   position: absolute;
   top: 10px;
 `;
 
-const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 const formDebounceMs = 1000;
+export const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 
 export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         tags: TagMap,
@@ -59,7 +62,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
-      setRuleFormData({ ...ruleFormData, ...partialReplacement});
+        setRuleFormData({ ...ruleFormData, ...partialReplacement});
     }
 
     useEffect(() => {
@@ -176,7 +179,11 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
         {<EuiFlexGroup  direction="column">
             <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
-            <RuleMetadata tags={tags} ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            <RuleFormSection title="RULE METADATA">
+              <LineBreak/>
+              <CategorySelector currentCategory={ruleFormData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+              <TagsSelector tags={tags} selectedTagIds={ruleFormData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            </RuleFormSection>
             {rule && <RuleHistory ruleHistory={rule.live} />}
             <EuiFlexGroup gutterSize="m">
             {
