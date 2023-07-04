@@ -42,8 +42,13 @@ export function useRule(ruleId: number | undefined) {
   const [isValidating, setIsValidating] = useState(false);
   const [publishValidationErrors, setPublishValidationErrors] = useState<FormError[] | undefined>(undefined);
   const [errors, setErrors] = useState<string | undefined>(undefined);
-  const [rule, setRule] = useState<RuleData | undefined>(undefined);
+  const [ruleData, setRuleData] = useState<RuleData | undefined>(undefined);
   const [ruleState, setRuleState] = useState<RuleState>("draft")
+
+  const setRuleDataAndClearErrors = (ruleData: RuleData) => {
+    setRuleData(ruleData);
+    setErrors(undefined);
+  }
 
   const fetchRule = async (ruleId: number) => {
     setIsLoading(true);
@@ -55,7 +60,7 @@ export function useRule(ruleId: number | undefined) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
       const rules: RuleData = await response.json();
-      setRule(rules);
+      setRuleDataAndClearErrors(rules);
     } catch (error) {
       setErrors(errorToString(error));
     }
@@ -77,7 +82,7 @@ export function useRule(ruleId: number | undefined) {
       }
 
       const rules: RuleData = await response.json();
-      setRule(rules);
+      setRuleDataAndClearErrors(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -98,7 +103,7 @@ export function useRule(ruleId: number | undefined) {
       }
 
       const rules = await response.json();
-      setRule(rules);
+      setRuleDataAndClearErrors(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -119,7 +124,7 @@ export function useRule(ruleId: number | undefined) {
       }
 
       const rules: RuleData = await response.json();
-      setRule(rules);
+      setRuleDataAndClearErrors(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -140,7 +145,7 @@ export function useRule(ruleId: number | undefined) {
       }
 
       const rules: RuleData = await response.json();
-      setRule(rules);
+      setRuleDataAndClearErrors(rules);
     } catch (error) {
       setErrors(errorToString(error));
     } finally {
@@ -161,7 +166,10 @@ export function useRule(ruleId: number | undefined) {
       }
       setPublishValidationErrors(undefined);
     } catch (error) {
-      setErrors(errorToString(error));
+      setPublishValidationErrors([{
+        key: "Error contacting server",
+        message: "The server could not be contacted"
+      }])
     } finally {
       setIsValidating(false)
     }
@@ -175,60 +183,64 @@ export function useRule(ruleId: number | undefined) {
     // We would always expect the ruleForm to include an ID when updating a rule
     if (!ruleForm.id) return {status: 'error', errorMessage: "Update endpoint requires a rule ID"} as ErrorIResponse;
 
-    const response = await fetch(`${location}rules/${ruleForm.id}`, {
-      method: 'POST',
-      headers: {
+    try {
+      const response = await fetch(`${location}rules/${ruleForm.id}`, {
+        method: 'POST',
+        headers: {
           'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(ruleForm)
-    })
+        },
+        body: JSON.stringify(ruleForm)
+      })
 
-    const parsedResponse = await responseHandler(response);
-    if (parsedResponse.status === "ok") {
-      setRule({ ...rule || { live: [] }, draft: parsedResponse.data });
-    } else {
-      setErrors(parsedResponse.errorMessage);
+      const parsedResponse = await responseHandler(response);
+      if (parsedResponse.status === "ok") {
+        setRuleDataAndClearErrors({ ...ruleData || { live: [] }, draft: parsedResponse.data });
+      } else {
+        setErrors(parsedResponse.errorMessage);
+      }
+    } catch (error) {
+      setErrors(errorToString(error));
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-
-    return parsedResponse;
   }
 
   const createRule = async (ruleForm: DraftRule) => {
     setIsLoading(true);
 
-    const createRuleResponse = await fetch(`${location}rules`, {
+    try {
+      const createRuleResponse = await fetch(`${location}rules`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(ruleForm)
-    })
+      });
 
-    const parsedResponse = await responseHandler(createRuleResponse);
-    if (parsedResponse.status === "ok") {
-      setRule({ ...rule || { live: [] }, draft: parsedResponse.data });
-    } else {
-      setErrors(parsedResponse.errorMessage);
+      const parsedResponse = await responseHandler(createRuleResponse);
+      if (parsedResponse.status === "ok") {
+        setRuleDataAndClearErrors({...ruleData || {live: []}, draft: parsedResponse.data});
+      } else {
+        setErrors(parsedResponse.errorMessage);
+      }
+    } catch (error) {
+      setErrors(errorToString(error));
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-
-    return parsedResponse;
   }
 
   useEffect(() => {
     if (ruleId) {
       fetchRule(ruleId);
     } else {
-      setRule(undefined);
+      setRuleData(undefined);
     }
   }, [ruleId])
 
   useEffect(() => {
-    setRuleState(getRuleState(rule?.draft));
-  }, [rule])
+    setRuleState(getRuleState(ruleData?.draft));
+  }, [ruleData])
 
-  return { fetchRule, updateRule, createRule, isLoading, errors, rule, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState }
+  return { fetchRule, updateRule, createRule, isLoading, errors, rule: ruleData, publishRule, isPublishing, validateRule, isValidating, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState }
 }

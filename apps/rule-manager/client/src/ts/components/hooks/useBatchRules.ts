@@ -33,6 +33,7 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
     const haveTagsChanged = () => {
         if (!rules) return false;
+
         const oldTags = rules.flatMap(rule => rule.draft.tags)
         const newTags = ruleForm.flatMap(rule => rule.tags)
         return !(oldTags.length === newTags.length && oldTags.every((tag, index) => tag === newTags[index]))
