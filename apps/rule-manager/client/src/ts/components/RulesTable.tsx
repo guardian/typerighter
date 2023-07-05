@@ -14,8 +14,7 @@ import {
   EuiHealth,
   EuiTableSelectionType,
   EuiBadge,
-  EuiText,
-  EuiTableRow
+  EuiText
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -100,11 +99,15 @@ const createColumns = (tags: TagMap, editRule: (ruleId: number) => void): Array<
       name: 'Status',
       width: '8.1%',
       render: (rule: DraftRule) => {
-        const status = capitalize(getRuleStatus(rule));
-        return <>
-          <EuiHealth color={getRuleStatusColour(rule)} />
-          <EuiText css={css`${euiTextTruncate()}`}>{status}</EuiText>
-        </>
+        const state = capitalize(getRuleStatus(rule));
+        return <EuiFlexGroup alignItems="center" gutterSize="xs">
+          <EuiFlexGroup alignItems="center" justifyContent="flexStart" gutterSize="none">
+            <EuiHealth color={getRuleStatusColour(rule)} />
+            <EuiText css={css`${euiTextTruncate()}`}>{state}</EuiText>
+          </EuiFlexGroup>
+          {rule.hasUnpublishedChanges &&
+            <EuiToolTip content="This rule has unpublished changes"><EuiIcon type="warning" /></EuiToolTip>}
+        </EuiFlexGroup>
       }
     },
     {
