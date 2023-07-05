@@ -4,13 +4,11 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiForm,
-  EuiLoadingSpinner,
   EuiText,
   EuiToolTip
 } from "@elastic/eui";
 import React, {ReactElement, useEffect, useState} from "react"
 import { RuleContent } from "./RuleContent";
-import { RuleMetadata } from "./RuleMetadata";
 import {DraftRule, RuleType, useRule} from "./hooks/useRule";
 import {RuleHistory} from "./RuleHistory";
 import styled from "@emotion/styled";
@@ -18,6 +16,11 @@ import {capitalize} from "lodash";
 import { ReasonModal } from "./modals/Reason";
 import {TagMap} from "./hooks/useTags";
 import { useDebouncedValue } from "./hooks/useDebounce";
+import {RuleStatus} from "./RuleStatus";
+import {LineBreak} from "./LineBreak";
+import {CategorySelector} from "./CategorySelector";
+import {TagsSelector} from "./TagsSelector";
+import {RuleFormSection} from "./RuleFormSection";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -29,21 +32,21 @@ export const baseForm = {
   ignore: false,
 } as DraftRule;
 
-const SpinnerOverlay = styled.div`
+export const SpinnerOverlay = styled.div`
   display: flex;
   justify-content: center;
 `
 
-const SpinnerOuter = styled.div`
+export const SpinnerOuter = styled.div`
   position: relative;
 `;
-const SpinnerContainer = styled.div`
+export const SpinnerContainer = styled.div`
   position: absolute;
   top: 10px;
 `;
 
-const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 const formDebounceMs = 1000;
+export const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 
 export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         tags: TagMap,
@@ -52,14 +55,14 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         onUpdate: (id: number) => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleStatus } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const debouncedFormData = useDebouncedValue(ruleFormData, 1000);
     const [formErrors, setFormErrors] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
     const partiallyUpdateRuleData: PartiallyUpdateRuleData = (partialReplacement) => {
-      setRuleFormData({ ...ruleFormData, ...partialReplacement});
+        setRuleFormData({ ...ruleFormData, ...partialReplacement});
     }
 
     useEffect(() => {
@@ -81,30 +84,30 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }, [ruleFormData]);
 
     useEffect(() => {
-        if(errors?.length === 0) {
+        if (!errors && !formErrors.length) {
             setShowErrors(false);
         }
-    }, [errors])
+    }, [errors, formErrors])
 
     /**
      * Automatically save the form data when it changes. Debounces saves.
      */
     useEffect(() => {
-      if (debouncedFormData === rule?.draft) {
+      if (debouncedFormData === rule?.draft || debouncedFormData === baseForm) {
         return;
       }
 
-      if (formErrors.length > 0 || errors && errors.length > 0) {
+      if (formErrors.length > 0 || errors) {
           setShowErrors(true);
           return;
       }
 
-      (ruleId ? updateRule(ruleFormData) : createRule(ruleFormData)).then(response => {
-        if (response.status === "ok" && response.data.id) {
-          onUpdate(response.data.id);
-        }
-      });
+      ruleId ? updateRule(ruleFormData) : createRule(ruleFormData)
     }, [debouncedFormData]);
+
+    useEffect(() => {
+      rule?.draft.id && onUpdate(rule.draft.id);
+    }, [rule?.draft.id]);
 
     const maybePublishRuleHandler = () => {
       if (rule?.live.length) {
@@ -115,7 +118,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const publishRuleHandler = async (reason: string) => {
-      const isDraftOrLive = (ruleState === 'draft' || ruleState === 'live')
+      const isDraftOrLive = (ruleStatus === 'draft' || ruleStatus === 'live')
       if (!ruleId || !isDraftOrLive) {
         return;
       }
@@ -143,7 +146,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const archiveRuleHandler = async () => {
-        if (!ruleId || ruleState !== 'draft') {
+        if (!ruleId || ruleStatus !== 'draft') {
           return;
         }
 
@@ -152,7 +155,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const unarchiveRuleHandler = async () => {
-        if (!ruleId || ruleState !== 'archived') {
+        if (!ruleId || ruleStatus !== 'archived') {
             return;
         }
 
@@ -161,7 +164,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const unpublishRuleHandler = async () => {
-        if (!ruleId || ruleState !== 'live') {
+        if (!ruleId || ruleStatus !== 'live') {
             return;
         }
 
@@ -170,13 +173,18 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const hasUnsavedChanges = ruleFormData !== rule?.draft;
-    const canEditRuleContent = ruleState === 'draft' || ruleState === 'live';
+    const canEditRuleContent = ruleStatus === 'draft' || ruleStatus === 'live';
 
     return <EuiForm component="form">
-        {isLoading && <SpinnerOverlay><SpinnerOuter><SpinnerContainer><EuiLoadingSpinner /></SpinnerContainer></SpinnerOuter></SpinnerOverlay>}
-        {<EuiFlexGroup  direction="column">
-            <RuleContent ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
-            <RuleMetadata tags={tags} ruleData={ruleFormData} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+        {<EuiFlexGroup gutterSize="m" direction="column">
+            <RuleStatus ruleData={rule} />
+            <RuleContent isLoading={isLoading} errors={errors} ruleData={rule} ruleFormData={ruleFormData}  partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
+            <RuleFormSection title="RULE METADATA">
+              <LineBreak/>
+              <CategorySelector currentCategory={ruleFormData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+              <TagsSelector tags={tags} selectedTagIds={ruleFormData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+            </RuleFormSection>
+
             {rule && <RuleHistory ruleHistory={rule.live} />}
             <EuiFlexGroup gutterSize="m">
             {
@@ -195,7 +203,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                     </EuiFlexItem>
             }
             {
-                ruleState === 'archived' &&
+                ruleStatus === 'archived' &&
                     <EuiFlexItem>
                         <EuiButton onClick={unarchiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
                             Unarchive Rule
@@ -203,7 +211,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                     </EuiFlexItem>
             }
             {
-                ruleState === 'draft' &&
+                ruleStatus === 'draft' &&
                     <EuiFlexItem>
                         <EuiButton onClick={archiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
                             Archive Rule
@@ -211,7 +219,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                     </EuiFlexItem>
             }
             {
-                ruleState === 'live' &&
+                ruleStatus === 'live' &&
                     <EuiFlexItem>
                         <EuiButton onClick={unpublishRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
                             Unpublish Rule

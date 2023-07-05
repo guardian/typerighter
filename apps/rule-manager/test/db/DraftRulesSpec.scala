@@ -179,22 +179,17 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
       .get
 
     val existingIds = List(existingRule1, existingRule2, existingRule3).map(_.id.get)
-    val newCategory = "Style guide and names"
+    val newCategory = Some("Style guide and names")
     val newTags = tags.map(_.id.get)
 
-    val updatedRules =
-      DbRuleDraft
-        .batchUpdate(existingIds, newCategory, newTags, "another.user")
+    DbRuleDraft
+      .batchUpdate(existingIds, newCategory, Some(newTags), "another.user")
 
-    val updatedRulesFromDb = updatedRules.get.map { rule =>
-      DbRuleDraft.find(rule.id.get)
-    }
+    val updatedRulesFromDb = DbRuleDraft.findRules(existingIds)
 
     updatedRulesFromDb.foreach { maybeRule =>
-      maybeRule.foreach { rule =>
-        rule.category should be(Some("Style guide and names"))
-        rule.tags should be(newTags)
-      }
+      maybeRule.category should be(Some("Style guide and names"))
+      maybeRule.tags should be(newTags)
     }
 
     updatedRulesFromDb.size shouldBe 3

@@ -7,13 +7,13 @@ import { RuleData } from "./hooks/useRule";
 
 export type MetadataOption = {label: string};
 const singleSelectionOptions = { asPlainText: true };
-export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
-    ruleData: RuleData['draft'],
+export const CategorySelector = ({currentCategory, partiallyUpdateRuleData}: {
+    currentCategory: string | undefined,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
     // This is an array in order to match the expected type for EuiComboBox, but
     // it will never have more than one category selected
-    const [selectedCategory, setSelectedCategory] = useState<MetadataOption[]>(ruleData.category ? [{label: ruleData.category}] : []);
+    const [selectedCategory, setSelectedCategory] = useState<MetadataOption[]>(currentCategory ? [{label: currentCategory}] : []);
     const categories = existingCategories.map(category => {return {label: category} as MetadataOption});
     const onChange = (selectedOption: MetadataOption[]) => {
         setSelectedCategory(selectedOption);
@@ -25,11 +25,11 @@ export const CategorySelector = ({ruleData, partiallyUpdateRuleData}: {
     }, [selectedCategory])
 
     return (
-        <EuiFormRow label='Category' fullWidth={true}>
+        <EuiFormRow label='Source' fullWidth={true}>
             <EuiComboBox
                 options={categories}
                 singleSelection={singleSelectionOptions}
-                selectedOptions={ruleData.category ? [{label: ruleData.category}] : []}
+                selectedOptions={currentCategory ? [{label: currentCategory}] : []}
                 onChange={onChange}
                 isClearable={true}
                 isCaseSensitive

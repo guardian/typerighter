@@ -25,10 +25,11 @@ import {hasCreateEditPermissions} from './helpers/hasCreateEditPermissions';
 import styled from '@emotion/styled';
 import {FeatureSwitchesContext} from "./context/featureSwitches";
 import {DraftRule} from "./hooks/useRule";
-import {getRuleState, getRuleStateColour} from "../utils/rule";
+import {getRuleStatus, getRuleStatusColour} from "../utils/rule";
 import {capitalize} from "lodash";
 import {euiTextTruncate} from "@elastic/eui/src/global_styling/mixins/_typography";
 import {TagMap, useTags} from "./hooks/useTags";
+import {RuleFormBatchEdit} from "./RuleFormBatchEdit";
 
 const sorting = {
   sort: {
@@ -59,47 +60,50 @@ const createColumns = (tags: TagMap, editRule: (ruleId: number) => void): Array<
   const hasEditPermissions = useCreateEditPermissions();
   return [
     {
-      field: 'replacement',
-      name: 'Replacement',
-      width: '14.2%'
-    },
-    {
       field: 'description',
       name: 'Description',
-      textOnly: true,
       truncateText: true,
+      render: (value: string) => !!value ? value : '–',
       width: '21.4%'
     },
     {
       field: 'pattern',
-      name: 'Match',
+      name: 'Pattern',
       truncateText: true,
+      render: (value: string) => !!value ? value : '–',
       width: '21.4%'
     },
     {
+      field: 'replacement',
+      name: 'Replacement',
+      render: (value: string) => !!value ? value : '–',
+      width: '14.2%'
+    },
+    {
       field: 'category',
-      name: 'Rule source',
+      name: 'Source',
+      render: (value: string) => !!value ? value : '–',
       width: '14.2%'
     },
     {
       field: 'tags',
       name: 'Tags',
-      render: (value: number[]) => value ?
+      render: (value: number[]) => value && value.length > 0 ?
         <TagWrapContainer>{value.map(tagId =>
           <span style={{width: '100%'}} key={tagId}>
             <EuiBadge>{tags[tagId.toString()]?.name ?? "Unknown tag"}</EuiBadge>
           </span>
-        )}</TagWrapContainer> : <></>,
+        )}</TagWrapContainer> : <>–</>,
       width: '13.2%'
     },
     {
-      name: 'State',
+      name: 'Status',
       width: '8.1%',
       render: (rule: DraftRule) => {
-        const state = capitalize(getRuleState(rule));
+        const status = capitalize(getRuleStatus(rule));
         return <>
-          <EuiHealth color={getRuleStateColour(rule)} />
-          <EuiText css={css`${euiTextTruncate()}`}>{state}</EuiText>
+          <EuiHealth color={getRuleStatusColour(rule)} />
+          <EuiText css={css`${euiTextTruncate()}`}>{status}</EuiText>
         </>
       }
     },
@@ -248,8 +252,8 @@ const RulesTable = () => {
         {rules &&
           <EuiInMemoryTable
             rowProps={getRowProps}
-	css={css`.euiTableRow.euiTableRow-isSelected { background-color: rgba(0, 119, 204, 0.1); }`}
-        loading={isLoading}
+	        css={css`.euiTableRow.euiTableRow-isSelected { background-color: rgba(0, 119, 204, 0.1); }`}
+            loading={isLoading}
             tableCaption="Demo of EuiInMemoryTable"
             items={rules}
             itemId="id"
@@ -265,21 +269,33 @@ const RulesTable = () => {
       </EuiFlexItem>
       {formMode !== 'closed' && (
         <EuiFlexItem grow={1}>
-          <RuleForm
-            tags={tags}
-            onClose={() => {
-              setFormMode('closed');
-              fetchRules();
-            }}
-            onUpdate={(id) => {
-              fetchRules();
-              setCurrentRuleId(id);
-              if (formMode === 'create') {
-                setFormMode('edit');
-              }
-            }}
-            ruleId={currentRuleId}
-          />
+          {selectedRules.length > 1
+              ? <RuleFormBatchEdit
+                  tags={tags}
+                  onClose={() => {
+                    setFormMode('closed');
+                    fetchRules()
+                  }}
+                  onUpdate={() => {
+                    fetchRules();
+                  }}
+                  ruleIds={selectedRules.map(rule => rule.id) as number[]}
+                />
+              : <RuleForm
+                  tags={tags}
+                  onClose={() => {
+                    setFormMode('closed');
+                    fetchRules();
+                  }}
+                  onUpdate={(id) => {
+                    fetchRules();
+                    setCurrentRuleId(id);
+                    if (formMode === 'create') {
+                      setFormMode('edit');
+                    }
+                  }}
+                  ruleId={currentRuleId}
+              />}
         </EuiFlexItem>
       )}
     </EuiFlexGroup>
