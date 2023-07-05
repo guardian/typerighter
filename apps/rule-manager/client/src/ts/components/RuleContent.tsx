@@ -72,38 +72,37 @@ export const RuleContent = ({
     >
       <LineBreak />
       <EuiFlexItem>
+        <div style={{ marginLeft: "auto" }}>
+          <EuiButton
+            onClick={handleButtonClick}
+            size={"s"}
+            color={"text"}
+            iconType={showMarkdownPreview ? "eyeClosed" : "eye"}
+            aria-label={"Preview description button"}
+          >
+            Preview
+          </EuiButton>
+        </div>
         <EuiFormRow
           label="Description"
           helpText="What will the users see in Composer?"
           fullWidth={true}
         >
-          <EuiTextArea
-            value={ruleFormData.description || ""}
-            onChange={(_) =>
-              partiallyUpdateRuleData({ description: _.target.value })
-            }
-            fullWidth={true}
-            compressed={true}
-          />
+          {!showMarkdownPreview ? (
+            <EuiTextArea
+              value={ruleFormData.description || ""}
+              onChange={(_) =>
+                partiallyUpdateRuleData({ description: _.target.value })
+              }
+              fullWidth={true}
+              compressed={true}
+            />
+          ) : (
+            <EuiMarkdownFormat textSize={"s"} aria-label={"Description editor"}>
+              {ruleFormData.description || ""}
+            </EuiMarkdownFormat>
+          )}
         </EuiFormRow>
-        <EuiFlexItem grow={false}>
-          <div style={{ marginLeft: "auto" }}>
-            <EuiButton
-              onClick={handleButtonClick}
-              size={"s"}
-              color={"text"}
-              iconType={showMarkdownPreview ? "eyeClosed" : "eye"}
-              aria-label={"Preview description button"}
-            >
-              Preview
-            </EuiButton>
-          </div>
-        </EuiFlexItem>
-        {showMarkdownPreview && (
-          <EuiMarkdownFormat textSize={"s"} aria-label={"Description editor"}>
-            {ruleFormData.description || ""}
-          </EuiMarkdownFormat>
-        )}
         <EuiSpacer size="m" />
         <EuiFormLabel>Rule type</EuiFormLabel>
         <EuiRadioGroup
