@@ -55,7 +55,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
         onUpdate: (id: number) => void
     }) => {
     const [showErrors, setShowErrors] = useState(false);
-    const { isLoading, errors, rule, isPublishing, publishRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleState } = useRule(ruleId);
+    const { isLoading, errors, rule, isPublishing, publishRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleStatus } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
     const debouncedFormData = useDebouncedValue(ruleFormData, 1000);
     const [formErrors, setFormErrors] = useState<FormError[]>([]);
@@ -118,7 +118,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const publishRuleHandler = async (reason: string) => {
-      const isDraftOrLive = (ruleState === 'draft' || ruleState === 'live')
+      const isDraftOrLive = (ruleStatus === 'draft' || ruleStatus === 'live')
       if (!ruleId || !isDraftOrLive) {
         return;
       }
@@ -146,7 +146,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const archiveRuleHandler = async () => {
-        if (!ruleId || ruleState !== 'draft') {
+        if (!ruleId || ruleStatus !== 'draft') {
           return;
         }
 
@@ -155,7 +155,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const unarchiveRuleHandler = async () => {
-        if (!ruleId || ruleState !== 'archived') {
+        if (!ruleId || ruleStatus !== 'archived') {
             return;
         }
 
@@ -164,7 +164,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const unpublishRuleHandler = async () => {
-        if (!ruleId || ruleState !== 'live') {
+        if (!ruleId || ruleStatus !== 'live') {
             return;
         }
 
@@ -173,7 +173,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     }
 
     const hasUnsavedChanges = ruleFormData !== rule?.draft;
-    const canEditRuleContent = ruleState === 'draft' || ruleState === 'live';
+    const canEditRuleContent = ruleStatus === 'draft' || ruleStatus === 'live';
 
     return <EuiForm component="form">
         {<EuiFlexGroup gutterSize="m" direction="column">
@@ -203,7 +203,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                     </EuiFlexItem>
             }
             {
-                ruleState === 'archived' &&
+                ruleStatus === 'archived' &&
                     <EuiFlexItem>
                         <EuiButton onClick={unarchiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
                             Unarchive Rule
@@ -211,7 +211,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                     </EuiFlexItem>
             }
             {
-                ruleState === 'draft' &&
+                ruleStatus === 'draft' &&
                     <EuiFlexItem>
                         <EuiButton onClick={archiveRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
                             Archive Rule
@@ -219,7 +219,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                     </EuiFlexItem>
             }
             {
-                ruleState === 'live' &&
+                ruleStatus === 'live' &&
                     <EuiFlexItem>
                         <EuiButton onClick={unpublishRuleHandler} color={"danger"} disabled={!ruleId || isLoading}>
                             Unpublish Rule
