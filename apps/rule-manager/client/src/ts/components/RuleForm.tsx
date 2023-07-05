@@ -48,8 +48,9 @@ export const SpinnerContainer = styled.div`
 const formDebounceMs = 1000;
 export const emptyPatternFieldError = {key: 'pattern', message: 'A pattern is required'}
 
-export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
+export const RuleForm = ({tags, ruleId, onClose, onUpdate, isTagMapLoading}: {
         tags: TagMap,
+        isTagMapLoading: boolean,
         ruleId: number | undefined,
         onClose: () => void,
         onUpdate: (id: number) => void
@@ -57,7 +58,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const [showErrors, setShowErrors] = useState(false);
     const { isLoading, errors, rule, isPublishing, publishRule, updateRule, createRule, validateRule, publishValidationErrors, resetPublishValidationErrors, archiveRule, unarchiveRule, unpublishRule, ruleStatus } = useRule(ruleId);
     const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm)
-    const debouncedFormData = useDebouncedValue(ruleFormData, 1000);
+    const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
     const [formErrors, setFormErrors] = useState<FormError[]>([]);
     const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
@@ -184,7 +185,7 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
                 <RuleFormSection title="RULE METADATA">
                   <LineBreak/>
                   <CategorySelector currentCategory={ruleFormData.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-                  <TagsSelector tags={tags} selectedTagIds={ruleFormData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+                  <TagsSelector tags={tags} isLoading={isTagMapLoading} selectedTagIds={ruleFormData.tags} partiallyUpdateRuleData={partiallyUpdateRuleData} />
                 </RuleFormSection>
                 {rule && <RuleHistory ruleHistory={rule.live} />}
               </EuiFlexGroup>

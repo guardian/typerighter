@@ -151,7 +151,7 @@ const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
 }))
 
 const RulesTable = () => {
-  const {tags, fetchTags} = useTags();
+  const {tags, fetchTags, isLoading: isTagMapLoading } = useTags();
   const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
@@ -277,6 +277,7 @@ const RulesTable = () => {
             {selectedRules.length > 1
                 ? <RuleFormBatchEdit
                     tags={tags}
+                    isTagMapLoading={isTagMapLoading}
                     onClose={() => {
                       setFormMode('closed');
                       fetchRules()
@@ -288,6 +289,7 @@ const RulesTable = () => {
                   />
                 : <RuleForm
                     tags={tags}
+                    isTagMapLoading={isTagMapLoading}
                     onClose={() => {
                       setFormMode('closed');
                       fetchRules();
