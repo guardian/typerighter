@@ -19,7 +19,7 @@ export function useTags() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${location}api/tags`);
+      const response = await fetch(`${location.origin}/api/tags`);
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }

@@ -3,7 +3,7 @@ import { EuiPageTemplate, EuiProvider } from "@elastic/eui";
 import { Header } from "./Header";
 import { Rules } from "../pages/Rules";
 import { euiThemeOverrides } from "../../constants/euiTheme";
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useParams } from 'react-router-dom';
 
 import createCache from "@emotion/cache";
 import { FeatureSwitchesProvider } from "../context/featureSwitches";
@@ -28,6 +28,14 @@ export const Page = () => (
                 <>
                   <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
                     <RulesTable />
+                  </EuiPageTemplate.Section>
+                </>
+              }
+            />
+            <Route path="/tags" element={
+                <>
+                  <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
+                    <p>Tags here</p>
                   </EuiPageTemplate.Section>
                 </>
               }

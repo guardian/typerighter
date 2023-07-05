@@ -3,7 +3,7 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-GET     /                               controllers.HomeController.index()
+GET     /                               controllers.HomeController.index(path = "")
 GET     /oauthCallback                  controllers.HomeController.oauthCallback()
 
 +anyhostå
@@ -46,6 +46,11 @@ POST    /api/tags/:id                   controllers.TagsController.update(id: In
 DELETE  /api/tags/:id                   controllers.TagsController.delete(id: Int)
 
 
-GET     /tags                           controllers.HomeController.index()
 # Map static resources from the /public folder to the correct URL path
 GET     /files/*asset                   controllers.Assets.versioned(path="/public/", asset: Asset)
++nocsrf
+
+# Pass all other top level paths to the client-side app
+GET     /:path                          controllers.HomeController.index(path)
++nocsrf
+

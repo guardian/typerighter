@@ -56,7 +56,7 @@ class TagsController(
               },
               formRule => {
                 Tags.createFromTagForm(formRule) match {
-                  case Success(tag)   => Ok(Json.toJson(tag))
+                  case Success(tag)   => Ok (Json.toJson(tag))
                   case Failure(error) => InternalServerError(error.getMessage())
                 }
               }
