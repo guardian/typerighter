@@ -17,26 +17,30 @@ import { icon as returnKey } from "@elastic/eui/src/components/icon/assets/retur
 import { icon as warning } from "@elastic/eui/src/components/icon/assets/warning";
 import { icon as pageSelect } from "@elastic/eui/src/components/icon/assets/pageSelect";
 import { icon as dot } from "@elastic/eui/src/components/icon/assets/dot";
+import { icon as eye } from "@elastic/eui/src/components/icon/assets/eye";
+import { icon as eyeClosed } from "@elastic/eui/src/components/icon/assets/eye_closed";
 
 const cachedIcons = {
-    arrowDown,
-    arrowRight,
-    arrowLeft,
-    arrowStart,
-    arrowEnd,
-    search,
-    empty,
-    cross,
-    check,
-    error,
-    exit,
-    starEmptySpace,
-    starFilled,
-    pencil,
-    returnKey,
-    warning,
-    pageSelect,
-    dot
+  arrowDown,
+  arrowRight,
+  arrowLeft,
+  arrowStart,
+  arrowEnd,
+  search,
+  empty,
+  cross,
+  check,
+  error,
+  exit,
+  starEmptySpace,
+  starFilled,
+  pencil,
+  returnKey,
+  warning,
+  pageSelect,
+  dot,
+  eye,
+  eyeClosed,
 };
 
 appendIconComponentCache(cachedIcons);

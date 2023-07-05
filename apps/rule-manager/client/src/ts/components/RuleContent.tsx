@@ -1,4 +1,5 @@
 import {
+  EuiButton,
   EuiFieldText,
   EuiFlexItem,
   EuiFormLabel,
@@ -6,7 +7,6 @@ import {
   EuiMarkdownFormat,
   EuiRadioGroup,
   EuiSpacer,
-  EuiSwitch,
   EuiTextArea,
 } from "@elastic/eui";
 import { css } from "@emotion/react";
@@ -47,7 +47,7 @@ export const RuleContent = ({
 
   const [showMarkdownPreview, setShowMarkdownPreview] = useState(false);
 
-  const handleSwitchChange = () => {
+  const handleButtonClick = () => {
     setShowMarkdownPreview(!showMarkdownPreview);
   };
 
@@ -116,11 +116,19 @@ export const RuleContent = ({
             compressed={true}
           />
         </EuiFormRow>
-        <EuiSwitch
-          label="Preview"
-          checked={showMarkdownPreview}
-          onChange={handleSwitchChange}
-        />
+        <EuiFlexItem grow={false}>
+          <div style={{ marginLeft: "auto" }}>
+            <EuiButton
+              onClick={handleButtonClick}
+              size={"s"}
+              color={"text"}
+              iconType={showMarkdownPreview ? "eyeClosed" : "eye"}
+              aria-label={"Preview description button"}
+            >
+              Preview
+            </EuiButton>
+          </div>
+        </EuiFlexItem>
         {showMarkdownPreview && (
           <EuiMarkdownFormat aria-label={"Description editor"}>
             {ruleData.description || ""}
