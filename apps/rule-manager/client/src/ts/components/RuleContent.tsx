@@ -72,21 +72,21 @@ export const RuleContent = ({
     >
       <LineBreak />
       <EuiFlexItem>
-        <div style={{ marginLeft: "auto" }}>
-          <EuiButton
-            onClick={handleButtonClick}
-            size={"s"}
-            color={"text"}
-            iconType={showMarkdownPreview ? "eyeClosed" : "eye"}
-            aria-label={"Preview description button"}
-          >
-            Preview
-          </EuiButton>
-        </div>
         <EuiFormRow
           label="Description"
           helpText="What will the users see in Composer?"
           fullWidth={true}
+          labelAppend={
+            <EuiButton
+              onClick={handleButtonClick}
+              size="s"
+              color="text"
+              iconType={showMarkdownPreview ? "eyeClosed" : "eye"}
+              aria-label="Preview description button"
+            >
+              Preview
+            </EuiButton>
+          }
         >
           {!showMarkdownPreview ? (
             <EuiTextArea
@@ -98,7 +98,7 @@ export const RuleContent = ({
               compressed={true}
             />
           ) : (
-            <EuiMarkdownFormat textSize={"s"} aria-label={"Description editor"}>
+            <EuiMarkdownFormat textSize="s" aria-label="Description editor">
               {ruleFormData.description || ""}
             </EuiMarkdownFormat>
           )}
