@@ -130,7 +130,7 @@ export const RuleContent = ({
           </div>
         </EuiFlexItem>
         {showMarkdownPreview && (
-          <EuiMarkdownFormat aria-label={"Description editor"}>
+          <EuiMarkdownFormat textSize={"s"} aria-label={"Description editor"}>
             {ruleData.description || ""}
           </EuiMarkdownFormat>
         )}
