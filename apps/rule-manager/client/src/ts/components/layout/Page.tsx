@@ -9,6 +9,7 @@ import createCache from "@emotion/cache";
 import { FeatureSwitchesProvider } from "../context/featureSwitches";
 import { PageDataProvider } from "../../utils/window";
 import RulesTable from "../RulesTable";
+import { PageNotFound } from "../PageNotFound";
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -35,7 +36,15 @@ export const Page = () => (
             <Route path="/tags" element={
                 <>
                   <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
-                    <p>Tags here</p>
+                    Tags will be here
+                  </EuiPageTemplate.Section>
+                </>
+              }
+            />
+            <Route path="/*" element={
+                <>
+                  <EuiPageTemplate.Section color="subdued" restrictWidth={false}>
+                    <PageNotFound />
                   </EuiPageTemplate.Section>
                 </>
               }

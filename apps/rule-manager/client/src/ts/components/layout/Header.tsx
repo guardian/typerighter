@@ -8,6 +8,7 @@ import { ProfileMenu } from "./ProfileMenu";
 import { EuiPopover } from "@elastic/eui";
 import { PageContext } from "../../utils/window";
 import { Link, useLocation } from "react-router-dom";
+import { FeatureSwitchesContext } from "../context/featureSwitches";
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -40,6 +41,7 @@ const UserActionMenu = withEuiTheme(styled.div<WithEuiThemeProps>`
 export const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const pageData = useContext(PageContext)
+  const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 
   const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 
@@ -58,14 +60,17 @@ export const Header = () => {
             <Logo />
           </Link>
         </HeaderLogo>
-        <EuiHeaderLinks aria-label="App navigation dark theme example">
-          <Link to="/">
-            <EuiHeaderLink isActive={useLocation().pathname === "/"}>Rules</EuiHeaderLink>
-          </Link>
-          <Link to="/tags">
-            <EuiHeaderLink isActive={useLocation().pathname === "/tags"}>Tags</EuiHeaderLink>
-          </Link>
-        </EuiHeaderLinks>
+        {
+        getFeatureSwitchValue('show-tags-page') ? 
+          <EuiHeaderLinks aria-label="App navigation dark theme example">
+            <Link to="/">
+              <EuiHeaderLink isActive={useLocation().pathname === "/"}>Rules</EuiHeaderLink>
+            </Link>
+            <Link to="/tags">
+              <EuiHeaderLink isActive={useLocation().pathname === "/tags"}>Tags</EuiHeaderLink>
+            </Link>
+          </EuiHeaderLinks> : null
+        }
       </NavContainer>
       <EuiPopover
         button={ProfileMenuButton}
