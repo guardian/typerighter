@@ -9,43 +9,43 @@ GET     /oauthCallback              controllers.HomeController.oauthCallback()
 GET     /editPermissionCheck        controllers.HomeController.editPermissionCheck()
 
 +anyhost
-GET     /healthcheck                controllers.HomeController.healthcheck()
+GET     /api/healthcheck                controllers.HomeController.healthcheck()
 +nocsrf
-POST    /refresh                    controllers.RulesController.refresh()
+POST    /api/refresh                    controllers.RulesController.refresh()
 +nocsrf
-GET     /rules                      controllers.RulesController.list()
+GET     /api/rules                      controllers.RulesController.list()
 +nocsrf
-POST    /rules                      controllers.RulesController.create()
+POST    /api/rules                      controllers.RulesController.create()
 +nocsrf
-GET    /rules/batch/:ids           controllers.RulesController.getRules(ids: String)
+GET    /rules/batch/:ids                controllers.RulesController.getRules(ids: String)
 +nocsrf
-POST    /rules/batch                controllers.RulesController.batchUpdate()
+POST    /rules/batch                    controllers.RulesController.batchUpdate()
 +nocsrf
-GET     /rules/:id                  controllers.RulesController.get(id: Int)
+GET     /api/rules/:id                  controllers.RulesController.get(id: Int)
 +nocsrf
-POST    /rules/:id                  controllers.RulesController.update(id: Int)
+POST    /api/rules/:id                  controllers.RulesController.update(id: Int)
 +nocsrf
-POST    /rules/:id/publish          controllers.RulesController.publish(id: Int)
+POST    /api/rules/:id/publish          controllers.RulesController.publish(id: Int)
 +nocsrf
-GET     /rules/:id/publish          controllers.RulesController.canPublish(id: Int)
+GET     /api/rules/:id/publish          controllers.RulesController.canPublish(id: Int)
 +nocsrf
-POST    /rules/:id/unpublish        controllers.RulesController.unpublish(id: Int)
+POST    /api/rules/:id/unpublish        controllers.RulesController.unpublish(id: Int)
 +nocsrf
-POST    /rules/:id/archive          controllers.RulesController.archive(id: Int)
+POST    /api/rules/:id/archive          controllers.RulesController.archive(id: Int)
 +nocsrf
-POST    /rules/:id/unarchive        controllers.RulesController.unarchive(id: Int)
+POST    /api/rules/:id/unarchive        controllers.RulesController.unarchive(id: Int)
 
 # Tags
 +nocsrf
-GET     /tags                       controllers.TagsController.list()
+GET     /api/tags                       controllers.TagsController.list()
 +nocsrf
-POST    /tags                       controllers.TagsController.create()
+POST    /api/tags                       controllers.TagsController.create()
 +nocsrf
-GET     /tags/:id                   controllers.TagsController.get(id: Int)
+GET     /api/tags/:id                   controllers.TagsController.get(id: Int)
 +nocsrf
-POST    /tags/:id                   controllers.TagsController.update(id: Int)
+POST    /api/tags/:id                   controllers.TagsController.update(id: Int)
 +nocsrf
-DELETE  /tags/:id                   controllers.TagsController.delete(id: Int)
+DELETE  /api/tags/:id                   controllers.TagsController.delete(id: Int)
 
 # Map static resources from the /public folder to the correct URL path
 GET     /*file                      controllers.Assets.versioned(path="/public/", file: Asset)
