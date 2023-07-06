@@ -18,11 +18,6 @@ const allFeatureSwitches = [
     id: "enable-destructive-reload",
     default: false,
   },
-  {
-    name: "Show tags page",
-    id: "show-tags-page",
-    default: false,
-  },
 ] as const;
 
 type FeatureSwitchIds = (typeof allFeatureSwitches)[number]["id"];

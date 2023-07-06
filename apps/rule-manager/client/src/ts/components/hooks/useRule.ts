@@ -55,7 +55,7 @@ export function useRule(ruleId: number | undefined) {
     setIsValidating(true); // Mark the rule as pending validation until the server tells us otherwise
 
     try {
-      const response = await fetch(`${location.origin}/api/rules/${ruleId}`);
+      const response = await fetch(`${location}rules/${ruleId}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
@@ -72,7 +72,7 @@ export function useRule(ruleId: number | undefined) {
     setIsPublishing(true);
 
     try {
-      const response = await fetch(`${location.origin}/api/rules/${ruleId}/publish`, {
+      const response = await fetch(`${location}rules/${ruleId}/publish`, {
         method: "POST",
         headers: [["Content-Type", "application/json"]],
         body: JSON.stringify({ reason })
@@ -94,7 +94,7 @@ export function useRule(ruleId: number | undefined) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${location.origin}/api/rules/${ruleId}/archive`, {
+      const response = await fetch(`${location}rules/${ruleId}/archive`, {
         method: 'POST',
       });
 
@@ -115,7 +115,7 @@ export function useRule(ruleId: number | undefined) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${location.origin}/api/rules/${ruleId}/unarchive`, {
+      const response = await fetch(`${location}rules/${ruleId}/unarchive`, {
         method: 'POST',
       });
 
@@ -136,7 +136,7 @@ export function useRule(ruleId: number | undefined) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${location.origin}/api/rules/${ruleId}/unpublish`, {
+      const response = await fetch(`${location}rules/${ruleId}/unpublish`, {
         method: 'POST',
       });
 
@@ -157,7 +157,7 @@ export function useRule(ruleId: number | undefined) {
     setIsValidating(false);
 
     try {
-      const response = await fetch(`${location.origin}/api/rules/${ruleId}/publish`);
+      const response = await fetch(`${location}rules/${ruleId}/publish`);
       if (response.status === 200) {
         const validationErrors: FormError[] = await response.json();
         return validationErrors.length > 0
@@ -184,7 +184,7 @@ export function useRule(ruleId: number | undefined) {
     if (!ruleForm.id) return {status: 'error', errorMessage: "Update endpoint requires a rule ID"} as ErrorIResponse;
 
     try {
-      const response = await fetch(`${location.origin}/api/rules/${ruleForm.id}`, {
+      const response = await fetch(`${location}rules/${ruleForm.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -209,7 +209,7 @@ export function useRule(ruleId: number | undefined) {
     setIsLoading(true);
 
     try {
-      const createRuleResponse = await fetch(`${location.origin}/api/rules`, {
+      const createRuleResponse = await fetch(`${location}rules`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
