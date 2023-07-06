@@ -10,9 +10,9 @@ const TypeyContainer = styled.div`
     flex-direction: horizontal;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 1.1rem;
-    image-rendering; pixelated
+    image-rendering: pixelated;
     font-smooth: never;
-    -webkit-font-smoothing : none;
+    -webkit-font-smoothing: none;
     line-height: 1.6rem;
     position: relative;
     margin-top: 20px;
@@ -35,23 +35,22 @@ const TypeyButton = styled.button`
     padding: 3px 10px;
     border-radius: 4px;
     :hover {
-        background-color: #f3f5c1;
+        background-color: #F3F5C1;
     }
     margin-top: 4px;
 `;
 
 const TypeyText = styled.p`
     color: black;
-`
+`;
 
 const TypeyArrow = styled.img`
     position: absolute;
     left: -13px;
     bottom: 11px;
     background: none;
-    content: "";
     transform: scaleY(-1) rotate(90deg);
-}`
+`;
 
 export const PageNotFound = () => {
     return <>

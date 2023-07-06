@@ -7,7 +7,7 @@ GET     /                               controllers.HomeController.index(path = 
 GET     /oauthCallback                  controllers.HomeController.oauthCallback()
 
 +anyhost
-GET     /healthcheck                controllers.HomeController.healthcheck()
+GET     /healthcheck                    controllers.HomeController.healthcheck()
 +nocsrf
 POST    /api/refresh                    controllers.RulesController.refresh()
 +nocsrf
@@ -15,9 +15,9 @@ GET     /api/rules                      controllers.RulesController.list()
 +nocsrf
 POST    /api/rules                      controllers.RulesController.create()
 +nocsrf
-GET    /rules/batch/:ids                controllers.RulesController.getRules(ids: String)
+GET     /api/rules/batch/:ids           controllers.RulesController.getRules(ids: String)
 +nocsrf
-POST    /rules/batch                    controllers.RulesController.batchUpdate()
+POST    /api/rules/batch               controllers.RulesController.batchUpdate()
 +nocsrf
 GET     /api/rules/:id                  controllers.RulesController.get(id: Int)
 +nocsrf

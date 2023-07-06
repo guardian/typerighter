@@ -62,7 +62,7 @@ export const Header = () => {
         </HeaderLogo>
         {
         getFeatureSwitchValue('show-tags-page') ? 
-          <EuiHeaderLinks aria-label="App navigation dark theme example">
+          <EuiHeaderLinks>
             <Link to="/">
               <EuiHeaderLink isActive={useLocation().pathname === "/"}>Rules</EuiHeaderLink>
             </Link>

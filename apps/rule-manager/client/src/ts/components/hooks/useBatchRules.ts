@@ -12,7 +12,7 @@ export function useBatchRules(ruleIds: number[] | undefined) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${location}rules/batch/${ruleIds.join(',')}`);
+      const response = await fetch(`${location.origin}/api/rules/batch/${ruleIds.join(',')}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
@@ -56,7 +56,7 @@ export function useBatchRules(ruleIds: number[] | undefined) {
       }
     }
 
-    const response = await fetch(`${location}rules/batch`, {
+    const response = await fetch(`${location.origin}/api/rules/batch`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
