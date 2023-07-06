@@ -1,6 +1,7 @@
 package db
 
 import scalikejdbc._
+import scalikejdbc.interpolation.SQLSyntax.{count, distinct}
 
 import scala.util.{Failure, Success, Try}
 
@@ -35,6 +36,18 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
     withSQL {
       select.from(this as rt).where.eq(rt.tagId, tagId)
     }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => rt.ruleId)
+  }
+
+  def countRulesByTag(tagId: Int)(implicit session: DBSession = autoSession): List[Int] = {
+    withSQL {
+      select(count(distinct(rt.ruleId))).from(this as rt).where.eq(rt.tagId, tagId)
+    }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => rt.ruleId)
+  }
+
+  def countRulesForAllTags()(implicit session: DBSession = autoSession): List[Int] = {
+    withSQL {
+      select(rt.tagId, count(distinct(rt.ruleId)) as RuleCount).from(this as rt).groupBy(rt.tagId)
+    }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => (rt.ruleId, rt.count))
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[RuleTagDraft] = {

@@ -1,6 +1,7 @@
 import { EuiFlexGroup, EuiFlexItem, EuiInMemoryTable, EuiTitle } from "@elastic/eui"
 import { css } from "@emotion/react"
 import { useTags } from "./hooks/useTags";
+import React from "react";
 
 const createTagTableColumns = () => {
     return [
