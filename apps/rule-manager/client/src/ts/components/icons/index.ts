@@ -20,6 +20,7 @@ import { icon as dot } from "@elastic/eui/src/components/icon/assets/dot";
 import { icon as checkInCircleFilled } from "@elastic/eui/src/components/icon/assets/checkInCircleFilled";
 import { icon as eye } from "@elastic/eui/src/components/icon/assets/eye";
 import { icon as eyeClosed } from "@elastic/eui/src/components/icon/assets/eye_closed";
+import { icon as iInCircle } from "@elastic/eui/src/components/icon/assets/iInCircle";
 
 const cachedIcons = {
   arrowDown,
@@ -43,6 +44,7 @@ const cachedIcons = {
   checkInCircleFilled,
   eye,
   eyeClosed,
+  iInCircle,
 };
 
 appendIconComponentCache(cachedIcons);

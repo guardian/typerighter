@@ -4,10 +4,12 @@ import {
   EuiFlexItem,
   EuiFormLabel,
   EuiFormRow,
+  EuiIcon,
   EuiMarkdownFormat,
   EuiRadioGroup,
   EuiSpacer,
   EuiTextArea,
+  EuiToolTip,
 } from "@elastic/eui";
 import { css } from "@emotion/react";
 import React, { useState } from "react";
@@ -73,7 +75,22 @@ export const RuleContent = ({
       <LineBreak />
       <EuiFlexItem>
         <EuiFormRow
-          label="Description"
+          label={
+            <div>
+              Description
+              <EuiToolTip
+                position="right"
+                content="Supports Markdown syntax for making text bold or italic"
+              >
+                <EuiIcon
+                  size="s"
+                  color="subdued"
+                  type="iInCircle"
+                  className="eui-alignTop"
+                />
+              </EuiToolTip>
+            </div>
+          }
           helpText="What will the users see in Composer?"
           fullWidth={true}
           labelAppend={
