@@ -6,8 +6,8 @@
 GET     /                               controllers.HomeController.index(path = "")
 GET     /oauthCallback                  controllers.HomeController.oauthCallback()
 
-+anyhostå
-GET     /api/healthcheck                controllers.HomeController.healthcheck()
++anyhost
+GET     /healthcheck                controllers.HomeController.healthcheck()
 +nocsrf
 POST    /api/refresh                    controllers.RulesController.refresh()
 +nocsrf
