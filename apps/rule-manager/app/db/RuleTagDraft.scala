@@ -37,17 +37,10 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
       select.from(this as rt).where.eq(rt.tagId, tagId)
     }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => rt.ruleId)
   }
-
-  def countRulesByTag(tagId: Int)(implicit session: DBSession = autoSession): List[Int] = {
+  def countRulesForAllTags()(implicit session: DBSession = autoSession): List[(Int, Int)] = {
     withSQL {
-      select(count(distinct(rt.ruleId))).from(this as rt).where.eq(rt.tagId, tagId)
-    }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => rt.ruleId)
-  }
-
-  def countRulesForAllTags()(implicit session: DBSession = autoSession): List[Int] = {
-    withSQL {
-      select(rt.tagId, count(distinct(rt.ruleId)) as RuleCount).from(this as rt).groupBy(rt.tagId)
-    }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => (rt.ruleId, rt.count))
+      select(rt.tagId, sqls"COUNT(DISTINCT($rt.ruleId})) as rule_count").from(this as rt).groupBy(rt.tagId)
+    }.map(rs => (rs.int("tagId"), rs.int("rule_count"))).list().apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[RuleTagDraft] = {
