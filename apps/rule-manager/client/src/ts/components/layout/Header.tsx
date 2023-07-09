@@ -8,15 +8,20 @@ import { ProfileMenu } from "./ProfileMenu";
 import { EuiPopover } from "@elastic/eui";
 import { PageContext } from "../../utils/window";
 
+export const headerHeight = "50px";
+
 const HeaderContainer = styled.div`
+  position: fixed;
   display: flex;
-  height: 50px;
+  height: ${headerHeight};
+  width: 100%;
   background-color: white;
+  z-index: 10;
 `;
 
 const HeaderLogo = styled.div`
-  height: 50px;
-  width: 50px;
+  height: ${headerHeight};
+  width: ${headerHeight};
   margin-right: auto;
   background-color: ${colors.backgroundColorDark};
   display: flex;
@@ -25,8 +30,8 @@ const HeaderLogo = styled.div`
 `;
 
 const UserActionMenu = withEuiTheme(styled.div<WithEuiThemeProps>`
-  height: 50px;
-  line-height: 50px;
+  height: ${headerHeight};
+  line-height: ${headerHeight};
   padding: 0 ${({ theme }) => theme.euiTheme.base}px;
   cursor: pointer;
 `);
