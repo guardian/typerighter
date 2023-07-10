@@ -19,29 +19,34 @@ import { icon as pageSelect } from "@elastic/eui/src/components/icon/assets/page
 import { icon as dot } from "@elastic/eui/src/components/icon/assets/dot";
 import { icon as checkInCircleFilled } from "@elastic/eui/src/components/icon/assets/checkInCircleFilled";
 import { icon as apps } from "@elastic/eui/src/components/icon/assets/apps";
-
+import { icon as eye } from "@elastic/eui/src/components/icon/assets/eye";
+import { icon as eyeClosed } from "@elastic/eui/src/components/icon/assets/eye_closed";
+import { icon as iInCircle } from "@elastic/eui/src/components/icon/assets/iInCircle";
 
 const cachedIcons = {
-    apps,
-    arrowDown,
-    arrowRight,
-    arrowLeft,
-    arrowStart,
-    arrowEnd,
-    search,
-    empty,
-    cross,
-    check,
-    error,
-    exit,
-    starEmptySpace,
-    starFilled,
-    pencil,
-    returnKey,
-    warning,
-    pageSelect,
-    dot,
-    checkInCircleFilled
+  apps,
+  arrowDown,
+  arrowRight,
+  arrowLeft,
+  arrowStart,
+  arrowEnd,
+  search,
+  empty,
+  cross,
+  check,
+  error,
+  exit,
+  starEmptySpace,
+  starFilled,
+  pencil,
+  returnKey,
+  warning,
+  pageSelect,
+  dot,
+  checkInCircleFilled,
+  eye,
+  eyeClosed,
+  iInCircle,
 };
 
 appendIconComponentCache(cachedIcons);
