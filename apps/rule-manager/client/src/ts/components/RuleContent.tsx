@@ -4,10 +4,13 @@ import {
   EuiFlexItem,
   EuiFormLabel,
   EuiFormRow,
+  EuiIcon,
   EuiIconTip,
+  EuiLink,
   EuiMarkdownFormat,
   EuiRadioGroup,
   EuiSpacer,
+  EuiText,
   EuiTextArea,
 } from "@elastic/eui";
 import { css } from "@emotion/react";
@@ -84,19 +87,19 @@ export const RuleContent = ({
               />
             </div>
           }
+          labelAppend={
+            <EuiText size="xs">
+              <EuiLink onClick={handleButtonClick}>
+                Preview&nbsp;
+                <EuiIcon
+                  type={showMarkdownPreview ? "eyeClosed" : "eye"}
+                  size="s"
+                />
+              </EuiLink>
+            </EuiText>
+          }
           helpText="What will the users see in Composer?"
           fullWidth={true}
-          labelAppend={
-            <EuiButton
-              onClick={handleButtonClick}
-              size="s"
-              color="text"
-              iconType={showMarkdownPreview ? "eyeClosed" : "eye"}
-              aria-label="Preview description button"
-            >
-              Preview
-            </EuiButton>
-          }
         >
           {!showMarkdownPreview ? (
             <EuiTextArea
