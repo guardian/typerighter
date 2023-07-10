@@ -11,7 +11,7 @@ export function useRules() {
     const fetchRules = async (): Promise<void> => {
         setIsLoading(true);
         try {
-            const response = await fetch(`${location}rules`);
+            const response = await fetch(`${location.origin}/api/rules`);
             if (!response.ok) {
                 throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
             }
@@ -26,7 +26,7 @@ export function useRules() {
     const refreshRules = async (): Promise<void>  => {
         setIsRefreshing(true);
         try {
-            const updatedRulesResponse = await fetch(`${location}refresh`, {
+            const updatedRulesResponse = await fetch(`${location.origin}/api/refresh`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -23,7 +23,7 @@ class HomeController(
     with AppAuthActions
     with PermissionsHandler {
 
-  def index() = AuthAction { request =>
+  def index(path: String) = AuthAction { request =>
     Ok(
       views.html.index(
         config.stage,
