@@ -79,11 +79,12 @@ export const RuleContent = ({
         <EuiFormRow
           label={
             <div>
-              Description
+              Description&nbsp;
               <EuiIconTip
                 content="Supports Markdown syntax for making text bold or italic"
                 position="right"
                 type="iInCircle"
+                size="s"
               />
             </div>
           }
