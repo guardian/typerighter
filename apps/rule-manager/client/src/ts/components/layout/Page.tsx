@@ -3,12 +3,14 @@ import { EuiPageTemplate, EuiProvider } from "@elastic/eui";
 import {Header, headerHeight} from "./Header";
 import { Rules } from "../pages/Rules";
 import { euiThemeOverrides } from "../../constants/euiTheme";
+import { Routes, Route, useParams } from 'react-router-dom';
 
 import createCache from "@emotion/cache";
 import { FeatureSwitchesProvider } from "../context/featureSwitches";
 import { PageDataProvider } from "../../utils/window";
 import RulesTable from "../RulesTable";
 import styled from "@emotion/styled";
+import { PageNotFound } from "../PageNotFound";
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -28,11 +30,35 @@ export const Page = () => (
       <EuiProvider modify={euiThemeOverrides} cache={cache}>
         <EuiPageTemplate>
           <Header />
-          <PageContent>
-            <RulesTable />
-          </PageContent>
+          <Routes>
+            <Route path="/" element={
+                <>
+                  <PageContent>
+                    <RulesTable />
+                  </PageContent>
+                </>
+              }
+            />
+            <Route path="/tags" element={
+                <>
+                  <PageContent>
+                    Tags will be here
+                  </PageContent>
+                </>
+              }
+            />
+            <Route path="/*" element={
+                <>
+                  <PageContent>
+                    <PageNotFound />
+                  </PageContent>
+                </>
+              }
+            />
+          </Routes>
         </EuiPageTemplate>
       </EuiProvider>
     </FeatureSwitchesProvider>
   </PageDataProvider>
+
 );
