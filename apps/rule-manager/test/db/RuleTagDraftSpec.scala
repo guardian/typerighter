@@ -23,6 +23,11 @@ class RuleTagDraftSpec extends FixtureAnyFlatSpec with Matchers with RuleFixture
     maybeFound should be(List(1))
   }
 
+  it should "find the count of rules for each tag" in { implicit session =>
+    val count = RuleTagDraft.countRulesForAllTags()
+    count should be(List((1,1)))
+  }
+
   it should "find all records" in { implicit session =>
     val allResults = RuleTagDraft.findAll()
     allResults should be(List(RuleTagDraft(1, 1)))
