@@ -16,6 +16,8 @@ const createTagTableColumns = () => {
 }
 export const TagsTable = () => {
     const {tags, fetchTags} = useTags();
+
+    const fetchUsages = 
     return (<>
         <EuiFlexGroup>
             <EuiFlexItem/>

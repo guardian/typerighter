@@ -8,11 +8,16 @@ export type Tag = {
   name: string
 }
 
+export type TagRuleCount = {
+  live: number[][]
+}
+
 export type TagMap = Record<string, Tag>;
 
 export function useTags() {
   const [tags, setTags] = useState<Record<number, Tag>>(defaultTags)
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingTagRuleCounts, setIsLoadingTagRuleCount] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const fetchTags = async (): Promise<void> => {
@@ -35,9 +40,28 @@ export function useTags() {
     setIsLoading(false);
   }
 
+  const fetchTagRuleCounts = async (): Promise<void> => {
+    setIsLoadingTagRuleCount(true);
+
+    try {
+      const response = await fetch(`${location.origin}/api/tags/ruleCount`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
+      }
+      const tagsRuleCounts: {} = await response.json();
+      const tagMap = {} as Record<string, Tag>;
+      for (const tag of tags) {
+        tagMap[tag.id] = tag
+      }
+      setTags(tagMap);
+    } catch (error) {
+      setError(errorToString(error));
+    }
+  }
+
   useEffect(() => {
     fetchTags()
   }, [])
 
-  return { tags, isLoading, error, fetchTags };
+  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, isLoadingTagRuleCounts, setIsLoadingTagRuleCount };
 }

@@ -37,8 +37,8 @@ class TagsController(
     val liveTagCounts = RuleTagLive.countRulesForAllTags()
     val draftTagCounts = RuleTagDraft.countRulesForAllTags()
     val liveAndDraftTagCounts = Map(
-      "live" -> liveTagCounts,
-      "draft" -> draftTagCounts
+      "live" -> liveTagCounts.map(tuple => Map("tagId" -> tuple._1, "ruleCount" -> tuple._2)),
+      "draft" -> draftTagCounts.map(tuple => Map("tagId" -> tuple._1, "ruleCount" -> tuple._2))
     )
     Ok(Json.toJson(liveAndDraftTagCounts))
   }
