@@ -207,7 +207,7 @@ const RulesTable = () => {
 
   return <>
     <EuiFlexGroup direction="column" gutterSize="none" style={{ height: "100%"}}>
-      <EuiFlexItem>
+      <EuiFlexItem grow={0}>
         <EuiFlexGrid>
           {error &&
             <EuiFlexItem grow={true} style={{
@@ -231,25 +231,28 @@ const RulesTable = () => {
           }
         </EuiFlexGrid>
     <EuiFlexGroup>
-      <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
+      <EuiFlexItem grow={0} style={{ paddingBottom: "20px" }}>
         <EuiTitle>
-          <h1>Current rules</h1>
+          <h1>
+            Current rules
+            {
+              getFeatureSwitchValue("enable-destructive-reload") ?
+                  <>&nbsp;
+                    <EuiButton size="s" fill={true} color={"danger"} onClick={handleRefreshRules} isLoading={isRefreshing}>
+                      <strong>Destroy all rules in the manager and reload from the original Google Sheet</strong>
+                    </EuiButton>
+                  </>
+                : null
+            }
+          </h1>
         </EuiTitle>
       </EuiFlexItem>
-      {
-        getFeatureSwitchValue("enable-destructive-reload") ?
-          <EuiFlexItem grow={false}>
-            <EuiButton size="s" fill={true} color={"danger"} onClick={handleRefreshRules} isLoading={isRefreshing}>
-              <strong>Destroy all rules in the manager and reload from the original Google Sheet</strong>
-            </EuiButton>
-          </EuiFlexItem> :
-          null
-      }
+
       </EuiFlexGroup>
 
       </EuiFlexItem>
-      <EuiFlexGroup css={css`overflow: "hidden"`}>
-        <EuiFlexItem css={css`overflow: "scroll"`} grow={2}>
+      <EuiFlexGroup style={{ overflow: "hidden" }}>
+        <EuiFlexItem style={{  overflowY: "scroll" }} grow={2}>
           {rules &&
             <EuiInMemoryTable
               rowProps={getRowProps}

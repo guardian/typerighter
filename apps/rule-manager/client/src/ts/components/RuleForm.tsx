@@ -21,7 +21,6 @@ import {LineBreak} from "./LineBreak";
 import {CategorySelector} from "./CategorySelector";
 import {TagsSelector} from "./TagsSelector";
 import {RuleFormSection} from "./RuleFormSection";
-import {css} from "@emotion/react";
 
 export type PartiallyUpdateRuleData = (partialReplacement: Partial<DraftRule>) => void;
 
@@ -177,8 +176,8 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate}: {
     const canEditRuleContent = ruleState === 'draft' || ruleState === 'live';
 
     return <>
-        {<EuiFlexGroup gutterSize="m" direction="column" css={css`overflow: "hidden"`}>
-            <EuiFlexItem grow={1} css={css`overflow: "scroll"`}>
+        {<EuiFlexGroup gutterSize="m" direction="column" style={{ overflow: "hidden" }}>
+            <EuiFlexItem grow={1} style={{ overflowY: "scroll" }}>
               <EuiFlexGroup gutterSize="m" direction="column" >
                 <RuleStatus ruleData={rule} />
                 <RuleContent isLoading={isLoading} errors={errors} ruleData={rule} ruleFormData={ruleFormData}  partiallyUpdateRuleData={partiallyUpdateRuleData} showErrors={showErrors}/>
