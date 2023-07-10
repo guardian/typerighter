@@ -112,15 +112,17 @@ export const RuleContent = ({
               compressed={true}
             />
           ) : (
-            <div style={{ backgroundColor: "#FBFCFD", padding: "12px" }}>
-              <EuiMarkdownFormat
-                textSize="s"
-                color="default"
-                aria-label="Description editor"
-              >
-                {ruleFormData.description || ""}
-              </EuiMarkdownFormat>
-            </div>
+            <EuiMarkdownFormat
+              textSize="relative"
+              color="default"
+              aria-label="Description editor"
+              css={css`
+                background-color: rgb(251 252 253 / 50%);
+                padding: 8px;
+              `}
+            >
+              {ruleFormData.description || ""}
+            </EuiMarkdownFormat>
           )}
         </EuiFormRow>
         <EuiSpacer size="m" />
