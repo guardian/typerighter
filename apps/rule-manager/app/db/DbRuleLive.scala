@@ -40,8 +40,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
   override val columns: Seq[String] = dbColumns ++ Seq(
     "reason",
-    "is_active",
-    "rule_order"
+    "is_active"
   )
 
   val rtl = RuleTagLive.syntax("rt")

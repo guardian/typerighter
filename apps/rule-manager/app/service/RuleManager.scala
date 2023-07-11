@@ -48,7 +48,8 @@ object RuleManager extends Loggable {
           ignore = false,
           replacement = replacement.map(_.text),
           externalId = Some(id),
-          user = "Google Sheet"
+          user = "Google Sheet",
+          ruleOrder = 0
         )
       case LTRuleXML(id, xml, category, description) =>
         DbRuleDraft.withUser(
@@ -60,7 +61,8 @@ object RuleManager extends Loggable {
           ignore = false,
           replacement = None,
           externalId = Some(id),
-          user = "Google Sheet"
+          user = "Google Sheet",
+          ruleOrder = 0
         )
       case LTRuleCore(_, languageToolRuleId) =>
         DbRuleDraft.withUser(
@@ -68,7 +70,8 @@ object RuleManager extends Loggable {
           ruleType = RuleType.languageToolCore,
           externalId = Some(languageToolRuleId),
           ignore = false,
-          user = "Google Sheet"
+          user = "Google Sheet",
+          ruleOrder = 0
         )
       case _: LTRule =>
         throw new Error(

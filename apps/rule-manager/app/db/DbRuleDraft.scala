@@ -29,7 +29,8 @@ case class DbRuleDraft(
     updatedBy: String,
     revisionId: Int = 0,
     isPublished: Boolean,
-    isArchived: Boolean
+    isArchived: Boolean,
+    ruleOrder: Int
 ) extends DbRuleCommon {
 
   def toLive(reason: String): DbRuleLive = {
@@ -56,7 +57,7 @@ case class DbRuleDraft(
           updatedAt = updatedAt,
           updatedBy = updatedBy,
           reason = reason,
-          ruleOrder = id
+          ruleOrder = ruleOrder
         )
     }
   }
@@ -93,7 +94,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       updatedBy = rs.string("updated_by"),
       revisionId = rs.int("revision_id"),
       isPublished = rs.boolean("is_published"),
-      isArchived = rs.boolean("is_archived")
+      isArchived = rs.boolean("is_archived"),
+      ruleOrder = rs.int("rule_order")
     )
   }
 
@@ -110,7 +112,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       externalId: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
-      user: String
+      user: String,
+      ruleOrder: Int
   ) = {
     val createdAt = OffsetDateTime.now()
     DbRuleDraft(
@@ -131,7 +134,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       updatedAt = createdAt,
       updatedBy = user,
       isPublished = false,
-      isArchived = false
+      isArchived = false,
+      ruleOrder = ruleOrder
     )
   }
 
@@ -222,6 +226,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       isArchived: Boolean = false,
       tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
+    val latestRuleOrder = SQL(
+      s"""
+         |SELECT rule_order
+         |    FROM $tableName
+         |    ORDER BY rule_order DESC
+         |    LIMIT 1
+         |""".stripMargin).map(_.int(0)).single().apply().getOrElse(1)
+
     val id = withSQL {
       insert
         .into(DbRuleDraft)
@@ -237,7 +249,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.advisoryRule -> advisoryRule,
           column.createdBy -> user,
           column.updatedBy -> user,
-          column.isArchived -> isArchived
+          column.isArchived -> isArchived,
+          column.ruleOrder -> (latestRuleOrder + 1)
         )
     }.updateAndReturnGeneratedKey().apply().toInt
 
@@ -348,7 +361,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("createdAt") -> entity.createdAt,
         Symbol("updatedBy") -> entity.updatedBy,
         Symbol("updatedAt") -> entity.updatedAt,
-        Symbol("isArchived") -> entity.isArchived
+        Symbol("isArchived") -> entity.isArchived,
+        Symbol("ruleOrder") -> entity.ruleOrder
       )
     )
     SQL(s"""insert into $tableName(
@@ -383,6 +397,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {updatedBy},
       {updatedAt},
       {isArchived}
+      {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[Seq]().toList
 
     // Get the last inserted ID to produce the ids generated in the batch update.

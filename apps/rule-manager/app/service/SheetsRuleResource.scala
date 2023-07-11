@@ -144,7 +144,8 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
                 advisoryRule = Some(
                   row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")
                 ),
-                user = "Google Sheet"
+                user = "Google Sheet",
+                ruleOrder = rowNumber
               )
             )
           )
