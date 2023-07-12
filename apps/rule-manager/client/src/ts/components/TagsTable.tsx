@@ -41,7 +41,7 @@ export const EditableNameField = ({
     }, [tag])
     return (
       <>
-        <EuiFlexGroup css={css`width: ${editableNameWidth}`}>
+        <EuiFlexGroup css={css`width: ${editableNameWidth}; padding-left: 1.2rem;`}>
             {editIsEnabled ? 
                 <EuiInlineEditText
                     inputAriaLabel="Edit text inline"
@@ -65,13 +65,15 @@ export const EditableNameField = ({
 const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => void, isLoading: boolean, openDeleteTagDialogue: (tag: Tag) => void, hasEditPermissions: boolean): Array<EuiBasicTableColumn<Tag>> => {
     return [
         {
-            field: 'id',
-            name: 'Tag ID',
-            width: '5rem',
-            sortable: true
+            // Bit of a hack to sort alphabetically on load
+            field: 'name',
+            width: '0rem',
+            name: 'Name',
+            render: (item, enabled) => null,
+            dataType: 'string',
+            sortable: ({ name }) => name.toLowerCase(),
         },
         {
-            field: 'name',
             name: 'Name',
             width: editableNameWidth,
             actions: [{
@@ -79,7 +81,7 @@ const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => voi
               render: (item, enabled) => <EditableNameField editIsEnabled={enabled} editTag={editTag} tag={item} fetchTags={fetchTags} isLoading={isLoading} key={item.id} />,
               enabled: () => hasEditPermissions,
             //   'data-test-subj': 'action-edit',
-            }]
+            }],
           },
         {
             field: 'ruleCount',
@@ -209,7 +211,7 @@ export const TagsTable = () => {
                             columns={columns}
                             items={items}
                             sorting={{sort: {
-                                field: 'id',
+                                field: 'name',
                                 direction: 'asc',
                             }}}
                         >
