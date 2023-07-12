@@ -175,8 +175,20 @@ const DeleteTagWarning = ({tag, setTagToDelete, deleteTag}: {tag: Tag, setTagToD
     </EuiFlexGroup>
   </EuiToast>
 }
+
+const ServerErrorNotification =  ({error}: {error: string}) => {
+   return <EuiToast
+        title="Server Error"
+        color="danger"
+        iconType="error"
+        css={deleteTagWarningCss}
+    >
+        <p>{error}</p>
+    </EuiToast>
+
+}
 export const TagsTable = () => {
-    const {tags, fetchTags, isLoading, tagRuleCounts, fetchTagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag} = useTags();
+    const {tags, fetchTags, isLoading, tagRuleCounts, fetchTagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, error} = useTags();
     const items = Object.values(tags).map(tag => {
         return {id: tag.id, name: tag.name, ruleCount: tagRuleCounts ? tagRuleCounts.draft.find(tagRule => tagRule.tagId === tag.id)?.ruleCount : 0}
     })
@@ -220,6 +232,7 @@ export const TagsTable = () => {
                 </EuiFlexGroup>
             </ EuiFlexItem>
             <EuiFlexItem/>
+            {error ? <ServerErrorNotification error={error}/> : null}
         </EuiFlexGroup>
     </>)
 }
