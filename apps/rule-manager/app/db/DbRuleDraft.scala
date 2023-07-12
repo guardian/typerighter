@@ -226,13 +226,12 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       isArchived: Boolean = false,
       tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
-    val latestRuleOrder = SQL(
-      s"""
+    val latestRuleOrder = SQL(s"""
          |SELECT rule_order
          |    FROM $tableName
          |    ORDER BY rule_order DESC
          |    LIMIT 1
-         |""".stripMargin).map(_.int(0)).single().apply().getOrElse(1)
+         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(1)
 
     val id = withSQL {
       insert
@@ -380,7 +379,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       created_at,
       updated_by,
       updated_at,
-      is_archived
+      is_archived,
+      rule_order
     ) values (
       {ruleType},
       {pattern},
@@ -396,7 +396,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {createdAt},
       {updatedBy},
       {updatedAt},
-      {isArchived}
+      {isArchived},
       {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[Seq]().toList
 
