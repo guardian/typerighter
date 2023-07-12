@@ -107,7 +107,7 @@ const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Pr
     const [clientSideValidationError, setClientSideValidationError] = useState<string | null>(null);
     const createTagIfSuitable = (tagName: string) => {
         if (!tagName){
-            setClientSideValidationError("A tag must contain text.")
+            setClientSideValidationError("A tag must have a name.")
         } else {
             createTag(tagName)
             setTagName('');
@@ -118,7 +118,7 @@ const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Pr
         <EuiFlexGroup css={css`width: 100%; display: flex; gap: 0.8rem;`}>
             <EuiFlexItem grow={true}>
                 <EuiFieldText 
-                    placeholder="Tag text..." 
+                    placeholder="Tag name..." 
                     value={tagName} 
                     onChange={(e) => {setClientSideValidationError(null); setTagName(e.target.value || "")}}
                     css={css`width: 100%; max-width: 100%;`}
