@@ -47,6 +47,8 @@ class TagsController(
     Tags.find(id) match {
       case None => NotFound("Tag not found matching ID")
       case Some(tag) =>
+        RuleTagDraft.destroyForTag(tag.id.get)
+        RuleTagLive.destroyForTag(tag.id.get)
         Tags.destroy(tag)
         Ok(s"Tag with id ${tag.id.get} deleted.")
     }

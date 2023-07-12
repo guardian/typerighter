@@ -1,7 +1,7 @@
 import { EuiBasicTableColumn, EuiButton, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiInMemoryTable, EuiInMemoryTableProps, EuiInlineEditText, EuiTitle, EuiToast, EuiToolTip } from "@elastic/eui"
 import { css } from "@emotion/react"
 import { Tag, useTags } from "./hooks/useTags";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useCreateEditPermissions } from "./RulesTable";
 import { update } from "lodash";
@@ -33,12 +33,13 @@ const DeleteTagButton = styled.button<DeleteTagButtonProps>(props => ({
 
 const editableNameWidth = '18rem';
 
-const DeleteTag = ({editIsEnabled, tag, openDeleteTagDialogue}: {editIsEnabled: boolean, tag: Tag, openDeleteTagDialogue: (tag: Tag) => void}) => {
-
-    return <DeleteTagButton editIsEnabled={editIsEnabled} onClick={() => openDeleteTagDialogue(tag)}>
-        <EuiIcon type="trash" color="danger"/>
+const DeleteTag = ({editIsEnabled, tag, openDeleteTagDialogue}: {editIsEnabled: boolean, tag: Tag, openDeleteTagDialogue: (tag: Tag) => void}) => 
+    <EuiToolTip
+        content={editIsEnabled ? "" : "You do not have the correct permissions to delete a tag. Please contact Central Production if you need to do so."}>
+        <DeleteTagButton editIsEnabled={editIsEnabled} onClick={() => editIsEnabled ? openDeleteTagDialogue(tag) : null}>
+            <EuiIcon type="trash" color="danger"/>
         </DeleteTagButton>
-}
+    </EuiToolTip>
 
 export const EditableNameField = ({
     editIsEnabled,
@@ -47,21 +48,28 @@ export const EditableNameField = ({
     fetchTags,
     isLoading,
   }: { editIsEnabled: boolean, editTag: (tag: Tag) => void, tag: Tag, fetchTags: () => void, isLoading: boolean }) => {
-    console.log(tag)
+    const [tagName, setTagName] = useState(tag.name);
+    useEffect(() => {
+        setTagName(tag.name)
+    }, [tag])
     return (
       <>
         <EuiFlexGroup css={css`width: ${editableNameWidth}`}>
-            <EuiInlineEditText
-                inputAriaLabel="Edit text inline"
-                defaultValue={tag.name}
-                size='s'
-                onSave={(newInlineEditValue: string) => {
-                    console.log("WHU")
-                    const newTag = {id: tag.id, name: newInlineEditValue}
-                    editTag(newTag)
-                }}
-                css={css`width: 100%; color: black`}
-            />
+            {editIsEnabled ? 
+                <EuiInlineEditText
+                    inputAriaLabel="Edit text inline"
+                    defaultValue={tagName}
+                    size='s'
+                    onSave={(newInlineEditValue: string) => {
+                        const newTag = {id: tag.id, name: newInlineEditValue}
+                        editTag(newTag)
+                    }}
+                    css={css`width: 100%; color: black`}
+                /> : <EuiToolTip
+                        content={editIsEnabled ? "" : "You do not have the correct permissions to edit a tag. Please contact Central Production if you need to do so."}>
+                        <EuiFlexItem>{tagName}</EuiFlexItem>
+                    </EuiToolTip>
+            }
         </EuiFlexGroup>
       </>
     );
@@ -73,7 +81,8 @@ const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => voi
         {
             field: 'id',
             name: 'Tag ID',
-            width: '4rem'
+            width: '5rem',
+            sortable: true
         },
         {
             field: 'name',
@@ -81,47 +90,50 @@ const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => voi
             width: editableNameWidth,
             actions: [{
               name: 'Edit',
-              render: (item, enabled) => <EditableNameField editIsEnabled={enabled} editTag={editTag} tag={item} fetchTags={fetchTags} isLoading={isLoading} />,
-              isPrimary: true,
-              description: 'Edit this tag',
-            //   onClick: (tag: Tag) => {
-            //     editTag(tag.id)
-            //   },
+              render: (item, enabled) => <EditableNameField editIsEnabled={enabled} editTag={editTag} tag={item} fetchTags={fetchTags} isLoading={isLoading} key={item.id} />,
               enabled: () => hasEditPermissions,
-              'data-test-subj': 'action-edit',
+            //   'data-test-subj': 'action-edit',
             }]
           },
         {
             field: 'ruleCount',
             width: '10rem',
             name: 'Associated rules',
+            sortable: true
         },
         {
-            width: '4rem',
             name: 'Delete',
+            width: '4rem',
             actions: [{
                 name: 'Delete',
+                enabled: () => hasEditPermissions,
                 render: (item, enabled) => <DeleteTag editIsEnabled={enabled} tag={item} openDeleteTagDialogue={openDeleteTagDialogue}/>
             }]
         }
     ]
 }
 
+const deleteTagWarningCss = css`
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: white;
+    padding: 20px;
+    z-index: 1;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.4)
+`;
+
 const DeleteTagWarning = ({tag, setTagToDelete, deleteTag}: {tag: Tag, setTagToDelete: (tag: Tag | null) => void, deleteTag: (tag: Tag) => void}) => {
+    const deleteAndClosePrompty = (tag: Tag) => { 
+        deleteTag(tag);
+        setTagToDelete(null);
+    }
     return <EuiToast
         title="Confirm Tag delete action"
         color="danger"
         iconType="warning"
         onClose={() => {setTagToDelete(null)}}
-        css={css`
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background-color: white;
-            padding: 20px;
-            z-index: 1;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.4)
-        `}
+        css={deleteTagWarningCss}
     >
     <p>
       Are you sure you want to delete the tag '{tag.name}'?
@@ -131,7 +143,7 @@ const DeleteTagWarning = ({tag, setTagToDelete, deleteTag}: {tag: Tag, setTagToD
 
     <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
       <EuiFlexItem grow={false}>
-        <EuiButton onClick={() => deleteTag(tag)}size="s" color="danger">Delete the '{tag.name}' tag</EuiButton>
+        <EuiButton onClick={() => deleteAndClosePrompty(tag)}size="s" color="danger">Delete the '{tag.name}' tag</EuiButton>
       </EuiFlexItem>
     </EuiFlexGroup>
   </EuiToast>
@@ -145,7 +157,6 @@ export const TagsTable = () => {
     const [tagToDelete, setTagToDelete] = useState<Tag | null>(null)
 
     const openDeleteTagDialogue = (tag: Tag) => {
-        console.log(tag)
         setTagToDelete(tag)
     }
 

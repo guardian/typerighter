@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react"
 import {errorToString} from "../../utils/error";
-import { ErrorIResponse, responseHandler } from "../../utils/api";
+import { ErrorIResponse, responseHandler, textResponseHandler } from "../../utils/api";
 
 const defaultTags = {}
 
@@ -79,7 +79,7 @@ export function useTags() {
         body: JSON.stringify(tagForm)
       })
 
-      const parsedResponse = await responseHandler(response);
+      const parsedResponse = await responseHandler<Tag>(response);
       if (parsedResponse.status === "ok") {
         fetchTags()
         //TODO: use the returned data instead
@@ -107,11 +107,11 @@ export function useTags() {
         },
         body: JSON.stringify(tagForm)
       })
+      
+      const parsedResponse = await textResponseHandler(response);
 
-      const parsedResponse = await responseHandler(response);
       if (parsedResponse.status === "ok") {
         fetchTags();
-        //TODO: use the returned data instead
       } else {
         setError(parsedResponse.errorMessage);
       }

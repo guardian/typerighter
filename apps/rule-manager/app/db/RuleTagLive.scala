@@ -133,4 +133,13 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
       delete.from(this)
     }.update().apply()
   }
+
+  def destroyForTag(tagId: Int)(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete
+        .from(this)
+        .where
+        .eq(column.tagId, tagId)
+    }.update().apply()
+  }
 }
