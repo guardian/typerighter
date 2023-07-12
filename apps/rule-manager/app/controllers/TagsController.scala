@@ -9,7 +9,7 @@ import play.api.mvc._
 import utils.{DbException, FormHelpers, NotFoundException, PermissionsHandler, RuleManagerConfig}
 
 import scala.util.{Failure, Success}
-import db.Tags
+import db.{RuleTagDraft, RuleTagLive, Tags}
 import db.Tags.format
 
 class TagsController(
@@ -31,6 +31,16 @@ class TagsController(
       case Some(tag) =>
         Ok(Json.toJson(tag))
     }
+  }
+
+  def getRuleCountForAllTags() = ApiAuthAction {
+    val liveTagCounts = RuleTagLive.countRulesForAllTags()
+    val draftTagCounts = RuleTagDraft.countRulesForAllTags()
+    val liveAndDraftTagCounts = Map(
+      "live" -> liveTagCounts,
+      "draft" -> draftTagCounts
+    )
+    Ok(Json.toJson(liveAndDraftTagCounts))
   }
 
   def delete(id: Int) = ApiAuthAction {

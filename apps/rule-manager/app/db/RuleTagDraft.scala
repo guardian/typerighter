@@ -1,7 +1,6 @@
 package db
 
 import scalikejdbc._
-import scalikejdbc.interpolation.SQLSyntax.{count, distinct}
 
 import scala.util.{Failure, Success, Try}
 
@@ -39,8 +38,8 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
   }
   def countRulesForAllTags()(implicit session: DBSession = autoSession): List[(Int, Int)] = {
     withSQL {
-      select(rt.tagId, sqls"COUNT(DISTINCT($rt.ruleId})) as rule_count").from(this as rt).groupBy(rt.tagId)
-    }.map(rs => (rs.int("tagId"), rs.int("rule_count"))).list().apply()
+      select(rt.tagId, sqls"COUNT(DISTINCT(${rt.ruleId})) as rule_count").from(this as rt).groupBy(rt.tagId)
+    }.map(rs => (rs.int("tag_id"), rs.int("rule_count"))).list().apply()
   }
 
   def findAll()(implicit session: DBSession = autoSession): List[RuleTagDraft] = {

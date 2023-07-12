@@ -39,6 +39,8 @@ GET     /api/tags                       controllers.TagsController.list()
 +nocsrf
 POST    /api/tags                       controllers.TagsController.create()
 +nocsrf
+GET     /api/tags/ruleCount             controllers.TagsController.getRuleCountForAllTags()
++nocsrf
 GET     /api/tags/:id                   controllers.TagsController.get(id: Int)
 +nocsrf
 POST    /api/tags/:id                   controllers.TagsController.update(id: Int)
