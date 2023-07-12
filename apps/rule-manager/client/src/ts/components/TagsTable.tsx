@@ -18,9 +18,12 @@ const DeleteTagButton = styled.button<DeleteTagButtonProps>(props => ({
 
 const editableNameWidth = '18rem';
 
+const getTagMethodDisabledMessage = (methodName: string) => 
+    `You do not have the correct permissions to ${methodName} a tag. Please contact Central Production if you need to do so.`
+
 const DeleteTag = ({editIsEnabled, tag, openDeleteTagDialogue}: {editIsEnabled: boolean, tag: Tag, openDeleteTagDialogue: (tag: Tag) => void}) => 
     <EuiToolTip
-        content={editIsEnabled ? "" : "You do not have the correct permissions to delete a tag. Please contact Central Production if you need to do so."}>
+        content={editIsEnabled ? "" : getTagMethodDisabledMessage('delete')}>
         <DeleteTagButton editIsEnabled={editIsEnabled} onClick={() => editIsEnabled ? openDeleteTagDialogue(tag) : null}>
             <EuiIcon type="trash" color="danger"/>
         </DeleteTagButton>
@@ -49,7 +52,7 @@ export const EditableNameField = ({
                     }}
                     css={css`width: 100%; color: black`}
                 /> : <EuiToolTip
-                        content={editIsEnabled ? "" : "You do not have the correct permissions to edit a tag. Please contact Central Production if you need to do so."}>
+                        content={editIsEnabled ? "" : getTagMethodDisabledMessage('edit')}>
                         <EuiFlexItem>{tagName}</EuiFlexItem>
                     </EuiToolTip>
             }
@@ -113,17 +116,25 @@ const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Pr
         <EuiSpacer size="s" />
         <EuiFlexGroup css={css`width: 100%; display: flex; gap: 0.8rem;`}>
             <EuiFlexItem grow={true}>
-                <EuiFieldText 
-                    placeholder="Tag name..." 
-                    value={tagName} 
-                    onChange={(e) => {setClientSideValidationError(null); setTagName(e.target.value || "")}}
-                    css={css`width: 100%; max-width: 100%;`}
-                />
+                <EuiToolTip
+                content={enabled ? "" : getTagMethodDisabledMessage('create')}>
+                    <EuiFieldText 
+                        placeholder="Tag name..." 
+                        value={tagName} 
+                        onChange={(e) => {setClientSideValidationError(null); setTagName(e.target.value || "")}}
+                        css={css`width: 100%; max-width: 100%;`}
+                        disabled={!enabled}
+                    />
+                </EuiToolTip>
             </EuiFlexItem>
             <EuiFlexItem grow={false}>
-                <EuiButton onClick={() => createTagIfSuitable(tagName)} color={"primary"} fill disabled={!enabled}>
-                    Create Tag
-                </EuiButton>
+                <EuiToolTip
+                content={enabled ? "" : getTagMethodDisabledMessage('create')}>
+                    <EuiButton onClick={() => createTagIfSuitable(tagName)} color={"primary"} fill disabled={!enabled}>
+                        Create Tag
+                    </EuiButton>
+                
+                </EuiToolTip>
             </EuiFlexItem>
         </EuiFlexGroup>
         <EuiFlexGroup >
