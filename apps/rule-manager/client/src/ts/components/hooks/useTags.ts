@@ -81,8 +81,34 @@ export function useTags() {
 
       const parsedResponse = await responseHandler<Tag>(response);
       if (parsedResponse.status === "ok") {
-        fetchTags()
-        //TODO: use the returned data instead
+        const updatedTag = parsedResponse.data;
+        setTags({...tags, [`${updatedTag.id}`]: updatedTag})
+      } else {
+        setError(parsedResponse.errorMessage);
+      }
+    } catch (error) {
+      setError(errorToString(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const createTag = async (tagName: string) => {
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${location.origin}/api/tags`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({name: tagName})
+      })
+
+      const parsedResponse = await responseHandler<Tag>(response);
+      if (parsedResponse.status === "ok") {
+        const updatedTag = parsedResponse.data;
+        setTags({...tags, [`${updatedTag.id}`]: updatedTag})
       } else {
         setError(parsedResponse.errorMessage);
       }
@@ -127,5 +153,5 @@ export function useTags() {
     fetchTagRuleCounts();
   }, [])
 
-  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag };
+  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag };
 }

@@ -1,25 +1,12 @@
-import { EuiBasicTableColumn, EuiButton, EuiFlexGroup, EuiFlexItem, EuiIcon, EuiInMemoryTable, EuiInMemoryTableProps, EuiInlineEditText, EuiTitle, EuiToast, EuiToolTip } from "@elastic/eui"
+import { EuiBasicTableColumn, EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiIcon, EuiInMemoryTable, EuiInMemoryTableProps, EuiInlineEditText, EuiSpacer, EuiText, EuiTextColor, EuiTitle, EuiToast, EuiToolTip } from "@elastic/eui"
 import { css } from "@emotion/react"
 import { Tag, useTags } from "./hooks/useTags";
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useCreateEditPermissions } from "./RulesTable";
-import { update } from "lodash";
-
-
-// const EditTag = ({
-//     editIsEnabled,
-//     editTag,
-//     tag, 
-//   }: { editIsEnabled: boolean, editTag: (ruleId: number) => void, tag: Tag }) => {
-//     return <EuiToolTip
-//             content={editIsEnabled ? "" : "You do not have the correct permissions to edit a Tag. Please contact Central Production if you need to edit tags."}>
-//             <EditTagButton editIsEnabled={editIsEnabled}
-//                 onClick={() => (editIsEnabled ? editTag(tag.id) : () => null)}>
-//             <EuiIcon type="pencil"/>
-//         </EditTagButton>
-//     </EuiToolTip>
-// }
+import { create, set, update } from "lodash";
+import { RuleFormSection } from "./RuleFormSection";
+import { hasCreateEditPermissions } from "./helpers/hasCreateEditPermissions";
 
 
 type DeleteTagButtonProps = {
@@ -75,8 +62,7 @@ export const EditableNameField = ({
     );
   };
 
-const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => void, isLoading: boolean, openDeleteTagDialogue: (tag: Tag) => void): Array<EuiBasicTableColumn<Tag>> => {
-    const hasEditPermissions = useCreateEditPermissions();
+const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => void, isLoading: boolean, openDeleteTagDialogue: (tag: Tag) => void, hasEditPermissions: boolean): Array<EuiBasicTableColumn<Tag>> => {
     return [
         {
             field: 'id',
@@ -99,6 +85,7 @@ const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => voi
             field: 'ruleCount',
             width: '10rem',
             name: 'Associated rules',
+            render: (value: number) => !!value ? value : 0,
             sortable: true
         },
         {
@@ -111,6 +98,44 @@ const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => voi
             }]
         }
     ]
+}
+
+const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Promise<void>, enabled: boolean}) => {
+    const [tagName, setTagName] = useState('');
+    const [clientSideValidationError, setClientSideValidationError] = useState<string | null>(null);
+    const createTagIfSuitable = (tagName: string) => {
+        if (!tagName){
+            setClientSideValidationError("A tag must contain text.")
+        } else {
+            createTag(tagName)
+            setTagName('');
+        }
+    }
+    return <><EuiFlexGroup css={css`margin-bottom: 1rem; width: 100%;`}><RuleFormSection title="CREATE NEW TAG">
+        <EuiSpacer size="s" />
+        <EuiFlexGroup css={css`width: 100%; display: flex; gap: 0.8rem;`}>
+            <EuiFlexItem grow={true}>
+                <EuiFieldText 
+                    placeholder="Tag text..." 
+                    value={tagName} 
+                    onChange={(e) => {setClientSideValidationError(null); setTagName(e.target.value || "")}}
+                    css={css`width: 100%; max-width: 100%;`}
+                />
+            </EuiFlexItem>
+            <EuiFlexItem grow={false}>
+                <EuiButton onClick={() => createTagIfSuitable(tagName)} color={"primary"} fill disabled={!enabled}>
+                    Create Tag
+                </EuiButton>
+            </EuiFlexItem>
+        </EuiFlexGroup>
+        <EuiFlexGroup >
+            <EuiTextColor color="danger">
+                {clientSideValidationError ? <EuiText css={css`margin-top: 0.5rem;`}>{clientSideValidationError}</EuiText> : null}
+            </EuiTextColor>
+        </EuiFlexGroup>
+    </RuleFormSection>
+    </EuiFlexGroup>
+    </>
 }
 
 const deleteTagWarningCss = css`
@@ -149,7 +174,7 @@ const DeleteTagWarning = ({tag, setTagToDelete, deleteTag}: {tag: Tag, setTagToD
   </EuiToast>
 }
 export const TagsTable = () => {
-    const {tags, fetchTags, isLoading, tagRuleCounts, fetchTagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag} = useTags();
+    const {tags, fetchTags, isLoading, tagRuleCounts, fetchTagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag} = useTags();
     const items = Object.values(tags).map(tag => {
         return {id: tag.id, name: tag.name, ruleCount: tagRuleCounts ? tagRuleCounts.draft.find(tagRule => tagRule.tagId === tag.id)?.ruleCount : 0}
     })
@@ -159,9 +184,10 @@ export const TagsTable = () => {
     const openDeleteTagDialogue = (tag: Tag) => {
         setTagToDelete(tag)
     }
+    const hasEditPermissions = useCreateEditPermissions();
 
-    const columns = createTagTableColumns(updateTag, fetchTags, isLoading, openDeleteTagDialogue)
-      
+    const columns = createTagTableColumns(updateTag, fetchTags, isLoading, openDeleteTagDialogue, hasEditPermissions)
+
     return (<>
         <EuiFlexGroup>
             <EuiFlexItem/>
@@ -174,12 +200,14 @@ export const TagsTable = () => {
                     </EuiFlexItem>
                 </EuiFlexGroup>
                 <EuiFlexGroup>
+                    <CreateTagForm createTag={createTag} enabled={hasEditPermissions} />
+                </EuiFlexGroup>
+                <EuiFlexGroup>
                     {tagToDelete ? <DeleteTagWarning tag={tagToDelete} setTagToDelete={setTagToDelete} deleteTag={deleteTag}/> : null}
                     <EuiFlexItem>
                         <EuiInMemoryTable
                             columns={columns}
                             items={items}
-                            css={css`max-width: 500px`}
                             sorting={{sort: {
                                 field: 'id',
                                 direction: 'asc',
