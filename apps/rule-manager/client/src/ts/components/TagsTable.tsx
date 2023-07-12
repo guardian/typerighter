@@ -103,7 +103,7 @@ const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Pr
     return <EuiFlexGroup css={css`margin-bottom: 1rem; width: 100%;`}>
         <RuleFormSection title="CREATE NEW TAG">
             <EuiSpacer size="s" />
-            <EuiFlexGroup css={css`width: 100%; display: flex; gap: 0.8rem;`}>
+            <EuiFlexGroup css={css`display: flex; gap: 0.8rem;`}>
                 <EuiFlexItem grow={true}>
                     <EuiToolTip
                     content={enabled ? "" : getTagMethodDisabledMessage('create')}>
@@ -111,7 +111,6 @@ const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Pr
                             placeholder="Tag name..." 
                             value={tagName} 
                             onChange={(e) => {setClientSideValidationError(null); setTagName(e.target.value || "")}}
-                            css={css`width: 100%; max-width: 100%;`}
                             disabled={!enabled}
                         />
                     </EuiToolTip>
