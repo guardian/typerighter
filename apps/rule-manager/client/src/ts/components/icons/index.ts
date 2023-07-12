@@ -19,6 +19,7 @@ import { icon as pageSelect } from "@elastic/eui/src/components/icon/assets/page
 import { icon as dot } from "@elastic/eui/src/components/icon/assets/dot";
 import { icon as checkInCircleFilled } from "@elastic/eui/src/components/icon/assets/checkInCircleFilled";
 import { icon as apps } from "@elastic/eui/src/components/icon/assets/apps";
+<<<<<<< HEAD
 import { icon as eye } from "@elastic/eui/src/components/icon/assets/eye";
 import { icon as eyeClosed } from "@elastic/eui/src/components/icon/assets/eye_closed";
 import { icon as iInCircle } from "@elastic/eui/src/components/icon/assets/iInCircle";
@@ -47,6 +48,38 @@ const cachedIcons = {
   eye,
   eyeClosed,
   iInCircle,
+=======
+import { icon as sortDown } from "@elastic/eui/src/components/icon/assets/sort_down";
+import { icon as sortUp } from "@elastic/eui/src/components/icon/assets/sort_up";
+import { icon as trash } from "@elastic/eui/src/components/icon/assets/trash";
+
+
+
+const cachedIcons = {
+    apps,
+    arrowDown,
+    arrowRight,
+    arrowLeft,
+    arrowStart,
+    arrowEnd,
+    search,
+    empty,
+    cross,
+    check,
+    error,
+    exit,
+    starEmptySpace,
+    starFilled,
+    pencil,
+    returnKey,
+    warning,
+    pageSelect,
+    dot,
+    checkInCircleFilled,
+    sortDown,
+    sortUp,
+    trash
+>>>>>>> 1b85ff1 (Add UI for tag edit and deletion)
 };
 
 appendIconComponentCache(cachedIcons);

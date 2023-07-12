@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react"
 import {errorToString} from "../../utils/error";
+import { ErrorIResponse, responseHandler } from "../../utils/api";
 
 const defaultTags = {}
 
@@ -8,16 +9,23 @@ export type Tag = {
   name: string
 }
 
-export type TagRuleCount = {
-  live: number[][]
+type TagRuleCount = {
+  tagId: number,
+  ruleCount: number
+}
+
+type TagRuleCounts = {
+  draft: TagRuleCount[],
+  live: TagRuleCount[]
 }
 
 export type TagMap = Record<string, Tag>;
 
 export function useTags() {
   const [tags, setTags] = useState<Record<number, Tag>>(defaultTags)
+  const [tagRuleCounts, setTagRuleCounts] = useState<TagRuleCounts | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingTagRuleCounts, setIsLoadingTagRuleCount] = useState(false);
+  const [isLoadingTagRuleCounts, setIsLoadingTagRuleCounts] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const fetchTags = async (): Promise<void> => {
@@ -41,27 +49,83 @@ export function useTags() {
   }
 
   const fetchTagRuleCounts = async (): Promise<void> => {
-    setIsLoadingTagRuleCount(true);
+    setIsLoadingTagRuleCounts(true);
 
     try {
       const response = await fetch(`${location.origin}/api/tags/ruleCount`);
       if (!response.ok) {
         throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
       }
-      const tagsRuleCounts: {} = await response.json();
-      const tagMap = {} as Record<string, Tag>;
-      for (const tag of tags) {
-        tagMap[tag.id] = tag
-      }
-      setTags(tagMap);
+      const tagsRuleCounts: TagRuleCounts = await response.json();
+      setTagRuleCounts(tagsRuleCounts);
     } catch (error) {
       setError(errorToString(error));
+    }
+    setIsLoadingTagRuleCounts(false);
+  }
+
+  const updateTag = async (tagForm: Tag) => {
+    setIsLoading(true);
+
+    // We would always expect the ruleForm to include an ID when updating a rule
+    if (!tagForm.id) return {status: 'error', errorMessage: "Update endpoint requires a tag ID"} as ErrorIResponse;
+
+    try {
+      const response = await fetch(`${location.origin}/api/tags/${tagForm.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tagForm)
+      })
+
+      const parsedResponse = await responseHandler(response);
+      if (parsedResponse.status === "ok") {
+        fetchTags()
+        //TODO: use the returned data instead
+      } else {
+        setError(parsedResponse.errorMessage);
+      }
+    } catch (error) {
+      setError(errorToString(error));
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const deleteTag = async (tagForm: Tag) => {
+    setIsLoading(true);
+
+    // We would always expect the ruleForm to include an ID when updating a rule
+    if (!tagForm.id) return {status: 'error', errorMessage: "Update endpoint requires a tag ID"} as ErrorIResponse;
+
+    try {
+      const response = await fetch(`${location.origin}/api/tags/${tagForm.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tagForm)
+      })
+
+      const parsedResponse = await responseHandler(response);
+      if (parsedResponse.status === "ok") {
+        fetchTags();
+        //TODO: use the returned data instead
+      } else {
+        setError(parsedResponse.errorMessage);
+      }
+    } catch (error) {
+      setError(errorToString(error));
+    } finally {
+      setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchTags()
+    fetchTags();
+    fetchTagRuleCounts();
   }, [])
 
-  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, isLoadingTagRuleCounts, setIsLoadingTagRuleCount };
+  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag };
 }
