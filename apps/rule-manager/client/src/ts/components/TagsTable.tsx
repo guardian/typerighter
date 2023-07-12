@@ -4,9 +4,7 @@ import { Tag, useTags } from "./hooks/useTags";
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useCreateEditPermissions } from "./RulesTable";
-import { create, set, update } from "lodash";
 import { RuleFormSection } from "./RuleFormSection";
-import { hasCreateEditPermissions } from "./helpers/hasCreateEditPermissions";
 
 
 type DeleteTagButtonProps = {
@@ -32,9 +30,7 @@ export const EditableNameField = ({
     editIsEnabled,
     editTag,
     tag,
-    fetchTags,
-    isLoading,
-  }: { editIsEnabled: boolean, editTag: (tag: Tag) => void, tag: Tag, fetchTags: () => void, isLoading: boolean }) => {
+  }: { editIsEnabled: boolean, editTag: (tag: Tag) => void, tag: Tag, fetchTags: () => void }) => {
     const [tagName, setTagName] = useState(tag.name);
     useEffect(() => {
         setTagName(tag.name)
@@ -78,7 +74,7 @@ const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => voi
             width: editableNameWidth,
             actions: [{
               name: 'Edit',
-              render: (item, enabled) => <EditableNameField editIsEnabled={enabled} editTag={editTag} tag={item} fetchTags={fetchTags} isLoading={isLoading} key={item.id} />,
+              render: (item, enabled) => <EditableNameField editIsEnabled={enabled} editTag={editTag} tag={item} fetchTags={fetchTags} key={item.id} />,
               enabled: () => hasEditPermissions,
             //   'data-test-subj': 'action-edit',
             }],
