@@ -40,7 +40,7 @@ export const EditableNameField = ({
     }, [tag])
     return (
       <>
-        <EuiFlexGroup css={css`width: ${editableNameWidth}; padding-left: 1.2rem;`}>
+        <EuiFlexGroup css={css`width: ${editableNameWidth};`}>
             {editIsEnabled ? 
                 <EuiInlineEditText
                     inputAriaLabel="Edit text inline"
@@ -64,23 +64,11 @@ export const EditableNameField = ({
 const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => void, isLoading: boolean, openDeleteTagDialogue: (tag: Tag) => void, hasEditPermissions: boolean): Array<EuiBasicTableColumn<Tag>> => {
     return [
         {
-            // Bit of a hack to sort alphabetically on load
             field: 'name',
-            width: '0rem',
-            name: 'Name',
-            render: (item, enabled) => null,
-            dataType: 'string',
-            sortable: ({ name }) => name.toLowerCase(),
-        },
-        {
             name: 'Name',
             width: editableNameWidth,
-            actions: [{
-              name: 'Edit',
-              render: (item, enabled) => <EditableNameField editIsEnabled={enabled} editTag={editTag} tag={item} fetchTags={fetchTags} key={item.id} />,
-              enabled: () => hasEditPermissions,
-            //   'data-test-subj': 'action-edit',
-            }],
+            sortable: ({ name }) => name.toLowerCase(),
+            render: (tagName, item) => <EditableNameField editIsEnabled={hasEditPermissions} editTag={editTag} tag={item} fetchTags={fetchTags} key={item.id} />,
           },
         {
             field: 'ruleCount',
@@ -112,39 +100,39 @@ const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Pr
             setTagName('');
         }
     }
-    return <><EuiFlexGroup css={css`margin-bottom: 1rem; width: 100%;`}><RuleFormSection title="CREATE NEW TAG">
-        <EuiSpacer size="s" />
-        <EuiFlexGroup css={css`width: 100%; display: flex; gap: 0.8rem;`}>
-            <EuiFlexItem grow={true}>
-                <EuiToolTip
-                content={enabled ? "" : getTagMethodDisabledMessage('create')}>
-                    <EuiFieldText 
-                        placeholder="Tag name..." 
-                        value={tagName} 
-                        onChange={(e) => {setClientSideValidationError(null); setTagName(e.target.value || "")}}
-                        css={css`width: 100%; max-width: 100%;`}
-                        disabled={!enabled}
-                    />
-                </EuiToolTip>
-            </EuiFlexItem>
-            <EuiFlexItem grow={false}>
-                <EuiToolTip
-                content={enabled ? "" : getTagMethodDisabledMessage('create')}>
-                    <EuiButton onClick={() => createTagIfSuitable(tagName)} color={"primary"} fill disabled={!enabled}>
-                        Create Tag
-                    </EuiButton>
-                
-                </EuiToolTip>
-            </EuiFlexItem>
-        </EuiFlexGroup>
-        <EuiFlexGroup >
-            <EuiTextColor color="danger">
-                {clientSideValidationError ? <EuiText css={css`margin-top: 0.5rem;`}>{clientSideValidationError}</EuiText> : null}
-            </EuiTextColor>
-        </EuiFlexGroup>
-    </RuleFormSection>
+    return <EuiFlexGroup css={css`margin-bottom: 1rem; width: 100%;`}>
+        <RuleFormSection title="CREATE NEW TAG">
+            <EuiSpacer size="s" />
+            <EuiFlexGroup css={css`width: 100%; display: flex; gap: 0.8rem;`}>
+                <EuiFlexItem grow={true}>
+                    <EuiToolTip
+                    content={enabled ? "" : getTagMethodDisabledMessage('create')}>
+                        <EuiFieldText 
+                            placeholder="Tag name..." 
+                            value={tagName} 
+                            onChange={(e) => {setClientSideValidationError(null); setTagName(e.target.value || "")}}
+                            css={css`width: 100%; max-width: 100%;`}
+                            disabled={!enabled}
+                        />
+                    </EuiToolTip>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                    <EuiToolTip
+                    content={enabled ? "" : getTagMethodDisabledMessage('create')}>
+                        <EuiButton onClick={() => createTagIfSuitable(tagName)} color={"primary"} fill disabled={!enabled}>
+                            Create Tag
+                        </EuiButton>
+                    
+                    </EuiToolTip>
+                </EuiFlexItem>
+            </EuiFlexGroup>
+            <EuiFlexGroup >
+                <EuiTextColor color="danger">
+                    {clientSideValidationError ? <EuiText css={css`margin-top: 0.5rem;`}>{clientSideValidationError}</EuiText> : null}
+                </EuiTextColor>
+            </EuiFlexGroup>
+        </RuleFormSection>
     </EuiFlexGroup>
-    </>
 }
 
 const deleteTagWarningCss = css`
@@ -212,7 +200,7 @@ export const TagsTable = () => {
     return (<>
         <EuiFlexGroup>
             <EuiFlexItem/>
-            <EuiFlexItem>
+            <EuiFlexItem css={css`width: 32rem;`}>
                 <EuiFlexGroup>
                     <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
                         <EuiTitle>
