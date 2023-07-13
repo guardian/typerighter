@@ -2,7 +2,7 @@ import com.gu.riffraff.artifact.BuildInfo
 
 name := "typerighter"
 ThisBuild / organization := "com.gu"
-ThisBuild / scalaVersion := "2.13.10"
+ThisBuild / scalaVersion := "2.13.7"
 ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
   "-encoding",
@@ -19,13 +19,13 @@ ThisBuild / scalacOptions := Seq(
   "-Wconf:src=twirl/.*:s"
 )
 
-val languageToolVersion = "6.1"
+val languageToolVersion = "6.0"
 val awsSdkVersion = "1.12.416"
-val capiModelsVersion = "17.5.2"
-val capiClientVersion = "19.2.3"
-val circeVersion = "0.14.5"
+val capiModelsVersion = "17.5.1"
+val capiClientVersion = "19.2.1"
+val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
-val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-4.0"
+val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps"
 
 val commonSettings = Seq(
@@ -52,19 +52,19 @@ val commonSettings = Seq(
     )
   },
   libraryDependencies ++= Seq(
-    "net.logstash.logback" % "logstash-logback-encoder" % "7.3",
+    "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.3" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.14",
+    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
-    "com.google.api-client" % "google-api-client" % "2.2.0",
-    "com.google.apis" % "google-api-services-sheets" % "v4-rev20230227-2.0.0",
+    "com.google.api-client" % "google-api-client" % "2.0.1",
+    "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
-    "org.languagetool" % "language-en" % languageToolVersion
+    "org.languagetool" % "language-en" % languageToolVersion,
   ),
   dependencyOverrides ++= Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
   )
 )
 
@@ -75,7 +75,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     commonSettings,
     libraryDependencies ++= Seq(
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.8.19"
+      "com.typesafe.play" %% "play" % "2.8.19",
     )
   )
 
@@ -93,21 +93,21 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
-      "net.logstash.logback" % "logstash-logback-encoder" % "6.6",
-      "org.webjars" % "bootstrap" % "4.6.2",
+      "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
+      "org.webjars" % "bootstrap" % "4.3.1",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "org.apache.opennlp" % "opennlp" % "2.1.1"
+      "org.apache.opennlp" % "opennlp" % "2.1.0"
     ),
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
       "io.circe" %% "circe-parser"
     ).map(_ % circeVersion),
-    libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.6" % "test,it",
-    libraryDependencies += "io.gatling" % "gatling-test-framework" % "3.7.6" % "test,it"
+    libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
+    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
   )
 
 val ruleManager = (project in file(s"$appsFolder/rule-manager"))
@@ -122,23 +122,22 @@ val ruleManager = (project in file(s"$appsFolder/rule-manager"))
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.5.4",
+      "org.postgresql" % "postgresql" % "42.5.1",
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
-      "com.gu" %% "editorial-permissions-client" % "2.15"
+      "com.gu" %% "editorial-permissions-client" % "2.14",
     )
   )
 
-val root =
-  (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
+val root = (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
-  (checker / Debian / packageBin).value -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
-  (ruleManager / Debian / packageBin).value -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
+  (checker / Debian / packageBin).value  -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
+  (ruleManager / Debian / packageBin).value  -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "cdk/cdk.out/typerighter-CODE.template.json" -> "typerighter-cloudformation/typerighter-CODE.template.json",
   baseDirectory.value / "cdk/cdk.out/typerighter-PROD.template.json" -> "typerighter-cloudformation/typerighter-PROD.template.json"
