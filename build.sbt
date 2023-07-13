@@ -49,13 +49,13 @@ val commonSettings = Seq(
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
     "com.gu" %% "simple-configuration-ssm" % "1.5.7",
     "com.gu" %% "pan-domain-auth-verification" % "1.2.1",
-    "com.google.api-client" % "google-api-client" % "2.0.1",
+    "com.google.api-client" % "google-api-client" % "2.2.0",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
-    "org.languagetool" % "language-en" % languageToolVersion,
+    "org.languagetool" % "language-en" % languageToolVersion
   ),
   dependencyOverrides ++= Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4"
   )
 )
 
@@ -65,7 +65,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     commonSettings,
     libraryDependencies ++= Seq(
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.8.19",
+      "com.typesafe.play" %% "play" % "2.8.19"
     )
   )
 
@@ -74,7 +74,9 @@ def playProject(projectName: String, devHttpPorts: Map[String, String]) =
     .dependsOn(commonLib)
     .enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
     .settings(
-      PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) => s"play.server.$protocol.port" -> value }.toSeq,
+      PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) =>
+        s"play.server.$protocol.port" -> value
+      }.toSeq,
       libraryDependencies += ws,
       Universal / javaOptions ++= Seq(
         s"-Dpidfile.path=/dev/null",
@@ -107,7 +109,7 @@ val checker = playProject("checker", Map("http" -> "9100"))
       "com.gu" %% "content-api-client-default" % capiClientVersion,
       "org.apache.opennlp" % "opennlp" % "2.1.0",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-      "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it"
+      "io.gatling" % "gatling-test-framework" % "3.7.2" % "test,it"
     ) ++ Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
@@ -130,15 +132,16 @@ val ruleManager = playProject("rule-manager", Map("http" -> "9101"))
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
-      "com.gu" %% "editorial-permissions-client" % "2.14",
+      "com.gu" %% "editorial-permissions-client" % "2.14"
     )
   )
 
-val root = (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
+val root =
+  (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
 
 riffRaffArtifactResources := Seq(
-  (checker / Debian / packageBin).value  -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
-  (ruleManager / Debian / packageBin).value  -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
+  (checker / Debian / packageBin).value -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
+  (ruleManager / Debian / packageBin).value -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
   baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
   baseDirectory.value / "cdk/cdk.out/typerighter-CODE.template.json" -> "typerighter-cloudformation/typerighter-CODE.template.json",
   baseDirectory.value / "cdk/cdk.out/typerighter-PROD.template.json" -> "typerighter-cloudformation/typerighter-PROD.template.json"
