@@ -25,7 +25,7 @@ val capiModelsVersion = "17.5.2"
 val capiClientVersion = "19.2.3"
 val circeVersion = "0.14.5"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
-val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
+val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-4.0"
 val appsFolder = "apps"
 
 val commonSettings = Seq(
