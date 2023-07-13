@@ -231,7 +231,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
          |    FROM $tableName
          |    ORDER BY rule_order DESC
          |    LIMIT 1
-         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(1)
+         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(0)
 
     val id = withSQL {
       insert
