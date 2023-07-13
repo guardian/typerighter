@@ -9,11 +9,6 @@ export type FeatureSwitch = {
 
 const allFeatureSwitches = [
   {
-    name: "Create and edit rules",
-    id: "create-and-edit",
-    default: false,
-  },
-  {
     name: "Enable destructive reload from rules sheet",
     id: "enable-destructive-reload",
     default: false,
