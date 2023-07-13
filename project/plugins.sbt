@@ -8,5 +8,5 @@ addSbtPlugin("org.scalikejdbc" %% "scalikejdbc-mapper-generator" % "3.5.0")
 
 libraryDependencies ++= Seq(
   "org.vafer" % "jdeb" % "1.7" artifacts Artifact("jdeb", "jar", "jar"),
-  "org.postgresql" % "postgresql" % "42.5.1"
+  "org.postgresql" % "postgresql" % "42.5.4"
 )
