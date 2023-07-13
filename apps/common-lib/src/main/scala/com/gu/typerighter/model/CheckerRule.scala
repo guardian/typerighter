@@ -16,20 +16,20 @@ import scala.jdk.CollectionConverters._
 
 /** A rule to match text against.
   */
-sealed trait BaseRule {
+sealed trait CheckerRule {
   val id: String
   val category: Category
 }
 
-object BaseRule {
-  implicit val writes: Writes[BaseRule] = Json.writes[BaseRule]
-  implicit val reads: Reads[BaseRule] = Json.reads[BaseRule]
+object CheckerRule {
+  implicit val writes: Writes[CheckerRule] = Json.writes[CheckerRule]
+  implicit val reads: Reads[CheckerRule] = Json.reads[CheckerRule]
 }
 
 case class LTRuleCore(
     id: String,
     languageToolRuleId: String
-) extends BaseRule {
+) extends CheckerRule {
   override val category: Category = Category("lt_core", "LanguageTool Core Rule")
 }
 
@@ -66,7 +66,7 @@ case class RegexRule(
     suggestions: List[TextSuggestion] = List.empty,
     replacement: Option[TextSuggestion] = None,
     regex: ComparableRegex
-) extends BaseRule {
+) extends CheckerRule {
 
   def toMatch(
       start: Int,
@@ -108,7 +108,7 @@ case class LTRuleXML(
     xml: String,
     category: Category,
     description: String
-) extends BaseRule {
+) extends CheckerRule {
   val suggestions = List.empty
   val replacement: Option[TextSuggestion] = None
 }
@@ -131,7 +131,7 @@ case class LTRule(
     message: String,
     url: Option[String] = None,
     suggestions: List[TextSuggestion]
-) extends BaseRule {
+) extends CheckerRule {
   val replacement: Option[TextSuggestion] = None
 }
 

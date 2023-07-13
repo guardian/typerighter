@@ -23,9 +23,17 @@ class HomeController(
     with AppAuthActions
     with PermissionsHandler {
 
-  def index() = AuthAction {
-    val devMode = config.stage == "dev"
-    Ok(views.html.index(devMode))
+  def index(path: String) = AuthAction { request =>
+    Ok(
+      views.html.index(
+        config.stage,
+        request.user,
+        userAndPermissionsToJson(
+          request.user,
+          List(PermissionDefinition("manage_rules", "typerighter"))
+        )
+      )
+    )
   }
 
   def healthcheck() = Action {

@@ -25,5 +25,5 @@ p, h1, h2, h3, h4, h5, h6 {
 
 /* Ensure headings are the correct font – EUI does not have a separate font for headings. */
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Guardian Egyptian Text" !important;
+  font-family: "Guardian Egyptian Text";
 }

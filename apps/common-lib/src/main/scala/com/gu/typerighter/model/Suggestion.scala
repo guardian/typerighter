@@ -17,7 +17,7 @@ sealed trait Suggestion {
   /** If our suggestion is at the start of a sentence, cap up the first letter.
     */
   def ensureCorrectCase(isStartOfSentence: Boolean): Suggestion = this match {
-    case TextSuggestion(text) if isStartOfSentence =>
+    case TextSuggestion(text) if isStartOfSentence && text.nonEmpty =>
       TextSuggestion(text = s"${text.charAt(0).toUpper}${text.slice(1, text.length)}")
     case suggestion => suggestion
   }

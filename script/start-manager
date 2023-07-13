@@ -29,9 +29,9 @@ teardownDependencies() {
 
 runRuleManager() {
   if [[ "$IS_DEBUG" = true ]] ; then
-    sbt -jvm-debug 5006 "ruleManager / run"
+    sbt -jvm-debug 5006 "rule-manager / run"
   else
-    sbt "ruleManager / run"
+    sbt "rule-manager / run"
   fi
 }
 
@@ -40,3 +40,8 @@ trap teardownDependencies EXIT
 checkCredentials
 setupDependencies
 runRuleManager
+
+# catches script exit events and kills child processes and their process trees
+# https://stackoverflow.com/a/22644006
+trap "exit" INT TERM
+trap "kill 0" EXIT

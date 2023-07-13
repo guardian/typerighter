@@ -35,7 +35,7 @@ object RuleMatch {
 }
 
 case class RuleMatch(
-    rule: BaseRule,
+    rule: CheckerRule,
     fromPos: Int,
     toPos: Int,
     precedingText: String,

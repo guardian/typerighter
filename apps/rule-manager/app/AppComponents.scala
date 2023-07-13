@@ -2,25 +2,20 @@ import play.api.ApplicationLoader.Context
 import play.filters.HttpFiltersComponents
 import play.api.BuiltInComponentsFromContext
 import play.api.libs.ws.ahc.AhcWSComponents
-import controllers.{AssetsComponents, HomeController, RulesController}
+import controllers.{AssetsComponents, HomeController, RulesController, TagsController}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.auth.{
-  AWSCredentialsProvider,
-  AWSStaticCredentialsProvider,
-  BasicAWSCredentials
-}
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.regions.Regions
+import com.amazonaws.auth.AWSCredentialsProvider
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
-import com.gu.typerighter.rules.{BucketRuleManager, SheetsRuleManager}
+import com.gu.typerighter.rules.BucketRuleResource
 import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
-import utils.RuleManagerConfig
+import service.SheetsRuleResource
+import utils.{LocalStack, RuleManagerConfig}
 
 class AppComponents(
     context: Context,
@@ -39,9 +34,6 @@ class AppComponents(
 
   applicationEvolutions
 
-  private val localStackBasicAWSCredentialsProviderV1: AWSCredentialsProvider =
-    new AWSStaticCredentialsProvider(new BasicAWSCredentials("accessKey", "secretKey"))
-
   private val standardS3Client = AmazonS3ClientBuilder
     .standard()
     .withCredentials(creds)
@@ -51,15 +43,7 @@ class AppComponents(
   private val s3Client = identity match {
     case _: AwsIdentity => standardS3Client
     case _: DevIdentity =>
-      AmazonS3ClientBuilder
-        .standard()
-        .withCredentials(localStackBasicAWSCredentialsProviderV1)
-        .withEndpointConfiguration(
-          new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName)
-        )
-        // This is needed for localstack
-        .enablePathStyleAccess()
-        .build()
+      LocalStack.s3Client
   }
 
   val stageDomain = identity match {
@@ -95,8 +79,8 @@ class AppComponents(
   }
   val typerighterBucket = s"typerighter-app-${stage}"
 
-  val sheetsRuleManager = new SheetsRuleManager(config.credentials, config.spreadsheetId)
-  val bucketRuleManager = new BucketRuleManager(s3Client, typerighterBucket, stage)
+  val sheetsRuleResource = new SheetsRuleResource(config.credentials, config.spreadsheetId)
+  val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
 
   val homeController = new HomeController(
     controllerComponents,
@@ -108,15 +92,23 @@ class AppComponents(
 
   val rulesController = new RulesController(
     controllerComponents,
-    sheetsRuleManager,
-    bucketRuleManager,
-    publicSettings
+    sheetsRuleResource,
+    bucketRuleResource,
+    publicSettings,
+    config
+  )
+
+  val tagsController = new TagsController(
+    controllerComponents,
+    publicSettings,
+    config
   )
 
   lazy val router = new Routes(
     httpErrorHandler,
-    assets,
     homeController,
-    rulesController
+    rulesController,
+    tagsController,
+    assets
   )
 }

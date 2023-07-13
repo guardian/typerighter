@@ -2,16 +2,16 @@ package com.gu.typerighter.rules
 
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
-import com.gu.typerighter.model.RuleResource
+import com.gu.typerighter.model.CheckerRuleResource
 import play.api.Logging
 import play.api.libs.json.Json
 
 import java.util.Date
 
-class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
+class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules.json"
 
-  def putRules(ruleResource: RuleResource): Either[Exception, Unit] = {
+  def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
     val ruleJson = Json.toJson(ruleResource)
     val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
 
@@ -26,7 +26,7 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends
     }
   }
 
-  def getRules(): Either[Exception, (RuleResource, Date)] = {
+  def getRules(): Either[Exception, (CheckerRuleResource, Date)] = {
     logOnError(s"getting rules from S3 at $bucketName/$RULES_KEY") {
       val rules = s3.getObject(bucketName, RULES_KEY)
       val rulesStream = rules.getObjectContent()
@@ -35,7 +35,7 @@ class BucketRuleManager(s3: AmazonS3, bucketName: String, stage: String) extends
       rules.close()
 
       logger.info(s"Got rules from S3. JSON hash: ${rulesJson.hashCode()}")
-      (rulesJson.as[RuleResource], lastModified)
+      (rulesJson.as[CheckerRuleResource], lastModified)
     }
   }
 

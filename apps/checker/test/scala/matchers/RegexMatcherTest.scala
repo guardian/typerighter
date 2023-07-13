@@ -317,4 +317,16 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
       firstMatch.markAsCorrect shouldBe true
     }
   }
+
+  it should "should not throw an error when the replacement is empty" in {
+    val eventuallyMatches = checkTextWithRegex(
+      new ComparableRegex("(?i)\\bcaf(e|é|è|ë|ê)"),
+      "",
+      "Allowed to have up to 15 people in their home per day, and this rule applies to holiday accomodation. cafes, bars, and restaurants will be able to seat 100 indoors and 200 outdoors, within the density limit"
+    )
+
+    eventuallyMatches.map { matches =>
+      matches.size shouldBe 1
+    }
+  }
 }

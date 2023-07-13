@@ -32,6 +32,7 @@ jobs:
         working-directory: ./apps/rule-manager/client
         run: |
           npm ci
+          npm run test
           npm run build
       - name: build rule-audit-client
         working-directory: ./apps/rule-audit-client

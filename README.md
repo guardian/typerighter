@@ -43,9 +43,9 @@ flowchart LR
 
   sheet--"Get rules"-->manager
   manager--"Write rules"-->db
-  manager<--"Read rules"--db
+  db--"Read rules"--> manager
   manager--"Write rule artefact"-->s3
-  s3--"Read rule artefact"-->checker
+  checker--"Read rule artefact"-->s3
   client--"Request matches"-->checker
 
   owner-."Force manager to re-fetch sheet".->manager
@@ -85,3 +85,19 @@ For intellij there is a guide to set up automated linting on save [here](https:/
 ## Automatic Linting
 
 The project contains a pre-commit hook which will automatically run the linter on all staged files. To enable this, run `./script/setup-hooks` from the root of the project.
+
+## Developer how-tos
+
+### Connecting to the rule-manager database in CODE or PROD
+
+Sometimes it's useful to connect to the databases running in AWS to inspect the data locally.
+
+We can use `ssm-scala` to create an SSH tunnel that exposes the remote database on a local port. For example, to connect to the CODE database, we can run:
+
+```bash
+ssm ssh -x -t typerighter-rule-manager,CODE -p composer --rds-tunnel 5000:rule-manager-db,CODE
+```
+
+You should then be able to connect the database on `localhost:5000`. You'll need to use the username and password specified in [AWS parameter store](https://eu-west-1.console.aws.amazon.com/systems-manager/parameters/?region=eu-west-1&tab=Table) at `/${STAGE}/flexible/typerighter-rule-manager/db.default.username` and `db.default.password`.
+
+Don't forget to kill the connection once you're done! Here's a handy one-liner: `kill $(lsof -ti {PORT_NUMBER})`

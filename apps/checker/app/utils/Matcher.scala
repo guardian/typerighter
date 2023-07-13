@@ -1,6 +1,6 @@
 package utils
 
-import com.gu.typerighter.model.{BaseRule, Category, RuleMatch}
+import com.gu.typerighter.model.{CheckerRule, Category, RuleMatch}
 
 import java.util.UUID
 import scala.concurrent.Future
@@ -15,7 +15,7 @@ trait Matcher {
   private val id = UUID.randomUUID().toString()
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext): Future[List[RuleMatch]]
-  def getRules(): List[BaseRule]
+  def getRules(): List[CheckerRule]
   def getCategories(): Set[Category]
   def getType(): String
   def getId() = id

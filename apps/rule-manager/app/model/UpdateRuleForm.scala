@@ -1,9 +1,9 @@
 package model
 
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional, text}
+import play.api.data.Forms.{boolean, list, mapping, number, optional, text}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
-import service.DbRuleManager.RuleType
+import service.RuleManager.RuleType
 
 object UpdateRuleForm {
   val ruleTypeConstraint: Constraint[Option[String]] = Constraint("constraints.ruleType")({ text =>
@@ -32,12 +32,8 @@ object UpdateRuleForm {
       "pattern" -> optional(text()),
       "replacement" -> optional(text()),
       "category" -> optional(text()),
-      "tags" -> optional(text()),
+      "tags" -> list(number()),
       "description" -> optional(text()),
-      "ignore" -> optional(boolean),
-      "notes" -> optional(text()),
-      "googleSheetId" -> optional(text()),
-      "forceRedRule" -> optional(boolean),
       "advisoryRule" -> optional(boolean)
     )(UpdateRuleForm.apply)(UpdateRuleForm.unapply)
   )
@@ -48,11 +44,7 @@ case class UpdateRuleForm(
     pattern: Option[String] = None,
     replacement: Option[String] = None,
     category: Option[String] = None,
-    tags: Option[String] = None,
+    tags: List[Int],
     description: Option[String] = None,
-    ignore: Option[Boolean] = None,
-    notes: Option[String] = None,
-    googleSheetId: Option[String] = None,
-    forceRedRule: Option[Boolean] = None,
     advisoryRule: Option[Boolean] = None
 )

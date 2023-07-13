@@ -1,0 +1,21 @@
+<svg width="50" height="49" viewBox="11 10 25 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style type="text/css">
+    path {
+      fill: #2B2B29;
+    }
+    rect {
+      stroke: #2B2B29;
+    }
+    @media (prefers-color-scheme: dark) {
+      path {
+        fill: #eee;
+      }
+      rect {
+        stroke: #eee
+      }
+    }
+  </style>
+  <rect x="9" y="11" width="29" height="28" stroke-width="2" opacity="1"  rx="4" />
+  <path d="M23.0738 24.5348L22.4467 22.4377H18.7009L18.0399 24.5348L19.2433 24.9343V25.833H15.667V24.9343L16.4636 24.5348L20.1755 13.833H23.0907L26.8026 24.5348L27.667 24.9343V25.833H21.8704V24.9343L23.0738 24.5348ZM20.5653 16.496L19.1416 21.023H22.0229L20.65 16.496H20.5653Z" />
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M18.3433 28.396L17.4443 29.295L21.9393 35.588H22.3664L35.2221 22.2828L34.3231 21.4062L22.3664 32.2392L18.3433 28.396Z" />
+</svg>

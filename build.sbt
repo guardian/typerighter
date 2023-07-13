@@ -29,16 +29,7 @@ val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps"
 
 val commonSettings = Seq(
-  Universal / javaOptions ++= Seq(
-    s"-Dpidfile.path=/dev/null",
-    "-J-XX:MaxRAMFraction=2",
-    "-J-XX:InitialRAMFraction=2",
-    "-J-XX:MaxMetaspaceSize=300m",
-    "-J-XX:+PrintGCDetails",
-    "-J-XX:+PrintGCDateStamps",
-    s"-J-Dlogs.home=/var/log/${packageName.value}",
-    s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
-  ),
+  Test / fork := false, // Enables attaching debugger in tests
   buildInfoPackage := "typerighter",
   buildInfoKeys := {
     lazy val buildInfo = BuildInfo(baseDirectory.value)
@@ -71,7 +62,6 @@ val commonSettings = Seq(
 val commonLib = (project in file(s"$appsFolder/common-lib"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    packageName := "common-lib",
     commonSettings,
     libraryDependencies ++= Seq(
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
@@ -79,16 +69,32 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     )
   )
 
-val checker = (project in file(s"$appsFolder/checker"))
-  .dependsOn(commonLib)
-  .enablePlugins(PlayScala, GatlingPlugin, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
+def playProject(projectName: String, devHttpPorts: Map[String, String]) =
+  Project(projectName, file(s"$appsFolder/$projectName"))
+    .dependsOn(commonLib)
+    .enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
+    .settings(
+      PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) => s"play.server.$protocol.port" -> value }.toSeq,
+      libraryDependencies += ws,
+      Universal / javaOptions ++= Seq(
+        s"-Dpidfile.path=/dev/null",
+        "-J-XX:MaxRAMFraction=2",
+        "-J-XX:InitialRAMFraction=2",
+        "-J-XX:MaxMetaspaceSize=300m",
+        "-J-XX:+PrintGCDetails",
+        "-J-XX:+PrintGCDateStamps",
+        s"-J-Dlogs.home=/var/log/${packageName.value}",
+        s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
+      ),
+      commonSettings
+    )
+
+val checker = playProject("checker", Map("http" -> "9100"))
+  .enablePlugins(GatlingPlugin)
   .settings(
     Universal / javaOptions += s"-Dconfig.file=/etc/gu/${packageName.value}.conf",
     packageName := "typerighter-checker",
-    PlayKeys.devSettings += "play.server.http.port" -> "9100",
-    commonSettings,
     libraryDependencies ++= Seq(
-      ws,
       "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
@@ -99,26 +105,21 @@ val checker = (project in file(s"$appsFolder/checker"))
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "org.apache.opennlp" % "opennlp" % "2.1.0"
-    ),
-    libraryDependencies ++= Seq(
+      "org.apache.opennlp" % "opennlp" % "2.1.0",
+      "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
+      "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it"
+    ) ++ Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
       "io.circe" %% "circe-parser"
-    ).map(_ % circeVersion),
-    libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-    libraryDependencies += "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
+    ).map(_ % circeVersion)
   )
 
-val ruleManager = (project in file(s"$appsFolder/rule-manager"))
-  .dependsOn(commonLib)
-  .enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin, ScalikejdbcPlugin)
+val ruleManager = playProject("rule-manager", Map("http" -> "9101"))
+  .enablePlugins(ScalikejdbcPlugin)
   .settings(
     packageName := "typerighter-rule-manager",
-    PlayKeys.devSettings += "play.server.http.port" -> "9101",
-    commonSettings,
     libraryDependencies ++= Seq(
-      ws,
       guice,
       jdbc,
       evolutions,

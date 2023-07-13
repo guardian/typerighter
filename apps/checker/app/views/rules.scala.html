@@ -1,12 +1,12 @@
 @import helper._
 
-@import com.gu.typerighter.model.BaseRule
+@import com.gu.typerighter.model.CheckerRule
 @import com.gu.typerighter.model.RegexRule
 @import com.gu.typerighter.model.LTRule
 @import utils.Matcher
 
 @import com.gu.typerighter.model.LTRuleXML
-@(sheetId: String, rules: scala.List[BaseRule], matchers: scala.List[Matcher], ruleManagerUrl: String,
+@(sheetId: String, rules: scala.List[CheckerRule], matchers: scala.List[Matcher], ruleManagerUrl: String,
 rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
 @main(title = "Typerighter", breadcrumbsList = List("Rules")) {
     <h1 class="align-middle mb-4">
