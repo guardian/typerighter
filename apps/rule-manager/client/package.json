@@ -5,7 +5,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "start": "vite --clearScreen false",
+    "start": "vite -l warn --clearScreen false",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "jest"

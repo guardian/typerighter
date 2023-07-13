@@ -24,4 +24,5 @@ runChecker() {
 }
 
 checkCredentials
+printf "🌟 Rule checker will be available at https://checker.typerighter.local.dev-gutools.co.uk when ready\n"
 runChecker

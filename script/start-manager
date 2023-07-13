@@ -38,6 +38,7 @@ runRuleManager() {
 trap teardownDependencies EXIT
 
 checkCredentials
+printf "🚀 Rule manager will be available at https://manager.typerighter.local.dev-gutools.co.uk when ready\n"
 setupDependencies
 runRuleManager
 
