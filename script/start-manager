@@ -29,9 +29,9 @@ teardownDependencies() {
 
 runRuleManager() {
   if [[ "$IS_DEBUG" = true ]] ; then
-    sbt -jvm-debug 5006 "ruleManager / run"
+    sbt -jvm-debug 5006 "rule-manager / run"
   else
-    sbt "ruleManager / run"
+    sbt "rule-manager / run"
   fi
 }
 
