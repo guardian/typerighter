@@ -23,7 +23,8 @@ export type BaseRule = {
   updatedAt: string,
   id?: number,
   isArchived: boolean,
-  isPublished: boolean
+  isPublished: boolean,
+  hasUnpublishedChanges: boolean
 }
 
 export type DraftRule = BaseRule

@@ -3,7 +3,7 @@ import {RuleData} from "./hooks/useRule";
 import {RuleFormSection} from "./RuleFormSection";
 import {capitalize} from "lodash";
 import {getRuleStatus, getRuleStatusColour, hasUnpublishedChanges} from "../utils/rule";
-import {EuiButton, EuiHealth, EuiText, EuiTextColor} from "@elastic/eui";
+import {EuiFlexGroup, EuiHealth, EuiIcon, EuiText} from "@elastic/eui";
 import {css} from "@emotion/react";
 import {euiTextTruncate} from "@elastic/eui/src/global_styling/mixins/_typography";
 import styled from "@emotion/styled";
@@ -18,14 +18,13 @@ export const RuleStatus = ({ruleData}: {
 }) => {
   const state = capitalize(getRuleStatus(ruleData?.draft));
   return <RuleFormSection title="RULE STATUS" additionalInfo={
-    !!ruleData && hasUnpublishedChanges(ruleData) && "Has unpublished changes"}>
+    !!ruleData && hasUnpublishedChanges(ruleData) && <EuiFlexGroup gutterSize="s">Has unpublished changes<EuiIcon type="warning" /></EuiFlexGroup>}>
     <LineBreak/>
     <RuleStatusContainer>
       <AnotherContainer>
         <EuiHealth textSize="m" color={getRuleStatusColour(ruleData?.draft)} />
         <EuiText css={css`${euiTextTruncate()}`}>{state}</EuiText>
       </AnotherContainer>
-
     </RuleStatusContainer>
   </RuleFormSection>
 }
