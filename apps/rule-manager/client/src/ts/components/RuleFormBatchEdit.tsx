@@ -18,8 +18,9 @@ import {LineBreak} from "./LineBreak";
 import {CategorySelector} from "./CategorySelector";
 import {TagsSelector} from "./TagsSelector";
 
-export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
+export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate, isTagMapLoading}: {
     tags: TagMap,
+    isTagMapLoading: boolean,
     ruleIds: number[],
     onClose: () => void,
     onUpdate: () => void
@@ -70,7 +71,7 @@ export const RuleFormBatchEdit = ({tags, ruleIds, onClose, onUpdate}: {
             <RuleFormSection title="RULE METADATA">
               <LineBreak/>
               <CategorySelector currentCategory={ruleFormData[0]?.category} partiallyUpdateRuleData={partiallyUpdateRuleData} />
-              <TagsSelector tags={tags} selectedTagIds={uniqueTagIds} partiallyUpdateRuleData={partiallyUpdateRuleData} />
+              <TagsSelector tags={tags} isLoading={isTagMapLoading} selectedTagIds={uniqueTagIds} partiallyUpdateRuleData={partiallyUpdateRuleData} />
             </RuleFormSection>
             <EuiFlexGroup gutterSize="m">
                 <EuiFlexItem>
