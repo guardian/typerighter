@@ -69,7 +69,6 @@ class AppComponents(
 
   val tagsController = new TagsController(
     controllerComponents,
-    publicSettings,
     config
   )
 
