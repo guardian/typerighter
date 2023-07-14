@@ -69,12 +69,13 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     )
   )
 
-def playProject(projectName: String, devHttpPorts: Map[String, String]) =
+def playProject(label: String, projectName: String, domainPrefix: String, devHttpPorts: Map[String, String]) =
   Project(projectName, file(s"$appsFolder/$projectName"))
     .dependsOn(commonLib)
     .enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
     .settings(
       PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) => s"play.server.$protocol.port" -> value }.toSeq,
+      PlayKeys.playRunHooks += new ViteBuildHook(label, domainPrefix),
       libraryDependencies += ws,
       Universal / javaOptions ++= Seq(
         s"-Dpidfile.path=/dev/null",
@@ -89,7 +90,12 @@ def playProject(projectName: String, devHttpPorts: Map[String, String]) =
       commonSettings
     )
 
-val checker = playProject("checker", Map("http" -> "9100"))
+val checker = playProject(
+  "Rule checker",
+  "checker",
+  "checker",
+  Map("http" -> "9100")
+)
   .enablePlugins(GatlingPlugin)
   .settings(
     Universal / javaOptions += s"-Dconfig.file=/etc/gu/${packageName.value}.conf",
@@ -115,7 +121,12 @@ val checker = playProject("checker", Map("http" -> "9100"))
     ).map(_ % circeVersion)
   )
 
-val ruleManager = playProject("rule-manager", Map("http" -> "9101"))
+val ruleManager = playProject(
+  "Rule manager",
+  "rule-manager",
+  "manager",
+  Map("http" -> "9101")
+)
   .enablePlugins(ScalikejdbcPlugin)
   .settings(
     packageName := "typerighter-rule-manager",
