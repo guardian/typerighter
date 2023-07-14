@@ -2,6 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 APP_FOLDER="apps"
+ROOT_DIR="$APP_FOLDER/../"
 
 IS_DEBUG=false
 
@@ -31,6 +32,19 @@ checkJavaVersion() {
   fi
 }
 
+checkNodeVersion() {
+  runningNodeVersion=$(node -v)
+  requiredNodeVersion=$(cat "$ROOT_DIR/.nvmrc")
+
+  # remove leading v
+  runningNodeVersionNumber=${runningNodeVersion//[v]/}
+
+  if [ "$runningNodeVersionNumber" != "$requiredNodeVersion" ]; then
+    echo -e "❌ Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}."
+    exit 0
+  fi
+}
+
 setupDependencies() {
   docker-compose up -d
   (cd $APP_FOLDER/rule-manager/client && npm i && npm run start &)
@@ -52,6 +66,7 @@ runRuleManager() {
 trap teardownDependencies EXIT
 
 checkCredentials
+checkNodeVersion
 checkJavaVersion
 printf "🚀 Rule manager will be available at https://manager.typerighter.local.dev-gutools.co.uk when ready\n"
 setupDependencies
