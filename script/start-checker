@@ -1,6 +1,8 @@
 #!/bin/bash -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+APP_FOLDER="apps"
+
 IS_DEBUG=false
 
 for arg in "$@"
@@ -15,6 +17,20 @@ checkCredentials() {
   bash "${DIR}"/lib/check-aws-credentials
 }
 
+parseJavaVersion() {
+  head -1 | cut -d'"' -f2 | sed 's/^1\.//' | cut -d'.' -f1
+}
+
+checkJavaVersion() {
+  runningJavaVersion=$(java -version 2>&1 | parseJavaVersion)
+  requiredJavaVersion=$(cat "$APP_FOLDER/../.java-version" | parseJavaVersion)
+
+  if [ "$runningJavaVersion" != "$requiredJavaVersion" ]; then
+    echo -e "Using wrong version of Java. Required ${requiredJavaVersion}. Running ${runningJavaVersion}."
+    exit 0
+  fi
+}
+
 runChecker() {
   if [[ "$IS_DEBUG" = true ]]; then
     sbt -jvm-debug 5005 "checker / run"
@@ -24,5 +40,6 @@ runChecker() {
 }
 
 checkCredentials
+checkJavaVersion
 printf "🌟 Rule checker will be available at https://checker.typerighter.local.dev-gutools.co.uk when ready\n"
 runChecker

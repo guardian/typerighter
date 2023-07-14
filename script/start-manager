@@ -17,6 +17,20 @@ checkCredentials() {
   bash "${DIR}"/lib/check-aws-credentials
 }
 
+parseJavaVersion() {
+  head -1 | cut -d'"' -f2 | sed 's/^1\.//' | cut -d'.' -f1
+}
+
+checkJavaVersion() {
+  runningJavaVersion=$(java -version 2>&1 | parseJavaVersion)
+  requiredJavaVersion=$(cat "$APP_FOLDER/../.java-version" | parseJavaVersion)
+
+  if [ "$runningJavaVersion" != "$requiredJavaVersion" ]; then
+    echo -e "Using wrong version of Java. Required ${requiredJavaVersion}. Running ${runningJavaVersion}."
+    exit 0
+  fi
+}
+
 setupDependencies() {
   docker-compose up -d
   (cd $APP_FOLDER/rule-manager/client && npm i && npm run start &)
@@ -38,6 +52,7 @@ runRuleManager() {
 trap teardownDependencies EXIT
 
 checkCredentials
+checkJavaVersion
 printf "🚀 Rule manager will be available at https://manager.typerighter.local.dev-gutools.co.uk when ready\n"
 setupDependencies
 runRuleManager
