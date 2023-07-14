@@ -36,6 +36,7 @@ runRuleManager() {
 }
 
 trap teardownDependencies EXIT
+trap teardownDependencies INT TERM
 
 makeChecks
 printf "🚀 Rule manager will be available at https://manager.typerighter.local.dev-gutools.co.uk when ready\n"
