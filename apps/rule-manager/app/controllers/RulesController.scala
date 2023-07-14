@@ -114,7 +114,7 @@ class RulesController(
     }
   }
 
-  def getRules(ids: String) = ApiAuthAction {
+  def getRules(ids: String) = APIAuthAction {
     val idList = ids.split(',').map(_.toInt).toList
     val allRulesData = idList.flatMap(id => RuleManager.getAllRuleData(id))
 
@@ -124,7 +124,7 @@ class RulesController(
     }
   }
 
-  def batchUpdate() = ApiAuthAction { implicit request =>
+  def batchUpdate() = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
       case true =>
@@ -151,14 +151,14 @@ class RulesController(
     }
   }
 
-  def canPublish(id: Int) = ApiAuthAction {
+  def canPublish(id: Int) = APIAuthAction {
     RuleManager.parseDraftRuleForPublication(id, "validate") match {
       case Right(_)     => Ok(Json.toJson(Nil))
       case Left(errors) => Ok(Json.toJson(errors))
     }
   }
 
-  def unpublish(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+  def unpublish(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to unpublish rules")
       case true =>
@@ -169,7 +169,7 @@ class RulesController(
     }
   }
 
-  def archive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+  def archive(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to archive rules")
       case true =>
@@ -180,7 +180,7 @@ class RulesController(
     }
   }
 
-  def unarchive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+  def unarchive(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to unarchive rules")
       case true =>
