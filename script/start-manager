@@ -24,7 +24,11 @@ setupDependencies() {
 
 teardownDependencies() {
   docker-compose down
-  kill -9 $(lsof -ti:9100) # terminates the rule manager app
+  pids="$(lsof -ti:9100)"
+  if [[ -n "$pids" ]]; then
+    # terminates the rule manager app
+    kill -9 $pids
+  fi
 }
 
 runRuleManager() {
