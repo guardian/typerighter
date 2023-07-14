@@ -14,6 +14,9 @@ do
   fi
 done
 
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
 checkCredentials() {
   bash "${DIR}"/lib/check-aws-credentials
 }
@@ -32,6 +35,18 @@ checkJavaVersion() {
   fi
 }
 
+setupNodeEnv() {
+  echo "Attempting to switch node versions for you..."
+
+  if command -v nvm &> /dev/null
+  then
+    nvm use $1
+  else
+    echo "Please install nvm: 'brew install nvm'"
+    exit 1
+  fi
+}
+
 checkNodeVersion() {
   runningNodeVersion=$(node -v)
   requiredNodeVersion=$(cat "$ROOT_DIR/.nvmrc")
@@ -41,7 +56,7 @@ checkNodeVersion() {
 
   if [ "$runningNodeVersionNumber" != "$requiredNodeVersion" ]; then
     echo -e "❌ Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}."
-    exit 0
+    setupNodeEnv $requiredNodeVersion
   fi
 }
 
