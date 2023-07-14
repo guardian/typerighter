@@ -26,6 +26,5 @@ runRuleManager() {
   fi
 }
 
-
 runChecker &
 runRuleManager
