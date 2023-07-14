@@ -1,4 +1,5 @@
 import com.gu.riffraff.artifact.BuildInfo
+import sys.process._
 
 name := "typerighter"
 ThisBuild / organization := "com.gu"
@@ -27,6 +28,19 @@ val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps"
+
+def javaVersionNumber = {
+  IO.read(new File(".java-version"))
+}
+
+def removeStartingOne(javaVersionString: String): String = {
+  val startsWithOne = "^1\\.".r
+  startsWithOne.replaceAllIn(javaVersionString, "")
+}
+
+def parseJavaVersionNumber(javaVersionString: String): String = {
+  removeStartingOne(javaVersionString).split('.').head
+}
 
 val commonSettings = Seq(
   Test / fork := false, // Enables attaching debugger in tests
@@ -86,7 +100,16 @@ def playProject(projectName: String, devHttpPorts: Map[String, String]) =
         s"-J-Dlogs.home=/var/log/${packageName.value}",
         s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
       ),
-      commonSettings
+      commonSettings,
+      initialize := {
+        val _ = initialize.value
+        val expectedJavaVersion = parseJavaVersionNumber(javaVersionNumber)
+        val actualJavaVersion = removeStartingOne(sys.props("java.specification.version"))
+        assert(
+          expectedJavaVersion.equals(actualJavaVersion),
+          s"Java $expectedJavaVersion is required for this project. You are using Java $actualJavaVersion."
+        )
+      },
     )
 
 val checker = playProject("checker", Map("http" -> "9100"))
