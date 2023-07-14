@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+APP_FOLDER="apps"
+ROOT_DIR="$APP_FOLDER/../"
+
+parseJavaVersion() {
+  head -1 | cut -d'"' -f2 | sed 's/^1\.//' | cut -d'.' -f1
+}
+
+checkJavaVersion() {
+  runningJavaVersion=$(java -version 2>&1 | parseJavaVersion)
+  requiredJavaVersion=$(cat "$APP_FOLDER/../.java-version" | parseJavaVersion)
+
+  if [ "$runningJavaVersion" != "$requiredJavaVersion" ]; then
+    echo -e "Using wrong version of Java. Required ${requiredJavaVersion}. Running ${runningJavaVersion}."
+    exit 0
+  fi
+}
+
+checkJavaVersion

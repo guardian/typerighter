@@ -1,0 +1,34 @@
+#!/bin/bash -e
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+
+APP_FOLDER="apps"
+ROOT_DIR="$APP_FOLDER/../"
+
+setupNodeEnv() {
+  echo "Attempting to switch node versions for you..."
+
+  if command -v nvm &> /dev/null
+  then
+    nvm use $1
+  else
+    echo "Please install nvm: 'brew install nvm'"
+    exit 1
+  fi
+}
+
+checkNodeVersion() {
+  runningNodeVersion=$(node -v)
+  requiredNodeVersion=$(cat "$ROOT_DIR/.nvmrc")
+
+  # remove leading v
+  runningNodeVersionNumber=${runningNodeVersion//[v]/}
+
+  if [ "$runningNodeVersionNumber" != "$requiredNodeVersion" ]; then
+    echo -e "❌ Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}."
+    setupNodeEnv $requiredNodeVersion
+  fi
+}
+
+checkNodeVersion

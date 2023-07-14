@@ -2,7 +2,6 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 APP_FOLDER="apps"
-ROOT_DIR="$APP_FOLDER/../"
 
 IS_DEBUG=false
 
@@ -14,50 +13,8 @@ do
   fi
 done
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
-checkCredentials() {
-  bash "${DIR}"/lib/check-aws-credentials
-}
-
-parseJavaVersion() {
-  head -1 | cut -d'"' -f2 | sed 's/^1\.//' | cut -d'.' -f1
-}
-
-checkJavaVersion() {
-  runningJavaVersion=$(java -version 2>&1 | parseJavaVersion)
-  requiredJavaVersion=$(cat "$APP_FOLDER/../.java-version" | parseJavaVersion)
-
-  if [ "$runningJavaVersion" != "$requiredJavaVersion" ]; then
-    echo -e "Using wrong version of Java. Required ${requiredJavaVersion}. Running ${runningJavaVersion}."
-    exit 0
-  fi
-}
-
-setupNodeEnv() {
-  echo "Attempting to switch node versions for you..."
-
-  if command -v nvm &> /dev/null
-  then
-    nvm use $1
-  else
-    echo "Please install nvm: 'brew install nvm'"
-    exit 1
-  fi
-}
-
-checkNodeVersion() {
-  runningNodeVersion=$(node -v)
-  requiredNodeVersion=$(cat "$ROOT_DIR/.nvmrc")
-
-  # remove leading v
-  runningNodeVersionNumber=${runningNodeVersion//[v]/}
-
-  if [ "$runningNodeVersionNumber" != "$requiredNodeVersion" ]; then
-    echo -e "❌ Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}."
-    setupNodeEnv $requiredNodeVersion
-  fi
+makeChecks() {
+  . "${DIR}"/lib/check
 }
 
 setupDependencies() {
@@ -80,9 +37,7 @@ runRuleManager() {
 
 trap teardownDependencies EXIT
 
-checkCredentials
-checkNodeVersion
-checkJavaVersion
+makeChecks
 printf "🚀 Rule manager will be available at https://manager.typerighter.local.dev-gutools.co.uk when ready\n"
 setupDependencies
 runRuleManager

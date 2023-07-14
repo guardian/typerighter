@@ -1,0 +1,7 @@
+#!/bin/bash -e
+
+LIB_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+. "$LIB_DIR/check-aws-credentials"
+. "$LIB_DIR/check-java-version"
+. "$LIB_DIR/check-node-version"
