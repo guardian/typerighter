@@ -18,6 +18,7 @@ trait DbRuleCommon {
   def updatedAt: OffsetDateTime
   def updatedBy: String
   def revisionId: Int
+  def ruleOrder: Int
 }
 
 object DbRule {
@@ -36,6 +37,7 @@ object DbRule {
     "created_by",
     "updated_at",
     "updated_by",
-    "revision_id"
+    "revision_id",
+    "rule_order"
   )
 }

@@ -30,6 +30,7 @@ case class DbRuleDraft(
     revisionId: Int = 0,
     isPublished: Boolean,
     isArchived: Boolean,
+    ruleOrder: Int,
     hasUnpublishedChanges: Boolean
 ) extends DbRuleCommon {
 
@@ -57,7 +58,7 @@ case class DbRuleDraft(
           updatedAt = updatedAt,
           updatedBy = updatedBy,
           reason = reason,
-          ruleOrder = id
+          ruleOrder = ruleOrder
         )
     }
   }
@@ -95,6 +96,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       revisionId = rs.int("revision_id"),
       isPublished = rs.boolean("is_published"),
       isArchived = rs.boolean("is_archived"),
+      ruleOrder = rs.int("rule_order"),
       hasUnpublishedChanges = rs.boolean("has_unpublished_changes")
     )
   }
@@ -112,7 +114,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       externalId: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
-      user: String
+      user: String,
+      ruleOrder: Int
   ) = {
     val createdAt = OffsetDateTime.now()
     DbRuleDraft(
@@ -134,6 +137,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       updatedBy = user,
       isPublished = false,
       isArchived = false,
+      ruleOrder = ruleOrder,
       hasUnpublishedChanges = false
     )
   }
@@ -167,6 +171,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .where
         .eq(rd.id, id)
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .single()
       .apply()
@@ -183,6 +188,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .where
         .in(rd.id, ids)
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .orderBy(rd.ruleOrder)
     }
       .map(DbRuleDraft.fromRow)
       .list()
@@ -198,7 +204,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
-        .orderBy(rd.id)
+        .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .list()
       .apply()
@@ -228,6 +234,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       isArchived: Boolean = false,
       tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
+    val latestRuleOrder = SQL(s"""
+         |SELECT rule_order
+         |    FROM $tableName
+         |    ORDER BY rule_order DESC
+         |    LIMIT 1
+         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(0)
+
     val id = withSQL {
       insert
         .into(DbRuleDraft)
@@ -243,7 +256,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.advisoryRule -> advisoryRule,
           column.createdBy -> user,
           column.updatedBy -> user,
-          column.isArchived -> isArchived
+          column.isArchived -> isArchived,
+          column.ruleOrder -> (latestRuleOrder + 1)
         )
     }.updateAndReturnGeneratedKey().apply().toInt
 
@@ -354,7 +368,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("createdAt") -> entity.createdAt,
         Symbol("updatedBy") -> entity.updatedBy,
         Symbol("updatedAt") -> entity.updatedAt,
-        Symbol("isArchived") -> entity.isArchived
+        Symbol("isArchived") -> entity.isArchived,
+        Symbol("ruleOrder") -> entity.ruleOrder
       )
     )
     SQL(s"""insert into $tableName(
@@ -372,7 +387,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       created_at,
       updated_by,
       updated_at,
-      is_archived
+      is_archived,
+      rule_order
     ) values (
       {ruleType},
       {pattern},
@@ -388,7 +404,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {createdAt},
       {updatedBy},
       {updatedAt},
-      {isArchived}
+      {isArchived},
+      {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[Seq]().toList
 
     // Get the last inserted ID to produce the ids generated in the batch update.

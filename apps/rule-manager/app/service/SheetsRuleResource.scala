@@ -91,12 +91,12 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
     }
   }
 
-  private def getRuleFromRow(row: List[Any], index: Int): Try[Option[DbRuleDraft]] = {
+  private def getRuleFromRow(row: List[Any], rowIndex: Int): Try[Option[DbRuleDraft]] = {
     try {
       val ruleType = row(PatternRuleCols.Type)
       val maybeIgnore = row.lift(PatternRuleCols.ShouldIgnore)
       val maybeId = row.lift(PatternRuleCols.Id).asInstanceOf[Option[String]]
-      val rowNumber = index + 1
+      val rowNumber = rowIndex + 1
       val maybeRuleType = Map(
         "regex" -> "regex",
         "lt" -> "languageToolXML",
@@ -144,7 +144,8 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
                 advisoryRule = Some(
                   row.lift(PatternRuleCols.Advisory).asInstanceOf[Option[String]].contains("y")
                 ),
-                user = "Google Sheet"
+                user = "Google Sheet",
+                ruleOrder = rowIndex
               )
             )
           )
@@ -152,7 +153,7 @@ class SheetsRuleResource(credentialsJson: String, spreadsheetId: String) extends
 
     } catch {
       case e: Throwable => {
-        Failure(new Exception(s"Error parsing rule at index ${index} – ${e.getMessage()}"))
+        Failure(new Exception(s"Error parsing rule at index ${rowIndex} – ${e.getMessage()}"))
       }
     }
   }

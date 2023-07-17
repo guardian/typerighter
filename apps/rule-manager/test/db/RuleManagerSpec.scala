@@ -47,7 +47,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
         forceRedRule = Some(true),
         advisoryRule = Some(true),
         user = "Google Sheet",
-        ruleType = "regex"
+        ruleType = "regex",
+        ruleOrder = ruleIndex
       )
     }.toList
 
@@ -71,7 +72,13 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   "liveDbRuleToCheckerRule" should "give a sensible error message when parsing regex rules" in {
     () => () =>
       val rule = DbRuleDraft
-        .withUser(id = None, ruleType = "regex", user = "example.user", ignore = false)
+        .withUser(
+          id = None,
+          ruleType = "regex",
+          user = "example.user",
+          ignore = false,
+          ruleOrder = 1
+        )
         .toLive("reason")
 
       val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
@@ -89,7 +96,13 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   "liveDbRuleToCheckerRule" should "give a sensible error message when parsing ltXML rules" in {
     () =>
       val rule = DbRuleDraft
-        .withUser(id = Some(0), ruleType = "languageToolXML", user = "example.user", ignore = false)
+        .withUser(
+          id = Some(0),
+          ruleType = "languageToolXML",
+          user = "example.user",
+          ignore = false,
+          ruleOrder = 1
+        )
         .toLive("reason")
 
       val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
@@ -111,7 +124,8 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
           id = Some(0),
           ruleType = "languageToolCore",
           user = "example.user",
-          ignore = false
+          ignore = false,
+          ruleOrder = 1
         )
         .toLive("reason")
 
@@ -150,7 +164,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       val rules = rulesFromSheet
         .map(RuleManager.checkerRuleToDraftDbRule)
         .zipWithIndex
-        .map { case (rule, index) => rule.copy(id = Some(index + 1)) }
+        .map { case (rule, index) => rule.copy(id = Some(index + 1), ruleOrder = index + 1) }
 
       val maybePublishedRules =
         RuleManager.destructivelyPublishRules(rules, bucketRuleResource)
