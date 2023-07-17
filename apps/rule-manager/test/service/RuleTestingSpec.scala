@@ -17,6 +17,7 @@ import play.api.routing.sird._
 import play.core.server.Server
 import play.api.test._
 
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {

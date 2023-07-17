@@ -37,7 +37,6 @@ GET     /api/rules/:id/test-block       controllers.RulesController.testWithBloc
 +nocsrf
 GET     /api/rules/:id/test-capi        controllers.RulesController.testWithCapiQuery(id: Int)
 
-
 # Tags
 +nocsrf
 GET     /api/tags                       controllers.TagsController.listWithRuleCounts()
