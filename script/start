@@ -10,21 +10,27 @@ do
   fi
 done
 
+makeChecks() {
+  . "${DIR}"/lib/check
+}
+
 runChecker() {
   if [[ "$IS_DEBUG" = true ]]; then
-    bash "${DIR}"/start-checker --debug
+    bash "${DIR}"/start-checker $1 --debug
   else
-    bash "${DIR}"/start-checker
+    bash "${DIR}"/start-checker $1
   fi
 }
 
 runRuleManager() {
   if [[ "$IS_DEBUG" = true ]]; then
-    bash "${DIR}"/start-manager --debug
+    bash "${DIR}"/start-manager $1 --debug
   else
-    bash "${DIR}"/start-manager
+    bash "${DIR}"/start-manager $1
   fi
 }
 
-runChecker &
-runRuleManager
+# Make checks once now, rather than in each start script
+makeChecks
+runChecker "--checks-complete" &
+runRuleManager "--checks-complete"

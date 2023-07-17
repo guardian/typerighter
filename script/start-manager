@@ -4,11 +4,16 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 APP_FOLDER="apps"
 
 IS_DEBUG=false
+DO_CHECKS=true
 
 for arg in "$@"
 do
   if [[ "$arg" == "--debug" ]]; then
     IS_DEBUG=true
+    shift
+  fi
+  if [[ "$arg" == "--checks-complete" ]]; then
+    DO_CHECKS=false
     shift
   fi
 done
@@ -42,7 +47,10 @@ runRuleManager() {
 trap teardownDependencies EXIT
 trap teardownDependencies INT TERM
 
-makeChecks
+if [[ "$DO_CHECKS" = true ]]; then
+  makeChecks
+fi
+
 printf "🚀 Rule manager will be available at https://manager.typerighter.local.dev-gutools.co.uk when ready\n"
 setupDependencies
 runRuleManager
