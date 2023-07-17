@@ -1,4 +1,4 @@
-import { EuiBasicTableColumn, EuiButton, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiIcon, EuiInMemoryTable, EuiInMemoryTableProps, EuiInlineEditText, EuiSpacer, EuiText, EuiTextColor, EuiTitle, EuiToast, EuiToolTip } from "@elastic/eui"
+import { EuiBasicTableColumn, EuiButton, EuiButtonEmpty, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiIcon, EuiInMemoryTable, EuiInMemoryTableProps, EuiInlineEditText, EuiModal, EuiModalBody, EuiModalHeader, EuiModalHeaderTitle, EuiSpacer, EuiText, EuiTextColor, EuiTitle, EuiToast, EuiToolTip } from "@elastic/eui"
 import { css } from "@emotion/react"
 import { Tag, useTags } from "./hooks/useTags";
 import React, { useEffect, useState } from "react";
@@ -149,29 +149,36 @@ const DeleteTagWarning = ({tag, setTagToDelete, deleteTag}: {tag: Tag, setTagToD
         deleteTag(tag);
         setTagToDelete(null);
     }
-    return <EuiToast
-        title="Confirm Tag delete action"
+    return <EuiModal 
+        onClose={() => {setTagToDelete(null)}} 
+        initialFocus="[name=popswitch]"
         color="danger"
-        iconType="warning"
-        onClose={() => {setTagToDelete(null)}}
-        css={deleteTagWarningCss}
+        // css={deleteTagWarningCss}
     >
-    <p>
-      Are you sure you want to delete the tag '{tag.name}'?
-    <br/>
-      This action is <strong>permanent</strong> and will remove the tag from all associated rules.
-    </p>
-
-    <EuiFlexGroup justifyContent="flexEnd" gutterSize="s">
-      <EuiFlexItem grow={false}>
-        <EuiButton onClick={() => deleteAndClosePrompty(tag)}size="s" color="danger">Delete the '{tag.name}' tag</EuiButton>
-      </EuiFlexItem>
-    </EuiFlexGroup>
-  </EuiToast>
+        <EuiModalHeader>
+            <EuiModalHeaderTitle>Confirm tag deletion</EuiModalHeaderTitle>
+        </EuiModalHeader>
+        <EuiModalBody>
+            <EuiText>
+                Are you sure you want to delete the tag '{tag.name}'?
+                <br/>
+                This action is <strong>permanent</strong> and will remove the tag from all associated rules.
+            </EuiText>
+            <EuiSpacer />
+            <EuiFlexGroup justifyContent="flexEnd">
+                <EuiFlexItem grow={false}>
+                    <EuiButtonEmpty onClick={() => {setTagToDelete(null)}}>Cancel</EuiButtonEmpty>
+                </EuiFlexItem>
+                <EuiFlexItem grow={false}>
+                    <EuiButton onClick={() => deleteAndClosePrompty(tag)} color="danger">Delete the '{tag.name}' tag</EuiButton>
+                </EuiFlexItem>
+            </EuiFlexGroup>
+        </EuiModalBody>
+    </EuiModal>
 }
 
 const ServerErrorNotification =  ({error}: {error: string}) => {
-   return <EuiToast
+    return <EuiToast
         title="Server Error"
         color="danger"
         iconType="error"
