@@ -5,7 +5,6 @@ ALTER TABLE rules_draft
 
 UPDATE rules_draft
     SET rule_order = id
-    WHERE true;
 
 ALTER TABLE rules_draft
     ALTER COLUMN rule_order SET NOT NULL;
