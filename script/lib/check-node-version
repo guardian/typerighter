@@ -6,15 +6,45 @@ export NVM_DIR="$HOME/.nvm"
 APP_FOLDER="apps"
 ROOT_DIR="$APP_FOLDER/../"
 
+nvmUse() {
+  echo "Using nvm to switch node versions..."
+  rc=0
+  nvm use || rc=$?
+  if [[ $rc == 0 ]] ; then
+    echo "✅ nvm successfully switched node versions."
+  else
+    echo "❌ nvm failed to switch node versions. Please change node versions manually."
+    exit 1
+  fi
+}
+
+fnmUse() {
+  echo "Using fnm to switch node versions..."
+  rc=0
+  fnm use || rc=$?;
+  if [[ $rc == 0 ]] ; then
+    echo "✅ fnm successfully switched node versions."
+  else
+    echo "❌ fnm failed to switch node versions."
+    # fallback to nvm
+    nvmUse
+  fi
+}
+
 setupNodeEnv() {
   echo "Attempting to switch node versions for you..."
 
-  if command -v nvm &> /dev/null
-  then
-    nvm use $1
+  if command -v fnm &> /dev/null
+    then
+      fnmUse
   else
-    echo "Please install nvm: 'brew install nvm'"
-    exit 1
+    if command -v nvm &> /dev/null
+    then
+      nvmUse
+    else
+      echo "❌ No known node version manager found. Please change node versions manually."
+      exit 1
+    fi
   fi
 }
 
