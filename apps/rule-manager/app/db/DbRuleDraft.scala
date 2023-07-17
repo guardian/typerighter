@@ -30,7 +30,8 @@ case class DbRuleDraft(
     revisionId: Int = 0,
     isPublished: Boolean,
     isArchived: Boolean,
-    ruleOrder: Int
+    ruleOrder: Int,
+    hasUnpublishedChanges: Boolean
 ) extends DbRuleCommon {
 
   def toLive(reason: String): DbRuleLive = {
@@ -95,7 +96,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       revisionId = rs.int("revision_id"),
       isPublished = rs.boolean("is_published"),
       isArchived = rs.boolean("is_archived"),
-      ruleOrder = rs.int("rule_order")
+      ruleOrder = rs.int("rule_order"),
+      hasUnpublishedChanges = rs.boolean("has_unpublished_changes")
     )
   }
 
@@ -135,7 +137,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       updatedBy = user,
       isPublished = false,
       isArchived = false,
-      ruleOrder = ruleOrder
+      ruleOrder = ruleOrder,
+      hasUnpublishedChanges = false
     )
   }
 
@@ -148,6 +151,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   val isPublishedColumn = sqls"${rl.externalId} IS NOT NULL AS is_published"
 
+  val hasUnpublishedChangesColumn =
+    sqls"(${rl.revisionId} IS NOT NULL AND ${rl.revisionId} < ${rd.revisionId}) AS has_unpublished_changes"
+
   val dbColumnsToFind = SQLSyntax.createUnsafely(
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
   )
@@ -156,7 +162,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
     withSQL {
-      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -164,7 +170,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(rd.id, rt.ruleId)
         .where
         .eq(rd.id, id)
-        .groupBy(dbColumnsToFind, rl.externalId)
+        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .single()
@@ -173,7 +179,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -181,7 +187,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(rd.id, rt.ruleId)
         .where
         .in(rd.id, ids)
-        .groupBy(dbColumnsToFind, rl.externalId)
+        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }
       .map(DbRuleDraft.fromRow)
@@ -191,13 +197,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(dbColumnsToFind, isPublishedColumn, tagColumn)
+      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
-        .groupBy(dbColumnsToFind, rl.externalId)
+        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .list()

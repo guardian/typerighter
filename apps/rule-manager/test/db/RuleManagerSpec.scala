@@ -385,7 +385,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       val secondLiveRule =
         RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource).toOption.get
 
-      secondLiveRule.draft shouldMatchTo revisedRuleToPublish
+      secondLiveRule.draft shouldMatchTo revisedRuleToPublish.copy(hasUnpublishedChanges = false)
       secondLiveRule.live shouldMatchTo List(
         secondLiveRule.live(0),
         firstLiveRule.live(0).copy(isActive = false)

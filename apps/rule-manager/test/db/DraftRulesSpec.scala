@@ -28,6 +28,29 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     foundAndPublished.isPublished should be(true)
   }
 
+  it should "find by primary keys and return unpublished changes status - false, unpublished" in {
+    implicit session =>
+      val found = DbRuleDraft.find(1).get
+      found.hasUnpublishedChanges should be(false)
+  }
+
+  it should "find by primary keys and return unpublished changes status - false, published" in {
+    implicit session =>
+      val found = DbRuleDraft.find(1).get
+      DbRuleLive.create(found.toLive("reason"), "user")
+      val foundAndPublished = DbRuleDraft.find(1).get
+      foundAndPublished.hasUnpublishedChanges should be(false)
+  }
+
+  it should "find by primary keys and return unpublished changes status - true" in {
+    implicit session =>
+      val found = DbRuleDraft.find(1).get
+      DbRuleLive.create(found.toLive("reason"), "user")
+      val foundAndPublished =
+        DbRuleDraft.save(found.copy(description = Some("updated")), "test.user").get
+      foundAndPublished.hasUnpublishedChanges should be(true)
+  }
+
   it should "find all records and return published status" in { implicit session =>
     val toBePublished = DbRuleDraft
       .create(ruleType = "regex", pattern = Some("2"), user = "test.user", ignore = false)

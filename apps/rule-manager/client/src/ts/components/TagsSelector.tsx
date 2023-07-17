@@ -6,12 +6,13 @@ import {PartiallyUpdateRuleData} from "./RuleForm";
 
 type TagOption = { label: string, value?: number }
 
-export const TagsSelector = ({tags, selectedTagIds, partiallyUpdateRuleData}: {
+export const TagsSelector = ({tags, selectedTagIds, partiallyUpdateRuleData, isLoading}: {
     tags: TagMap,
     selectedTagIds: number[],
+    isLoading: boolean,
     partiallyUpdateRuleData: PartiallyUpdateRuleData,
 }) => {
-    if (Object.keys(tags).length === 0) {
+    if (isLoading) {
       return <EuiFormRow label='Tags' fullWidth={true}><EuiLoadingSpinner/></EuiFormRow>
     }
 

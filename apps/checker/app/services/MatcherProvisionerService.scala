@@ -2,7 +2,7 @@ package services
 
 import java.util.Date
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{LTRuleCore, LTRuleXML, RegexRule, CheckerRuleResource}
+import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, LTRuleCore, LTRuleXML, RegexRule}
 import com.gu.typerighter.rules.BucketRuleResource
 import matchers.RegexMatcher
 import play.api.Logging
@@ -10,10 +10,9 @@ import play.api.Logging
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import matchers.LanguageToolFactory
-import utils.CloudWatchClient
-import utils.Metrics
+import utils.{CloudWatchClient, Matcher, Metrics}
 
-class RuleProvisionerService(
+class MatcherProvisionerService(
     bucketRuleResource: BucketRuleResource,
     matcherPool: MatcherPool,
     languageToolFactory: LanguageToolFactory,
@@ -70,7 +69,7 @@ class RuleProvisionerService(
       case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket()
       case Right(_)                                        => logger.info("No rule update needed")
       case Left(error) =>
-        logger.error("Could not get last modified from S3")
+        logger.error(s"Could not get last modified from S3", error)
         cloudWatchClient.putMetric(Metrics.RulesNotFound)
     }
   }
@@ -97,6 +96,16 @@ class RuleProvisionerService(
         )
         errors.foreach { logger.error(logPrefix, _) }
         errors
+    }
+  }
+
+  def getMatcherForRule(rule: CheckerRule): Either[List[Throwable], Matcher] = {
+    rule match {
+      case rule: LTRuleCore =>
+        languageToolFactory.createInstance(List.empty, List(rule.languageToolRuleId))
+      case rule: LTRuleXML => languageToolFactory.createInstance(List(rule), List.empty)
+      case rule: RegexRule => Right(new RegexMatcher(List(rule)))
+      case rule            => Left(List(new Error(s"Cannot get matcher for rule type $rule")))
     }
   }
 }

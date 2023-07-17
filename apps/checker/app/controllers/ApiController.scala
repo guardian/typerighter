@@ -2,14 +2,14 @@ package controllers
 
 import akka.stream.scaladsl.Sink
 import com.gu.pandomainauth.PublicSettings
-import model.Check
+import model.{Check, CheckSingleRule}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import services.MatcherPool
+import services.{MatcherPool, MatcherProvisionerService}
 import com.gu.typerighter.lib.PandaAuthentication
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import utils.Timer
+import utils.{JsonHelpers, Timer}
 
 import scala.util.{Failure, Success}
 
@@ -18,6 +18,7 @@ import scala.util.{Failure, Success}
 class ApiController(
     cc: ControllerComponents,
     matcherPool: MatcherPool,
+    matcherProvisionerService: MatcherProvisionerService,
     val publicSettings: PublicSettings
 )(implicit ec: ExecutionContext)
     extends AbstractController(cc)
@@ -50,13 +51,33 @@ class ApiController(
 
         val resultStream = matcherPool
           .checkStream(check)
-          .map(result => Json.toJson(result).toString() + 31.toChar)
-          .alsoTo(Sink.onComplete {
-            case Success(_)  => timerPromise.complete(Success(()))
-            case Failure(ex) => timerPromise.failure(ex)
-          })
+          .map(result => JsonHelpers.toNDJson(result))
+          .alsoTo(completeStreamWithPromise(timerPromise))
 
         Ok.chunked(resultStream).as("application/json-seq")
+      case Left(error) => BadRequest(s"Invalid request: $error")
+    }
+  }
+
+  def checkSingleRule = ApiAuthAction[JsValue](parse.json) { request =>
+    request.body.validate[CheckSingleRule].asEither match {
+      case Right(check) =>
+        matcherProvisionerService.getMatcherForRule(check.rule) match {
+          case Right(matcher) =>
+            val timerPromise = Promise[Unit]()
+            Timer.timeAsync("ApiController.checkSingle", check.toMarker(request.user.email))(
+              timerPromise.future
+            )
+
+            val resultStream = matcherPool
+              .checkSingle(check, matcher)
+              .map(result => JsonHelpers.toNDJson(result))
+              .alsoTo(completeStreamWithPromise(timerPromise))
+
+            Ok.chunked(resultStream).as("application/json-seq")
+          case Left(errors) =>
+            BadRequest(s"Could not create rule: ${errors.map(_.getMessage()).mkString(", ")}")
+        }
       case Left(error) => BadRequest(s"Invalid request: $error")
     }
   }
@@ -64,4 +85,10 @@ class ApiController(
   def getCurrentCategories: Action[AnyContent] = ApiAuthAction {
     Ok(Json.toJson(matcherPool.getCurrentCategories))
   }
+
+  private def completeStreamWithPromise(promise: Promise[Unit]) =
+    Sink.onComplete {
+      case Success(_)  => promise.complete(Success(()))
+      case Failure(ex) => promise.failure(ex)
+    }
 }

@@ -51,7 +51,7 @@ class LanguageToolFactory(
         acc
       } else
         new Exception(
-          s"Attempted to enable a core rule with id ${ruleId}, but the rule was not available on the instance"
+          s"Attempted to enable a core rule with id $ruleId, but the rule was not available on the instance"
         ) :: acc
     )
 

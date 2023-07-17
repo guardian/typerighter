@@ -14,8 +14,7 @@ import {
   EuiHealth,
   EuiTableSelectionType,
   EuiBadge,
-  EuiText,
-  EuiTableRow
+  EuiText
 } from '@elastic/eui';
 import {useRules} from "./hooks/useRules";
 import {css} from "@emotion/react";
@@ -100,11 +99,13 @@ const createColumns = (tags: TagMap, editRule: (ruleId: number) => void): Array<
       name: 'Status',
       width: '8.1%',
       render: (rule: DraftRule) => {
-        const status = capitalize(getRuleStatus(rule));
-        return <>
+        const state = capitalize(getRuleStatus(rule));
+        return <EuiFlexGroup alignItems="center" justifyContent="flexStart" gutterSize="none">
           <EuiHealth color={getRuleStatusColour(rule)} />
-          <EuiText css={css`${euiTextTruncate()}`}>{status}</EuiText>
-        </>
+          <EuiText css={css`${euiTextTruncate()}`}>{state}</EuiText>
+          {rule.hasUnpublishedChanges &&
+            <>&nbsp;&nbsp;<EuiToolTip content="This rule has unpublished changes"><EuiIcon type="warning" /></EuiToolTip></>}
+        </EuiFlexGroup>
       }
     },
     {
@@ -151,7 +152,7 @@ const EditRuleButton = styled.button<EditRuleButtonProps>(props => ({
 }))
 
 const RulesTable = () => {
-  const {tags, fetchTags} = useTags();
+  const {tags, fetchTags, isLoading: isTagMapLoading } = useTags();
   const {rules, isLoading, error, refreshRules, isRefreshing, setError, fetchRules} = useRules();
   const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(undefined)
@@ -164,13 +165,12 @@ const RulesTable = () => {
       incremental: true,
       schema: true,
     },
-    toolsRight: getFeatureSwitchValue("create-and-edit") ?
-    <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
+    toolsRight: <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
       <EuiButton
         isDisabled={!hasCreatePermissions}
         onClick={() => openEditRulePanel(undefined)}
       >Create Rule</EuiButton>
-    </EuiToolTip> : <></>
+    </EuiToolTip>
 };
 
   const openEditRulePanel = (ruleId: number | undefined) => {
@@ -202,102 +202,110 @@ const RulesTable = () => {
     rule.id === currentRuleId && {
       isSelected: true
     }, [currentRuleId])
-  
+
   const handleRefreshRules = async () => {
     await refreshRules();
     await fetchTags();
   }
 
   return <>
+    <EuiFlexGroup direction="column" gutterSize="none" style={{ height: "100%"}}>
+      <EuiFlexItem grow={0}>
+        <EuiFlexGrid>
+          {error &&
+            <EuiFlexItem grow={true} style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+              backgroundColor: '#F8D7DA',
+              color: '#721C24',
+              flexDirection: 'row',
+              padding: '10px',
+              borderRadius: '5px',
+              marginBottom: '10px',
+              fontWeight: 'bold'
+            }}>
+              <div>{`${error}`}</div>
+              <EuiButtonIcon
+                onClick={() => setError(undefined)}
+                iconType="cross"/></EuiFlexItem>
+
+          }
+        </EuiFlexGrid>
     <EuiFlexGroup>
-      <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
+      <EuiFlexItem grow={0} style={{ paddingBottom: "20px" }}>
         <EuiTitle>
-          <h1>Current rules</h1>
+          <h1>
+            Current rules
+            {
+              getFeatureSwitchValue("enable-destructive-reload") ?
+                  <>&nbsp;
+                    <EuiButton size="s" fill={true} color={"danger"} onClick={handleRefreshRules} isLoading={isRefreshing}>
+                      <strong>Destroy all rules in the manager and reload from the original Google Sheet</strong>
+                    </EuiButton>
+                  </>
+                : null
+            }
+          </h1>
         </EuiTitle>
       </EuiFlexItem>
-      {
-        getFeatureSwitchValue("enable-destructive-reload") ?
-          <EuiFlexItem grow={false}>
-            <EuiButton size="s" fill={true} color={"danger"} onClick={handleRefreshRules} isLoading={isRefreshing}>
-              <strong>Destroy all rules in the manager and reload from the original Google Sheet</strong>
-            </EuiButton>
-          </EuiFlexItem> : 
-          null
-      }
     </EuiFlexGroup>
-    <EuiFlexGrid>
-      {error &&
-        <EuiFlexItem grow={true} style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%',
-          backgroundColor: '#F8D7DA',
-          color: '#721C24',
-          flexDirection: 'row',
-          padding: '10px',
-          borderRadius: '5px',
-          marginBottom: '10px',
-          fontWeight: 'bold'
-        }}>
-          <div>{`${error}`}</div>
-          <EuiButtonIcon
-            onClick={() => setError(undefined)}
-            iconType="cross"/></EuiFlexItem>
-
-      }
-    </EuiFlexGrid>
-    <EuiFlexGroup>
-      <EuiFlexItem grow={2}>
-        {rules &&
-          <EuiInMemoryTable
-            rowProps={getRowProps}
-	        css={css`.euiTableRow.euiTableRow-isSelected { background-color: rgba(0, 119, 204, 0.1); }`}
-            loading={isLoading}
-            tableCaption="Demo of EuiInMemoryTable"
-            items={rules}
-            itemId="id"
-            columns={columns}
-            pagination={true}
-            sorting={sorting}
-            search={search}
-            hasActions={true}
-            selection={selection}
-            isSelectable={true}
-          />
-        }
       </EuiFlexItem>
-      {formMode !== 'closed' && (
-        <EuiFlexItem grow={1}>
-          {selectedRules.length > 1
-              ? <RuleFormBatchEdit
-                  tags={tags}
-                  onClose={() => {
-                    setFormMode('closed');
-                    fetchRules()
-                  }}
-                  onUpdate={() => {
-                    fetchRules();
-                  }}
-                  ruleIds={selectedRules.map(rule => rule.id) as number[]}
-                />
-              : <RuleForm
-                  tags={tags}
-                  onClose={() => {
-                    setFormMode('closed');
-                    fetchRules();
-                  }}
-                  onUpdate={(id) => {
-                    fetchRules();
-                    setCurrentRuleId(id);
-                    if (formMode === 'create') {
-                      setFormMode('edit');
-                    }
-                  }}
-                  ruleId={currentRuleId}
-              />}
+      <EuiFlexGroup style={{ overflow: "hidden" }}>
+        <EuiFlexItem style={{  overflowY: "scroll" }} grow={2}>
+          {rules &&
+            <EuiInMemoryTable
+              rowProps={getRowProps}
+              css={css`.euiTableRow.euiTableRow-isSelected { background-color: rgba(0, 119, 204, 0.1); }`}
+              loading={isLoading}
+              tableCaption="Demo of EuiInMemoryTable"
+              items={rules}
+              itemId="id"
+              columns={columns}
+              pagination={true}
+              sorting={sorting}
+              search={search}
+              hasActions={true}
+              selection={selection}
+              isSelectable={true}
+            />
+          }
         </EuiFlexItem>
-      )}
+        {formMode !== 'closed' && (
+          <EuiFlexItem>
+            {selectedRules.length > 1
+                ? <RuleFormBatchEdit
+                    tags={tags}
+                    isTagMapLoading={isTagMapLoading}
+                    onClose={() => {
+                      setFormMode('closed');
+                      fetchRules()
+                    }}
+                    onUpdate={() => {
+                      fetchRules();
+                    }}
+                    ruleIds={selectedRules.map(rule => rule.id) as number[]}
+                  />
+                : <RuleForm
+                    tags={tags}
+                    isTagMapLoading={isTagMapLoading}
+                    onClose={() => {
+                      setFormMode('closed');
+                      fetchRules();
+                    }}
+                    onUpdate={(id) => {
+                      fetchRules();
+                      setCurrentRuleId(id);
+                      if (formMode === 'create') {
+                        setFormMode('edit');
+                      }
+                    }}
+                    ruleId={currentRuleId}
+                />}
+          </EuiFlexItem>
+        )}
+      </EuiFlexGroup>
     </EuiFlexGroup>
   </>
 }

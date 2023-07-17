@@ -10,10 +10,15 @@ import { PageContext } from "../../utils/window";
 import { Link, useLocation } from "react-router-dom";
 import { FeatureSwitchesContext } from "../context/featureSwitches";
 
+export const headerHeight = "50px";
+
 const HeaderContainer = styled.div`
+  position: fixed;
   display: flex;
-  height: 50px;
+  height: ${headerHeight};
+  width: 100%;
   background-color: white;
+  z-index: 10;
 `;
 
 const NavContainer = styled.div`
@@ -22,8 +27,9 @@ const NavContainer = styled.div`
 `;
 
 const HeaderLogo = styled.div`
-  height: 50px;
-  width: 50px;
+  height: ${headerHeight};
+  width: ${headerHeight};
+  margin-right: auto;
   background-color: ${colors.backgroundColorDark};
   display: flex;
   align-items: center;
@@ -32,8 +38,8 @@ const HeaderLogo = styled.div`
 `;
 
 const UserActionMenu = withEuiTheme(styled.div<WithEuiThemeProps>`
-  height: 50px;
-  line-height: 50px;
+  height: ${headerHeight};
+  line-height: ${headerHeight};
   padding: 0 ${({ theme }) => theme.euiTheme.base}px;
   cursor: pointer;
 `);
@@ -61,7 +67,7 @@ export const Header = () => {
           </Link>
         </HeaderLogo>
         {
-        getFeatureSwitchValue('show-tags-page') ? 
+        getFeatureSwitchValue('show-tags-page') ?
           <EuiHeaderLinks>
             <Link to="/">
               <EuiHeaderLink isActive={useLocation().pathname === "/"}>Rules</EuiHeaderLink>
