@@ -37,7 +37,7 @@ class RuleTesting(
           .stream()
           .map {
             _.bodyAsSource
-              .via(JsonHelpers.NDJsonDelimiter)
+              .via(JsonHelpers.JsonSeqFraming)
               .mapConcat { str =>
                 Json.parse(str.utf8String).validate[CheckSingleRuleResult] match {
                   case JsSuccess(value, _) => Some(value)

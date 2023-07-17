@@ -195,7 +195,7 @@ class RulesController(
     }
   }
 
-  def test(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
+  def testWithBlock(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
     request.body.validate[Document].asEither match {
       case Right(document) =>
         val rule = DbRuleDraft.find(id).get

@@ -6,11 +6,11 @@ import model.Check
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.{MatcherPool, MatcherProvisionerService}
-import com.gu.typerighter.lib.CommonConfig
+import com.gu.typerighter.lib.{CommonConfig, JsonHelpers}
 import com.gu.typerighter.model.CheckSingleRule
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import utils.{JsonHelpers, Timer}
+import utils.Timer
 
 import scala.util.{Failure, Success}
 
@@ -51,7 +51,7 @@ class ApiController(
 
         val resultStream = matcherPool
           .checkStream(check)
-          .map(result => JsonHelpers.toNDJson(result))
+          .map(result => JsonHelpers.toJsonSeq(result))
           .alsoTo(completeStreamWithPromise(timerPromise))
 
         Ok.chunked(resultStream).as("application/json-seq")
@@ -71,7 +71,7 @@ class ApiController(
 
             val resultStream = matcherPool
               .checkSingle(check, matcher)
-              .map(result => JsonHelpers.toNDJson(result))
+              .map(result => JsonHelpers.toJsonSeq(result))
               .alsoTo(completeStreamWithPromise(timerPromise))
 
             Ok.chunked(resultStream).as("application/json-seq")
