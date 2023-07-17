@@ -165,13 +165,12 @@ const RulesTable = () => {
       incremental: true,
       schema: true,
     },
-    toolsRight: getFeatureSwitchValue("create-and-edit") ?
-    <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
+    toolsRight: <EuiToolTip content={hasCreatePermissions ? "" : "You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules."}>
       <EuiButton
         isDisabled={!hasCreatePermissions}
         onClick={() => openEditRulePanel(undefined)}
       >Create Rule</EuiButton>
-    </EuiToolTip> : <></>
+    </EuiToolTip>
 };
 
   const openEditRulePanel = (ruleId: number | undefined) => {
