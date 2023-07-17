@@ -205,7 +205,6 @@ export const TagsTable = () => {
 
     return (<>
         <EuiFlexGroup>
-            <EuiFlexItem/>
             <EuiFlexItem css={css`width: 32rem;`}>
                 <EuiFlexGroup>
                     <EuiFlexItem grow={false} css={css`padding-bottom: 20px;`}>
