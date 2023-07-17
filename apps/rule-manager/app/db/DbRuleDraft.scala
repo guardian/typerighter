@@ -165,6 +165,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .where
         .eq(rd.id, id)
         .groupBy(dbColumnsToFind, rl.externalId)
+        .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .single()
       .apply()
@@ -181,6 +182,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .where
         .in(rd.id, ids)
         .groupBy(dbColumnsToFind, rl.externalId)
+        .orderBy(rd.ruleOrder)
     }
       .map(DbRuleDraft.fromRow)
       .list()
@@ -196,7 +198,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
         .groupBy(dbColumnsToFind, rl.externalId)
-        .orderBy(rd.id)
+        .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .list()
       .apply()
