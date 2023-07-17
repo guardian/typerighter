@@ -1,10 +1,11 @@
-import { EuiBasicTableColumn, EuiButton, EuiButtonEmpty, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiIcon, EuiInMemoryTable, EuiInMemoryTableProps, EuiInlineEditText, EuiModal, EuiModalBody, EuiModalHeader, EuiModalHeaderTitle, EuiSpacer, EuiText, EuiTextColor, EuiTitle, EuiToast, EuiToolTip } from "@elastic/eui"
+import { EuiBasicTableColumn, EuiButton, EuiButtonEmpty, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiIcon, EuiInMemoryTable, EuiInMemoryTableProps, EuiInlineEditText, EuiLoadingSpinner, EuiModal, EuiModalBody, EuiModalHeader, EuiModalHeaderTitle, EuiSpacer, EuiText, EuiTextColor, EuiTitle, EuiToast, EuiToolTip } from "@elastic/eui"
 import { css } from "@emotion/react"
 import { Tag, useTags } from "./hooks/useTags";
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { useCreateEditPermissions } from "./RulesTable";
 import { RuleFormSection } from "./RuleFormSection";
+import { ErrorIResponse } from "../utils/api";
 
 
 type DeleteTagButtonProps = {
@@ -21,11 +22,14 @@ const editableNameWidth = '18rem';
 const getTagMethodDisabledMessage = (methodName: string) => 
     `You do not have the correct permissions to ${methodName} a tag. Please contact Central Production if you need to do so.`
 
-const DeleteTag = ({editIsEnabled, tag, openDeleteTagDialogue}: {editIsEnabled: boolean, tag: Tag, openDeleteTagDialogue: (tag: Tag) => void}) => 
+const DeleteTag = (
+    {editIsEnabled, tag, openDeleteTagDialogue, isLoading, tagToDelete}: 
+    {editIsEnabled: boolean, tag: Tag, openDeleteTagDialogue: (tag: Tag) => void, isLoading: boolean, tagToDelete: Tag | null}
+) => 
     <EuiToolTip
         content={editIsEnabled ? "" : getTagMethodDisabledMessage('delete')}>
         <DeleteTagButton editIsEnabled={editIsEnabled} onClick={() => editIsEnabled ? openDeleteTagDialogue(tag) : null}>
-            <EuiIcon type="trash" color="danger"/>
+            {isLoading && tagToDelete && tagToDelete.id === tag.id ? <EuiLoadingSpinner /> : <EuiIcon type="trash" color="danger"/>}
         </DeleteTagButton>
     </EuiToolTip>
 
@@ -61,7 +65,15 @@ export const EditableNameField = ({
     );
   };
 
-const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => void, isLoading: boolean, openDeleteTagDialogue: (tag: Tag) => void, hasEditPermissions: boolean): Array<EuiBasicTableColumn<Tag>> => {
+const createTagTableColumns = (
+    editTag: (tag: Tag) => void, 
+    fetchTags: () => void, 
+    isLoading: boolean, 
+    openDeleteTagDialogue: (tag: Tag) => void, 
+    hasEditPermissions: boolean,
+    tagToDelete: Tag | null,
+): Array<EuiBasicTableColumn<Tag>> => {
+    console.log(tagToDelete)
     return [
         {
             field: 'name',
@@ -83,13 +95,13 @@ const createTagTableColumns = (editTag: (tag: Tag) => void, fetchTags: () => voi
             actions: [{
                 name: 'Delete',
                 enabled: () => hasEditPermissions,
-                render: (item, enabled) => <DeleteTag editIsEnabled={enabled} tag={item} openDeleteTagDialogue={openDeleteTagDialogue}/>
+                render: (item, enabled) => <DeleteTag editIsEnabled={enabled} tag={item} openDeleteTagDialogue={openDeleteTagDialogue} isLoading={isLoading} tagToDelete={tagToDelete}/>
             }]
         }
     ]
 }
 
-const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Promise<void>, enabled: boolean}) => {
+const CreateTagForm = ({createTag, enabled, isLoadingCreatedTag}: {createTag: (tagName: string) => Promise<void>, enabled: boolean, isLoadingCreatedTag: boolean}) => {
     const [tagName, setTagName] = useState('');
     const [clientSideValidationError, setClientSideValidationError] = useState<string | null>(null);
     const createTagIfSuitable = (tagName: string) => {
@@ -118,8 +130,8 @@ const CreateTagForm = ({createTag, enabled}: {createTag: (tagName: string) => Pr
                 <EuiFlexItem grow={false}>
                     <EuiToolTip
                     content={enabled ? "" : getTagMethodDisabledMessage('create')}>
-                        <EuiButton onClick={() => createTagIfSuitable(tagName)} color={"primary"} fill disabled={!enabled}>
-                            Create Tag
+                        <EuiButton onClick={() => createTagIfSuitable(tagName)} color={"primary"} fill disabled={!enabled || isLoadingCreatedTag}>
+                            {isLoadingCreatedTag ? <EuiLoadingSpinner size="s" /> : "Create Tag"}
                         </EuiButton>
                     
                     </EuiToolTip>
@@ -144,10 +156,17 @@ const deleteTagWarningCss = css`
     box-shadow: 2px 2px 10px rgba(0,0,0,0.4)
 `;
 
-const DeleteTagWarning = ({tag, setTagToDelete, deleteTag}: {tag: Tag, setTagToDelete: (tag: Tag | null) => void, deleteTag: (tag: Tag) => void}) => {
+const DeleteTagWarning = (
+    {tag, setTagToDelete, deleteTag, setHideDeletionModal}: 
+    {tag: Tag, setTagToDelete: (tag: Tag | null) => void, deleteTag: (tag: Tag) => Promise<ErrorIResponse | undefined>, setHideDeletionModal: (bool: boolean) => void}
+) => {
     const deleteAndClosePrompty = (tag: Tag) => { 
-        deleteTag(tag);
-        setTagToDelete(null);
+        setHideDeletionModal(true);
+        deleteTag(tag).then(resp => {
+            setTagToDelete(null);
+            setHideDeletionModal(false);
+        })
+        
     }
     return <EuiModal 
         onClose={() => {setTagToDelete(null)}} 
@@ -189,19 +208,20 @@ const ServerErrorNotification =  ({error}: {error: string}) => {
 
 }
 export const TagsTable = () => {
-    const {tags, fetchTags, isLoading, tagRuleCounts, fetchTagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, error} = useTags();
+    const {tags, fetchTags, isLoading, tagRuleCounts, fetchTagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, error, isLoadingCreatedTag} = useTags();
     const items = Object.values(tags).map(tag => {
         return {id: tag.id, name: tag.name, ruleCount: tagRuleCounts ? tagRuleCounts.draft.find(tagRule => tagRule.tagId === tag.id)?.ruleCount : 0}
     })
 
     const [tagToDelete, setTagToDelete] = useState<Tag | null>(null)
+    const [hideDeletionModal, setHideDeletionModal] = useState(false);
 
     const openDeleteTagDialogue = (tag: Tag) => {
         setTagToDelete(tag)
     }
     const hasEditPermissions = useCreateEditPermissions();
 
-    const columns = createTagTableColumns(updateTag, fetchTags, isLoading, openDeleteTagDialogue, hasEditPermissions)
+    const columns = createTagTableColumns(updateTag, fetchTags, isLoading, openDeleteTagDialogue, hasEditPermissions, tagToDelete)
 
     return (<>
         <EuiFlexGroup>
@@ -214,10 +234,10 @@ export const TagsTable = () => {
                     </EuiFlexItem>
                 </EuiFlexGroup>
                 <EuiFlexGroup>
-                    <CreateTagForm createTag={createTag} enabled={hasEditPermissions} />
+                    <CreateTagForm createTag={createTag} enabled={hasEditPermissions} isLoadingCreatedTag={isLoadingCreatedTag} />
                 </EuiFlexGroup>
                 <EuiFlexGroup>
-                    {tagToDelete ? <DeleteTagWarning tag={tagToDelete} setTagToDelete={setTagToDelete} deleteTag={deleteTag}/> : null}
+                    {tagToDelete && !hideDeletionModal ? <DeleteTagWarning tag={tagToDelete} setTagToDelete={setTagToDelete} deleteTag={deleteTag} setHideDeletionModal={setHideDeletionModal}/> : null}
                     <EuiFlexItem>
                         <EuiInMemoryTable
                             columns={columns}

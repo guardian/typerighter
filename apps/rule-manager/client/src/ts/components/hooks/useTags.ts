@@ -25,6 +25,7 @@ export function useTags() {
   const [tags, setTags] = useState<Record<number, Tag>>(defaultTags)
   const [tagRuleCounts, setTagRuleCounts] = useState<TagRuleCounts | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCreatedTag, setIsLoadingCreatedTag] = useState(false);
   const [isLoadingTagRuleCounts, setIsLoadingTagRuleCounts] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -95,7 +96,7 @@ export function useTags() {
 
   const createTag = async (tagName: string) => {
 
-    setIsLoading(true);
+    setIsLoadingCreatedTag(true);
     try {
       const response = await fetch(`${location.origin}/api/tags`, {
         method: 'POST',
@@ -115,7 +116,7 @@ export function useTags() {
     } catch (error) {
       setError(errorToString(error));
     } finally {
-      setIsLoading(false);
+      setIsLoadingCreatedTag(false);
     }
   }
 
@@ -137,7 +138,7 @@ export function useTags() {
       const parsedResponse = await textResponseHandler(response);
 
       if (parsedResponse.status === "ok") {
-        fetchTags();
+        await fetchTags();
       } else {
         setError(parsedResponse.errorMessage);
       }
@@ -153,5 +154,5 @@ export function useTags() {
     fetchTagRuleCounts();
   }, [])
 
-  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag };
+  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, isLoadingCreatedTag };
 }
