@@ -73,7 +73,7 @@ export const Header = () => {
           <Link to="/tags">
             <EuiHeaderLink isActive={useLocation().pathname === "/tags"}>Tags</EuiHeaderLink>
           </Link>
-        </EuiHeaderLinks> : null
+</EuiHeaderLinks>
       </NavContainer>
       <EuiPopover
         button={ProfileMenuButton}
