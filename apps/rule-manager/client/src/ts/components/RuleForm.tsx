@@ -247,6 +247,6 @@ export const RuleForm = ({tags, ruleId, onClose, onUpdate, isTagMapLoading}: {
               </EuiFlexGroup>
             </EuiFlexItem>
         </EuiFlexGroup>}
-        {isReasonModalVisible && <ReasonModal onClose={() => setIsReasonModalVisible(false)} onSubmit={publishRuleHandler} isLoading={isPublishing} />}
+        {isReasonModalVisible && <ReasonModal onClose={() => setIsReasonModalVisible(false)} onSubmit={publishRuleHandler} isLoading={isPublishing} rule={rule}/>}
     </>
 }
