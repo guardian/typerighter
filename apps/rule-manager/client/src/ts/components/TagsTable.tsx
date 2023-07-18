@@ -161,7 +161,7 @@ const DeleteTagWarning = (
 ) => {
     const deleteAndClosePrompty = (tag: Tag) => { 
         setHideDeletionModal(true);
-        deleteTag(tag).then(resp => {
+        deleteTag(tag).then(() => {
             setTagToDelete(null);
             setHideDeletionModal(false);
         })
