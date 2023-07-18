@@ -2,6 +2,6 @@
 
 LIB_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-. "$LIB_DIR/check-aws-credentials"
-. "$LIB_DIR/check-java-version"
-. "$LIB_DIR/check-node-version"
+source "$LIB_DIR/check-aws-credentials"
+source "$LIB_DIR/check-java-version"
+source "$LIB_DIR/check-node-version"
