@@ -73,7 +73,6 @@ const createTagTableColumns = (
     hasEditPermissions: boolean,
     tagToDelete: Tag | null,
 ): Array<EuiBasicTableColumn<Tag>> => {
-    console.log(tagToDelete)
     return [
         {
             field: 'name',
