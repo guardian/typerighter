@@ -1,7 +1,9 @@
 #!/bin/bash -e
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 IS_DEBUG=false
+DO_CHECKS=true
 
 for arg in "$@"
 do
@@ -9,10 +11,14 @@ do
     IS_DEBUG=true
     shift
   fi
+  if [[ "$arg" == "--checks-complete" ]]; then
+    DO_CHECKS=false
+    shift
+  fi
 done
 
-checkCredentials() {
-  bash "${DIR}"/lib/check-aws-credentials
+makeChecks() {
+  . "${DIR}"/lib/check
 }
 
 runChecker() {
@@ -23,6 +29,9 @@ runChecker() {
   fi
 }
 
-checkCredentials
+if [[ "$DO_CHECKS" = true ]]; then
+  makeChecks
+fi
+
 printf "🌟 Rule checker will be available at https://checker.typerighter.local.dev-gutools.co.uk when ready\n"
 runChecker

@@ -4,6 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 APP_FOLDER="apps"
 
 IS_DEBUG=false
+DO_CHECKS=true
 
 for arg in "$@"
 do
@@ -11,10 +12,14 @@ do
     IS_DEBUG=true
     shift
   fi
+  if [[ "$arg" == "--checks-complete" ]]; then
+    DO_CHECKS=false
+    shift
+  fi
 done
 
-checkCredentials() {
-  bash "${DIR}"/lib/check-aws-credentials
+makeChecks() {
+  . "${DIR}"/lib/check
 }
 
 setupDependencies() {
@@ -24,7 +29,11 @@ setupDependencies() {
 
 teardownDependencies() {
   docker-compose down
-  kill -9 $(lsof -ti:9100) # terminates the rule manager app
+  pids="$(lsof -ti:9100)"
+  if [[ -n "$pids" ]]; then
+    # terminates the rule manager app
+    kill -9 $pids
+  fi
 }
 
 runRuleManager() {
@@ -36,8 +45,12 @@ runRuleManager() {
 }
 
 trap teardownDependencies EXIT
+trap teardownDependencies INT TERM
 
-checkCredentials
+if [[ "$DO_CHECKS" = true ]]; then
+  makeChecks
+fi
+
 printf "🚀 Rule manager will be available at https://manager.typerighter.local.dev-gutools.co.uk when ready\n"
 setupDependencies
 runRuleManager
