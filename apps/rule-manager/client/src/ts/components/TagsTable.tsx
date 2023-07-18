@@ -172,7 +172,6 @@ const DeleteTagWarning = (
         onClose={() => {setTagToDelete(null)}} 
         initialFocus="[name=popswitch]"
         color="danger"
-        // css={deleteTagWarningCss}
     >
         <EuiModalHeader>
             <EuiModalHeaderTitle>Confirm tag deletion</EuiModalHeaderTitle>
