@@ -36,6 +36,7 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
       select.from(this as rt).where.eq(rt.tagId, tagId)
     }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => rt.ruleId)
   }
+
   def countRulesForAllTags()(implicit session: DBSession = autoSession): List[(Int, Int)] = {
     withSQL {
       select(rt.tagId, sqls"COUNT(DISTINCT(${rt.ruleId})) as rule_count")

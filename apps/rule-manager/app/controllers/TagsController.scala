@@ -22,7 +22,15 @@ class TagsController(
     with FormHelpers {
 
   def list = ApiAuthAction {
-    Ok(Json.toJson(Tags.findAll()))
+    val tagsWithRuleCounts = Tags.findAllWithRuleCounts()
+
+    val json = tagsWithRuleCounts.map(tagWithRuleCount => Json.obj(
+      "id" -> tagWithRuleCount.id.get,
+      "name" -> tagWithRuleCount.name,
+      "ruleCount" -> tagWithRuleCount.ruleCount
+    ))
+
+    Ok(Json.toJson(json))
   }
 
   def get(id: Int) = ApiAuthAction {

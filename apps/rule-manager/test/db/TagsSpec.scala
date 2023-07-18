@@ -5,15 +5,8 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 
-class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
+class TagsSpec extends FixtureAnyFlatSpec with Matchers with RuleFixture with AutoRollback with DBTest {
   val t = Tags.syntax("t")
-
-  override def fixture(implicit session: DBSession) = {
-    sql"ALTER SEQUENCE tags_id_seq RESTART WITH 1".update().apply()
-    sql"insert into tags (name) values (${"name"})"
-      .update()
-      .apply()
-  }
 
   behavior of "Tags"
 
@@ -29,6 +22,10 @@ class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with D
     val allResults = Tags.findAll()
     allResults.size should be > (0)
   }
+  it should "find all records with rule counts" in { implicit session =>
+    val allResults = Tags.findAllWithRuleCounts()
+    allResults should be(List((Tag(Some(1), "testTag"), 1)))
+  }
   it should "count all records" in { implicit session =>
     val count = Tags.countAll()
     count should be > (0L)
@@ -37,6 +34,7 @@ class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with D
     val results = Tags.findAllBy(sqls.eq(t.id, 1))
     results.size should be > (0)
   }
+
   it should "count by where clauses" in { implicit session =>
     val count = Tags.countBy(sqls.eq(t.id, 1))
     count should be > (0L)
@@ -67,9 +65,7 @@ class TagsSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with D
   }
 
   it should "perform batch insert" in { implicit session =>
-    val entities = Tags.findAll()
-    entities.foreach(e => Tags.destroy(e))
-    val batchInserted = Tags.batchInsert(entities)
+    val batchInserted = Tags.batchInsert(List(Tag(None, "Hello")))
     batchInserted.size should be > (0)
   }
 }
