@@ -21,7 +21,7 @@ class TagsController(
     with PermissionsHandler
     with FormHelpers {
 
-  def list = ApiAuthAction {
+  def listWithRuleCounts = ApiAuthAction {
     val tagsWithRuleCounts = Tags.findAllWithRuleCounts()
 
     val json = tagsWithRuleCounts.map(tagWithRuleCount => Json.obj(
@@ -39,16 +39,6 @@ class TagsController(
       case Some(tag) =>
         Ok(Json.toJson(tag))
     }
-  }
-
-  def getRuleCountForAllTags() = ApiAuthAction {
-    val liveTagCounts = RuleTagLive.countRulesForAllTags()
-    val draftTagCounts = RuleTagDraft.countRulesForAllTags()
-    val liveAndDraftTagCounts = Map(
-      "live" -> liveTagCounts.map(tuple => Map("tagId" -> tuple._1, "ruleCount" -> tuple._2)),
-      "draft" -> draftTagCounts.map(tuple => Map("tagId" -> tuple._1, "ruleCount" -> tuple._2))
-    )
-    Ok(Json.toJson(liveAndDraftTagCounts))
   }
 
   def delete(id: Int) = ApiAuthAction {

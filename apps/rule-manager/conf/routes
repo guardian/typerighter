@@ -35,11 +35,9 @@ POST    /api/rules/:id/unarchive        controllers.RulesController.unarchive(id
 
 # Tags
 +nocsrf
-GET     /api/tags                       controllers.TagsController.list()
+GET     /api/tags                       controllers.TagsController.listWithRuleCounts()
 +nocsrf
 POST    /api/tags                       controllers.TagsController.create()
-+nocsrf
-GET     /api/tags/ruleCount             controllers.TagsController.getRuleCountForAllTags()
 +nocsrf
 GET     /api/tags/:id                   controllers.TagsController.get(id: Int)
 +nocsrf

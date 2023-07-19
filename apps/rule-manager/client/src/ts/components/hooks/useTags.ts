@@ -49,22 +49,6 @@ export function useTags() {
     setIsLoading(false);
   }
 
-  const fetchTagRuleCounts = async (): Promise<void> => {
-    setIsLoadingTagRuleCounts(true);
-
-    try {
-      const response = await fetch(`${location.origin}/api/tags/ruleCount`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
-      }
-      const tagsRuleCounts: TagRuleCounts = await response.json();
-      setTagRuleCounts(tagsRuleCounts);
-    } catch (error) {
-      setError(errorToString(error));
-    }
-    setIsLoadingTagRuleCounts(false);
-  }
-
   const updateTag = async (tagForm: Tag) => {
     setIsLoading(true);
 
@@ -151,8 +135,7 @@ export function useTags() {
 
   useEffect(() => {
     fetchTags();
-    fetchTagRuleCounts();
   }, [])
 
-  return { tags, isLoading, error, fetchTags, fetchTagRuleCounts, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, isLoadingCreatedTag };
+  return { tags, isLoading, error, fetchTags, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, isLoadingCreatedTag };
 }

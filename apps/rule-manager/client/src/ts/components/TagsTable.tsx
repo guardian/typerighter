@@ -206,10 +206,8 @@ const ServerErrorNotification =  ({error}: {error: string}) => {
 
 }
 export const TagsTable = () => {
-    const {tags, fetchTags, isLoading, tagRuleCounts, fetchTagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, error, isLoadingCreatedTag} = useTags();
-    const items = Object.values(tags).map(tag => {
-        return {id: tag.id, name: tag.name, ruleCount: tagRuleCounts ? tagRuleCounts.draft.find(tagRule => tagRule.tagId === tag.id)?.ruleCount : 0}
-    })
+    const {tags, fetchTags, isLoading, tagRuleCounts, updateTag, deleteTag, createTag, error, isLoadingCreatedTag} = useTags();
+    const items = Object.values(tags)
 
     const [tagToDelete, setTagToDelete] = useState<Tag | null>(null)
     const [hideDeletionModal, setHideDeletionModal] = useState(false);
