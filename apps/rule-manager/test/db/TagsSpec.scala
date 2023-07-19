@@ -29,7 +29,7 @@ class TagsSpec
   }
   it should "find all records with rule counts" in { implicit session =>
     val allResults = Tags.findAllWithRuleCounts()
-    allResults should be(List((Tag(Some(1), "testTag"), 1)))
+    allResults should be(List(TagWithRuleCount(Some(1), "testTag", 1)))
   }
   it should "count all records" in { implicit session =>
     val count = Tags.countAll()
