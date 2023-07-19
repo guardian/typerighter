@@ -24,6 +24,7 @@ class RuleTesting(
       case Some(rule) =>
         val path = "/checkSingle"
         val headers = hmacClient.getHMACHeaders(path)
+        val url = checkerUrl + path
         val requestId = UUID.randomUUID().toString()
         val checkSingleRule = CheckSingleRule(
           requestId = requestId,
@@ -31,8 +32,11 @@ class RuleTesting(
           rule = rule
         )
 
-        ws.url(s"$checkerUrl$path")
+        log.info(s"Fetching results for ${documents.size} document(s) from checker service ($url)")
+
+        ws.url(url)
           .withHttpHeaders(headers: _*)
+          .withMethod("POST")
           .withBody(Json.toJson(checkSingleRule))
           .stream()
           .map {
