@@ -7,7 +7,7 @@ import com.gu.contentapi.client.model.v1.SearchResponse
 import com.gu.typerighter.lib.{HMACClient, JsonHelpers}
 import com.gu.typerighter.model.{CheckSingleRuleResult, Document, TextBlock}
 import com.gu.typerighter.fixtures.RuleMatchFixtures
-import fixtures.{CAPI, RuleFixtures}
+import fixtures.{CAPIFixtures, RuleFixtures}
 import org.mockito.Mockito.when
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.flatspec.AnyFlatSpec
@@ -49,7 +49,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
         if (searchResponses.nonEmpty) {
           when(contentClient.searchContent(any, any, any, any)(any)) thenAnswer (_ =>
             Future.successful(searchResponses.next())
-          )
+            )
         }
 
         block(new RuleTesting(client, hmacClient, contentClient, ""))
@@ -106,7 +106,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
   it should "poll CAPI up to the page count in the absence of matches" in {
     val desiredPageCount = 5
-    val responses = List.fill(desiredPageCount)(CAPI.searchResponseWithBodyField).iterator
+    val responses = List.fill(desiredPageCount)(CAPIFixtures.searchResponseWithBodyField).iterator
     val matches = List.fill(desiredPageCount)(List(emptyCheckResult)).iterator
 
     withRuleTestingClient(searchResponses = responses, matchResponses = matches) { client =>
@@ -139,7 +139,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
 
   it should "stop polling CAPI once the match count is reached" in {
     val desiredMatchCount = 6
-    val responses = List.fill(4)(CAPI.searchResponseWithBodyField).iterator
+    val responses = List.fill(4)(CAPIFixtures.searchResponseWithBodyField).iterator
     // Respond with seven matches over three documents, hitting our match limit
     val matches = List(
       List.fill(desiredMatchCount / 2)(checkResultWithSingleMatch),

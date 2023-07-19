@@ -6,7 +6,7 @@ import io.circe.parser.decode
 
 import scala.io.Source
 
-object CAPI {
+object CAPIFixtures {
   val searchResponseWithBodyField = {
     val source = Source.fromURL(getClass.getResource("/CAPI/searchResponseWithBodyField.json"))
     val input = decode[SearchResponse](source.mkString)

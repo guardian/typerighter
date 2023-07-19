@@ -9,7 +9,7 @@ class RuleMatchTest extends AsyncFlatSpec with Matchers {
   behavior of "mapMatchThroughSkippedRanges"
 
   it should "account for a range skipped before the given range" in {
-    val ruleMatch = RuleMatchFixtures.RuleMatchFixtures.getRuleMatch(10, 15)
+    val ruleMatch = RuleMatchFixtures.getRuleMatch(10, 15)
     val skippedRange = List(TextRange(0, 5))
     val mappedMatch = ruleMatch.mapThroughSkippedRanges(skippedRange)
     mappedMatch.fromPos shouldBe 16
