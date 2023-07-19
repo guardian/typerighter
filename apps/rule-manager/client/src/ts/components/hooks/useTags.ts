@@ -6,27 +6,18 @@ const defaultTags = {}
 
 export type Tag = {
   id: number,
-  name: string
-}
-
-type TagRuleCount = {
-  tagId: number,
+  name: string,
   ruleCount: number
 }
 
-type TagRuleCounts = {
-  draft: TagRuleCount[],
-  live: TagRuleCount[]
-}
+export type TagContent = Omit<Tag, "ruleCount">;
 
 export type TagMap = Record<string, Tag>;
 
 export function useTags() {
   const [tags, setTags] = useState<Record<number, Tag>>(defaultTags)
-  const [tagRuleCounts, setTagRuleCounts] = useState<TagRuleCounts | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCreatedTag, setIsLoadingCreatedTag] = useState(false);
-  const [isLoadingTagRuleCounts, setIsLoadingTagRuleCounts] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const fetchTags = async (): Promise<void> => {
@@ -49,7 +40,7 @@ export function useTags() {
     setIsLoading(false);
   }
 
-  const updateTag = async (tagForm: Tag) => {
+  const updateTag = async (tagForm: TagContent) => {
     setIsLoading(true);
 
     // We would always expect the ruleForm to include an ID when updating a rule
@@ -118,7 +109,7 @@ export function useTags() {
         },
         body: JSON.stringify(tagForm)
       })
-      
+
       const parsedResponse = await textResponseHandler(response);
 
       if (parsedResponse.status === "ok") {
@@ -137,5 +128,5 @@ export function useTags() {
     fetchTags();
   }, [])
 
-  return { tags, isLoading, error, fetchTags, tagRuleCounts, isLoadingTagRuleCounts, updateTag, deleteTag, createTag, isLoadingCreatedTag };
+  return { tags, isLoading, error, fetchTags, updateTag, deleteTag, createTag, isLoadingCreatedTag };
 }
