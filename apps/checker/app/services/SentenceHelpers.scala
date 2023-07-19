@@ -29,7 +29,10 @@ class SentenceHelpers() {
     } yield wordInSentence
   }
 
-  private def maybeGetFirstWordFromSentence(sentence: String, startPos: Int): Option[WordInSentence] = {
+  private def maybeGetFirstWordFromSentence(
+      sentence: String,
+      startPos: Int
+  ): Option[WordInSentence] = {
     val tokens = tokenizer.tokenizePos(sentence).toList
 
     tokens

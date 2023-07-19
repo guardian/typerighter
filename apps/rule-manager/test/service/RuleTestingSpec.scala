@@ -5,7 +5,7 @@ import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
 import com.gu.typerighter.lib.{HMACClient, JsonHelpers}
 import com.gu.typerighter.model.{CheckSingleRuleResult, Document, TextBlock}
-import fixtures.Rules
+import fixtures.RuleFixtures
 import org.mockito.scalatest.IdiomaticMockito
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -23,12 +23,16 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
   val as: ActorSystem = ActorSystem()
   implicit val materializer: Materializer = Materializer(as)
 
-  // Mock responses from our CAPI client and checker service when parsing responses
+  /** Mock responses from our checker service when parsing responses.
+    *
+    * The matches are passed as an iterator to allow us to assert their state when tests are
+    * finished running – to check that they've been consumed.
+    */
   def withRuleTestingClient[T](
       matchResponses: Iterator[Seq[CheckSingleRuleResult]]
   )(block: RuleTesting => T): T = {
-    Server.withRouterFromComponents() { cs => {
-      case GET(p"/checkSingle") =>
+    Server.withRouterFromComponents() { cs =>
+      { case POST(p"/checkSingle") =>
         cs.defaultActionBuilder { _ =>
           Ok.chunked(
             Source(matchResponses.next()).map(result => JsonHelpers.toJsonSeq(result))
@@ -36,17 +40,16 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
         }
       }
     } { implicit port =>
-        WsTestClient.withClient { client =>
-          val hmacClient = new HMACClient("TEST", secretKey = "🤫")
-          block(new RuleTesting(client, hmacClient, ""))
-        }
+      WsTestClient.withClient { client =>
+        val hmacClient = new HMACClient("TEST", secretKey = "🤫")
+        block(new RuleTesting(client, hmacClient, ""))
       }
     }
-
+  }
 
   behavior of "testRule"
 
-  val exampleRule = Rules.createRandomRules(1).head
+  val exampleRule = RuleFixtures.createRandomRules(1).head
   val exampleDocuments = List(
     Document("test-document", List(TextBlock("id", "Example text", 0, 11)))
   )
@@ -56,7 +59,8 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
   )
 
   it should "handle an empty stream" in {
-    withRuleTestingClient(List.empty.iterator) { client =>
+    val matchResponses = List(List.empty).iterator
+    withRuleTestingClient(matchResponses = matchResponses) { client =>
       val eventualResult =
         client.testRule(exampleRule, exampleDocuments).flatMap(_.runWith(Sink.seq))
       val result = Await.result(eventualResult, 10 seconds)

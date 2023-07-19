@@ -15,6 +15,7 @@ class CapiProxyController(
     config: CommonConfig
 )(implicit ec: ExecutionContext)
     extends PandaAuthController(controllerComponents, config) {
+
   def searchContent(
       query: String,
       tags: Option[List[String]],

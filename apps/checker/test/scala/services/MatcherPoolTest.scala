@@ -4,7 +4,10 @@ import akka.actor.ActorSystem
 import akka.stream.scaladsl.Sink
 import com.gu.typerighter.model.{
   Category,
+  CheckSingleRule,
+  CheckSingleRuleResult,
   ComparableRegex,
+  Document,
   RegexRule,
   RuleMatch,
   TextBlock,

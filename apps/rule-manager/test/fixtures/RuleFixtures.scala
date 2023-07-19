@@ -4,7 +4,7 @@ import db.DbRuleDraft
 
 import scala.util.Random
 
-object Rules {
+object RuleFixtures {
   def createRandomRules(ruleCount: Int, ignore: Boolean = false): List[DbRuleDraft] =
     (1 to ruleCount).map { ruleIndex =>
       DbRuleDraft.withUser(
@@ -21,7 +21,8 @@ object Rules {
         forceRedRule = Some(true),
         advisoryRule = Some(true),
         user = "Google Sheet",
-        ruleType = "regex"
+        ruleType = "regex",
+        ruleOrder = ruleIndex
       )
     }.toList
 }

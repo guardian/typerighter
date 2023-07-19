@@ -18,7 +18,7 @@ POST    /check                      controllers.ApiController.check()
 POST    /checkStream                controllers.ApiController.checkStream
 +nocsrf
 POST    /checkSingle                controllers.ApiController.checkSingleRule
-+nocsrf
+
 GET     /categories                 controllers.ApiController.getCurrentCategories()
 
 GET     /capi/search                controllers.CapiProxyController.searchContent(query: String, tags: Option[List[String]], sections: Option[List[String]], page: Option[Int])

@@ -17,7 +17,7 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import com.softwaremill.diffx.generic.auto.diffForCaseClass
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
-import fixtures.Rules
+import fixtures.RuleFixtures
 import play.api.data.FormError
 import utils.LocalStack
 
@@ -33,7 +33,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   behavior of "DbRuleManager"
 
   "liveDbRuleToCheckerRule" should "create a checker rule from a live rule" in { () =>
-    val rule = Rules.createRandomRules(1).head.toLive("reason")
+    val rule = RuleFixtures.createRandomRules(1).head.toLive("reason")
     val maybeCheckerRule = RuleManager.liveDbRuleToCheckerRule(rule)
 
     maybeCheckerRule shouldBe Right(
@@ -152,7 +152,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
   "destructivelyDumpRulesToDB" should "add 1000 randomly generated rules in a ruleResource, and read them back from the DB as an identical resource" in {
     () =>
-      val rules = Rules.createRandomRules(1)
+      val rules = RuleFixtures.createRandomRules(1)
       val rulesAsPublished = rules
         .map(_.toLive("Imported from Google Sheet"))
         .map(RuleManager.liveDbRuleToCheckerRule(_).toOption.get)
@@ -164,10 +164,10 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   }
 
   "destructivelyDumpRulesToDB" should "remove old rules before adding new ones" in { () =>
-    val firstRules = Rules.createRandomRules(10)
+    val firstRules = RuleFixtures.createRandomRules(10)
     RuleManager.destructivelyPublishRules(firstRules, bucketRuleResource)
 
-    val secondRules = Rules.createRandomRules(10)
+    val secondRules = RuleFixtures.createRandomRules(10)
     val secondRulesFromDb =
       RuleManager.destructivelyPublishRules(secondRules, bucketRuleResource).toOption.get
 
@@ -175,7 +175,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
   }
 
   "destructivelyDumpRulesToDB" should "make newly added rules active" in { () =>
-    val firstRules = Rules.createRandomRules(1)
+    val firstRules = RuleFixtures.createRandomRules(1)
     RuleManager.destructivelyPublishRules(firstRules, bucketRuleResource)
 
     DbRuleLive.findAll().head.isActive shouldBe true
@@ -183,7 +183,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
   "createRuleResourceFromDbRules" should "not translate dbRules into RuleResource if ignore is true" in {
     () =>
-      val rulesToIgnore = Rules.createRandomRules(10, ignore = true)
+      val rulesToIgnore = RuleFixtures.createRandomRules(10, ignore = true)
 
       val ruleResourceWithIgnoredRules =
         RuleManager.destructivelyPublishRules(rulesToIgnore, bucketRuleResource)
@@ -193,7 +193,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
   "destructivelyPublishRules" should "write all rules to draft, and only write unignored rules to live" in {
     () =>
-      val allRules = Rules.createRandomRules(2).zipWithIndex.map { case (rule, index) =>
+      val allRules = RuleFixtures.createRandomRules(2).zipWithIndex.map { case (rule, index) =>
         if (index % 2 == 0) rule.copy(ignore = true) else rule
       }
       val unignoredRules = allRules.filterNot(_.ignore)

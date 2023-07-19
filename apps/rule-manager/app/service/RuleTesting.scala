@@ -1,8 +1,8 @@
 package service
 
 import play.api.libs.ws.WSClient
-import com.gu.typerighter.lib.{HMACClient, Loggable}
-import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, CheckerRule, Document}
+import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
+import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document}
 import db.DbRuleDraft
 import play.api.libs.json.{JsError, JsSuccess, Json}
 
@@ -14,8 +14,9 @@ class RuleTesting(
     hmacClient: HMACClient,
     checkerUrl: String
 ) extends Loggable {
+
   /** Test a rule against the given list of documents. Return a list of matches from the checker
-    * service endpoint as streamed NDJSON.
+    * service endpoint as a stream of json-seq records.
     */
   def testRule(rule: DbRuleDraft, documents: List[Document])(implicit ec: ExecutionContext) = {
     val liveRule = rule.toLive("placeholder")
