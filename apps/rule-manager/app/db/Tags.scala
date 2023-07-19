@@ -12,10 +12,10 @@ case class Tag(
     name: String
 )
 case class TagWithRuleCount(
-   id: Option[Int],
-   name: String,
-   ruleCount: Int
- )
+    id: Option[Int],
+    name: String,
+    ruleCount: Int
+)
 object Tags extends SQLSyntaxSupport[Tag] {
   implicit val format: Format[Tag] = Json.format[Tag]
 
@@ -43,7 +43,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
   }
 
   def findAllWithRuleCounts()(implicit session: DBSession = autoSession): List[TagWithRuleCount] = {
-    withSQL{
+    withSQL {
       select(t.id, t.name, sqls"COUNT(DISTINCT(${rtd.ruleId})) as rule_count")
         .from(Tags as t)
         .leftJoin(RuleTagDraft as rtd)

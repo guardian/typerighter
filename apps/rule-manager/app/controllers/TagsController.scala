@@ -24,11 +24,13 @@ class TagsController(
   def listWithRuleCounts = ApiAuthAction {
     val tagsWithRuleCounts = Tags.findAllWithRuleCounts()
 
-    val json = tagsWithRuleCounts.map(tagWithRuleCount => Json.obj(
-      "id" -> tagWithRuleCount.id.get,
-      "name" -> tagWithRuleCount.name,
-      "ruleCount" -> tagWithRuleCount.ruleCount
-    ))
+    val json = tagsWithRuleCounts.map(tagWithRuleCount =>
+      Json.obj(
+        "id" -> tagWithRuleCount.id.get,
+        "name" -> tagWithRuleCount.name,
+        "ruleCount" -> tagWithRuleCount.ruleCount
+      )
+    )
 
     Ok(Json.toJson(json))
   }

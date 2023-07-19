@@ -5,7 +5,12 @@ import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
 import scalikejdbc._
 
-class TagsSpec extends FixtureAnyFlatSpec with Matchers with RuleFixture with AutoRollback with DBTest {
+class TagsSpec
+    extends FixtureAnyFlatSpec
+    with Matchers
+    with RuleFixture
+    with AutoRollback
+    with DBTest {
   val t = Tags.syntax("t")
 
   behavior of "Tags"
