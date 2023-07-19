@@ -37,14 +37,6 @@ object RuleTagDraft extends SQLSyntaxSupport[RuleTagDraft] {
     }.map(this.fromResultName(rt.resultName)).list().apply().map(rt => rt.ruleId)
   }
 
-  def countRulesForAllTags()(implicit session: DBSession = autoSession): List[(Int, Int)] = {
-    withSQL {
-      select(rt.tagId, sqls"COUNT(DISTINCT(${rt.ruleId})) as rule_count")
-        .from(this as rt)
-        .groupBy(rt.tagId)
-    }.map(rs => (rs.int("tag_id"), rs.int("rule_count"))).list().apply()
-  }
-
   def findAll()(implicit session: DBSession = autoSession): List[RuleTagDraft] = {
     withSQL(select.from(this as rt).orderBy(rt.ruleId))
       .map(this.fromResultName(rt.resultName))

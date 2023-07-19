@@ -56,14 +56,6 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
       .map(rt => (rt.ruleExternalId, rt.ruleRevisionId))
   }
 
-  def countRulesForAllTags()(implicit session: DBSession = autoSession): List[(Int, Int)] = {
-    withSQL {
-      select(rt.tagId, sqls"COUNT(DISTINCT(${rt.ruleExternalId})) as rule_count")
-        .from(this as rt)
-        .groupBy(rt.tagId)
-    }.map(rs => (rs.int("tag_id"), rs.int("rule_count"))).list().apply()
-  }
-
   def findAll()(implicit session: DBSession = autoSession): List[RuleTagLive] = {
     withSQL(select.from(this as rt).orderBy(rt.ruleExternalId))
       .map(this.fromResultName(rt.resultName))
