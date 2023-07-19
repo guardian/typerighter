@@ -8,6 +8,7 @@ import {
   EuiFlexItem,
   EuiForm,
   EuiFormRow,
+  EuiHorizontalRule,
   EuiModal,
   EuiModalBody,
   EuiModalFooter,
@@ -24,6 +25,7 @@ import { RuleData } from "../hooks/useRule";
 import { useTags } from "../hooks/useTags";
 import { SectionHeader, Title } from "../RuleFormSection";
 import styled from "@emotion/styled";
+import { css } from "@emotion/react";
 
 const modalFormId = "modal-form";
 
@@ -72,20 +74,19 @@ export const camelCaseToTitleCase = (str: string) => {
 }
 
 export const TextDiff = ({draft, live, name}: {draft: DiffValue, live: DiffValue, name: string}) => {
-  const [del, setDel] = useState(0);
-  const [ins, setIns] = useState(0);
-  const [rendered, textDiffObject] = useEuiTextDiff({ beforeText: live.toString(), afterText: draft.toString() })
+  const [rendered] = useEuiTextDiff({ beforeText: live.toString(), afterText: draft.toString() })
   console.log({beforeText: live.toString(), afterText: draft.toString()})
+  // TODO: Tidy tags - id => name
+  // TODO: Tidy
   return <EuiFlexGroup>
       <EuiFlexItem>
+        <EuiHorizontalRule margin="s" />
         <EuiFlexGroup>
         <SectionHeader>
             <Title>{camelCaseToTitleCase(name)}</Title>
         </SectionHeader>
         </EuiFlexGroup>
-        <EuiText>
-          <p>{rendered}</p>
-        </EuiText>
+        <Comparison left={<>{live}</>} right={<>{rendered}</>}></Comparison>
       </EuiFlexItem>
   </EuiFlexGroup>
 }
@@ -95,11 +96,15 @@ const ComparisonPanel = styled.div`
   padding: 0.5rem;
 `
 
-export const Comparison = ({left, right} : {left: JSX.Element | JSX.Element[], right: JSX.Element | JSX.Element[]}) => {
+const ComparisonPanelHeader = styled.div`
+  padding: 0.25rem 0;
+  color: #444;
+`
 
+export const Comparison = ({left, right} : {left: JSX.Element | JSX.Element[], right: JSX.Element | JSX.Element[]}) => {
   return <EuiFlexGroup>
-    <EuiFlexItem grow><ComparisonPanel>{left}</ComparisonPanel></EuiFlexItem>
-    <EuiFlexItem grow><ComparisonPanel>{right}</ComparisonPanel></EuiFlexItem>
+    <EuiFlexItem grow><ComparisonPanelHeader>Before:</ComparisonPanelHeader><ComparisonPanel>{left}</ComparisonPanel></EuiFlexItem>
+    <EuiFlexItem grow><ComparisonPanelHeader>After:</ComparisonPanelHeader><ComparisonPanel>{right}</ComparisonPanel></EuiFlexItem>
   </EuiFlexGroup>
 }
 
@@ -107,10 +112,11 @@ export const ComparisonDiff = ({draft, live, name}: {draft: DiffValue, live: Dif
   // Transform tag ids to tag names
   return <EuiFlexGroup>
       <EuiFlexItem>
-        <EuiFlexGroup>
-        <SectionHeader>
-            <Title>{camelCaseToTitleCase(name)}</Title>
-        </SectionHeader>
+        <EuiHorizontalRule margin="s" />
+        <EuiFlexGroup> 
+          <SectionHeader>
+              <Title>{camelCaseToTitleCase(name)}</Title>
+          </SectionHeader>
         </EuiFlexGroup>
           <Comparison 
             left={Array.isArray(draft) ? draft.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{draft}</EuiBadge>}
@@ -137,7 +143,9 @@ export const ReasonDiff = ({rule}: {rule: RuleData | undefined}) => {
   
   return <>
     <EuiSpacer />
-    <EuiFlexGroup>
+    <EuiFlexGroup css={css`border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 0.5rem;`}>
       <EuiFlexItem>
         <EuiText>What's changed:</EuiText>
         {textDiffs?.map(diffedField => <TextDiff draft={diffedField.draft} live={diffedField.live} name={diffedField.field} key={diffedField.field} />)}
