@@ -4,7 +4,7 @@ import akka.stream.Attributes
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Source
 import play.api.libs.ws.WSClient
-import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable}
+import com.gu.typerighter.lib.{HMACClient, JsonHelpers, Loggable, ContentClient}
 import com.gu.typerighter.model.{CheckSingleRule, CheckSingleRuleResult, Document}
 import db.DbRuleDraft
 import play.api.libs.json.{Format, JsError, JsSuccess, Json}

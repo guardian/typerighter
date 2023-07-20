@@ -9,7 +9,6 @@ import java.net.URL
 
 object JsonHelpers {
   val recordSeparatorChar = 31.toChar
-
   implicit val urlWrites: Writes[URL] = (o: URL) => JsString(o.toString)
 
   def toJsonSeq[T](serializable: T)(implicit tjs: Writes[T]) =

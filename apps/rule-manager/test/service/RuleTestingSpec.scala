@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Sink, Source}
 import com.gu.contentapi.client.model.v1.SearchResponse
-import com.gu.typerighter.lib.{HMACClient, JsonHelpers}
+import com.gu.typerighter.lib.{ContentClient, HMACClient, JsonHelpers}
 import com.gu.typerighter.model.{CheckSingleRuleResult, Document, TextBlock}
 import com.gu.typerighter.fixtures.RuleMatchFixtures
 import fixtures.{CAPIFixtures, RuleFixtures}
@@ -49,7 +49,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
         if (searchResponses.nonEmpty) {
           when(contentClient.searchContent(any, any, any, any)(any)) thenAnswer (_ =>
             Future.successful(searchResponses.next())
-            )
+          )
         }
 
         block(new RuleTesting(client, hmacClient, contentClient, ""))

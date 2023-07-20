@@ -1,9 +1,8 @@
-package services
-
-import com.gu.contentapi.client.model.v1.{SearchResponse, SectionsResponse, TagsResponse}
-import com.gu.contentapi.client.{ContentApiClient, GuardianContentClient}
+package com.gu.typerighter.lib
 
 import scala.concurrent.{ExecutionContext, Future}
+import com.gu.contentapi.client.{ContentApiClient, GuardianContentClient}
+import com.gu.contentapi.client.model.v1.{SearchResponse, SectionsResponse, TagsResponse}
 
 class ContentClient(client: GuardianContentClient) {
 

@@ -9,13 +9,13 @@ import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
 import com.gu.contentapi.client.GuardianContentClient
-import com.gu.typerighter.lib.HMACClient
+import com.gu.typerighter.lib.{HMACClient, ContentClient}
 import com.gu.typerighter.rules.BucketRuleResource
 import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
-import service.{ContentClient, RuleTesting, SheetsRuleResource}
+import service.{RuleTesting, SheetsRuleResource}
 import utils.{LocalStack, RuleManagerConfig}
 
 class AppComponents(
