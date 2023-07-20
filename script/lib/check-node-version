@@ -1,52 +1,7 @@
 #!/bin/bash -e
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
 APP_FOLDER="apps"
 ROOT_DIR="$APP_FOLDER/../"
-
-nvmUse() {
-  echo "Using nvm to switch node versions..."
-  rc=0
-  nvm use || rc=$?
-  if [[ $rc == 0 ]] ; then
-    echo "✅ nvm successfully switched node versions."
-  else
-    echo "❌ nvm failed to switch node versions. Please change node versions manually."
-    exit 1
-  fi
-}
-
-fnmUse() {
-  echo "Using fnm to switch node versions..."
-  rc=0
-  fnm use || rc=$?;
-  if [[ $rc == 0 ]] ; then
-    echo "✅ fnm successfully switched node versions."
-  else
-    echo "❌ fnm failed to switch node versions."
-    # fallback to nvm
-    nvmUse
-  fi
-}
-
-setupNodeEnv() {
-  echo "Attempting to switch node versions for you..."
-
-  if command -v fnm &> /dev/null
-    then
-      fnmUse
-  else
-    if command -v nvm &> /dev/null
-    then
-      nvmUse
-    else
-      echo "❌ No known node version manager found. Please change node versions manually."
-      exit 1
-    fi
-  fi
-}
 
 checkNodeVersion() {
   runningNodeVersion=$(node -v)
@@ -57,7 +12,7 @@ checkNodeVersion() {
 
   if [ "$runningNodeVersionNumber" != "$requiredNodeVersion" ]; then
     echo -e "❌ Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}."
-    setupNodeEnv $requiredNodeVersion
+    exit 1
   fi
 }
 
