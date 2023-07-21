@@ -31,7 +31,7 @@ const ComparisonPanelHeader = styled.div`
 `;
 
 const diffWrapper = css`
-    border: 1px solid #ddd;
+    border: 1px solid #DDD;
     padding: 1rem;
     border-radius: 0.5rem;
 `;
@@ -73,8 +73,8 @@ export const findFieldsWithDiffs = (rule: RuleData): DivergentField[] => {
     // Compare fields that appear in both live and draft
     const divergentFields = draftFieldsToDiff.reduce((divergentFieldsArray, draftField) => {
         const equivalentLiveField = liveFieldsToDiff.find(liveField => liveField.fieldName === draftField.fieldName)
-        if (equivalentLiveField ){
-            const liveAndDraftValuesMatch = doValuesMatch(draftField.value, equivalentLiveField .value);
+        if (equivalentLiveField){
+            const liveAndDraftValuesMatch = doValuesMatch(draftField.value, equivalentLiveField.value);
             if (!liveAndDraftValuesMatch){
                 divergentFieldsArray.push({
                     fieldName: draftField.fieldName,
@@ -84,11 +84,11 @@ export const findFieldsWithDiffs = (rule: RuleData): DivergentField[] => {
             }
         }
         return divergentFieldsArray
-    }, nonIntersectingFields as DivergentField[])
+    }, nonIntersectingFields)
     return divergentFields;
 };
 
-export const getHumanReadableValues = (fields: DivergentField[], tags: Record<number, Tag>) => {
+export const transformToHumanReadableValues = (fields: DivergentField[], tags: Record<number, Tag>) => {
     return fields.map(field => {
         // Use tag names instead of ids
         if (field.fieldName === "tags"){
@@ -111,9 +111,9 @@ export const getHumanReadableValues = (fields: DivergentField[], tags: Record<nu
 export const Diff = ({rule}: {rule: RuleData | undefined}) => {
     const {tags} = useTags();
     
-    const diffedFields = rule ? getHumanReadableValues(findFieldsWithDiffs(rule), tags) : null;
-    const textDiffs = diffedFields?.filter(diffedField => textDiffFields.includes(diffedField.fieldName))
-    const comparisonDiffs = diffedFields?.filter(diffedField => comparisonDiffFields.includes(diffedField.fieldName))
+    const diffedFields = rule ? transformToHumanReadableValues(findFieldsWithDiffs(rule), tags) : [];
+    const textDiffs = diffedFields.filter(diffedField => textDiffFields.includes(diffedField.fieldName))
+    const comparisonDiffs = diffedFields.filter(diffedField => comparisonDiffFields.includes(diffedField.fieldName))
     
     return <>
       <EuiSpacer />

@@ -10,7 +10,7 @@ import {
   EuiModalHeader,
   EuiModalHeaderTitle,
   EuiSpacer,
-  EuiText
+  EuiText,
 } from "@elastic/eui";
 import { Label } from "../Label";
 import { FormEventHandler, useState } from "react";
@@ -59,6 +59,7 @@ export const ReasonModal = ({
         </EuiForm>
         <Diff rule={rule}/>
       </EuiModalBody>
+
       <EuiModalFooter>
         <EuiButtonEmpty onClick={onClose}>Cancel</EuiButtonEmpty>
         <EuiButton

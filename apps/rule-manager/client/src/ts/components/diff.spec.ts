@@ -1,4 +1,4 @@
-import { FieldObject, doValuesMatch, findFieldsWithDiffs, findNonIntersectingFields, getHumanReadableValues } from "./Diff"
+import { FieldObject, doValuesMatch, findFieldsWithDiffs, findNonIntersectingFields, transformToHumanReadableValues } from "./Diff"
 import { ruleTypeOptions } from "./RuleContent"
 import { RuleData } from "./hooks/useRule"
 import { Tag } from "./hooks/useTags"
@@ -70,14 +70,14 @@ describe("Diff helper functions", () => {
     })
     describe("getHumanReadableValues", () => {
         it("should convert ruleTypes to the names used on the rule form", () => {
-            const humanReadableFields = getHumanReadableValues(expectedDiffFields, mockTags);
+            const humanReadableFields = transformToHumanReadableValues(expectedDiffFields, mockTags);
             const languageToolName = ruleTypeOptions.find(option => option.id === "languageToolXML")?.label
             const regexName = ruleTypeOptions.find(option => option.id === "regex")?.label
             const expectedRuleTypeField = {fieldName: "ruleType", draft: regexName, live: languageToolName}
             expect(humanReadableFields.find(field => field.fieldName === "ruleType")).toEqual(expectedRuleTypeField)
         })
         it("should convert tags from their IDs to their readable names", () => {
-            const humanReadableFields = getHumanReadableValues(expectedDiffFields, mockTags);
+            const humanReadableFields = transformToHumanReadableValues(expectedDiffFields, mockTags);
             const expectedTagsField = {fieldName: "tags", draft: ["Tag1", "Tag2"], live: ["Tag2", "Tag3"]}
             expect(humanReadableFields.find(field => field.fieldName === "tags")).toEqual(expectedTagsField)
         })
