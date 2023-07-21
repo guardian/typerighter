@@ -11,6 +11,8 @@ import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
 import play.api.libs.ws.WSClient
 
+import scala.util.Try
+
 /** A class to store configuration that's common across projects.
   *
   * Fails fast with an exception if properties aren't found.
@@ -21,7 +23,7 @@ abstract class CommonConfig(
     identity: AppIdentity,
     val awsCredentials: AWSCredentialsProvider,
     val ws: WSClient
-) {
+) extends Loggable {
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 
@@ -62,13 +64,22 @@ abstract class CommonConfig(
     .build()
 
   private val hmacSecretStages = List("AWSCURRENT", "AWSPREVIOUS")
-  lazy val hmacSecrets: List[String] = hmacSecretStages.map { stage =>
-    val getSecretValueRequest = new GetSecretValueRequest()
-      .withSecretId(s"/$stage/flexible/typerighter/hmacSecret")
-      .withVersionStage(stage)
 
-    secretsManagerClient
-      .getSecretValue(getSecretValueRequest)
-      .getSecretString
+  val hmacSecrets: List[String] = hmacSecretStages.flatMap { secretStage =>
+    val getSecretValueRequest = new GetSecretValueRequest()
+      .withSecretId(s"/${stage.toUpperCase}/flexible/typerighter/hmacSecret")
+      .withVersionStage(secretStage)
+
+    val result = Try {
+      val result = secretsManagerClient
+        .getSecretValue(getSecretValueRequest)
+        .getSecretString
+      Some(result)
+    }.recover { error =>
+      log.warn(s"Could not fetch secret for ${secretStage}: ", error)
+      None
+    }.get
+
+    result
   }
 }
