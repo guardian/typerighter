@@ -48,7 +48,7 @@ export const useCreateEditPermissions = () => {
   return useMemo(() => hasCreateEditPermissions(permissions), [permissions]);
 }
 
-export const TagWrapContainer = styled.div`
+const TagWrapContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0 5px;
