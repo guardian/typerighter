@@ -13,6 +13,7 @@ class RuleManagerConfig(
     creds: AWSCredentialsProvider,
     ws: WSClient
 ) extends CommonConfig(playConfig, region, identity, creds, ws) {
+  val serviceName = "manager"
   val dbUrl = playConfig.get[String]("db.default.url")
   val dbUsername = playConfig.get[String]("db.default.username")
   val dbPassword = playConfig.get[String]("db.default.password")

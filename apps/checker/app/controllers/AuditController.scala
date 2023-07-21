@@ -8,5 +8,5 @@ import com.gu.typerighter.lib.CommonConfig
   */
 class AuditController(controllerComponents: ControllerComponents, config: CommonConfig)
     extends PandaAuthController(controllerComponents, config) {
-  def index = APIAuthAction { Ok(views.html.audit()) }
+  def index = AuthAction { Ok(views.html.audit()) }
 }

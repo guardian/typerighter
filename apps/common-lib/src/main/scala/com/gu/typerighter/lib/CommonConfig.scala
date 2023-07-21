@@ -24,6 +24,7 @@ abstract class CommonConfig(
     val awsCredentials: AWSCredentialsProvider,
     val ws: WSClient
 ) extends Loggable {
+  val serviceName: String
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 

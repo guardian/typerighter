@@ -36,7 +36,7 @@ abstract class PandaAuthController(
   override def cacheValidation = false
 
   override def authCallbackUrl: String =
-    s"https://manager.typerighter.${config.stageDomain}/oauthCallback"
+    s"https://${config.serviceName}.typerighter.${config.stageDomain}/oauthCallback"
 
   override def secretKeys =
     config.hmacSecrets
