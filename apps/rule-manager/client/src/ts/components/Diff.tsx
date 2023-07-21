@@ -141,38 +141,30 @@ export const Diff = ({rule}: {rule: RuleData | undefined}) => {
     </>
   }
 
-  export const ComparisonDiff = ({draft, live, name}: {draft: FieldValue, live: FieldValue, name: string}) => {
-    // Transform tag ids to tag names
+  export const Comparison = ({left, right, fieldName} : {left: JSX.Element | JSX.Element[], right: JSX.Element | JSX.Element[], fieldName: string}) => {
     return <EuiFlexGroup>
         <EuiFlexItem>
-          <EuiHorizontalRule margin="s" />
-            <Comparison 
-                left={Array.isArray(live) ? live.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{live}</EuiBadge>}
-                right={Array.isArray(draft) ? draft.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{draft}</EuiBadge>}
-                fieldName={camelCaseToTitleCase(name)}
-                key={name}
-            />
+            <EuiHorizontalRule margin="xs" />
+            <EuiFlexGroup>
+                <EuiFlexItem css={css`width: 100px;`}><ComparisonPanelHeader>{fieldName}</ComparisonPanelHeader></EuiFlexItem>
+                <EuiFlexItem grow><ComparisonPanel>{left}</ComparisonPanel></EuiFlexItem>
+                <EuiFlexItem grow><ComparisonPanel>{right}</ComparisonPanel></EuiFlexItem>
+            </EuiFlexGroup>
         </EuiFlexItem>
     </EuiFlexGroup>
+  }
+  
+  export const ComparisonDiff = ({draft, live, name}: {draft: FieldValue, live: FieldValue, name: string}) => {
+    return <Comparison 
+        left={Array.isArray(live) ? live.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{live}</EuiBadge>}
+        right={Array.isArray(draft) ? draft.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{draft}</EuiBadge>}
+        fieldName={camelCaseToTitleCase(name)}
+        key={name}
+    />
   }
   
   export const TextDiff = ({draft, live, name}: {draft: FieldValue, live: FieldValue, name: string}) => {
     const [rendered] = useEuiTextDiff({ beforeText: live ? live.toString() : "", afterText: draft ? draft.toString() : "" })
-    // TODO: Tidy tags - id => name
-    // TODO: Tidy
-    return <EuiFlexGroup>
-        <EuiFlexItem>
-          <EuiHorizontalRule margin="xs" />
-          <Comparison left={<>{live}</>} right={<>{rendered}</>} fieldName={camelCaseToTitleCase(name)}></Comparison>
-        </EuiFlexItem>
-    </EuiFlexGroup>
+    return <Comparison left={<>{live}</>} right={<>{rendered}</>} fieldName={camelCaseToTitleCase(name)} />
   }
 
-  export const Comparison = ({left, right, fieldName} : {left: JSX.Element | JSX.Element[], right: JSX.Element | JSX.Element[], fieldName: string}) => {
-    return <EuiFlexGroup>
-      <EuiFlexItem css={css`width: 100px;`}><ComparisonPanelHeader>{fieldName}</ComparisonPanelHeader></EuiFlexItem>
-      <EuiFlexItem grow><ComparisonPanel>{left}</ComparisonPanel></EuiFlexItem>
-      <EuiFlexItem grow><ComparisonPanel>{right}</ComparisonPanel></EuiFlexItem>
-    </EuiFlexGroup>
-  }
-  
