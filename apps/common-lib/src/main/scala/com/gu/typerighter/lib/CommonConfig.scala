@@ -57,6 +57,7 @@ abstract class CommonConfig(
 
   private val secretsManagerClient = AWSSecretsManagerClientBuilder
     .standard()
+    .withCredentials(awsCredentials)
     .withRegion(awsRegion)
     .build()
 
