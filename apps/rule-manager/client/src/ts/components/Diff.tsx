@@ -4,6 +4,7 @@ import { Tag, useTags } from "./hooks/useTags";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { ruleTypeOptions } from "./RuleContent";
+import { camelCaseToTitleCase } from "../utils/camelCaseToTitleCase";
 
 type DivergentField = {
     fieldName: string;
@@ -13,7 +14,7 @@ type DivergentField = {
 
 type FieldValue = string | number | boolean | number[] | string[] | undefined
 
-type FieldObject = {
+export type FieldObject = {
     fieldName: string,
     value: FieldValue
 }
@@ -38,7 +39,7 @@ const diffWrapper = css`
 const textDiffFields = ["description", "pattern", "replacement"];
 const comparisonDiffFields = ["ruleType", "category", "tags"];
 
-const doValuesMatch = (draftValue?: FieldValue, liveValue?: FieldValue): boolean => {
+export const doValuesMatch = (draftValue?: FieldValue, liveValue?: FieldValue): boolean => {
     // The value could be an array or a primitive
     if (Array.isArray(draftValue) && Array.isArray(liveValue)){
         // This is a good enough comparison for our arrays of primitives
@@ -47,7 +48,7 @@ const doValuesMatch = (draftValue?: FieldValue, liveValue?: FieldValue): boolean
     return draftValue === liveValue
 }
 
-const findNonIntersectingFields = (draft: FieldObject[], live: FieldObject[]) => {
+export const findNonIntersectingFields = (draft: FieldObject[], live: FieldObject[]): DivergentField[] => {
     const uniqueDraftFields = draft.filter(draftField => !live.find(liveField => liveField.fieldName === draftField.fieldName))
     const uniqueLiveFields = live.filter(liveField => !draft.find(draftField => liveField.fieldName === draftField.fieldName))
     return [
@@ -56,7 +57,7 @@ const findNonIntersectingFields = (draft: FieldObject[], live: FieldObject[]) =>
     ]
 }
 
-const findFieldsWithDiffs = (rule: RuleData, tags: Record<number, Tag>): DivergentField[] => {
+export const findFieldsWithDiffs = (rule: RuleData): DivergentField[] => {
     const newestLiveRule = rule.live.reduce((acc, cur) => cur.revisionId > acc.revisionId ? cur : acc);
     const draftFieldObjects = Object.keys(rule.draft).map(fieldName => { return { fieldName, value: rule.draft[fieldName as keyof BaseRule]}});
     const liveFieldObjects = Object.keys(newestLiveRule).map(fieldName => { return { fieldName, value: newestLiveRule[fieldName as keyof BaseRule]}})
@@ -67,7 +68,7 @@ const findFieldsWithDiffs = (rule: RuleData, tags: Record<number, Tag>): Diverge
     const liveFieldsToDiff = liveFieldObjects.filter(liveField => fieldsToProvideDiffFor.includes(liveField.fieldName));
     
     // Add fields that only appear in one of live and draft
-    const nonIntersectingFields = findNonIntersectingFields(draftFieldObjects, liveFieldObjects);
+    const nonIntersectingFields = findNonIntersectingFields(draftFieldsToDiff, liveFieldsToDiff);
 
     // Compare fields that appear in both live and draft
     const divergentFields = draftFieldsToDiff.reduce((divergentFieldsArray, draftField) => {
@@ -84,17 +85,10 @@ const findFieldsWithDiffs = (rule: RuleData, tags: Record<number, Tag>): Diverge
         }
         return divergentFieldsArray
     }, nonIntersectingFields as DivergentField[])
-    return getHumanReadableValues(divergentFields, tags)
+    return divergentFields;
 };
 
-export const camelCaseToTitleCase = (str: string) => {
-    // Add space between strings
-    const result = str.replace(/([A-Z])/g,' $1');
-    // converting first character to uppercase and join it to the final string
-    return result.charAt(0).toUpperCase() + result.slice(1);
-}
-
-const getHumanReadableValues = (fields: DivergentField[], tags: Record<number, Tag>) => {
+export const getHumanReadableValues = (fields: DivergentField[], tags: Record<number, Tag>) => {
     return fields.map(field => {
         // Use tag names instead of ids
         if (field.fieldName === "tags"){
@@ -117,7 +111,7 @@ const getHumanReadableValues = (fields: DivergentField[], tags: Record<number, T
 export const Diff = ({rule}: {rule: RuleData | undefined}) => {
     const {tags} = useTags();
     
-    const diffedFields = rule ? findFieldsWithDiffs(rule, tags) : null;
+    const diffedFields = rule ? getHumanReadableValues(findFieldsWithDiffs(rule), tags) : null;
     const textDiffs = diffedFields?.filter(diffedField => textDiffFields.includes(diffedField.fieldName))
     const comparisonDiffs = diffedFields?.filter(diffedField => comparisonDiffFields.includes(diffedField.fieldName))
     
@@ -167,4 +161,3 @@ export const Diff = ({rule}: {rule: RuleData | undefined}) => {
     const [rendered] = useEuiTextDiff({ beforeText: live ? live.toString() : "", afterText: draft ? draft.toString() : "" })
     return <Comparison left={<>{live}</>} right={<>{rendered}</>} fieldName={camelCaseToTitleCase(name)} />
   }
-
