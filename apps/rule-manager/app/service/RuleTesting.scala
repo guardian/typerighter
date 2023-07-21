@@ -14,8 +14,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 case class TestRuleCapiQuery(
     queryStr: String,
-    tags: List[String] = List.empty,
-    sections: List[String] = List.empty
+    tags: Option[List[String]] = None,
+    sections: Option[List[String]] = None
 )
 
 case class PaginatedCheckRuleResult(
@@ -59,11 +59,17 @@ class RuleTesting(
         log.info(s"Fetching content page $currentPage/$maxPageCount")
         val pageToFetch = currentPage
         currentPage = currentPage + 1
-        contentClient.searchContent(query.queryStr, query.tags, query.sections, pageToFetch).map {
-          response =>
+        contentClient
+          .searchContent(
+            query.queryStr,
+            query.tags.getOrElse(List.empty),
+            query.sections.getOrElse(List.empty),
+            pageToFetch
+          )
+          .map { response =>
             log.info(s"Received content page $pageToFetch/$maxPageCount")
             (pageToFetch, response.results.map(Document.fromCapiContent).toList)
-        }
+          }
       }
     }
 
