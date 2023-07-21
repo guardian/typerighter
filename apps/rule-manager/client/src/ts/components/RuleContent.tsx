@@ -27,6 +27,17 @@ type RuleTypeOption = {
   label: string;
 };
 
+export const ruleTypeOptions: RuleTypeOption[] = [
+  {
+    id: "regex",
+    label: "Regex",
+  },
+  {
+    id: "languageToolXML",
+    label: "LanguageTool",
+  },
+];
+
 export const RuleContent = ({
   ruleData,
   ruleFormData,
@@ -42,16 +53,6 @@ export const RuleContent = ({
   isLoading: boolean;
   errors: string | undefined;
 }) => {
-  const ruleTypeOptions: RuleTypeOption[] = [
-    {
-      id: "regex",
-      label: "Regex",
-    },
-    {
-      id: "languageToolXML",
-      label: "LanguageTool",
-    },
-  ];
   const TextField =
     ruleFormData.ruleType === "languageToolXML" ? EuiTextArea : EuiFieldText;
 

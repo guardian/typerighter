@@ -1,10 +1,11 @@
 import { EuiBadge, EuiFlexGroup, EuiFlexItem, EuiHorizontalRule, EuiSpacer, EuiText, useEuiTextDiff } from "@elastic/eui";
 import { BaseRule, RuleData } from "./hooks/useRule";
-import { useTags } from "./hooks/useTags";
+import { Tag, useTags } from "./hooks/useTags";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
+import { ruleTypeOptions } from "./RuleContent";
 
-type DivergentFields = {
+type DivergentField = {
     fieldName: string;
     live: FieldValue;
     draft: FieldValue;
@@ -55,7 +56,7 @@ const findNonIntersectingFields = (draft: FieldObject[], live: FieldObject[]) =>
     ]
 }
 
-const findFieldsWithDiffs = (rule: RuleData): DivergentFields[] => {
+const findFieldsWithDiffs = (rule: RuleData, tags: Record<number, Tag>): DivergentField[] => {
     const newestLiveRule = rule.live.reduce((acc, cur) => cur.revisionId > acc.revisionId ? cur : acc);
     const draftFieldObjects = Object.keys(rule.draft).map(fieldName => { return { fieldName, value: rule.draft[fieldName as keyof BaseRule]}});
     const liveFieldObjects = Object.keys(newestLiveRule).map(fieldName => { return { fieldName, value: newestLiveRule[fieldName as keyof BaseRule]}})
@@ -82,9 +83,8 @@ const findFieldsWithDiffs = (rule: RuleData): DivergentFields[] => {
             }
         }
         return divergentFieldsArray
-    }, nonIntersectingFields as DivergentFields[])
-    return divergentFields
-    // Find rows that don't match and return only those rows that aren't identical in both
+    }, nonIntersectingFields as DivergentField[])
+    return getHumanReadableValues(divergentFields, tags)
 };
 
 export const camelCaseToTitleCase = (str: string) => {
@@ -94,20 +94,32 @@ export const camelCaseToTitleCase = (str: string) => {
     return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
+const getHumanReadableValues = (fields: DivergentField[], tags: Record<number, Tag>) => {
+    return fields.map(field => {
+        // Use tag names instead of ids
+        if (field.fieldName === "tags"){
+            if (Array.isArray(field.draft)){
+                field.draft = field.draft.map(field => tags[field as number] ? tags[field as number].name : field.toString())
+            }
+            if (Array.isArray(field.live)){
+                field.live = field.live.map(field => tags[field as number] ? tags[field as number].name : field.toString() )
+            }
+        }
+        // Use readable ruleType names
+        if (field.fieldName === "ruleType"){
+            field.draft = ruleTypeOptions.find(option => option.id === field.draft)?.label || field.draft
+            field.live = ruleTypeOptions.find(option => option.id === field.live)?.label || field.live
+        }
+        return field
+    })
+}
+
 export const Diff = ({rule}: {rule: RuleData | undefined}) => {
     const {tags} = useTags();
-    const diffedFields = rule ? findFieldsWithDiffs(rule) : null;
+    
+    const diffedFields = rule ? findFieldsWithDiffs(rule, tags) : null;
     const textDiffs = diffedFields?.filter(diffedField => textDiffFields.includes(diffedField.fieldName))
     const comparisonDiffs = diffedFields?.filter(diffedField => comparisonDiffFields.includes(diffedField.fieldName))
-    // if (diffedValues?.tags){
-    //   // Render tags as their names rather than their IDs
-    //   const diffedTags = diffedValues.tags;
-    //   diffedTags.live = (diffedTags.live as number[]).map(tagId => tags[tagId]?.name)
-    //   diffedTags.draft = (diffedTags.draft as number[]).map(tagId => tags[tagId]?.name)
-    //   //(diffedTags.draft as number[]).map(tagId => tags[tagId]);
-    //   console.log(tags)
-    // }
-  
     
     return <>
       <EuiSpacer />
@@ -138,6 +150,7 @@ export const Diff = ({rule}: {rule: RuleData | undefined}) => {
                 left={Array.isArray(live) ? live.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{live}</EuiBadge>}
                 right={Array.isArray(draft) ? draft.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{draft}</EuiBadge>}
                 fieldName={camelCaseToTitleCase(name)}
+                key={name}
             />
         </EuiFlexItem>
     </EuiFlexGroup>
