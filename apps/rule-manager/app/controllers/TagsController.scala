@@ -9,7 +9,7 @@ import play.api.mvc._
 import utils.{DbException, FormHelpers, NotFoundException, PermissionsHandler, RuleManagerConfig}
 
 import scala.util.{Failure, Success}
-import db.Tags
+import db.{RuleTagDraft, RuleTagLive, Tags}
 import db.Tags.format
 
 class TagsController(
@@ -21,8 +21,18 @@ class TagsController(
     with PermissionsHandler
     with FormHelpers {
 
-  def list = ApiAuthAction {
-    Ok(Json.toJson(Tags.findAll()))
+  def listWithRuleCounts = ApiAuthAction {
+    val tagsWithRuleCounts = Tags.findAllWithRuleCounts()
+
+    val json = tagsWithRuleCounts.map(tagWithRuleCount =>
+      Json.obj(
+        "id" -> tagWithRuleCount.id.get,
+        "name" -> tagWithRuleCount.name,
+        "ruleCount" -> tagWithRuleCount.ruleCount
+      )
+    )
+
+    Ok(Json.toJson(json))
   }
 
   def get(id: Int) = ApiAuthAction {
@@ -37,6 +47,8 @@ class TagsController(
     Tags.find(id) match {
       case None => NotFound("Tag not found matching ID")
       case Some(tag) =>
+        RuleTagDraft.destroyForTag(tag.id.get)
+        RuleTagLive.destroyForTag(tag.id.get)
         Tags.destroy(tag)
         Ok(s"Tag with id ${tag.id.get} deleted.")
     }

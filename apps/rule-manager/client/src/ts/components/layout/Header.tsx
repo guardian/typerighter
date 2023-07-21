@@ -66,17 +66,14 @@ export const Header = () => {
             <Logo />
           </Link>
         </HeaderLogo>
-        {
-        getFeatureSwitchValue('show-tags-page') ?
-          <EuiHeaderLinks>
-            <Link to="/">
-              <EuiHeaderLink isActive={useLocation().pathname === "/"}>Rules</EuiHeaderLink>
-            </Link>
-            <Link to="/tags">
-              <EuiHeaderLink isActive={useLocation().pathname === "/tags"}>Tags</EuiHeaderLink>
-            </Link>
-          </EuiHeaderLinks> : null
-        }
+        <EuiHeaderLinks>
+          <Link to="/">
+            <EuiHeaderLink isActive={useLocation().pathname === "/"}>Rules</EuiHeaderLink>
+          </Link>
+          <Link to="/tags">
+            <EuiHeaderLink isActive={useLocation().pathname === "/tags"}>Tags</EuiHeaderLink>
+          </Link>
+</EuiHeaderLinks>
       </NavContainer>
       <EuiPopover
         button={ProfileMenuButton}

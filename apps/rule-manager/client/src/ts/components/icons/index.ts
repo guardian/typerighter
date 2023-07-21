@@ -22,6 +22,9 @@ import { icon as apps } from "@elastic/eui/src/components/icon/assets/apps";
 import { icon as eye } from "@elastic/eui/src/components/icon/assets/eye";
 import { icon as eyeClosed } from "@elastic/eui/src/components/icon/assets/eye_closed";
 import { icon as iInCircle } from "@elastic/eui/src/components/icon/assets/iInCircle";
+import { icon as sortDown } from "@elastic/eui/src/components/icon/assets/sort_down";
+import { icon as sortUp } from "@elastic/eui/src/components/icon/assets/sort_up";
+import { icon as trash } from "@elastic/eui/src/components/icon/assets/trash";
 
 const cachedIcons = {
   apps,
@@ -47,6 +50,9 @@ const cachedIcons = {
   eye,
   eyeClosed,
   iInCircle,
+  sortDown,
+  sortUp,
+  trash
 };
 
 appendIconComponentCache(cachedIcons);

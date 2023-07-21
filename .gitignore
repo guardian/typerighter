@@ -14,3 +14,4 @@ node_modules
 /RUNNING_PID
 .DS_Store
 .bsp
+.vscode

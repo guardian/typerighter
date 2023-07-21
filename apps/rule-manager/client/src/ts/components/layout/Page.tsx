@@ -11,6 +11,7 @@ import { PageDataProvider } from "../../utils/window";
 import RulesTable from "../RulesTable";
 import styled from "@emotion/styled";
 import { PageNotFound } from "../PageNotFound";
+import { TagsTable } from "../TagsTable";
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -42,7 +43,7 @@ export const Page = () => (
             <Route path="/tags" element={
                 <>
                   <PageContent>
-                    Tags will be here
+                    <TagsTable />
                   </PageContent>
                 </>
               }
