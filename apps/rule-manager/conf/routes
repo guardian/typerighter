@@ -37,7 +37,7 @@ GET     /api/rules/:id/test-block       controllers.RulesController.testWithBloc
 
 # Tags
 +nocsrf
-GET     /api/tags                       controllers.TagsController.list()
+GET     /api/tags                       controllers.TagsController.listWithRuleCounts()
 +nocsrf
 POST    /api/tags                       controllers.TagsController.create()
 +nocsrf

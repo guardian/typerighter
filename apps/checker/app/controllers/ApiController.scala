@@ -10,9 +10,8 @@ import com.gu.typerighter.lib.{CommonConfig, JsonHelpers}
 import com.gu.typerighter.model.CheckSingleRule
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
-import utils.Timer
-
 import scala.util.{Failure, Success}
+import utils.Timer
 
 /** The controller that handles API requests.
   */

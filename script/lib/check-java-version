@@ -13,7 +13,7 @@ checkJavaVersion() {
 
   if [ "$runningJavaVersion" != "$requiredJavaVersion" ]; then
     echo -e "Using wrong version of Java. Required ${requiredJavaVersion}. Running ${runningJavaVersion}."
-    exit 0
+    exit 1
   fi
 }
 

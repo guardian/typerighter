@@ -11,6 +11,11 @@ case class Tag(
     id: Option[Int],
     name: String
 )
+case class TagWithRuleCount(
+    id: Option[Int],
+    name: String,
+    ruleCount: Int
+)
 object Tags extends SQLSyntaxSupport[Tag] {
   implicit val format: Format[Tag] = Json.format[Tag]
 
@@ -19,6 +24,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
   override val columns = Seq("id", "name")
 
   val t = Tags.syntax("t")
+  val rtd = RuleTagDraft.syntax("rtd")
 
   def fromResultName(r: ResultName[Tag])(rs: WrappedResultSet): Tag =
     autoConstruct(rs, r)
@@ -32,6 +38,19 @@ object Tags extends SQLSyntaxSupport[Tag] {
   def findAll()(implicit session: DBSession = autoSession): List[Tag] = {
     withSQL(select.from(Tags as t).orderBy(t.id))
       .map(Tags.fromResultName(t.resultName))
+      .list()
+      .apply()
+  }
+
+  def findAllWithRuleCounts()(implicit session: DBSession = autoSession): List[TagWithRuleCount] = {
+    withSQL {
+      select(t.id, t.name, sqls"COUNT(DISTINCT(${rtd.ruleId})) as rule_count")
+        .from(Tags as t)
+        .leftJoin(RuleTagDraft as rtd)
+        .on(t.id, rtd.tagId)
+        .groupBy(t.id)
+        .orderBy(t.id)
+    }.map(rs => (TagWithRuleCount(Some(rs.int("id")), rs.string("name"), rs.int("rule_count"))))
       .list()
       .apply()
   }

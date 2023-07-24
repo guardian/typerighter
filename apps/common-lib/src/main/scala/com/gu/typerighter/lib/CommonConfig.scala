@@ -24,6 +24,7 @@ abstract class CommonConfig(
     val awsCredentials: AWSCredentialsProvider,
     val ws: WSClient
 ) extends Loggable {
+  val serviceName: String
   val permissionsBucket =
     playConfig.getOptional[String]("permissions.bucket").getOrElse("permissions-cache")
 
@@ -76,7 +77,7 @@ abstract class CommonConfig(
         .getSecretString
       Some(result)
     }.recover { error =>
-      log.error("Error fetching secret: ", error)
+      log.warn(s"Could not fetch secret for $secretStage: ", error)
       None
     }.get
 

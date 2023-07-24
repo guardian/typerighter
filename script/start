@@ -11,7 +11,7 @@ do
 done
 
 makeChecks() {
-  . "${DIR}"/lib/check
+  source "${DIR}"/lib/check
 }
 
 runChecker() {

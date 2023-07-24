@@ -15,7 +15,7 @@ class RulesController(
     config: CommonConfig
 ) extends PandaAuthController(controllerComponents, config) {
 
-  def rules = APIAuthAction { implicit request: Request[AnyContent] =>
+  def rules = AuthAction { implicit request: Request[AnyContent] =>
     Ok(
       views.html.rules(
         sheetId,

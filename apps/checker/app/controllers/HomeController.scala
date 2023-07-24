@@ -13,7 +13,8 @@ class HomeController(
     matcherPool: MatcherPool,
     config: CommonConfig
 ) extends PandaAuthController(controllerComponents, config) {
-  def index() = APIAuthAction {
+
+  def index() = AuthAction {
     Ok(views.html.index())
   }
 
@@ -34,5 +35,9 @@ class HomeController(
         Ok(Json.obj("healthy" -> true))
       }
     }
+  }
+
+  def oauthCallback = Action.async { implicit request =>
+    processOAuthCallback()
   }
 }

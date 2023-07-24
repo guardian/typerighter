@@ -193,7 +193,7 @@ export function useRule(ruleId: number | undefined) {
         body: JSON.stringify(ruleForm)
       })
 
-      const parsedResponse = await responseHandler(response);
+      const parsedResponse = await responseHandler<DraftRule>(response);
       if (parsedResponse.status === "ok") {
         setRuleDataAndClearErrors({ ...ruleData || { live: [] }, draft: parsedResponse.data });
       } else {
@@ -218,7 +218,7 @@ export function useRule(ruleId: number | undefined) {
         body: JSON.stringify(ruleForm)
       });
 
-      const parsedResponse = await responseHandler(createRuleResponse);
+      const parsedResponse = await responseHandler<DraftRule>(createRuleResponse);
       if (parsedResponse.status === "ok") {
         setRuleDataAndClearErrors({...ruleData || {live: []}, draft: parsedResponse.data});
       } else {

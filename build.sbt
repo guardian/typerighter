@@ -97,7 +97,6 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
     .settings(
       PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) => s"play.server.$protocol.port" -> value }.toSeq,
       PlayKeys.playRunHooks += new ViteBuildHook(label, domainPrefix),
-      libraryDependencies += ws,
       Universal / javaOptions ++= Seq(
         s"-Dpidfile.path=/dev/null",
         "-J-XX:MaxRAMFraction=2",
