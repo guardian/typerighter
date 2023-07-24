@@ -32,13 +32,14 @@ class RuleTesting(
           documents = documents,
           rule = rule
         )
+        val body = Json.toJson(checkSingleRule)
 
-        log.info(s"Fetching results for ${documents.size} document(s) from checker service ($url)")
+        log.info(s"Fetching results for ${documents.size} document(s) from checker service $url with body $body")
 
         ws.url(url)
           .withHttpHeaders(headers: _*)
           .withMethod("POST")
-          .withBody(Json.toJson(checkSingleRule))
+          .withBody(body)
           .stream()
           .map {
             _.bodyAsSource

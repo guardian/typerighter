@@ -149,9 +149,10 @@ dpkg -i /tmp/package.deb`,
         aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
         dpkg -i /tmp/package.deb
 
-        cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
-        typerighter.checkerServiceUrl = "${checkerApp.loadBalancer.loadBalancerDnsName}"
-        EOF
+        mkdir /etc/gu
+cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
+typerighter.checkerServiceUrl = "https://${checkerDomain}"
+EOF
         `,
       access: {
         scope: AccessScope.PUBLIC,
