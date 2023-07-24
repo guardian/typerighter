@@ -67,8 +67,9 @@ abstract class CommonConfig(
   private val hmacSecretStages = List("AWSCURRENT", "AWSPREVIOUS")
 
   val hmacSecrets: List[String] = hmacSecretStages.flatMap { secretStage =>
+    val secretId = s"/${stage.toUpperCase}/flexible/typerighter/hmacSecret"
     val getSecretValueRequest = new GetSecretValueRequest()
-      .withSecretId(s"/${stage.toUpperCase}/flexible/typerighter/hmacSecret")
+      .withSecretId(secretId)
       .withVersionStage(secretStage)
 
     val result = Try {
@@ -77,7 +78,7 @@ abstract class CommonConfig(
         .getSecretString
       Some(result)
     }.recover { error =>
-      log.warn(s"Could not fetch secret for $secretStage: ", error)
+      log.warn(s"Could not fetch secret for $secretId, stage $secretStage", error)
       None
     }.get
 
