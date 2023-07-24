@@ -28,6 +28,9 @@ jobs:
           node-version: 16.13.1
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
+      - name: Check rule-manager-client formatting
+        working-directory: .apps/rule-manager/client
+        run: npm run format-check
       - name: build rule-manager-client
         working-directory: ./apps/rule-manager/client
         run: |
