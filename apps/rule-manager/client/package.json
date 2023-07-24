@@ -9,8 +9,8 @@
 		"build": "tsc && vite build",
 		"preview": "vite preview",
 		"test": "jest",
-		"format": "prettier -w **/*.ts*"
-	},
+		"format-write": "prettier . --write"
+  },
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
