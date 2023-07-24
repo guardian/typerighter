@@ -45,6 +45,7 @@ import {
 } from "aws-cdk-lib/aws-rds";
 import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
 import { AccessScope } from "@guardian/cdk/lib/constants/access";
+import {Secret} from "aws-cdk-lib/aws-secretsmanager";
 
 export interface TyperighterStackProps extends GuStackProps {
   domainSuffix: string;
@@ -279,6 +280,16 @@ dpkg -i /tmp/package.deb`,
       treatMissingData: TreatMissingData.NOT_BREACHING,
       metric: ruleMetric,
     });
+
+    // Box-to-box communication
+
+    const hmacSecret = new Secret(this, "hmacSecret", {
+      description: "Shared secret for HMAC-based communication between manager and checker services",
+      secretName: `/${this.stage}/flexible/typerighter/hmacSecret`
+    });
+
+    hmacSecret.grantRead(checkerApp.autoScalingGroup.role);
+    hmacSecret.grantRead(ruleManagerApp.autoScalingGroup.role);
 
     // Database
 
