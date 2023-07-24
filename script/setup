@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+printf "⚙️  Running dev-nginx setup\n"
+dev-nginx setup-app ./nginx/nginx-mapping.yml
+printf "✅ dev-nginx setup complete\n"
+
+ln -sfn  ../../script/hooks/pre-commit .git/hooks/pre-commit
+printf "✅ Pre-commit hooks set up\n"
+
+printf "⚙️  Downloading dictionary for local use\n"
+aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/typerighter-dictionary.xml ~/.gu
+printf "✅ Dictionary downloaded\n"
