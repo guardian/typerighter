@@ -67,7 +67,7 @@ abstract class CommonConfig(
   private val hmacSecretStages = List("AWSCURRENT", "AWSPREVIOUS")
 
   val hmacSecrets: List[String] = hmacSecretStages.flatMap { secretStage =>
-    val secretId = s"/${stage.toUpperCase}/flexible/typerighter/hmacSecret"
+    val secretId = s"/${stage.toUpperCase}/flexible/typerighter/hmacSecretKey"
     val getSecretValueRequest = new GetSecretValueRequest()
       .withSecretId(secretId)
       .withVersionStage(secretStage)

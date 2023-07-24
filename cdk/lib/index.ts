@@ -285,7 +285,7 @@ dpkg -i /tmp/package.deb`,
 
     const hmacSecret = new Secret(this, "hmacSecret", {
       description: "Shared secret for HMAC-based communication between manager and checker services",
-      secretName: `/${this.stage}/flexible/typerighter/hmacSecret`
+      secretName: `/${this.stage}/flexible/typerighter/hmacSecretKey`
     });
 
     hmacSecret.grantRead(checkerApp.autoScalingGroup.role);
