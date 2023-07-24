@@ -10,7 +10,7 @@ import java.util.Date
 
 class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules.json"
-
+  private val DICTIONARY_KEY = s"$stage/dictionary/typerighter-dictionary.xml"
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
     val ruleJson = Json.toJson(ruleResource)
     val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
@@ -37,6 +37,17 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
       logger.info(s"Got rules from S3. JSON hash: ${rulesJson.hashCode()}")
       (rulesJson.as[CheckerRuleResource], lastModified)
     }
+  }
+
+  def getDictionaryWords(): Either[Exception, List[String]] = {
+    val dictionary = s3.getObject(bucketName, DICTIONARY_KEY)
+    val dictionaryStream = dictionary.getObjectContent()
+    val dictionaryXml = xml.XML.load(dictionaryStream)
+    dictionary.close()
+
+//    val lemmas = dictionaryXml.child.toList
+    println(dictionaryXml.head)
+    Right(List("hi"))
   }
 
   def getRulesLastModified: Either[Exception, Date] = {
