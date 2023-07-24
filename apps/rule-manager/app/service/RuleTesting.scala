@@ -34,7 +34,9 @@ class RuleTesting(
         )
         val body = Json.toJson(checkSingleRule)
 
-        log.info(s"Fetching results for ${documents.size} document(s) from checker service $url with body $body")
+        log.info(
+          s"Fetching results for ${documents.size} document(s) from checker service $url with body $body"
+        )
 
         ws.url(url)
           .withHttpHeaders(headers: _*)
