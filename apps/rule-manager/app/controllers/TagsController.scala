@@ -1,8 +1,7 @@
 package controllers
 
-import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
-import com.gu.typerighter.lib.PandaAuthentication
+import com.gu.typerighter.controllers.PandaAuthController
 import model.TagForm
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -13,15 +12,13 @@ import db.{RuleTagDraft, RuleTagLive, Tags}
 import db.Tags.format
 
 class TagsController(
-    cc: ControllerComponents,
-    val publicSettings: PublicSettings,
+    controllerComponents: ControllerComponents,
     override val config: RuleManagerConfig
-) extends AbstractController(cc)
-    with PandaAuthentication
+) extends PandaAuthController(controllerComponents, config)
     with PermissionsHandler
     with FormHelpers {
 
-  def listWithRuleCounts = ApiAuthAction {
+  def listWithRuleCounts = APIAuthAction {
     val tagsWithRuleCounts = Tags.findAllWithRuleCounts()
 
     val json = tagsWithRuleCounts.map(tagWithRuleCount =>
@@ -35,7 +32,7 @@ class TagsController(
     Ok(Json.toJson(json))
   }
 
-  def get(id: Int) = ApiAuthAction {
+  def get(id: Int) = APIAuthAction {
     Tags.find(id) match {
       case None => NotFound("Tag not found matching ID")
       case Some(tag) =>
@@ -43,7 +40,7 @@ class TagsController(
     }
   }
 
-  def delete(id: Int) = ApiAuthAction {
+  def delete(id: Int) = APIAuthAction {
     Tags.find(id) match {
       case None => NotFound("Tag not found matching ID")
       case Some(tag) =>
@@ -54,7 +51,7 @@ class TagsController(
     }
   }
 
-  def create = ApiAuthAction { implicit request =>
+  def create = APIAuthAction { implicit request =>
     {
       hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
         case false => Unauthorized("You don't have permission to create tags")
@@ -77,7 +74,7 @@ class TagsController(
     }
   }
 
-  def update(id: Int) = ApiAuthAction { implicit request =>
+  def update(id: Int) = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
       case true =>

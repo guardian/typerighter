@@ -1,13 +1,12 @@
 package controllers
 
 import play.api.mvc._
-import com.gu.pandomainauth.PublicSettings
-import com.gu.typerighter.lib.PandaAuthentication
+import com.gu.typerighter.controllers.PandaAuthController
+import com.gu.typerighter.lib.CommonConfig
 
 /** The controller that handles the management of matcher rules.
   */
-class AuditController(cc: ControllerComponents, val publicSettings: PublicSettings)
-    extends AbstractController(cc)
-    with PandaAuthentication {
-  def index = ApiAuthAction { Ok(views.html.audit()) }
+class AuditController(controllerComponents: ControllerComponents, config: CommonConfig)
+    extends PandaAuthController(controllerComponents, config) {
+  def index = AuthAction { Ok(views.html.audit()) }
 }

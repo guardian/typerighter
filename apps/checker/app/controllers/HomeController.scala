@@ -1,20 +1,19 @@
 package controllers
 
 import play.api.mvc._
-import com.gu.pandomainauth.PublicSettings
-import com.gu.typerighter.lib.PandaAuthentication
+import com.gu.typerighter.controllers.PandaAuthController
+import com.gu.typerighter.lib.CommonConfig
 import play.api.libs.json.Json
 import services._
 
 /** The controller for the index pages.
   */
 class HomeController(
-    cc: ControllerComponents,
+    controllerComponents: ControllerComponents,
     matcherPool: MatcherPool,
-    val publicSettings: PublicSettings
-) extends AbstractController(cc)
-    with PandaAuthentication {
-  def index() = ApiAuthAction {
+    config: CommonConfig
+) extends PandaAuthController(controllerComponents, config) {
+  def index() = AuthAction {
     Ok(views.html.index())
   }
 
@@ -35,5 +34,9 @@ class HomeController(
         Ok(Json.obj("healthy" -> true))
       }
     }
+  }
+
+  def oauthCallback = Action.async { implicit request =>
+    processOAuthCallback()
   }
 }

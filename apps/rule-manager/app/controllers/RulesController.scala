@@ -1,8 +1,7 @@
 package controllers
 
-import com.gu.pandomainauth.PublicSettings
 import com.gu.permissions.PermissionDefinition
-import com.gu.typerighter.lib.PandaAuthentication
+import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.Json
 import db.DbRuleDraft
@@ -16,16 +15,14 @@ import scala.util.{Failure, Success}
 /** The controller that handles the management of matcher rules.
   */
 class RulesController(
-    cc: ControllerComponents,
+    controllerComponents: ControllerComponents,
     sheetsRuleResource: SheetsRuleResource,
     bucketRuleResource: BucketRuleResource,
-    val publicSettings: PublicSettings,
-    override val config: RuleManagerConfig
-) extends AbstractController(cc)
-    with PandaAuthentication
+    val config: RuleManagerConfig
+) extends PandaAuthController(controllerComponents, config)
     with PermissionsHandler
     with FormHelpers {
-  def refresh = ApiAuthAction {
+  def refresh = APIAuthAction {
     val maybeWrittenRules = for {
       dbRules <- sheetsRuleResource
         .getRules()
@@ -42,11 +39,11 @@ class RulesController(
     }
   }
 
-  def list = ApiAuthAction {
+  def list = APIAuthAction {
     Ok(Json.toJson(RuleManager.getDraftRules()))
   }
 
-  def get(id: Int) = ApiAuthAction {
+  def get(id: Int) = APIAuthAction {
     RuleManager.getAllRuleData(id) match {
       case None => NotFound("Rule not found matching ID")
       case Some(allRuleData) =>
@@ -54,7 +51,7 @@ class RulesController(
     }
   }
 
-  def publish(id: Int) = ApiAuthAction { implicit request =>
+  def publish(id: Int) = APIAuthAction { implicit request =>
     PublishRuleForm.form
       .bindFromRequest()
       .fold(
@@ -73,7 +70,7 @@ class RulesController(
       )
   }
 
-  def create = ApiAuthAction { implicit request =>
+  def create = APIAuthAction { implicit request =>
     {
       hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
         case false => Unauthorized("You don't have permission to create rules")
@@ -96,7 +93,7 @@ class RulesController(
     }
   }
 
-  def update(id: Int) = ApiAuthAction { implicit request =>
+  def update(id: Int) = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
       case true =>
@@ -117,7 +114,7 @@ class RulesController(
     }
   }
 
-  def getRules(ids: String) = ApiAuthAction {
+  def getRules(ids: String) = APIAuthAction {
     val idList = ids.split(',').map(_.toInt).toList
     val allRulesData = idList.flatMap(id => RuleManager.getAllRuleData(id))
 
@@ -127,7 +124,7 @@ class RulesController(
     }
   }
 
-  def batchUpdate() = ApiAuthAction { implicit request =>
+  def batchUpdate() = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
       case true =>
@@ -154,14 +151,14 @@ class RulesController(
     }
   }
 
-  def canPublish(id: Int) = ApiAuthAction {
+  def canPublish(id: Int) = APIAuthAction {
     RuleManager.parseDraftRuleForPublication(id, "validate") match {
       case Right(_)     => Ok(Json.toJson(Nil))
       case Left(errors) => Ok(Json.toJson(errors))
     }
   }
 
-  def unpublish(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+  def unpublish(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to unpublish rules")
       case true =>
@@ -172,7 +169,7 @@ class RulesController(
     }
   }
 
-  def archive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+  def archive(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to archive rules")
       case true =>
@@ -183,7 +180,7 @@ class RulesController(
     }
   }
 
-  def unarchive(id: Int): Action[AnyContent] = ApiAuthAction { implicit request =>
+  def unarchive(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to unarchive rules")
       case true =>
