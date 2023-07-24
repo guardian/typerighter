@@ -199,9 +199,14 @@ class RulesController(
     request.body.validate[Document].asEither match {
       case Right(document) =>
         val rule = DbRuleDraft.find(id).get
-        ruleTesting.testRule(rule, List(document)).map { stream =>
-          Ok.chunked(stream.map { Json.toJson(_) })
-        }
+        ruleTesting
+          .testRule(rule, List(document))
+          .map { stream =>
+            Ok.chunked(stream.map { Json.toJson(_) })
+          }
+          .recover { error =>
+            InternalServerError(error.getMessage())
+          }
 
       case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }

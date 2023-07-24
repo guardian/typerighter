@@ -178,21 +178,6 @@ EOF
       }
     });
 
-    const accessFromRuleManager = new GuSecurityGroup(this, "CheckerSecurityGroup", {
-      app: ruleManagerAppName,
-      description: "Allow access to the Checker service directly",
-      vpc: ruleManagerApp.vpc,
-      allowAllOutbound: false
-    });
-
-    accessFromRuleManager.connections.allowFrom(
-      ruleManagerApp.autoScalingGroup,
-      Port.tcp(443),
-      "Allow the rule manager app to connect to the checker load balancer"
-    )
-
-    checkerApp.loadBalancer.addSecurityGroup(accessFromRuleManager)
-
     const ruleManagerDnsRecord = new GuDnsRecordSet(
       this,
       "manager-dns-records",

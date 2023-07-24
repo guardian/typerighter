@@ -43,17 +43,25 @@ class RuleTesting(
           .withMethod("POST")
           .withBody(body)
           .stream()
-          .map {
-            _.bodyAsSource
-              .via(JsonHelpers.JsonSeqFraming)
-              .mapConcat { str =>
-                Json.parse(str.utf8String).validate[CheckSingleRuleResult] match {
-                  case JsSuccess(value, _) => Some(value)
-                  case JsError(error) =>
-                    log.error(s"Error parsing checker result: ${error.toString}")
-                    None
+          .flatMap { response =>
+            if (response.status != 200) {
+              val error = s"Error sending checker request, ${response.status}: ${response.body}"
+              log.error(error)
+              Future.failed(new Throwable(error))
+            } else {
+              val responseStream = response.bodyAsSource
+                .via(JsonHelpers.JsonSeqFraming)
+                .mapConcat { str =>
+                  Json.parse(str.utf8String).validate[CheckSingleRuleResult] match {
+                    case JsSuccess(value, _) => Some(value)
+                    case JsError(error) =>
+                      log.error(s"Error parsing checker result: ${error.toString}")
+                      None
+                  }
                 }
-              }
+
+              Future.successful(responseStream)
+            }
           }
       case None =>
         Future.failed(new Error(s"Could not test rule: ${rule.id}"))
