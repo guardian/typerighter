@@ -39,9 +39,9 @@ const mockRuleData: RuleData = {
 }
 
 const mockTags: Record<number, Tag> = {
-    1: {id: 1, name: "Tag1"},
-    2: {id: 2, name: "Tag2"},
-    3: {id: 3, name: "Tag3"}
+    1: {id: 1, name: "Tag1", ruleCount: 0},
+    2: {id: 2, name: "Tag2", ruleCount: 0},
+    3: {id: 3, name: "Tag3", ruleCount: 0}
 }
 
 const expectedDiffFields = [
