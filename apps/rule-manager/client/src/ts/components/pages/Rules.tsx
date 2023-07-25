@@ -1,6 +1,6 @@
-import React from "react";
-import RulesTable from "../RulesTable";
+import React from 'react';
+import RulesTable from '../RulesTable';
 
 export const Rules = () => {
-    return <RulesTable/>;
-}
+	return <RulesTable />;
+};
