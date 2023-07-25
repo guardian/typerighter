@@ -117,10 +117,7 @@ export const Diff = ({rule}: {rule: RuleData | undefined}) => {
                 <EuiFlexItem grow><strong>Before:</strong></EuiFlexItem>
                 <EuiFlexItem grow><strong>After:</strong></EuiFlexItem>
             </EuiFlexGroup>
-                {textDiffs?.map(diffedField => <TextDiff draft={diffedField.draft} live={diffedField.live} name={diffedField.fieldName} key={diffedField.fieldName} />)}
-                {comparisonDiffs?.map(diffedField => 
-                <ComparisonDiff draft={diffedField.draft} live={diffedField.live} name={diffedField.fieldName} key={diffedField.fieldName} />
-            )}
+                {diffedFields.map(diffedField => <FieldDiff draft={diffedField.draft} live={diffedField.live} name={diffedField.fieldName} key={diffedField.fieldName} />)}
         </EuiFlexItem>
       </EuiFlexGroup>
     </>
@@ -137,6 +134,16 @@ export const Diff = ({rule}: {rule: RuleData | undefined}) => {
             </EuiFlexGroup>
         </EuiFlexItem>
     </EuiFlexGroup>
+  }
+
+  export const FieldDiff = ({draft, live, name}: {draft: FieldValue, live: FieldValue, name: string}) => {
+    const isTextField = textDiffFields.includes(name)
+    const isComparisonField = comparisonDiffFields.includes(name)
+
+    return <>
+        {isTextField ? <TextDiff draft={draft} live={live} name={name}/> : null}
+        {isComparisonField ? <ComparisonDiff draft={draft} live={live} name={name}/> : null}
+    </>
   }
   
   export const ComparisonDiff = ({draft, live, name}: {draft: FieldValue, live: FieldValue, name: string}) => {
