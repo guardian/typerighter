@@ -19,12 +19,15 @@ jobs:
         with:
           java-version: "8"
           distribution: "corretto"
+          cache: "sbt"
       - name: Build the stack
         run: |
           docker-compose up -d
       - uses: actions/setup-node@v3
         with:
           node-version: 16.13.1
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
       - name: build rule-manager-client
         working-directory: ./apps/rule-manager/client
         run: |
