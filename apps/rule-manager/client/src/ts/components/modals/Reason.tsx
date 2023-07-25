@@ -14,17 +14,21 @@ import {
 } from "@elastic/eui";
 import { Label } from "../Label";
 import { FormEventHandler, useState } from "react";
+import { RuleData } from "../hooks/useRule";
+import { Diff } from "../Diff";
 
 const modalFormId = "modal-form";
 
 export const ReasonModal = ({
                               onClose,
                               onSubmit,
-                              isLoading
+                              isLoading,
+                              rule
                             }: {
   onClose: () => void;
   onSubmit: (reason: string) => void;
   isLoading: boolean;
+  rule: RuleData | undefined;
 }) => {
   const [reason, setReason] = useState<string>("");
   const handleSubmit: FormEventHandler<HTMLFormElement> = e => {
@@ -53,6 +57,7 @@ export const ReasonModal = ({
             />
           </EuiFormRow>
         </EuiForm>
+        <Diff rule={rule}/>
       </EuiModalBody>
 
       <EuiModalFooter>
