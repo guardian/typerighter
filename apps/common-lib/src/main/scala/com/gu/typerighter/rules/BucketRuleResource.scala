@@ -2,11 +2,15 @@ package com.gu.typerighter.rules
 
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
+import com.gu.typerighter.lib.SafeXMLParser
 import com.gu.typerighter.model.CheckerRuleResource
 import play.api.Logging
 import play.api.libs.json.Json
 
 import java.util.Date
+import scala.collection.immutable.List
+import scala.util.{Failure, Success, Try}
+import scala.xml.Node
 
 class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules.json"
@@ -39,15 +43,34 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
     }
   }
 
-  def getDictionaryWords(): Either[Exception, List[String]] = {
-    val dictionary = s3.getObject(bucketName, DICTIONARY_KEY)
-    val dictionaryStream = dictionary.getObjectContent()
-    val dictionaryXml = xml.XML.load(dictionaryStream)
-    dictionary.close()
+  def getDictionaryWords(): Either[Throwable, List[String]] = {
+    val lemmaOrInflListToText = (node: Node) =>
+      node match {
+        case node if node.label == "lemma"     => List(node.text)
+        case node if node.label == "infl_list" => node.child.toList.map(infl => infl.text)
+        case _                                 => Nil
+      }
 
-//    val lemmas = dictionaryXml.child.toList
-    println(dictionaryXml.head)
-    Right(List("hi"))
+    val words = Try({
+      val dictionary = s3.getObject(bucketName, DICTIONARY_KEY).getObjectContent()
+      val dictionaryStream = dictionary
+      val dictionaryXml = SafeXMLParser.load(dictionaryStream)
+      val entries = dictionaryXml.child.toList
+
+      val words = for {
+        entry <- entries
+        lemmaOrInfl <- entry.child
+        lemmaOrInflList <- lemmaOrInfl.toList
+        word <- lemmaOrInflListToText(lemmaOrInflList)
+      } yield word
+      dictionary.close()
+      words.distinct
+    })
+
+    words match {
+      case Success(words)     => Right(words)
+      case Failure(exception) => Left(exception)
+    }
   }
 
   def getRulesLastModified: Either[Exception, Date] = {
