@@ -35,7 +35,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       matchResponses: Iterator[Seq[CheckSingleRuleResult]]
   )(block: RuleTesting => T): T = {
     Server.withRouterFromComponents() { cs =>
-      { case GET(p"/checkSingle") =>
+      { case POST(p"/checkSingle") =>
         cs.defaultActionBuilder { _ =>
           Ok.chunked(
             Source(matchResponses.next()).map(result => JsonHelpers.toJsonSeq(result))
