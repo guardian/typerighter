@@ -44,27 +44,13 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   }
 
   def getDictionaryWords(): Either[Throwable, List[String]] = {
-    val lemmaOrInflListToText = (node: Node) =>
-      node match {
-        case node if node.label == "lemma"     => List(node.text)
-        case node if node.label == "infl_list" => node.child.toList.map(infl => infl.text)
-        case _                                 => Nil
-      }
-
     val words = Try({
       val dictionary = s3.getObject(bucketName, DICTIONARY_KEY).getObjectContent()
       val dictionaryStream = dictionary
       val dictionaryXml = SafeXMLParser.load(dictionaryStream)
-      val entries = dictionaryXml.child.toList
-
-      val words = for {
-        entry <- entries
-        lemmaOrInfl <- entry.child
-        lemmaOrInflList <- lemmaOrInfl.toList
-        word <- lemmaOrInflListToText(lemmaOrInflList)
-      } yield word
+      val words = Dictionary.dictionaryXmlToWordList(dictionaryXml)
       dictionary.close()
-      words.distinct
+      words
     })
 
     words match {
