@@ -4,7 +4,7 @@ import { Tag, useTags } from "./hooks/useTags";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { ruleTypeOptions } from "./RuleContent";
-import { camelCaseToTitleCase } from "../utils/camelCaseToTitleCase";
+import { startCase } from "lodash";
 
 type DivergentField = {
     fieldName: string;
@@ -39,14 +39,9 @@ const diffWrapper = css`
 const textDiffFields = ["description", "pattern", "replacement"];
 const comparisonDiffFields = ["ruleType", "category", "tags"];
 
-export const doValuesMatch = (draftValue?: FieldValue, liveValue?: FieldValue): boolean => {
-    // The value could be an array or a primitive
-    if (Array.isArray(draftValue) && Array.isArray(liveValue)){
-        // This is a good enough comparison for our arrays of primitives
-        return JSON.stringify(draftValue) === JSON.stringify(liveValue)
-    }
-    return draftValue === liveValue
-}
+export const doValuesMatch = (draftValue?: FieldValue, liveValue?: FieldValue): boolean => 
+    JSON.stringify(draftValue) === JSON.stringify(liveValue)
+
 
 export const findNonIntersectingFields = (draft: FieldObject[], live: FieldObject[]): DivergentField[] => {
     const uniqueDraftFields = draft.filter(draftField => !live.find(liveField => liveField.fieldName === draftField.fieldName))
@@ -152,12 +147,12 @@ export const Diff = ({rule}: {rule: RuleData | undefined}) => {
     return <Comparison 
         left={Array.isArray(live) ? live.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{live}</EuiBadge>}
         right={Array.isArray(draft) ? draft.map(item => <EuiBadge>{item}</EuiBadge>) : <EuiBadge>{draft}</EuiBadge>}
-        fieldName={camelCaseToTitleCase(name)}
+        fieldName={startCase(name)}
         key={name}
     />
   }
   
   export const TextDiff = ({draft, live, name}: {draft: FieldValue, live: FieldValue, name: string}) => {
     const [rendered] = useEuiTextDiff({ beforeText: live ? live.toString() : "", afterText: draft ? draft.toString() : "" })
-    return <Comparison left={<>{live}</>} right={<>{rendered}</>} fieldName={camelCaseToTitleCase(name)} />
+    return <Comparison left={<>{live}</>} right={<>{rendered}</>} fieldName={startCase(name)} />
   }
