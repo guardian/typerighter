@@ -28,20 +28,12 @@ export type FieldObject = {
 };
 
 const ComparisonPanel = styled.div`
-	background-color: #f1f4fa;
 	height: 100%;
-	padding: 0.5rem;
 `;
 
 const ComparisonPanelHeader = styled.div`
 	padding: 0.25rem 0;
 	color: #444;
-`;
-
-const diffWrapper = css`
-	border: 1px solid #ddd;
-	padding: 1rem;
-	border-radius: 0.5rem;
 `;
 
 const textDiffFields = ['description', 'pattern', 'replacement'];
@@ -176,12 +168,8 @@ export const Diff = ({ rule }: { rule: RuleData | undefined }) => {
 	return (
 		<>
 			<EuiSpacer />
-			<EuiFlexGroup css={diffWrapper}>
+			<EuiFlexGroup>
 				<EuiFlexItem>
-					<EuiText>
-						<h4>What's changed:</h4>
-					</EuiText>
-					<EuiSpacer size="m" />
 					<EuiFlexGroup>
 						<EuiFlexItem
 							css={css`
@@ -191,10 +179,10 @@ export const Diff = ({ rule }: { rule: RuleData | undefined }) => {
 							<strong>Field</strong>
 						</EuiFlexItem>
 						<EuiFlexItem grow>
-							<strong>Before:</strong>
+							<strong>Before republish:</strong>
 						</EuiFlexItem>
 						<EuiFlexItem grow>
-							<strong>After:</strong>
+							<strong>After republish:</strong>
 						</EuiFlexItem>
 					</EuiFlexGroup>
 					{diffedFields.map((diffedField) => (
