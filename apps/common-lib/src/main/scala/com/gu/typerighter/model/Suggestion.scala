@@ -5,6 +5,7 @@ import play.api.libs.json.{Json, Reads, Writes}
 import scala.util.matching.Regex
 
 object Suggestion {
+  implicit val reads: Reads[Suggestion] = TextSuggestion.reads.reads
   implicit val writes: Writes[Suggestion] = { case textSuggestion: TextSuggestion =>
     TextSuggestion.writes.writes(textSuggestion)
   }

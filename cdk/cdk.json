@@ -3,7 +3,6 @@
   "context": {
     "aws-cdk:enableDiffNoFail": "true",
     "@aws-cdk/core:stackRelativeExports": "true",
-    "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true,
-    "@aws-cdk/aws-secretsmanager:parseOwnedSecretName": true
+    "@aws-cdk/aws-ecr-assets:dockerIgnoreSupport": true
   }
 }

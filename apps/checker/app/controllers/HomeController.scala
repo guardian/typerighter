@@ -13,6 +13,7 @@ class HomeController(
     matcherPool: MatcherPool,
     config: CommonConfig
 ) extends PandaAuthController(controllerComponents, config) {
+
   def index() = AuthAction {
     Ok(views.html.index())
   }

@@ -45,6 +45,7 @@ import {
 } from "aws-cdk-lib/aws-rds";
 import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
 import { AccessScope } from "@guardian/cdk/lib/constants/access";
+import {Secret} from "aws-cdk-lib/aws-secretsmanager";
 
 export interface TyperighterStackProps extends GuStackProps {
   domainSuffix: string;
@@ -83,55 +84,6 @@ export class Typerighter extends GuStack {
     const lowercaseStage = this.stage.toLowerCase();
 
     const typerighterBucketName = `typerighter-app-${lowercaseStage}`;
-
-    const dbPort = 5432;
-
-    // Rule manager app
-
-    const ruleManagerAppName = "typerighter-rule-manager";
-
-    const ruleManagerDomain = `manager.${props.domainSuffix}`
-
-    const ruleManagerApp = new GuPlayApp(this, {
-      app: ruleManagerAppName,
-      instanceType: new InstanceType("t4g.small"),
-      userData: `#!/bin/bash -ev
-        aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
-        dpkg -i /tmp/package.deb`,
-      access: {
-        scope: AccessScope.PUBLIC,
-      },
-      certificateProps: {
-         domainName: ruleManagerDomain,
-      },
-      monitoringConfiguration: {
-        noMonitoring: true,
-      },
-      roleConfiguration: {
-        additionalPolicies: [
-          pandaAuthPolicy,
-          permissionsFilePolicyStatement
-        ],
-      },
-      scaling: {
-        minimumInstances: props.instanceCount,
-      },
-      applicationLogging: {
-        enabled: true,
-        systemdUnitName: "typerighter-rule-manager"
-      }
-    });
-
-    const ruleManagerDnsRecord = new GuDnsRecordSet(
-      this,
-      "manager-dns-records",
-      {
-        name: ruleManagerDomain,
-        recordType: RecordType.CNAME,
-        resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
-        ttl: Duration.minutes(60),
-      }
-    );
 
     // Checker app
 
@@ -182,6 +134,61 @@ dpkg -i /tmp/package.deb`,
       }
     });
 
+    // Rule manager app
+
+    const dbPort = 5432;
+
+    const ruleManagerAppName = "typerighter-rule-manager";
+
+    const ruleManagerDomain = `manager.${props.domainSuffix}`
+
+    const ruleManagerApp = new GuPlayApp(this, {
+      app: ruleManagerAppName,
+      instanceType: new InstanceType("t4g.micro"),
+      userData: `#!/bin/bash -ev
+        aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+        dpkg -i /tmp/package.deb
+
+        mkdir /etc/gu
+cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
+typerighter.checkerServiceUrl = "https://${checkerDomain}"
+EOF
+        `,
+      access: {
+        scope: AccessScope.PUBLIC,
+      },
+      certificateProps: {
+        domainName: ruleManagerDomain,
+      },
+      monitoringConfiguration: {
+        noMonitoring: true,
+      },
+      roleConfiguration: {
+        additionalPolicies: [
+          pandaAuthPolicy,
+          permissionsFilePolicyStatement
+        ],
+      },
+      scaling: {
+        minimumInstances: props.instanceCount,
+      },
+      applicationLogging: {
+        enabled: true,
+        systemdUnitName: "typerighter-rule-manager"
+      }
+    });
+
+    const ruleManagerDnsRecord = new GuDnsRecordSet(
+      this,
+      "manager-dns-records",
+      {
+        name: ruleManagerDomain,
+        recordType: RecordType.CNAME,
+        resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
+        ttl: Duration.minutes(60),
+      }
+    );
+
     const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {
       bucketName: typerighterBucketName,
       app: ruleManagerAppName
@@ -223,7 +230,10 @@ dpkg -i /tmp/package.deb`,
                 "Host",
                 "Origin",
                 "Access-Control-Request-Headers",
-                "Access-Control-Request-Method"
+                "Access-Control-Request-Method",
+                "X-Gu-Tools-HMAC-Token",
+                "X-Gu-Tools-HMAC-Date",
+                "X-Gu-Tools-Service-Name"
               ),
               queryStringBehavior: CacheQueryStringBehavior.all(),
             }
@@ -259,6 +269,16 @@ dpkg -i /tmp/package.deb`,
       treatMissingData: TreatMissingData.NOT_BREACHING,
       metric: ruleMetric,
     });
+
+    // Box-to-box communication
+
+    const hmacSecret = new Secret(this, "hmacSecret", {
+      description: "Shared secret for HMAC-based communication between manager and checker services",
+      secretName: `/${this.stage}/flexible/typerighter/hmacSecretKey`
+    });
+
+    hmacSecret.grantRead(checkerApp.autoScalingGroup.role);
+    hmacSecret.grantRead(ruleManagerApp.autoScalingGroup.role);
 
     // Database
 
