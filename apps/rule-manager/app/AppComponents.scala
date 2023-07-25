@@ -5,16 +5,16 @@ import play.api.libs.ws.ahc.AhcWSComponents
 import controllers.{AssetsComponents, HomeController, RulesController, TagsController}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.auth.AWSCredentialsProvider
-import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, PublicSettings}
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
+import com.gu.typerighter.lib.HMACClient
 import com.gu.typerighter.rules.BucketRuleResource
 import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
-import service.SheetsRuleResource
+import service.{RuleTesting, SheetsRuleResource}
 import utils.{LocalStack, RuleManagerConfig}
 
 class AppComponents(
@@ -29,7 +29,7 @@ class AppComponents(
     with HikariCPComponents
     with EvolutionsComponents
     with AhcWSComponents {
-  val config = new RuleManagerConfig(configuration, region, identity, creds)
+  val config = new RuleManagerConfig(configuration, region, identity, creds, wsClient)
   val db = new DB(config.dbUrl, config.dbUsername, config.dbPassword)
 
   applicationEvolutions
@@ -46,47 +46,19 @@ class AppComponents(
       LocalStack.s3Client
   }
 
-  val stageDomain = identity match {
-    case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk"
-    case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk"
-    case _: DevIdentity        => "local.dev-gutools.co.uk"
-  }
-  val appName = identity match {
-    case identity: AwsIdentity => identity.app
-    case identity: DevIdentity => identity.app
-  }
-
-  val publicSettingsFile = identity match {
-    case identity: AwsIdentity if identity.stage == "PROD" => "gutools.co.uk.settings.public"
-    case identity: AwsIdentity => s"${identity.stage.toLowerCase}.dev-gutools.co.uk.settings.public"
-    case _: DevIdentity        => "local.dev-gutools.co.uk.settings.public"
-  }
-  val publicSettings =
-    new PublicSettings(publicSettingsFile, "pan-domain-auth-settings", standardS3Client)
-  publicSettings.start()
-
-  val panDomainSettings = new PanDomainAuthSettingsRefresher(
-    domain = stageDomain,
-    system = appName,
-    bucketName = "pan-domain-auth-settings",
-    settingsFileKey = s"$stageDomain.settings",
-    s3Client = standardS3Client
-  )
-
   val stage = identity match {
     case identity: AwsIdentity => identity.stage.toLowerCase
     case _: DevIdentity        => "local"
   }
   val typerighterBucket = s"typerighter-app-${stage}"
-
+  val hmacClient = new HMACClient(stage, secretKey = config.hmacSecrets.head)
   val sheetsRuleResource = new SheetsRuleResource(config.credentials, config.spreadsheetId)
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
+  val ruleTesting = new RuleTesting(wsClient, hmacClient, config.checkerServiceUrl)
 
   val homeController = new HomeController(
     controllerComponents,
     db,
-    panDomainSettings,
-    wsClient,
     config
   )
 
@@ -94,13 +66,12 @@ class AppComponents(
     controllerComponents,
     sheetsRuleResource,
     bucketRuleResource,
-    publicSettings,
+    ruleTesting,
     config
   )
 
   val tagsController = new TagsController(
     controllerComponents,
-    publicSettings,
     config
   )
 

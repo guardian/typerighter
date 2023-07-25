@@ -57,7 +57,7 @@ flowchart LR
 
 Both the checker and management services are built in Scala with the Play framework. Data is currently stored in a Google Sheet.
 
-Google credentials are fetched from SSM using AWS Credentials or Instance Role. 
+Google credentials are fetched from SSM using AWS Credentials or Instance Role.
 
 ## Integration
 
@@ -71,8 +71,15 @@ LanguageTool has core rules that we use, and as we upgrade LT, these could chang
 
 There's a script to see if rules have changed as a result of an upgrade in ./script/js/compare-rule-xml.js.
 
-## Linting
+## Formatting
 
+### Prettier formatting
+
+Prettier is installed in the client app using the Guardian's recommended [config](https://github.com/guardian/csnx/tree/main/libs/%40guardian/prettier). To format files you can run `npm run format:write`. A formatting check will run as part of CI.
+
+To configure the IntelliJ Prettier plugin to format on save see the guide [here](https://www.jetbrains.com/help/idea/prettier.html#ws_prettier_configure). To configure the VS Code Prettier plugin see [here](https://github.com/prettier/prettier-vscode#format-on-save).
+
+### Scala formatting
 Typerighter uses [Scalafmt](https://scalameta.org/scalafmt/) to ensure consistent linting across all Scala files.
 
 To lint all files you can run `sbt scalafmtAll`
@@ -82,9 +89,9 @@ You can configure your IDE to format scala files on save according to the lintin
 
 For intellij there is a guide to set up automated linting on save [here](https://www.jetbrains.com/help/idea/work-with-scala-formatter.html#scalafmt_config) and [here](https://scalameta.org/scalafmt/docs/installation.html). For visual studio code with metals see [here](https://scalameta.org/scalafmt/docs/installation.html#vs-code)
 
-## Automatic Linting
+### Automatic formatting
 
-The project contains a pre-commit hook which will automatically run the linter on all staged files. To enable this, run `./script/setup` from the root of the project.
+The project contains a pre-commit hook which will automatically run the Scala formatter on all staged files. To enable this, run `./script/setup` from the root of the project.
 
 ## Developer how-tos
 

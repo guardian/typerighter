@@ -2,25 +2,19 @@ package controllers
 
 import play.api.mvc._
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
-
 import com.gu.typerighter.lib.Loggable
-
-import _root_.db.DB
-import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import db.DB
 import utils.PermissionsHandler
 import com.gu.permissions.PermissionDefinition
+import com.gu.typerighter.controllers.PandaAuthController
 import utils.RuleManagerConfig
 
 class HomeController(
-    val controllerComponents: ControllerComponents,
-    val db: DB,
-    override val panDomainSettings: PanDomainAuthSettingsRefresher,
-    override val wsClient: WSClient,
-    override val config: RuleManagerConfig
-) extends BaseController
+    controllerComponents: ControllerComponents,
+    db: DB,
+    val config: RuleManagerConfig
+) extends PandaAuthController(controllerComponents, config)
     with Loggable
-    with AppAuthActions
     with PermissionsHandler {
 
   def index(path: String) = AuthAction { request =>
