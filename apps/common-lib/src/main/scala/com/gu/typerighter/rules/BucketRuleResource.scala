@@ -8,9 +8,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 
 import java.util.Date
-import scala.collection.immutable.List
 import scala.util.{Failure, Success, Try}
-import scala.xml.Node
 
 class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules.json"
