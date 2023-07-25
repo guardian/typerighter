@@ -230,7 +230,10 @@ EOF
                 "Host",
                 "Origin",
                 "Access-Control-Request-Headers",
-                "Access-Control-Request-Method"
+                "Access-Control-Request-Method",
+                "X-Gu-Tools-HMAC-Token",
+                "X-Gu-Tools-HMAC-Date",
+                "X-Gu-Tools-Service-Name"
               ),
               queryStringBehavior: CacheQueryStringBehavior.all(),
             }
