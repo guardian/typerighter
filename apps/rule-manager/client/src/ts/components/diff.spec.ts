@@ -1,4 +1,4 @@
-import { FieldObject, doValuesMatch, findFieldsWithDiffs, findNonIntersectingFields, transformToHumanReadableValues } from "./Diff"
+import { FieldObject, findFieldsWithDiffs, findNonIntersectingFields, transformToHumanReadableValues } from "./Diff"
 import { ruleTypeOptions } from "./RuleContent"
 import { RuleData } from "./hooks/useRule"
 import { Tag } from "./hooks/useTags"
@@ -109,20 +109,6 @@ describe("Diff helper functions", () => {
             }]
             const actual = findNonIntersectingFields(draft, live);
             expect(actual).toEqual(expected)
-        })
-    })
-    describe("doValuesMatch", () => {
-        it("should match two primitive values", () => {
-            const result = doValuesMatch(1,1)
-            expect(result).toBe(true)
-        })
-        it("should not match two different primitive values", () => {
-            const result = doValuesMatch("me","you")
-            expect(result).toBe(false)
-        })
-        it("should match two arrays of primitives", () => {
-            const result = doValuesMatch([1,3],[1,3])
-            expect(result).toBe(true)
         })
     })
 })

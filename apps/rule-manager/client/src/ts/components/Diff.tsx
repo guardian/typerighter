@@ -4,7 +4,7 @@ import { Tag, useTags } from "./hooks/useTags";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import { ruleTypeOptions } from "./RuleContent";
-import { startCase } from "lodash";
+import { isEqual, startCase } from "lodash";
 
 type DivergentField = {
     fieldName: string;
@@ -39,10 +39,6 @@ const diffWrapper = css`
 const textDiffFields = ["description", "pattern", "replacement"];
 const comparisonDiffFields = ["ruleType", "category", "tags"];
 
-export const doValuesMatch = (draftValue?: FieldValue, liveValue?: FieldValue): boolean => 
-    JSON.stringify(draftValue) === JSON.stringify(liveValue)
-
-
 export const findNonIntersectingFields = (draft: FieldObject[], live: FieldObject[]): DivergentField[] => {
     const uniqueDraftFields = draft.filter(draftField => !live.find(liveField => liveField.fieldName === draftField.fieldName))
     const uniqueLiveFields = live.filter(liveField => !draft.find(draftField => liveField.fieldName === draftField.fieldName))
@@ -69,7 +65,7 @@ export const findFieldsWithDiffs = (rule: RuleData): DivergentField[] => {
     const divergentFields = draftFieldsToDiff.reduce((divergentFieldsArray, draftField) => {
         const equivalentLiveField = liveFieldsToDiff.find(liveField => liveField.fieldName === draftField.fieldName)
         if (equivalentLiveField){
-            const liveAndDraftValuesMatch = doValuesMatch(draftField.value, equivalentLiveField.value);
+            const liveAndDraftValuesMatch = isEqual(draftField.value, equivalentLiveField.value);
             if (!liveAndDraftValuesMatch){
                 divergentFieldsArray.push({
                     fieldName: draftField.fieldName,
