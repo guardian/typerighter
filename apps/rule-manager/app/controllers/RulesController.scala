@@ -212,6 +212,7 @@ class RulesController(
               }
           case None => Future.successful(NotFound)
         }
+      case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
 
