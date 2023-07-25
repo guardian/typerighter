@@ -198,16 +198,20 @@ class RulesController(
   def testWithBlock(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
     request.body.validate[Document].asEither match {
       case Right(document) =>
-        val rule = DbRuleDraft.find(id).get
-        ruleTesting
-          .testRule(rule, List(document))
-          .map { stream =>
-            Ok.chunked(stream.map { Json.toJson(_) })
-          }
-          .recover { error =>
-            InternalServerError(error.getMessage())
-          }
-
+        DbRuleDraft.find(id) match {
+          case Some(rule) =>
+            ruleTesting
+              .testRule(rule, List(document))
+              .map { stream =>
+                Ok.chunked(stream.map {
+                  Json.toJson(_)
+                })
+              }
+              .recover { error =>
+                InternalServerError(error.getMessage())
+              }
+          case None => Future.successful(NotFound)
+        }
       case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
