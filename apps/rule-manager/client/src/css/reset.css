@@ -1,29 +1,43 @@
 /* Use a more-intuitive box-sizing model. */
-*, *::before, *::after {
-  box-sizing: border-box;
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
 }
 
 /* Remove default margin. */
 * {
-  margin: 0;
+	margin: 0;
 }
 
 /* Allow percentage-based heights in the application. */
-html, body {
-  height: 100%;
+html,
+body {
+	height: 100%;
 }
 
 /* Improve text rendering. */
 body {
-  -webkit-font-smoothing: antialiased;
+	-webkit-font-smoothing: antialiased;
 }
 
 /* Avoid text overflows. */
-p, h1, h2, h3, h4, h5, h6 {
-  overflow-wrap: break-word;
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
 }
 
 /* Ensure headings are the correct font – EUI does not have a separate font for headings. */
-h1, h2, h3, h4, h5, h6 {
-  font-family: "Guardian Egyptian Text";
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: 'Guardian Egyptian Text';
 }

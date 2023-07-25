@@ -1,29 +1,37 @@
 @font-face {
-  font-family: "Guardian Agate Sans";
-  src: url("../../../public/fonts/GuardianAgateSans1Web-Regular.woff2") format("woff2"),
-  url("../../../public/fonts/GuardianAgateSans1Web-Regular.woff") format("woff"),
-  url("../../../public/fonts/GuardianAgateSans1Web-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-stretch: normal;
+	font-family: 'Guardian Agate Sans';
+	src: url('../../../public/fonts/GuardianAgateSans1Web-Regular.woff2')
+			format('woff2'),
+		url('../../../public/fonts/GuardianAgateSans1Web-Regular.woff')
+			format('woff'),
+		url('../../../public/fonts/GuardianAgateSans1Web-Regular.ttf')
+			format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-stretch: normal;
 }
 
 @font-face {
-  font-family: "Guardian Agate Sans";
-  src: url("../../../public/fonts/GuardianAgateSans1Web-Bold.woff2") format("woff2"),
-  url("../../../public/fonts/GuardianAgateSans1Web-Bold.woff") format("woff"),
-  url("../../../public/fonts/GuardianAgateSans1Web-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-stretch: normal;
+	font-family: 'Guardian Agate Sans';
+	src: url('../../../public/fonts/GuardianAgateSans1Web-Bold.woff2')
+			format('woff2'),
+		url('../../../public/fonts/GuardianAgateSans1Web-Bold.woff') format('woff'),
+		url('../../../public/fonts/GuardianAgateSans1Web-Bold.ttf')
+			format('truetype');
+	font-weight: 700;
+	font-style: normal;
+	font-stretch: normal;
 }
 
 @font-face {
-  font-family: "Guardian Egyptian Text";
-  src: url("../../../public/fonts/GuardianTextEgyptianWeb-Regular.woff2") format("woff2"),
-  url("../../../public/fonts/GuardianTextEgyptianWeb-Regular.woff") format("woff"),
-  url("../../../public/fonts/GuardianTextEgyptianWeb-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-stretch: normal;
+	font-family: 'Guardian Egyptian Text';
+	src: url('../../../public/fonts/GuardianTextEgyptianWeb-Regular.woff2')
+			format('woff2'),
+		url('../../../public/fonts/GuardianTextEgyptianWeb-Regular.woff')
+			format('woff'),
+		url('../../../public/fonts/GuardianTextEgyptianWeb-Regular.ttf')
+			format('truetype');
+	font-weight: 400;
+	font-style: normal;
+	font-stretch: normal;
 }
