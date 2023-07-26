@@ -7,7 +7,14 @@ import {
 	getRuleStatusColour,
 	hasUnpublishedChanges,
 } from '../utils/rule';
-import { EuiFlexGroup, EuiHealth, EuiIcon, EuiText } from '@elastic/eui';
+import {
+	EuiFlexGroup,
+	EuiFlexItem,
+	EuiHealth,
+	EuiIcon,
+	EuiLink,
+	EuiText,
+} from '@elastic/eui';
 import { css } from '@emotion/react';
 import { euiTextTruncate } from '@elastic/eui/src/global_styling/mixins/_typography';
 import styled from '@emotion/styled';
@@ -29,6 +36,7 @@ const UnpublishedChangesContainer = styled.div`
 
 export const RuleStatus = ({
 	ruleData,
+	setRuleData,
 }: {
 	ruleData: RuleData | undefined;
 }) => {
@@ -39,8 +47,13 @@ export const RuleStatus = ({
 			additionalInfo={
 				!!ruleData &&
 				hasUnpublishedChanges(ruleData) && (
-					<EuiFlexGroup gutterSize="s">
-						Has unpublished changes
+					<EuiFlexGroup gutterSize="s" grow={false}>
+						<EuiFlexItem>
+							<EuiLink onClick={() => setRuleData(ruleData)} color={'warning'}>
+								Discard changes&nbsp;
+							</EuiLink>
+						</EuiFlexItem>
+						<EuiFlexItem>Has unpublished changes</EuiFlexItem>
 						<EuiIcon type="warning" />
 					</EuiFlexGroup>
 				)

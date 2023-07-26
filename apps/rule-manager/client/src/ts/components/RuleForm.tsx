@@ -227,7 +227,7 @@ export const RuleForm = ({
 				>
 					<EuiFlexItem grow={1} style={{ overflowY: 'scroll' }}>
 						<EuiFlexGroup gutterSize="m" direction="column">
-							<RuleStatus ruleData={rule} />
+							<RuleStatus ruleData={rule} setRuleData={setRuleFormData} />
 							<RuleContent
 								isLoading={isLoading}
 								errors={errors}
