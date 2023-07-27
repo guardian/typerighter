@@ -31,7 +31,7 @@ class RulesController(
       dbRules <- sheetsRuleResource
         .getRules()
         .left
-        .map(toFormError("Error getting rules from Google Sheet"))
+        .map(toFormError("refresh-sheet"))
       _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
     } yield {
       RuleManager.getDraftRules()
