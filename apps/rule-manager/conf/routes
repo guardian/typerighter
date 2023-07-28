@@ -11,6 +11,8 @@ GET     /healthcheck                    controllers.HomeController.healthcheck()
 +nocsrf
 POST    /api/refresh                    controllers.RulesController.refresh()
 +nocsrf
+POST    /api/refreshDictionary          controllers.RulesController.refreshDictionaryRules()
++nocsrf
 GET     /api/rules                      controllers.RulesController.list()
 +nocsrf
 POST    /api/rules                      controllers.RulesController.create()

@@ -91,7 +91,7 @@ For intellij there is a guide to set up automated linting on save [here](https:/
 
 ### Automatic formatting
 
-The project contains a pre-commit hook which will automatically run the Scala formatter on all staged files. To enable this, run `./script/setup-hooks` from the root of the project.
+The project contains a pre-commit hook which will automatically run the Scala formatter on all staged files. To enable this, run `./script/setup` from the root of the project.
 
 ## Developer how-tos
 

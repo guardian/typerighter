@@ -43,6 +43,15 @@ class RulesController(
     }
   }
 
+  def refreshDictionaryRules = APIAuthAction {
+    val words = bucketRuleResource.getDictionaryWords()
+
+    words match {
+      case Right(words) => Ok(Json.toJson(words))
+      case Left(errors) => InternalServerError(Json.toJson(errors.getMessage))
+    }
+  }
+
   def list = APIAuthAction {
     Ok(Json.toJson(RuleManager.getDraftRules()))
   }

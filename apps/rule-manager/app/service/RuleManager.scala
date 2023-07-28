@@ -312,7 +312,6 @@ object RuleManager extends Loggable {
       case e: Exception => Left(e)
     }
   }
-
   def archiveRule(
       id: Int,
       user: String

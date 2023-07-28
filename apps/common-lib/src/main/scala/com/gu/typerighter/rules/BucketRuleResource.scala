@@ -2,15 +2,17 @@ package com.gu.typerighter.rules
 
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
+import com.gu.typerighter.lib.SafeXMLParser
 import com.gu.typerighter.model.CheckerRuleResource
 import play.api.Logging
 import play.api.libs.json.Json
 
 import java.util.Date
+import scala.util.{Failure, Success, Try}
 
 class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules.json"
-
+  private val DICTIONARY_KEY = s"$stage/dictionary/typerighter-dictionary.xml"
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
     val ruleJson = Json.toJson(ruleResource)
     val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
@@ -36,6 +38,22 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
 
       logger.info(s"Got rules from S3. JSON hash: ${rulesJson.hashCode()}")
       (rulesJson.as[CheckerRuleResource], lastModified)
+    }
+  }
+
+  def getDictionaryWords(): Either[Throwable, List[String]] = {
+    val words = Try({
+      val dictionary = s3.getObject(bucketName, DICTIONARY_KEY).getObjectContent()
+      val dictionaryStream = dictionary
+      val dictionaryXml = SafeXMLParser.load(dictionaryStream)
+      val words = Dictionary.dictionaryXmlToWordList(dictionaryXml)
+      dictionary.close()
+      words
+    })
+
+    words match {
+      case Success(words)     => Right(words)
+      case Failure(exception) => Left(exception)
     }
   }
 
