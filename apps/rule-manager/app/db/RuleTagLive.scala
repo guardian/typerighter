@@ -1,5 +1,6 @@
 package db
 
+import db.RuleTagDraft.autoSession
 import scalikejdbc._
 
 import scala.util.{Failure, Success, Try}
@@ -134,6 +135,15 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
         .from(this)
         .where
         .eq(column.tagId, tagId)
+    }.update().apply()
+  }
+
+  def destroyForRule(ruleExternalId: String)(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete
+        .from(this)
+        .where
+        .eq(column.ruleExternalId, ruleExternalId)
     }.update().apply()
   }
 }

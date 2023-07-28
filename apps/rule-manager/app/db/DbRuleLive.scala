@@ -168,6 +168,21 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       .apply()
   }
 
+  def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    withSQL {
+      select(dbColumnsToFind, tagColumn)
+        .from(DbRuleLive as r)
+        .leftJoin(RuleTagLive as rtl)
+        .on(r.id, rtl.ruleId)
+        .where
+        .eq(r.ruleType, "dictionary")
+        .groupBy(dbColumnsToFind, r.externalId, r.revisionId)
+        .orderBy(r.ruleOrder)
+    }.map(DbRuleLive.fromRow)
+      .list()
+      .apply()
+  }
+
   def setInactive(externalId: String, user: String)(implicit
       session: DBSession = autoSession
   ): Option[DbRuleLive] = {
@@ -300,6 +315,15 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     )
     RuleTagLive.batchInsert(ruleTags)
     ()
+  }
+
+  def destroyDictionaryRules()(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.ruleType, "dictionary")
+    }.update().apply()
   }
 
   def destroyAll()(implicit session: DBSession = autoSession): Int = {

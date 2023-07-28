@@ -349,4 +349,45 @@ object RuleManager extends Loggable {
       case e: Exception => Left(e)
     }
   }
+
+  def destructivelyPublishDictionaryRules(words: List[String], user: String) = {
+    // Destroy existing draft dictionary rules
+    val ids = DbRuleDraft.findAllDictionaryRules().map(rule => rule.id)
+    for {
+      maybeId <- ids
+      id <- maybeId
+    } yield RuleTagDraft.destroyForRule(id)
+    DbRuleDraft.destroyDictionaryRules()
+
+    // Destroy existing live dictionary rules
+    val externalIds = DbRuleLive.findAllDictionaryRules().map(rule => rule.externalId)
+    for {
+      maybeId <- externalIds
+      id <- maybeId
+    } yield RuleTagLive.destroyForRule(id)
+    DbRuleLive.destroyDictionaryRules()
+
+    val dictionaryRules = words.map(word =>
+      DbRuleDraft.withUser(
+        id = None,
+        ruleType = "dictionary",
+        pattern = Some(word),
+        category = Some("Collins"),
+        ignore = false,
+        user = user,
+        ruleOrder = 0
+      )
+    )
+    dictionaryRules
+      .grouped(100)
+      .foreach(DbRuleDraft.batchInsert)
+
+    val liveRules = DbRuleDraft.findAllDictionaryRules.map(_.toLive("From Collins Dictionary"))
+
+    liveRules
+      .grouped(100)
+      .foreach(DbRuleLive.batchInsert)
+
+    words
+  }
 }

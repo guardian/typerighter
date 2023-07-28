@@ -1,6 +1,7 @@
 package db
 
 import db.DbRule._
+import db.DbRuleLive.autoSession
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
@@ -203,6 +204,23 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
+        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .orderBy(rd.ruleOrder)
+    }.map(DbRuleDraft.fromRow)
+      .list()
+      .apply()
+  }
+
+  def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .eq(rd.ruleType, "dictionary")
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
@@ -467,6 +485,15 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   def destroy(entity: DbRuleDraft)(implicit session: DBSession = autoSession): Int = {
     withSQL {
       delete.from(DbRuleDraft).where.eq(column.id, entity.id)
+    }.update().apply()
+  }
+
+  def destroyDictionaryRules()(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete
+        .from(DbRuleDraft as rd)
+        .where
+        .eq(rd.ruleType, "dictionary")
     }.update().apply()
   }
 

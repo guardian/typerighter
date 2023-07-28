@@ -48,4 +48,5 @@ export const existingCategories = [
 	'Typography',
 	'Dates',
 	'Style Guide',
+	'Collins'
 ];
