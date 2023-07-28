@@ -375,14 +375,15 @@ object RuleManager extends Loggable {
         category = Some("Collins"),
         ignore = false,
         user = user,
-        ruleOrder = 0
+        ruleOrder = 0,
+        externalId = None
       )
     )
     dictionaryRules
       .grouped(100)
       .foreach(DbRuleDraft.batchInsert)
 
-    val liveRules = DbRuleDraft.findAllDictionaryRules.map(_.toLive("From Collins Dictionary"))
+    val liveRules = DbRuleDraft.findAllDictionaryRules().map(_.toLive("From Collins Dictionary"))
 
     liveRules
       .grouped(100)

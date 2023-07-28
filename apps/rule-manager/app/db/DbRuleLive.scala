@@ -173,7 +173,9 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
         .leftJoin(RuleTagLive as rtl)
-        .on(r.id, rtl.ruleId)
+        .on(
+          sqls"${r.externalId} = ${rtl.ruleExternalId} and ${r.revisionId} = ${rtl.ruleRevisionId}"
+        )
         .where
         .eq(r.ruleType, "dictionary")
         .groupBy(dbColumnsToFind, r.externalId, r.revisionId)

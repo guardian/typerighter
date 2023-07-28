@@ -1,6 +1,5 @@
 package db
 
-import db.RuleTagDraft.autoSession
 import scalikejdbc._
 
 import scala.util.{Failure, Success, Try}

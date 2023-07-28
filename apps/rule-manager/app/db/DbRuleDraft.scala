@@ -1,7 +1,6 @@
 package db
 
 import db.DbRule._
-import db.DbRuleLive.autoSession
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result

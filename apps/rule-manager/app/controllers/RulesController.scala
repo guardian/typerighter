@@ -5,7 +5,7 @@ import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.model.Document
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.{JsValue, Json}
-import db.{DbRuleDraft, DbRuleLive}
+import db.{DbRuleDraft}
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
 import service.{RuleManager, RuleTesting, SheetsRuleResource}
@@ -43,10 +43,10 @@ class RulesController(
     }
   }
 
-  def refreshDictionaryRules(user: String) = APIAuthAction {
+  def refreshDictionaryRules() = APIAuthAction { implicit request =>
     val wordsOrError = bucketRuleResource.getDictionaryWords()
     val newRuleWords =
-      wordsOrError.map(words => RuleManager.destructivelyPublishDictionaryRules(words, user))
+      wordsOrError.map(words => RuleManager.destructivelyPublishDictionaryRules(words, request.user.email))
     newRuleWords match {
       case Left(e)      => InternalServerError(e.getMessage)
       case Right(words) => Ok(Json.toJson(words))
