@@ -275,6 +275,32 @@ export function useRule(ruleId: number | undefined) {
 		}
 	};
 
+	const discardRuleChanges = async (ruleId: number) => {
+		setIsLoading(true);
+
+		try {
+			const response = await fetch(
+				`${location.origin}/api/rules/${ruleId}/discard-changes`,
+				{
+					method: 'POST',
+				},
+			);
+
+			if (!response.ok) {
+				throw new Error(
+					`Failed to discard changes: ${response.status} ${response.statusText}`,
+				);
+			}
+
+			const rules: RuleData = await response.json();
+			setRuleDataAndClearErrors(rules);
+		} catch (error) {
+			setErrors(errorToString(error));
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
 	useEffect(() => {
 		if (ruleId) {
 			fetchRule(ruleId);
@@ -304,5 +330,6 @@ export function useRule(ruleId: number | undefined) {
 		unarchiveRule,
 		unpublishRule,
 		ruleStatus,
+		discardRuleChanges,
 	};
 }

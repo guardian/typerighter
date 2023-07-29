@@ -82,6 +82,7 @@ export const RuleForm = ({
 		unarchiveRule,
 		unpublishRule,
 		ruleStatus,
+		discardRuleChanges,
 	} = useRule(ruleId);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
@@ -227,7 +228,10 @@ export const RuleForm = ({
 				>
 					<EuiFlexItem grow={1} style={{ overflowY: 'scroll' }}>
 						<EuiFlexGroup gutterSize="m" direction="column">
-							<RuleStatus ruleData={rule} setRuleData={setRuleFormData} />
+							<RuleStatus
+								ruleData={rule}
+								discardRuleChanges={discardRuleChanges}
+							/>
 							<RuleContent
 								isLoading={isLoading}
 								errors={errors}

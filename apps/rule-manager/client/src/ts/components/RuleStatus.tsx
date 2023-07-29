@@ -36,11 +36,12 @@ const UnpublishedChangesContainer = styled.div`
 
 export const RuleStatus = ({
 	ruleData,
-	setRuleData,
+	discardRuleChanges,
 }: {
 	ruleData: RuleData | undefined;
 }) => {
 	const state = capitalize(getRuleStatus(ruleData?.draft));
+
 	return (
 		<RuleFormSection
 			title="RULE STATUS"
@@ -49,7 +50,7 @@ export const RuleStatus = ({
 				hasUnpublishedChanges(ruleData) && (
 					<EuiFlexGroup gutterSize="s" grow={false}>
 						<EuiFlexItem>
-							<EuiLink onClick={() => setRuleData(ruleData)} color={'warning'}>
+							<EuiLink onClick={discardRuleChanges} color={'warning'}>
 								Discard changes&nbsp;
 							</EuiLink>
 						</EuiFlexItem>
