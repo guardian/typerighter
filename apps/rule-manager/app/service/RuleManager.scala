@@ -245,7 +245,7 @@ object RuleManager extends Loggable {
 
     incomingRules
       .grouped(100)
-      .foreach(DbRuleDraft.batchInsert)
+      .foreach(group => DbRuleDraft.batchInsert(group))
 
     val draftRules = DbRuleDraft.findAll()
 
@@ -350,7 +350,7 @@ object RuleManager extends Loggable {
     }
   }
 
-  def destructivelyPublishDictionaryRules(words: List[String], user: String) = {
+  def destructivelyPublishDictionaryRules(words: List[String]) = {
     // Destroy existing draft dictionary rules
     val ids = DbRuleDraft.findAllDictionaryRules().map(rule => rule.id)
     for {
@@ -358,7 +358,6 @@ object RuleManager extends Loggable {
       id <- maybeId
     } yield RuleTagDraft.destroyForRule(id)
     DbRuleDraft.destroyDictionaryRules()
-
     // Destroy existing live dictionary rules
     val externalIds = DbRuleLive.findAllDictionaryRules().map(rule => rule.externalId)
     for {
@@ -366,29 +365,26 @@ object RuleManager extends Loggable {
       id <- maybeId
     } yield RuleTagLive.destroyForRule(id)
     DbRuleLive.destroyDictionaryRules()
-
-    val dictionaryRules = words.map(word =>
+    val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
+    val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
       DbRuleDraft.withUser(
         id = None,
         ruleType = "dictionary",
-        pattern = Some(word),
+        pattern = Some(wordAndIndex._1),
         category = Some("Collins"),
         ignore = false,
-        user = user,
-        ruleOrder = 0,
+        user = "Collins Dictionary",
+        ruleOrder = initialRuleOrder + wordAndIndex._2,
         externalId = None
       )
     )
     dictionaryRules
       .grouped(100)
-      .foreach(DbRuleDraft.batchInsert)
-
+      .foreach(group => DbRuleDraft.batchInsert(group, true))
     val liveRules = DbRuleDraft.findAllDictionaryRules().map(_.toLive("From Collins Dictionary"))
-
     liveRules
       .grouped(100)
       .foreach(DbRuleLive.batchInsert)
-
     words
   }
 }

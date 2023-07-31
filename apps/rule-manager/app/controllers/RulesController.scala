@@ -43,10 +43,11 @@ class RulesController(
     }
   }
 
-  def refreshDictionaryRules() = APIAuthAction { implicit request =>
+  def refreshDictionaryRules() = APIAuthAction {
     val wordsOrError = bucketRuleResource.getDictionaryWords()
+
     val newRuleWords =
-      wordsOrError.map(words => RuleManager.destructivelyPublishDictionaryRules(words, request.user.email))
+      wordsOrError.map(words => RuleManager.destructivelyPublishDictionaryRules(words))
     newRuleWords match {
       case Left(e)      => InternalServerError(e.getMessage)
       case Right(words) => Ok(Json.toJson(words))

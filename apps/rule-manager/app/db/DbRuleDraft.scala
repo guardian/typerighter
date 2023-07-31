@@ -203,6 +203,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
+        .where
+        .not
+        .eq(rd.ruleType, "dictionary")
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
@@ -235,6 +238,15 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     withSQL {
       select(sqls.count).from(DbRuleDraft as rd).where.append(where)
     }.map(_.long(1)).single().apply().get
+  }
+
+  def getLatestRuleOrder()(implicit session: DBSession = autoSession): Int = {
+    SQL(s"""
+         |SELECT rule_order
+         |    FROM $tableName
+         |    ORDER BY rule_order DESC
+         |    LIMIT 1
+         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(0)
   }
 
   def create(
@@ -367,29 +379,52 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   }
 
   def batchInsert(
-      entities: collection.Seq[DbRuleDraft]
+      entities: collection.Seq[DbRuleDraft],
+      hasNoExternalId: Boolean = false
   )(implicit session: DBSession = autoSession): List[Int] = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
-      Seq(
-        Symbol("ruleType") -> entity.ruleType,
-        Symbol("pattern") -> entity.pattern,
-        Symbol("replacement") -> entity.replacement,
-        Symbol("category") -> entity.category,
-        Symbol("description") -> entity.description,
-        Symbol("ignore") -> entity.ignore,
-        Symbol("notes") -> entity.notes,
-        Symbol("externalId") -> entity.externalId,
-        Symbol("forceRedRule") -> entity.forceRedRule,
-        Symbol("advisoryRule") -> entity.advisoryRule,
-        Symbol("createdBy") -> entity.createdBy,
-        Symbol("createdAt") -> entity.createdAt,
-        Symbol("updatedBy") -> entity.updatedBy,
-        Symbol("updatedAt") -> entity.updatedAt,
-        Symbol("isArchived") -> entity.isArchived,
-        Symbol("ruleOrder") -> entity.ruleOrder
-      )
+      hasNoExternalId match {
+        case true =>
+          Seq(
+            Symbol("ruleType") -> entity.ruleType,
+            Symbol("pattern") -> entity.pattern,
+            Symbol("replacement") -> entity.replacement,
+            Symbol("category") -> entity.category,
+            Symbol("description") -> entity.description,
+            Symbol("ignore") -> entity.ignore,
+            Symbol("notes") -> entity.notes,
+            Symbol("forceRedRule") -> entity.forceRedRule,
+            Symbol("advisoryRule") -> entity.advisoryRule,
+            Symbol("createdBy") -> entity.createdBy,
+            Symbol("createdAt") -> entity.createdAt,
+            Symbol("updatedBy") -> entity.updatedBy,
+            Symbol("updatedAt") -> entity.updatedAt,
+            Symbol("isArchived") -> entity.isArchived,
+            Symbol("ruleOrder") -> entity.ruleOrder
+          )
+        case false =>
+          Seq(
+            Symbol("externalId") -> entity.externalId,
+            Symbol("ruleType") -> entity.ruleType,
+            Symbol("pattern") -> entity.pattern,
+            Symbol("replacement") -> entity.replacement,
+            Symbol("category") -> entity.category,
+            Symbol("description") -> entity.description,
+            Symbol("ignore") -> entity.ignore,
+            Symbol("notes") -> entity.notes,
+            Symbol("forceRedRule") -> entity.forceRedRule,
+            Symbol("advisoryRule") -> entity.advisoryRule,
+            Symbol("createdBy") -> entity.createdBy,
+            Symbol("createdAt") -> entity.createdAt,
+            Symbol("updatedBy") -> entity.updatedBy,
+            Symbol("updatedAt") -> entity.updatedAt,
+            Symbol("isArchived") -> entity.isArchived,
+            Symbol("ruleOrder") -> entity.ruleOrder
+          )
+      }
     )
     SQL(s"""insert into $tableName(
+      ${if (hasNoExternalId) "" else "external_id,"}
       rule_type,
       pattern,
       replacement,
@@ -397,7 +432,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       description,
       ignore,
       notes,
-      external_id,
       force_red_rule,
       advisory_rule,
       created_by,
@@ -407,6 +441,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       is_archived,
       rule_order
     ) values (
+      ${if (hasNoExternalId) "" else "{externalId},"}
       {ruleType},
       {pattern},
       {replacement},
@@ -414,7 +449,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {description},
       {ignore},
       {notes},
-      {externalId},
       {forceRedRule},
       {advisoryRule},
       {createdBy},
