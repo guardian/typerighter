@@ -4,7 +4,8 @@ import com.gu.contentapi.json.CirceEncoders._
 import io.circe.syntax._
 import play.api.mvc._
 import com.gu.typerighter.controllers.PandaAuthController
-import com.gu.typerighter.lib.{CommonConfig, ContentClient}
+import com.gu.typerighter.lib.CommonConfig
+import services.ContentClient
 
 import scala.concurrent.ExecutionContext
 
