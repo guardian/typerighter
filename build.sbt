@@ -72,7 +72,8 @@ val commonSettings = Seq(
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.7",
     "com.gu" %% "content-api-client-default" % capiClientVersion,
-    "com.gu" %% "panda-hmac-play_2-8" % "2.2.0"
+    "com.gu" %% "panda-hmac-play_2-8" % "2.2.0",
+    "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29"
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
