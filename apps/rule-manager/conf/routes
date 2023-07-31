@@ -36,8 +36,6 @@ POST    /api/rules/:id/archive          controllers.RulesController.archive(id: 
 POST    /api/rules/:id/unarchive        controllers.RulesController.unarchive(id: Int)
 +nocsrf
 GET     /api/rules/:id/test-block       controllers.RulesController.testWithBlock(id: Int)
-+nocsrf
-GET     /api/rules/:id/test-capi        controllers.RulesController.testWithCapiQuery(id: Int)
 
 # Tags
 +nocsrf
