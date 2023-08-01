@@ -58,6 +58,10 @@ class RulesController(
     Ok(Json.toJson(RuleManager.getDraftRules()))
   }
 
+  def listDictionaryRules(offset: Int) = APIAuthAction {
+    Ok(Json.toJson(RuleManager.getDraftDictionaryRules()))
+  }
+
   def get(id: Int) = APIAuthAction {
     RuleManager.getAllRuleData(id) match {
       case None => NotFound("Rule not found matching ID")

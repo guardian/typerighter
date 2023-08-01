@@ -135,6 +135,9 @@ object RuleManager extends Loggable {
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
 
+  def getDraftDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
+    DbRuleDraft.findAllDictionaryRules()
+
   def getAllRuleData(id: Int)(implicit
       session: DBSession = autoSession
   ): Option[AllRuleData] = {
