@@ -8,7 +8,7 @@ import play.api.libs.json.{JsValue, Json}
 import db.DbRuleDraft
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
-import service.{RuleManager, RuleTesting, SheetsRuleResource}
+import service.{RuleManager, RuleTesting, SheetsRuleResource, TestRuleCapiQuery}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -222,6 +222,21 @@ class RulesController(
           case None => Future.successful(NotFound)
         }
       case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
+    }
+  }
+
+  def testWithCapiQuery(id: Int) = APIAuthAction[JsValue](parse.json) { implicit request =>
+    request.body.validate[TestRuleCapiQuery].asEither match {
+      case Right(query) =>
+        DbRuleDraft.find(id) match {
+          case Some(rule) =>
+            val matchStream = ruleTesting.testRuleWithCapiQuery(rule, query)
+            Ok.chunked(matchStream.map {
+              Json.toJson(_)
+            })
+          case None => NotFound
+        }
+      case Left(error) => BadRequest(s"Invalid request: $error")
     }
   }
 }
