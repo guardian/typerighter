@@ -213,21 +213,62 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
+  def findDictionaryRules(maybeWord: Option[String], page: Int)(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+    val limit = 1000
+
+    maybeWord match {
+      case Some(word) => withSQL {
+=        select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+          .from(DbRuleDraft as rd)
+          .leftJoin(DbRuleLive as rl)
+          .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+          .leftJoin(RuleTagDraft as rt)
+          .on(rd.id, rt.ruleId)
+          .where
+          .eq(rd.ruleType, "dictionary")
+          .and
+          .like(rd.pattern, s"$word%")
+          .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+          .orderBy(rd.ruleOrder)
+          .limit(1000)
+          .offset(page * 1000)
+      }.map(DbRuleDraft.fromRow)
+        .list()
+        .apply()
+      case None => withSQL {
+        select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+          .from(DbRuleDraft as rd)
+          .leftJoin(DbRuleLive as rl)
+          .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+          .leftJoin(RuleTagDraft as rt)
+          .on(rd.id, rt.ruleId)
+          .where
+          .eq(rd.ruleType, "dictionary")
+          .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+          .orderBy(rd.ruleOrder)
+          .limit(limit)
+          .offset(page * limit)
+      }.map(DbRuleDraft.fromRow)
+        .list()
+        .apply()
+    }
+  }
+
   def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
       select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
-        .from(DbRuleDraft as rd)
-        .leftJoin(DbRuleLive as rl)
-        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
-        .leftJoin(RuleTagDraft as rt)
-        .on(rd.id, rt.ruleId)
-        .where
-        .eq(rd.ruleType, "dictionary")
-        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
-        .orderBy(rd.ruleOrder)
-    }.map(DbRuleDraft.fromRow)
-      .list()
-      .apply()
+          .from(DbRuleDraft as rd)
+          .leftJoin(DbRuleLive as rl)
+          .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+          .leftJoin(RuleTagDraft as rt)
+          .on(rd.id, rt.ruleId)
+          .where
+          .eq(rd.ruleType, "dictionary")
+          .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+          .orderBy(rd.ruleOrder)
+      }.map(DbRuleDraft.fromRow)
+        .list()
+        .apply()
   }
 
   def countAll()(implicit session: DBSession = autoSession): Long = {
