@@ -235,9 +235,10 @@ class RulesController(
                       replacement = liveRule.replacement,
                       category = liveRule.category,
                       tags = liveRule.tags,
-                      description = liveRule.description
+                      description = liveRule.description,
+                      revisionId = liveRule.revisionId
                     )
-                    DbRuleDraft.save(revertedDraftRule, request.user.email).toEither match {
+                    DbRuleDraft.save(revertedDraftRule, request.user.email, true).toEither match {
                       case Left(throwable)    => InternalServerError(throwable.getMessage)
                       case Right(dbRuleDraft) => Ok(Json.toJson(dbRuleDraft))
                     }
