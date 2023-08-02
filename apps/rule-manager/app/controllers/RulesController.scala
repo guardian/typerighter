@@ -215,4 +215,25 @@ class RulesController(
       case Left(error) => Future.successful(BadRequest(s"Invalid request: $error"))
     }
   }
+
+  def discardChanges(id: Int) = APIAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        UpdateRuleForm.form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => {
+              val errors = formWithErrors.errors
+              BadRequest(Json.toJson(errors))
+            },
+            formRule => {
+              DbRuleDraft.updateFromFormRule(formRule, id, request.user.email) match {
+                case Left(result)  => result
+                case Right(dbRule) => Ok(Json.toJson(dbRule))
+              }
+            }
+          )
+    }
+  }
 }
