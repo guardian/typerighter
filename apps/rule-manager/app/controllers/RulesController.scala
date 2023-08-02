@@ -5,7 +5,7 @@ import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.model.Document
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.{JsValue, Json}
-import db.DbRuleDraft
+import db.{DbRuleDraft, DbRuleLive}
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
 import service.{RuleManager, RuleTesting, SheetsRuleResource}
@@ -219,21 +219,36 @@ class RulesController(
   def discardChanges(id: Int) = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
-        UpdateRuleForm.form
-          .bindFromRequest()
-          .fold(
-            formWithErrors => {
-              val errors = formWithErrors.errors
-              BadRequest(Json.toJson(errors))
-            },
-            formRule => {
-              DbRuleDraft.updateFromFormRule(formRule, id, request.user.email) match {
-                case Left(result)  => result
-                case Right(dbRule) => Ok(Json.toJson(dbRule))
+      case true => {
+        DbRuleDraft.find(id) match {
+          case None => NotFound("No draftRule id found")
+          case Some(draftRule) => {
+            draftRule.externalId match {
+              case None => NotFound("No externalId found for draftRule")
+              case Some(externalId) => {
+                DbRuleLive.findLatestRevision(externalId) match {
+                  case None => NotFound("Latest live rule not found")
+                  case Some(liveRule) => {
+                    val revertedDraftRule = draftRule.copy(
+                      ruleType = liveRule.ruleType,
+                      pattern = liveRule.pattern,
+                      replacement = liveRule.replacement,
+                      category = liveRule.category,
+                      tags = liveRule.tags,
+                      description = liveRule.description,
+                    )
+                    DbRuleDraft.save(revertedDraftRule, request.user.email).toEither match {
+                      case Left(throwable) => InternalServerError(throwable.getMessage)
+                      case Right(dbRuleDraft) => Ok(Json.toJson(dbRuleDraft))
+                    }
+                  }
+                }
               }
             }
-          )
+          }
+
+        }
+      }
     }
   }
 }
