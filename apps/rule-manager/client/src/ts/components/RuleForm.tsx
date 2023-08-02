@@ -215,6 +215,15 @@ export const RuleForm = ({
 		onUpdate(ruleId);
 	};
 
+	const discardRuleChangesHandler = async () => {
+		if (!ruleId || ruleStatus !== 'live') {
+			return;
+		}
+
+		await discardRuleChanges(ruleId);
+		onUpdate(ruleId);
+	};
+
 	const hasUnsavedChanges = ruleFormData !== rule?.draft;
 	const canEditRuleContent = ruleStatus === 'draft' || ruleStatus === 'live';
 
@@ -230,7 +239,7 @@ export const RuleForm = ({
 						<EuiFlexGroup gutterSize="m" direction="column">
 							<RuleStatus
 								ruleData={rule}
-								discardRuleChanges={discardRuleChanges}
+								discardRuleChangesHandler={discardRuleChangesHandler}
 							/>
 							<RuleContent
 								isLoading={isLoading}
