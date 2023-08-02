@@ -239,8 +239,13 @@ class RulesController(
                       revisionId = liveRule.revisionId
                     )
                     DbRuleDraft.save(revertedDraftRule, request.user.email, true).toEither match {
-                      case Left(throwable)    => InternalServerError(throwable.getMessage)
-                      case Right(dbRuleDraft) => Ok(Json.toJson(dbRuleDraft))
+                      case Left(throwable) => InternalServerError(throwable.getMessage)
+                      case Right(_) =>
+                        RuleManager.getAllRuleData(id) match {
+                          case None => NotFound("Rule not found matching ID")
+                          case Some(allRuleData) =>
+                            Ok(Json.toJson(allRuleData))
+                        }
                     }
                   }
                 }
