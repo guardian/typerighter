@@ -59,10 +59,17 @@ class RulesController(
   }
 
   def listDictionaryRules(word: String, page: Int) = APIAuthAction {
-    Ok(Json.toJson(RuleManager.getDraftDictionaryRules(word match {
-      case "" => None
-      case str => Some(str)
-    }, page)))
+    Ok(
+      Json.toJson(
+        RuleManager.getDraftDictionaryRules(
+          word match {
+            case ""  => None
+            case str => Some(str)
+          },
+          page
+        )
+      )
+    )
   }
 
   def get(id: Int) = APIAuthAction {
