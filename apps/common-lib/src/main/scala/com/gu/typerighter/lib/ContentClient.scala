@@ -1,9 +1,8 @@
-package services
-
-import com.gu.contentapi.client.model.v1.{SearchResponse, SectionsResponse, TagsResponse}
-import com.gu.contentapi.client.{ContentApiClient, GuardianContentClient}
+package com.gu.typerighter.lib
 
 import scala.concurrent.{ExecutionContext, Future}
+import com.gu.contentapi.client.{ContentApiClient, GuardianContentClient}
+import com.gu.contentapi.client.model.v1.{SearchResponse, SectionsResponse, TagsResponse}
 
 class ContentClient(client: GuardianContentClient) {
 
@@ -17,7 +16,7 @@ class ContentClient(client: GuardianContentClient) {
   )(implicit ec: ExecutionContext): Future[SearchResponse] = {
     val query = ContentApiClient.search
       .q(queryStr)
-      .showFields("body")
+      .showBlocks("all")
       .orderBy("newest")
       .page(page)
     val queryWithTags = tags.foldLeft(query) { case (q, tag) => q.tag(tag) }
