@@ -34,6 +34,7 @@ object RuleManager extends Loggable {
     val regex = "regex"
     val languageToolXML = "languageToolXML"
     val languageToolCore = "languageToolCore"
+    val dictionary = "dictionary"
   }
 
   def checkerRuleToDraftDbRule(rule: CheckerRule): DbRuleDraft = {
@@ -362,8 +363,12 @@ object RuleManager extends Loggable {
       maybeId <- ids
       id <- maybeId
     } yield RuleTagDraft.destroyForRule(id)
+    println(1)
+
     DbRuleDraft.destroyDictionaryRules()
     // Destroy existing live dictionary rules
+    println(2)
+
     val externalIds = DbRuleLive.findAllDictionaryRules().map(rule => rule.externalId)
     for {
       maybeId <- externalIds
@@ -371,6 +376,7 @@ object RuleManager extends Loggable {
     } yield RuleTagLive.destroyForRule(id)
     DbRuleLive.destroyDictionaryRules()
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
+    println(3)
     val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
       DbRuleDraft.withUser(
         id = None,
@@ -383,13 +389,19 @@ object RuleManager extends Loggable {
         externalId = None
       )
     )
+    println(4)
+
     dictionaryRules
       .grouped(100)
       .foreach(group => DbRuleDraft.batchInsert(group, true))
+    println(5)
+
     val liveRules = DbRuleDraft.findAllDictionaryRules().map(_.toLive("From Collins Dictionary"))
     liveRules
       .grouped(100)
       .foreach(DbRuleLive.batchInsert)
+    println(6)
+
     words
   }
 }
