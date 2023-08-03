@@ -11,7 +11,7 @@ import com.gu.typerighter.model.{
 }
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
-import db.DbRuleDraft.autoSession
+import db.DbRuleDraft.{autoSession}
 import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.Json
@@ -356,18 +356,19 @@ object RuleManager extends Loggable {
     }
   }
 
-  def destructivelyPublishDictionaryRules(words: List[String]) = {
+  def destructivelyPublishDictionaryRules(
+      words: List[String],
+      bucketRuleResource: BucketRuleResource
+  ) = {
     // Destroy existing draft dictionary rules
     val ids = DbRuleDraft.findAllDictionaryRules().map(rule => rule.id)
     for {
       maybeId <- ids
       id <- maybeId
     } yield RuleTagDraft.destroyForRule(id)
-    println(1)
 
     DbRuleDraft.destroyDictionaryRules()
     // Destroy existing live dictionary rules
-    println(2)
 
     val externalIds = DbRuleLive.findAllDictionaryRules().map(rule => rule.externalId)
     for {
@@ -376,7 +377,6 @@ object RuleManager extends Loggable {
     } yield RuleTagLive.destroyForRule(id)
     DbRuleLive.destroyDictionaryRules()
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
-    println(3)
     val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
       DbRuleDraft.withUser(
         id = None,
@@ -389,19 +389,15 @@ object RuleManager extends Loggable {
         externalId = None
       )
     )
-    println(4)
 
     dictionaryRules
       .grouped(100)
       .foreach(group => DbRuleDraft.batchInsert(group, true))
-    println(5)
 
     val liveRules = DbRuleDraft.findAllDictionaryRules().map(_.toLive("From Collins Dictionary"))
     liveRules
       .grouped(100)
       .foreach(DbRuleLive.batchInsert)
-    println(6)
-
-    words
+    publishLiveRules(bucketRuleResource)
   }
 }

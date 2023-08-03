@@ -12,7 +12,7 @@ object UpdateRuleForm {
       case Some(RuleType.regex)            => Nil
       case Some(RuleType.languageToolCore) => Nil
       case Some(RuleType.languageToolXML)  => Nil
-      case Some(RuleType.dictionary)  => Nil
+      case Some(RuleType.dictionary)       => Nil
       case _ =>
         Seq(
           ValidationError(

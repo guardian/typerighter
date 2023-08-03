@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
 import com.gu.typerighter.lib.SafeXMLParser
 import com.gu.typerighter.model.CheckerRuleResource
 import play.api.Logging
+import play.api.data.FormError
 import play.api.libs.json.Json
 
 import java.util.Date
@@ -41,7 +42,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
     }
   }
 
-  def getDictionaryWords(): Either[Throwable, List[String]] = {
+  def getDictionaryWords(): Either[Seq[FormError], List[String]] = {
     val words = Try({
       val dictionary = s3.getObject(bucketName, DICTIONARY_KEY).getObjectContent()
       val dictionaryStream = dictionary
@@ -52,8 +53,9 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
     })
 
     words match {
-      case Success(words)     => Right(words)
-      case Failure(exception) => Left(exception)
+      case Success(words) => Right(words)
+      case Failure(exception) =>
+        Left(Seq(FormError("dictionary-parse-error", exception.getMessage)))
     }
   }
 

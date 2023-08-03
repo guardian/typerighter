@@ -47,9 +47,11 @@ class RulesController(
     val wordsOrError = bucketRuleResource.getDictionaryWords()
 
     val newRuleWords =
-      wordsOrError.map(words => RuleManager.destructivelyPublishDictionaryRules(words))
+      wordsOrError.flatMap(words =>
+        RuleManager.destructivelyPublishDictionaryRules(words, bucketRuleResource)
+      )
     newRuleWords match {
-      case Left(e)      => InternalServerError(e.getMessage)
+      case Left(errors) => InternalServerError(Json.toJson(errors))
       case Right(words) => Ok(Json.toJson(words))
     }
   }
