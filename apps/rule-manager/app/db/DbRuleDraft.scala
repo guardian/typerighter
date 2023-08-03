@@ -317,12 +317,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       isArchived: Boolean = false,
       tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
-    val latestRuleOrder = SQL(s"""
-         |SELECT rule_order
-         |    FROM $tableName
-         |    ORDER BY rule_order DESC
-         |    LIMIT 1
-         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(0)
+    val latestRuleOrder = getLatestRuleOrder()
 
     val id = withSQL {
       insert
