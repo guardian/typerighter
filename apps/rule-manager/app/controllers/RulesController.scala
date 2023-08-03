@@ -217,44 +217,78 @@ class RulesController(
   }
 
   def discardChanges(id: Int) = APIAuthAction { implicit request =>
-    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
-      case false => Unauthorized("You don't have permission to edit rules")
-      case true => {
-        DbRuleDraft.find(id) match {
-          case None => NotFound("No draftRule id found")
-          case Some(draftRule) => {
-            draftRule.externalId match {
-              case None => NotFound("No externalId found for draftRule")
-              case Some(externalId) => {
-                DbRuleLive.findLatestRevision(externalId) match {
-                  case None => NotFound("Latest live rule not found")
-                  case Some(liveRule) => {
-                    val revertedDraftRule = draftRule.copy(
-                      ruleType = liveRule.ruleType,
-                      pattern = liveRule.pattern,
-                      replacement = liveRule.replacement,
-                      category = liveRule.category,
-                      tags = liveRule.tags,
-                      description = liveRule.description,
-                      revisionId = liveRule.revisionId
-                    )
-                    DbRuleDraft.save(revertedDraftRule, request.user.email, true).toEither match {
-                      case Left(throwable) => InternalServerError(throwable.getMessage)
-                      case Right(_) =>
-                        RuleManager.getAllRuleData(id) match {
-                          case None => NotFound("Rule not found matching ID")
-                          case Some(allRuleData) =>
-                            Ok(Json.toJson(allRuleData))
-                        }
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-        }
+    val authorisedId =
+      hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+        case false => Left(Unauthorized("You don't have permission to edit rules"))
+        case true  => Right(id)
       }
-    }
+
+    val draftRule =
+      authorisedId.flatMap(id => DbRuleDraft.find(id).toRight(NotFound("No draftRule id found")))
+    val externalId = draftRule.flatMap(rule =>
+      rule.externalId.toRight(NotFound("No externalId found for draftRule"))
+    )
+    val latestLiveRule = externalId.flatMap(id =>
+      DbRuleLive.findLatestRevision(id).toRight(NotFound("Latest live rule not found"))
+    )
+    val savedRule = latestLiveRule
+      .flatMap(liveRule =>
+        draftRule
+          .flatMap(drRule => {
+            val revertedDraftRule = drRule.copy(
+              ruleType = liveRule.ruleType,
+              pattern = liveRule.pattern,
+              replacement = liveRule.replacement,
+              category = liveRule.category,
+              tags = liveRule.tags,
+              description = liveRule.description,
+              revisionId = liveRule.revisionId
+            )
+
+            val savedDraftRule =
+              DbRuleDraft.save(revertedDraftRule, request.user.email, true).toEither
+            savedDraftRule
+          })
+      )
+
+//    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+//      case false => Unauthorized("You don't have permission to edit rules")
+//      case true => {
+//        DbRuleDraft.find(id) match {
+//          case None => NotFound("No draftRule id found")
+//          case Some(draftRule) => {
+//            draftRule.externalId match {
+//              case None => NotFound("No externalId found for draftRule")
+//              case Some(externalId) => {
+//                DbRuleLive.findLatestRevision(externalId) match {
+//                  case None => NotFound("Latest live rule not found")
+//                  case Some(liveRule) => {
+//                    val revertedDraftRule = draftRule.copy(
+//                      ruleType = liveRule.ruleType,
+//                      pattern = liveRule.pattern,
+//                      replacement = liveRule.replacement,
+//                      category = liveRule.category,
+//                      tags = liveRule.tags,
+//                      description = liveRule.description,
+//                      revisionId = liveRule.revisionId
+//                    )
+//                    DbRuleDraft.save(revertedDraftRule, request.user.email, true).toEither match {
+//                      case Left(throwable) => InternalServerError(throwable.getMessage)
+//                      case Right(_) =>
+//                        RuleManager.getAllRuleData(id) match {
+//                          case None => NotFound("Rule not found matching ID")
+//                          case Some(allRuleData) =>
+//                            Ok(Json.toJson(allRuleData))
+//                        }
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
+//
+//        }
+//      }
+//    }
   }
 }
