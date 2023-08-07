@@ -261,7 +261,7 @@ object RuleManager extends Loggable {
 
     liveRules
       .grouped(100)
-      .foreach(DbRuleLive.batchInsert)
+      .foreach(_ => DbRuleLive.batchInsert(_))
 
     val persistedRules = getDraftRules()
 
@@ -394,10 +394,12 @@ object RuleManager extends Loggable {
       .grouped(100)
       .foreach(group => DbRuleDraft.batchInsert(group, true))
 
-    val liveRules = DbRuleDraft.findAllDictionaryRules().map(_.toLive("From Collins Dictionary"))
+    val liveRules = DbRuleDraft
+      .findAllDictionaryRules()
+      .map(_.toLive("From Collins Dictionary"))
     liveRules
       .grouped(100)
-      .foreach(DbRuleLive.batchInsert)
+      .foreach(_ => DbRuleLive.batchInsert(_, true))
     publishLiveRules(bucketRuleResource)
   }
 }

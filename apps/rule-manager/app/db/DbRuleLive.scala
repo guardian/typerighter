@@ -255,7 +255,8 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   }
 
   def batchInsert(
-      entities: collection.Seq[DbRuleLive]
+      entities: collection.Seq[DbRuleLive],
+      overrideIsActive: Boolean = false
   )(implicit session: DBSession = autoSession): Unit = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
@@ -309,7 +310,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {updatedAt},
       {updatedBy},
       {reason},
-      {isActive},
+      ${if (overrideIsActive) "TRUE" else "{isActive}"},
       {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[List]()
     val ruleTags = entities.flatMap(entity =>
