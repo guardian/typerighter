@@ -1,8 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
-	EuiSearchBarProps,
-	EuiBasicTableColumn,
-	EuiInMemoryTable,
 	EuiTitle,
 	EuiFlexItem,
 	EuiButton,
@@ -23,12 +20,24 @@ import { PageContext } from '../utils/window';
 import { hasCreateEditPermissions } from './helpers/hasCreateEditPermissions';
 import styled from '@emotion/styled';
 import { FeatureSwitchesContext } from './context/featureSwitches';
-import { DraftRule } from './hooks/useRule';
+import { DraftRule, RuleData } from './hooks/useRule';
 import { getRuleStatus, getRuleStatusColour } from '../utils/rule';
-import { capitalize } from 'lodash';
+import { capitalize, create, truncate } from 'lodash';
 import { euiTextTruncate } from '@elastic/eui/src/global_styling/mixins/_typography';
 import { TagMap, useTags } from './hooks/useTags';
 import { RuleFormBatchEdit } from './RuleFormBatchEdit';
+import { FixedSizeList } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import {
+	EuiTable,
+	EuiTableBody,
+	EuiTableHeader,
+	EuiTableHeaderCell,
+	EuiTableRow,
+	EuiTableRowCell,
+} from '@elastic/eui/src/components/table';
+import {colors} from "../constants/constants";
+import {useEuiTheme} from "@elastic/eui/src/services/theme";
 
 const sorting = {
 	sort: {
@@ -55,45 +64,43 @@ const TagWrapContainer = styled.div`
 	width: 100%;
 `;
 
-const createColumns = (
-	tags: TagMap,
-	editRule: (ruleId: number) => void,
-): Array<EuiBasicTableColumn<DraftRule>> => {
-	const hasEditPermissions = useCreateEditPermissions();
+const createColumns = (tags: TagMap, editRule: (ruleId: number) => void) => {
 	return [
 		{
 			field: 'description',
-			name: 'Description',
+			label: 'Description',
 			truncateText: true,
-			render: (value: string) => (!!value ? value : '–'),
+			render: (rule: DraftRule) =>
+				!!rule.description ? rule.description : '–',
 			width: '21.4%',
 		},
 		{
 			field: 'pattern',
-			name: 'Pattern',
+			label: 'Pattern',
 			truncateText: true,
-			render: (value: string) => (!!value ? value : '–'),
+			render: (rule: DraftRule) => (!!rule.pattern ? rule.pattern : '–'),
 			width: '21.4%',
 		},
 		{
 			field: 'replacement',
-			name: 'Replacement',
-			render: (value: string) => (!!value ? value : '–'),
+			label: 'Replacement',
+			render: (rule: DraftRule) =>
+				!!rule.replacement ? rule.replacement : '–',
 			width: '14.2%',
 		},
 		{
 			field: 'category',
-			name: 'Source',
-			render: (value: string) => (!!value ? value : '–'),
+			label: 'Source',
+			render: (rule: DraftRule) => (!!rule.category ? rule.category : '–'),
 			width: '14.2%',
 		},
 		{
 			field: 'tags',
-			name: 'Tags',
-			render: (value: number[]) =>
-				value && value.length > 0 ? (
+			label: 'Tags',
+			render: (rule: DraftRule) =>
+				rule.tags && rule.tags.length > 0 ? (
 					<TagWrapContainer>
-						{value.map((tagId) => (
+						{rule.tags.map((tagId) => (
 							<span style={{ width: '100%' }} key={tagId}>
 								<EuiBadge>
 									{tags[tagId.toString()]?.name ?? 'Unknown tag'}
@@ -107,7 +114,7 @@ const createColumns = (
 			width: '13.2%',
 		},
 		{
-			name: 'Status',
+			label: 'Status',
 			width: '8.1%',
 			render: (rule: DraftRule) => {
 				const state = capitalize(getRuleStatus(rule));
@@ -138,25 +145,13 @@ const createColumns = (
 			},
 		},
 		{
-			name: <EuiIcon type="pencil" />,
+			label: <EuiIcon type="pencil" />,
 			width: '7.1%',
-			actions: [
-				{
-					name: 'Edit',
-					render: (item, enabled) => (
-						<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
-					),
-					isPrimary: true,
-					description: 'Edit this rule',
-					onClick: (rule) => {
-						editRule(Number(rule.id));
-					},
-					enabled: () => hasEditPermissions,
-					'data-test-subj': 'action-edit',
-				},
-			],
+			render: (item: DraftRule, enabled: boolean) => (
+				<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
+			),
 		},
-	] as Array<EuiBasicTableColumn<DraftRule>>;
+	];
 };
 
 // We use our own button rather than an EuiIconButton because that component won't allow us to
@@ -197,6 +192,97 @@ const EditRuleButton = styled.button<EditRuleButtonProps>((props) => ({
 	cursor: props.editIsEnabled ? 'pointer' : 'not-allowed',
 }));
 
+const LazyRulesTableRow = styled.div`
+	width: 100%;
+	display: flex;
+  border-bottom: 1px solid ${() => useEuiTheme().euiTheme.colors.lightShade};
+`;
+
+const LazyRulesTableColumn = styled.div`
+	position: relative;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	padding: ${() => useEuiTheme().euiTheme.base / 2}px;
+	height: ${() => useEuiTheme().euiTheme.base * 2}px;
+`;
+
+const LazyRulesTableHeader = styled.div`
+  height: 36px;
+  position: relative;
+  width: 100%;
+  border-bottom: 1px solid ${() => useEuiTheme().euiTheme.colors.lightShade};
+`
+
+const LazyRulesTableHeaderCell = styled.div`
+  display: inline-block;
+  position: relative;
+  padding: ${() => useEuiTheme().euiTheme.base / 2}px;
+`
+
+const LazyRulesTableContainer = styled.div`
+  background-color: white;
+`
+
+const LazyRulesTable = ({
+	rules,
+	tags,
+	editRule,
+	canEditRule,
+}: {
+	rules: DraftRule[];
+	tags: TagMap;
+	editRule: (ruleId: number) => void;
+  canEditRule: boolean;
+}) => {
+	const columns = createColumns(tags, editRule);
+	return (
+		<LazyRulesTableContainer style={{ flex: '1 1 auto' }}>
+      <LazyRulesTableHeader>
+        {columns.map((column) => {
+          return (
+            <LazyRulesTableHeaderCell
+              key={column.field}
+              style={{ width: column.width }}
+            >
+              <EuiText size="s"><strong>{column.label}</strong></EuiText>
+            </LazyRulesTableHeaderCell>
+          );
+        })}
+      </LazyRulesTableHeader>
+			<AutoSizer>
+				{({ width, height }) => (
+					<FixedSizeList
+						itemSize={50}
+						itemData={rules}
+						height={height}
+						width={width}
+						itemCount={rules?.length || 0}
+					>
+						{({ style, index, data }) => {
+							return (
+								<LazyRulesTableRow style={style}>
+									{columns.map((column) => (
+										<LazyRulesTableColumn
+											style={{
+												minWidth: column.width,
+												maxWidth: column.width,
+											}}
+										>
+                      <EuiText>{column.render(data[index], canEditRule)}</EuiText>
+										</LazyRulesTableColumn>
+									))}
+								</LazyRulesTableRow>
+							);
+						}}
+					</FixedSizeList>
+				)}
+			</AutoSizer>
+		</LazyRulesTableContainer>
+	);
+};
+
 const RulesTable = () => {
 	const { tags, fetchTags, isLoading: isTagMapLoading } = useTags();
 	const {
@@ -218,7 +304,7 @@ const RulesTable = () => {
 	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const hasCreatePermissions = useCreateEditPermissions();
 
-	const search: EuiSearchBarProps = {
+	const search = {
 		box: {
 			incremental: true,
 			schema: true,
@@ -342,26 +428,13 @@ const RulesTable = () => {
 					</EuiFlexGroup>
 				</EuiFlexItem>
 				<EuiFlexGroup style={{ overflow: 'hidden' }}>
-					<EuiFlexItem style={{ overflowY: 'scroll' }} grow={2}>
+					<EuiFlexItem grow={2}>
 						{rules && (
-							<EuiInMemoryTable
-								rowProps={getRowProps}
-								css={css`
-									.euiTableRow.euiTableRow-isSelected {
-										background-color: rgba(0, 119, 204, 0.1);
-									}
-								`}
-								loading={isLoading}
-								tableCaption="Demo of EuiInMemoryTable"
-								items={rules}
-								itemId="id"
-								columns={columns}
-								pagination={true}
-								sorting={sorting}
-								search={search}
-								hasActions={true}
-								selection={selection}
-								isSelectable={true}
+							<LazyRulesTable
+								rules={rules}
+								tags={tags}
+								editRule={openEditRulePanel}
+								canEditRule={hasCreatePermissions}
 							/>
 						)}
 					</EuiFlexItem>
