@@ -261,7 +261,7 @@ object RuleManager extends Loggable {
 
     liveRules
       .grouped(100)
-      .foreach(_ => DbRuleLive.batchInsert(_))
+      .foreach(DbRuleLive.batchInsert(_))
 
     val persistedRules = getDraftRules()
 
