@@ -98,7 +98,7 @@ const createColumns = (
 			render: (rule: DraftRule) => (
 				<ClampText>{!!rule.description ? rule.description : '–'}</ClampText>
 			),
-			columns: 3,
+			columns: 6,
 		},
 		{
 			field: 'pattern',
@@ -107,7 +107,7 @@ const createColumns = (
 			render: (rule: DraftRule) => (
 				<ClampText>{!!rule.pattern ? rule.pattern : '–'}</ClampText>
 			),
-			columns: 3,
+			columns: 4,
 		},
 		{
 			field: 'replacement',
@@ -115,7 +115,7 @@ const createColumns = (
 			render: (rule: DraftRule) => (
 				<ClampText>{!!rule.replacement ? rule.replacement : '–'}</ClampText>
 			),
-			columns: 2,
+			columns: 4,
 		},
 		{
 			field: 'category',
@@ -123,7 +123,7 @@ const createColumns = (
 			render: (rule: DraftRule) => (
 				<ClampText>{!!rule.category ? rule.category : '–'}</ClampText>
 			),
-			columns: 2,
+			columns: 4,
 		},
 		{
 			field: 'tags',
@@ -142,12 +142,12 @@ const createColumns = (
 				) : (
 					<>–</>
 				),
-			columns: 2,
+			columns: 4,
 		},
 		{
 			field: 'status',
 			label: 'Status',
-			columns: 2,
+			columns: 4,
 			render: (rule: DraftRule) => {
 				const state = capitalize(getRuleStatus(rule));
 				return (
@@ -180,6 +180,7 @@ const createColumns = (
 			field: 'actions',
 			label: <EuiIcon type="pencil" />,
 			columns: 1,
+      justify: "right",
 			render: (item: DraftRule, enabled: boolean) => (
 				<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
 			),
@@ -269,6 +270,12 @@ const LazyRulesTableContainer = styled.div`
 	background-color: white;
 `;
 
+const ellipsisOverflowStyles = {
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+};
+
 const LazyRulesTable = ({
 	rules,
 	tags,
@@ -293,10 +300,10 @@ const LazyRulesTable = ({
 					return (
 						<LazyRulesTableHeaderCell
 							key={column.field}
-							style={{ width: `${(column.columns / totalColumns) * 100}%` }}
+							style={{ width: `${(column.columns / totalColumns) * 100}%`, justifyContent: column.justify ?? "inherit"  }}
 						>
 							{typeof column.label === 'string' ? (
-								<EuiText size="s">
+								<EuiText size="s" style={ellipsisOverflowStyles}>
 									<strong>{column.label}</strong>
 								</EuiText>
 							) : (
@@ -323,8 +330,9 @@ const LazyRulesTable = ({
 										<LazyRulesTableColumn
 											key={column.field}
 											style={{
-												flexBasis: `${colWidth}%`,
-											}}
+												flexBasis: `${colWidth}%`
+                        , justifyContent: column.justify ?? "inherit"
+                      }}
 										>
 											<EuiText>
 												{column.render(data[index], canEditRule)}
