@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {
 	EuiTitle,
 	EuiFlexItem,
@@ -28,28 +28,8 @@ import { TagMap, useTags } from './hooks/useTags';
 import { RuleFormBatchEdit } from './RuleFormBatchEdit';
 import { FixedSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import {
-	EuiTable,
-	EuiTableBody,
-	EuiTableHeader,
-	EuiTableHeaderCell,
-	EuiTableRow,
-	EuiTableRowCell,
-} from '@elastic/eui/src/components/table';
-import {colors} from "../constants/constants";
-import {useEuiTheme} from "@elastic/eui/src/services/theme";
-
-const sorting = {
-	sort: {
-		field: 'description',
-		direction: 'desc' as const,
-	},
-};
-
-type Category = {
-	name: string;
-	id: string;
-};
+import { useEuiTheme } from '@elastic/eui/src/services/theme';
+import { EuiCheckbox } from '@elastic/eui/src/components/form/checkbox';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -64,35 +44,72 @@ const TagWrapContainer = styled.div`
 	width: 100%;
 `;
 
-const createColumns = (tags: TagMap, editRule: (ruleId: number) => void) => {
+const createColumns = (
+	tags: TagMap,
+	editRule: (ruleId: number) => void,
+	totalRules: number,
+	selectedRules: Set<DraftRule>,
+	onSelect: (rule: DraftRule, value: boolean) => void,
+	onSelectAll: (value: boolean) => void,
+) => {
+	const allRulesSelected = selectedRules.size === totalRules;
+
 	return [
+		{
+			field: 'select',
+			label: (
+					<EuiCheckbox
+						id={`rule-table-checkbox`}
+						type="inList"
+						checked={allRulesSelected}
+            disabled={totalRules > 100}
+						onChange={(e) => onSelectAll(e.target.checked)}
+						title={'Select all rules in search'}
+						aria-label={'Select all rules in search'}
+					/>
+			),
+			render: (rule: DraftRule) => (
+					<EuiCheckbox
+						id={`rule-table-checkbox-${rule.id}`}
+						type="inList"
+						checked={selectedRules.has(rule)}
+						onChange={(e) =>
+							onSelect(rule, e.target.checked)
+						}
+						title={`Select rule ${rule.id}`}
+						aria-label={`Select rule ${rule.id}`}
+					/>
+			),
+			width: '30px',
+      columns: 1
+		},
 		{
 			field: 'description',
 			label: 'Description',
 			truncateText: true,
 			render: (rule: DraftRule) =>
 				!!rule.description ? rule.description : '–',
-			width: '21.4%',
+      columns: 3
 		},
 		{
 			field: 'pattern',
 			label: 'Pattern',
 			truncateText: true,
 			render: (rule: DraftRule) => (!!rule.pattern ? rule.pattern : '–'),
-			width: '21.4%',
+      columns: 3
 		},
 		{
 			field: 'replacement',
 			label: 'Replacement',
 			render: (rule: DraftRule) =>
 				!!rule.replacement ? rule.replacement : '–',
-			width: '14.2%',
+			columns: 2
 		},
 		{
 			field: 'category',
 			label: 'Source',
 			render: (rule: DraftRule) => (!!rule.category ? rule.category : '–'),
-			width: '14.2%',
+      columns: 2
 		},
 		{
 			field: 'tags',
@@ -111,11 +128,12 @@ const createColumns = (tags: TagMap, editRule: (ruleId: number) => void) => {
 				) : (
 					<>–</>
 				),
-			width: '13.2%',
+      columns: 2
 		},
 		{
+      field: 'status',
 			label: 'Status',
-			width: '8.1%',
+      columns: 2,
 			render: (rule: DraftRule) => {
 				const state = capitalize(getRuleStatus(rule));
 				return (
@@ -145,8 +163,9 @@ const createColumns = (tags: TagMap, editRule: (ruleId: number) => void) => {
 			},
 		},
 		{
+      field: 'actions',
 			label: <EuiIcon type="pencil" />,
-			width: '7.1%',
+      columns: 1,
 			render: (item: DraftRule, enabled: boolean) => (
 				<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
 			),
@@ -195,7 +214,8 @@ const EditRuleButton = styled.button<EditRuleButtonProps>((props) => ({
 const LazyRulesTableRow = styled.div`
 	width: 100%;
 	display: flex;
-  border-bottom: 1px solid ${() => useEuiTheme().euiTheme.colors.lightShade};
+	align-content: center;
+	border-bottom: 1px solid ${() => useEuiTheme().euiTheme.colors.lightShade};
 `;
 
 const LazyRulesTableColumn = styled.div`
@@ -209,48 +229,57 @@ const LazyRulesTableColumn = styled.div`
 `;
 
 const LazyRulesTableHeader = styled.div`
-  height: 36px;
-  position: relative;
-  width: 100%;
-  border-bottom: 1px solid ${() => useEuiTheme().euiTheme.colors.lightShade};
-`
+	height: 36px;
+	position: relative;
+	display: flex;
+		align-content: center;
+	width: 100%;
+	border-bottom: 1px solid ${() => useEuiTheme().euiTheme.colors.lightShade};
+`;
 
 const LazyRulesTableHeaderCell = styled.div`
-  display: inline-block;
-  position: relative;
-  padding: ${() => useEuiTheme().euiTheme.base / 2}px;
-`
+	display: inline-block;
+	position: relative;
+	padding: ${() => useEuiTheme().euiTheme.base / 2}px;
+`;
 
 const LazyRulesTableContainer = styled.div`
-  background-color: white;
-`
+	background-color: white;
+`;
 
 const LazyRulesTable = ({
 	rules,
 	tags,
 	editRule,
 	canEditRule,
+	columns,
 }: {
 	rules: DraftRule[];
 	tags: TagMap;
 	editRule: (ruleId: number) => void;
-  canEditRule: boolean;
+	canEditRule: boolean;
+	columns: ReturnType<typeof createColumns>;
 }) => {
-	const columns = createColumns(tags, editRule);
+  const totalColumns = columns
+    .map(col => col.columns)
+    .reduce((acc, cur) => acc + cur, 0);
+
 	return (
 		<LazyRulesTableContainer style={{ flex: '1 1 auto' }}>
-      <LazyRulesTableHeader>
-        {columns.map((column) => {
-          return (
-            <LazyRulesTableHeaderCell
-              key={column.field}
-              style={{ width: column.width }}
-            >
-              <EuiText size="s"><strong>{column.label}</strong></EuiText>
-            </LazyRulesTableHeaderCell>
-          );
-        })}
-      </LazyRulesTableHeader>
+			<LazyRulesTableHeader>
+				{columns.map((column) => {
+					return (
+						<LazyRulesTableHeaderCell
+							key={column.field}
+							style={{ width: `${column.columns / totalColumns * 100}%` }}
+						>
+							<EuiText size="s">
+								<strong>{column.label}</strong>
+							</EuiText>
+						</LazyRulesTableHeaderCell>
+					);
+				})}
+			</LazyRulesTableHeader>
 			<AutoSizer>
 				{({ width, height }) => (
 					<FixedSizeList
@@ -260,22 +289,26 @@ const LazyRulesTable = ({
 						width={width}
 						itemCount={rules?.length || 0}
 					>
-						{({ style, index, data }) => {
-							return (
+						{({ style, index, data }) => (
 								<LazyRulesTableRow style={style}>
-									{columns.map((column) => (
-										<LazyRulesTableColumn
-											style={{
-												minWidth: column.width,
-												maxWidth: column.width,
-											}}
-										>
-                      <EuiText>{column.render(data[index], canEditRule)}</EuiText>
-										</LazyRulesTableColumn>
-									))}
+									{columns.map((column) => {
+                      const colWidth = column.columns / totalColumns * 100;
+                      return <LazyRulesTableColumn
+                        key={column.field}
+                        style={{
+                          minWidth: `${colWidth}%`,
+                          maxWidth: `${colWidth}%`,
+                        }}
+                      >
+                        <EuiText>
+                          {column.render(data[index], canEditRule)}
+                        </EuiText>
+                      </LazyRulesTableColumn>
+                    }
+									)}
 								</LazyRulesTableRow>
-							);
-						}}
+							)
+						}
 					</FixedSizeList>
 				)}
 			</AutoSizer>
@@ -301,7 +334,7 @@ const RulesTable = () => {
 	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
 		undefined,
 	);
-	const [selectedRules, setSelectedRules] = useState<DraftRule[]>([]);
+	const [selectedRules, setSelectedRules] = useState<Set<DraftRule>>(new Set());
 	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const hasCreatePermissions = useCreateEditPermissions();
 
@@ -328,28 +361,45 @@ const RulesTable = () => {
 		),
 	};
 
+	const onSelect = useCallback((rule: DraftRule, selected: boolean) => {
+		if (selected) {
+      selectedRules.add(rule)
+    } else {
+      selectedRules.delete(rule);
+    }
+
+    const newSelectedRules = new Set([...selectedRules]);
+
+    setSelectedRules(newSelectedRules);
+    onSelectionChange(newSelectedRules);
+	}, [rules, selectedRules]);
+
+	const onSelectAll = (selected: boolean) => {
+    const newSelectedRules = new Set(selected ? [...rules] : []);
+    onSelectionChange(newSelectedRules);
+	};
+
 	const openEditRulePanel = (ruleId: number | undefined) => {
 		setCurrentRuleId(ruleId);
 		setFormMode(ruleId ? 'edit' : 'create');
 	};
 
-	const columns = createColumns(tags, openEditRulePanel);
+	const columns = createColumns(
+		tags,
+		openEditRulePanel,
+		rules?.length || 0,
+		selectedRules,
+		onSelect,
+		onSelectAll,
+	);
 
-	const onSelectionChange = (selectedRules: DraftRule[]) => {
+	const onSelectionChange = (selectedRules: Set<DraftRule>) => {
 		setSelectedRules(selectedRules);
 		openEditRulePanel(Number(selectedRules[0]?.id));
 	};
 
-	const selection: EuiTableSelectionType<DraftRule> = {
-		selectable: () => hasCreatePermissions,
-		selectableMessage: (selectable, rule) =>
-			!selectable ? "You don't have edit permissions" : '',
-		onSelectionChange,
-		initialSelected: [],
-	};
-
 	useEffect(() => {
-		if (selectedRules.length === 0) {
+		if (selectedRules.size === 0) {
 			setFormMode('closed');
 		}
 	}, [selectedRules]);
@@ -450,6 +500,7 @@ const RulesTable = () => {
 						{rules && (
 							<LazyRulesTable
 								rules={rules}
+								columns={columns}
 								tags={tags}
 								editRule={openEditRulePanel}
 								canEditRule={hasCreatePermissions}
@@ -458,7 +509,7 @@ const RulesTable = () => {
 					</EuiFlexItem>
 					{formMode !== 'closed' && (
 						<EuiFlexItem>
-							{selectedRules.length > 1 ? (
+							{selectedRules.size > 1 ? (
 								<RuleFormBatchEdit
 									tags={tags}
 									isTagMapLoading={isTagMapLoading}
@@ -469,7 +520,9 @@ const RulesTable = () => {
 									onUpdate={() => {
 										fetchRules();
 									}}
-									ruleIds={selectedRules.map((rule) => rule.id) as number[]}
+									ruleIds={
+										[...selectedRules].map((rule) => rule.id) as number[]
+									}
 								/>
 							) : (
 								<RuleForm
