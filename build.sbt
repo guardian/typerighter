@@ -8,7 +8,7 @@ ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
   "-encoding",
   "UTF-8",
-  "-target:jvm-1.8",
+  "-target:jvm-11",
   "-deprecation",
   "-Xfatal-warnings",
   "-Xlint:unused",
