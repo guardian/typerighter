@@ -1,10 +1,10 @@
 package com.gu.typerighter.model
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OWrites, Reads}
 
 object TextRange {
-  implicit val reads = Json.reads[TextRange]
-  implicit val writes = Json.writes[TextRange]
+  implicit val reads: Reads[TextRange] = Json.reads[TextRange]
+  implicit val writes: OWrites[TextRange] = Json.writes[TextRange]
 }
 
 case class TextRange(from: Int, to: Int) {

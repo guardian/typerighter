@@ -20,14 +20,13 @@ import org.scalatest.matchers.should.Matchers
 import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import com.softwaremill.diffx.generic.auto._
 
-import scala.concurrent.{ExecutionContext, Promise}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future, Promise}
 import scala.util.Failure
 import scala.util.Success
 import play.api.libs.concurrent.DefaultFutures
 import utils.Matcher
 
 import scala.concurrent.duration.FiniteDuration
-import scala.concurrent.Future
 
 /** A mock matcher to test the pool implementation. Doesn't complete work until a response is
   * provided, to test queue behaviour.
@@ -85,8 +84,8 @@ class MockMatcherThatThrows(e: Throwable) extends Matcher {
 
 class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   def timeLimit() = 1 second
-  private implicit val ec = ExecutionContext.global
-  private implicit val system = ActorSystem()
+  private implicit val ec: ExecutionContextExecutor = ExecutionContext.global
+  private implicit val system: ActorSystem = ActorSystem()
 
   private def getResponseRule(id: Int) = RegexRule(
     id = "test-rule",

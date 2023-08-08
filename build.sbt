@@ -3,12 +3,12 @@ import sys.process._
 
 name := "typerighter"
 ThisBuild / organization := "com.gu"
-ThisBuild / scalaVersion := "2.13.7"
+ThisBuild / scalaVersion := "2.13.11"
 ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
   "-encoding",
   "UTF-8",
-  "-target:jvm-1.8",
+  "-release:11",
   "-deprecation",
   "-Xfatal-warnings",
   "-Xlint:unused",
@@ -104,7 +104,6 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
         "-J-XX:InitialRAMFraction=2",
         "-J-XX:MaxMetaspaceSize=300m",
         "-J-XX:+PrintGCDetails",
-        "-J-XX:+PrintGCDateStamps",
         s"-J-Dlogs.home=/var/log/${packageName.value}",
         s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
       ),

@@ -190,7 +190,7 @@ object LTRule {
     ltRule
   }
 
-  implicit val patternWrites = new Writes[Pattern] {
+  implicit val patternWrites: Writes[Pattern] = new Writes[Pattern] {
     def writes(pattern: Pattern) = JsString(pattern.toString)
   }
   implicit val patternReads: Reads[Pattern] = JsPath.read[String].map { regex =>

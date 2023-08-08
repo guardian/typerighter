@@ -6,7 +6,7 @@ import play.api.db.Databases
 import play.api.db.evolutions.{Evolutions, InconsistentDatabase}
 
 trait DBTest extends BeforeAndAfter { self: Suite =>
-  private implicit val loader = ConfigLoader.stringLoader
+  private implicit val loader: ConfigLoader[String] = ConfigLoader.stringLoader
   private val config = Configuration.load(Environment.simple(), Map.empty)
 
   private val url = config.get("db.default.url")

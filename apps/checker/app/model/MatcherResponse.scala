@@ -12,7 +12,7 @@ case class MatcherResponse(
 }
 
 object MatcherResponse {
-  implicit val writes = new Writes[MatcherResponse] {
+  implicit val writes: Writes[MatcherResponse] = new Writes[MatcherResponse] {
     def writes(response: MatcherResponse) = Json.obj(
       "type" -> response.`type`,
       "categoryIds" -> response.categoryIds,
