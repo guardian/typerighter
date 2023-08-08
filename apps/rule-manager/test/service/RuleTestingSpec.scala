@@ -18,12 +18,12 @@ import play.core.server.Server
 import play.api.test._
 
 import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 
 class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
   val as: ActorSystem = ActorSystem()
   implicit val materializer: Materializer = Materializer(as)
-  private implicit val ec = ExecutionContext.global
+  private implicit val ec: ExecutionContextExecutor = ExecutionContext.global
 
   /** Mock responses from our CAPI client and checker service when parsing responses.
     *

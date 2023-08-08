@@ -14,11 +14,11 @@ import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
 import db.DbRuleDraft.autoSession
 import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OWrites}
 import scalikejdbc.DBSession
 
 object AllRuleData {
-  implicit val writes = Json.writes[AllRuleData]
+  implicit val writes: OWrites[AllRuleData] = Json.writes[AllRuleData]
 }
 
 /* All the data associated with a rule, including the current draft rule, the active

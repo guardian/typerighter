@@ -7,7 +7,7 @@ case class MatcherError(error: String, id: Option[String] = None) {
 }
 
 object MatcherError {
-  implicit val writes = new Writes[MatcherError] {
+  implicit val writes: Writes[MatcherError] = new Writes[MatcherError] {
     def writes(response: MatcherError) = Json.obj(
       "type" -> response.`type`,
       "id" -> response.id,
