@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {
 	EuiTitle,
 	EuiFlexItem,
@@ -12,6 +18,7 @@ import {
 	EuiTableSelectionType,
 	EuiBadge,
 	EuiText,
+	EuiSpacer,
 } from '@elastic/eui';
 import { useRules } from './hooks/useRules';
 import { css } from '@emotion/react';
@@ -30,6 +37,7 @@ import { FixedSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { useEuiTheme } from '@elastic/eui/src/services/theme';
 import { EuiCheckbox } from '@elastic/eui/src/components/form/checkbox';
+import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -38,9 +46,9 @@ export const useCreateEditPermissions = () => {
 };
 
 const TagWrapContainer = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0 5px;
+	& > span {
+		margin-right: 5px;
+	}
 	width: 100%;
 `;
 
@@ -58,58 +66,64 @@ const createColumns = (
 		{
 			field: 'select',
 			label: (
+				<EuiFlexItem>
 					<EuiCheckbox
 						id={`rule-table-checkbox`}
 						type="inList"
 						checked={allRulesSelected}
-            disabled={totalRules > 100}
+						disabled={totalRules > 100}
 						onChange={(e) => onSelectAll(e.target.checked)}
 						title={'Select all rules in search'}
 						aria-label={'Select all rules in search'}
 					/>
+				</EuiFlexItem>
 			),
 			render: (rule: DraftRule) => (
-					<EuiCheckbox
-						id={`rule-table-checkbox-${rule.id}`}
-						type="inList"
-						checked={selectedRules.has(rule)}
-						onChange={(e) =>
-							onSelect(rule, e.target.checked)
-						}
-						title={`Select rule ${rule.id}`}
-						aria-label={`Select rule ${rule.id}`}
-					/>
+				<EuiCheckbox
+					id={`rule-table-checkbox-${rule.id}`}
+					type="inList"
+					checked={selectedRules.has(rule)}
+					onChange={(e) => onSelect(rule, e.target.checked)}
+					title={`Select rule ${rule.id}`}
+					aria-label={`Select rule ${rule.id}`}
+				/>
 			),
 			width: '30px',
-      columns: 1
+			columns: 1,
 		},
 		{
 			field: 'description',
 			label: 'Description',
 			truncateText: true,
-			render: (rule: DraftRule) =>
-				!!rule.description ? rule.description : '–',
-      columns: 3
+			render: (rule: DraftRule) => (
+				<ClampText>{!!rule.description ? rule.description : '–'}</ClampText>
+			),
+			columns: 3,
 		},
 		{
 			field: 'pattern',
 			label: 'Pattern',
 			truncateText: true,
-			render: (rule: DraftRule) => (!!rule.pattern ? rule.pattern : '–'),
-      columns: 3
+			render: (rule: DraftRule) => (
+				<ClampText>{!!rule.pattern ? rule.pattern : '–'}</ClampText>
+			),
+			columns: 3,
 		},
 		{
 			field: 'replacement',
 			label: 'Replacement',
-			render: (rule: DraftRule) =>
-				!!rule.replacement ? rule.replacement : '–',
-			columns: 2
+			render: (rule: DraftRule) => (
+				<ClampText>{!!rule.replacement ? rule.replacement : '–'}</ClampText>
+			),
+			columns: 2,
 		},
 		{
 			field: 'category',
 			label: 'Source',
-			render: (rule: DraftRule) => (!!rule.category ? rule.category : '–'),
-      columns: 2
+			render: (rule: DraftRule) => (
+				<ClampText>{!!rule.category ? rule.category : '–'}</ClampText>
+			),
+			columns: 2,
 		},
 		{
 			field: 'tags',
@@ -118,7 +132,7 @@ const createColumns = (
 				rule.tags && rule.tags.length > 0 ? (
 					<TagWrapContainer>
 						{rule.tags.map((tagId) => (
-							<span style={{ width: '100%' }} key={tagId}>
+							<span key={tagId}>
 								<EuiBadge>
 									{tags[tagId.toString()]?.name ?? 'Unknown tag'}
 								</EuiBadge>
@@ -128,12 +142,12 @@ const createColumns = (
 				) : (
 					<>–</>
 				),
-      columns: 2
+			columns: 2,
 		},
 		{
-      field: 'status',
+			field: 'status',
 			label: 'Status',
-      columns: 2,
+			columns: 2,
 			render: (rule: DraftRule) => {
 				const state = capitalize(getRuleStatus(rule));
 				return (
@@ -163,9 +177,9 @@ const createColumns = (
 			},
 		},
 		{
-      field: 'actions',
+			field: 'actions',
 			label: <EuiIcon type="pencil" />,
-      columns: 1,
+			columns: 1,
 			render: (item: DraftRule, enabled: boolean) => (
 				<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
 			),
@@ -211,6 +225,8 @@ const EditRuleButton = styled.button<EditRuleButtonProps>((props) => ({
 	cursor: props.editIsEnabled ? 'pointer' : 'not-allowed',
 }));
 
+const rowHeight = 64;
+
 const LazyRulesTableRow = styled.div`
 	width: 100%;
 	display: flex;
@@ -219,27 +235,33 @@ const LazyRulesTableRow = styled.div`
 `;
 
 const LazyRulesTableColumn = styled.div`
+	display: flex;
+	align-items: baseline;
 	position: relative;
-	overflow: hidden;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
 	padding: ${() => useEuiTheme().euiTheme.base / 2}px;
-	height: ${() => useEuiTheme().euiTheme.base * 2}px;
+	height: ${rowHeight}px;
+	overflow: hidden;
+`;
+
+const ClampText = styled.div<{ lines: number }>`
+	display: -webkit-box;
+	-webkit-line-clamp: ${({ lines = 2 }) => lines};
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 `;
 
 const LazyRulesTableHeader = styled.div`
 	height: 36px;
 	position: relative;
 	display: flex;
-		align-content: center;
+	align-content: center;
 	width: 100%;
 	border-bottom: 1px solid ${() => useEuiTheme().euiTheme.colors.lightShade};
 `;
 
 const LazyRulesTableHeaderCell = styled.div`
-	display: inline-block;
-	position: relative;
+	display: flex;
+	align-items: center;
 	padding: ${() => useEuiTheme().euiTheme.base / 2}px;
 `;
 
@@ -260,9 +282,9 @@ const LazyRulesTable = ({
 	canEditRule: boolean;
 	columns: ReturnType<typeof createColumns>;
 }) => {
-  const totalColumns = columns
-    .map(col => col.columns)
-    .reduce((acc, cur) => acc + cur, 0);
+	const totalColumns = columns
+		.map((col) => col.columns)
+		.reduce((acc, cur) => acc + cur, 0);
 
 	return (
 		<LazyRulesTableContainer style={{ flex: '1 1 auto' }}>
@@ -271,11 +293,15 @@ const LazyRulesTable = ({
 					return (
 						<LazyRulesTableHeaderCell
 							key={column.field}
-							style={{ width: `${column.columns / totalColumns * 100}%` }}
+							style={{ width: `${(column.columns / totalColumns) * 100}%` }}
 						>
-							<EuiText size="s">
-								<strong>{column.label}</strong>
-							</EuiText>
+							{typeof column.label === 'string' ? (
+								<EuiText size="s">
+									<strong>{column.label}</strong>
+								</EuiText>
+							) : (
+								column.label
+							)}
 						</LazyRulesTableHeaderCell>
 					);
 				})}
@@ -283,32 +309,31 @@ const LazyRulesTable = ({
 			<AutoSizer>
 				{({ width, height }) => (
 					<FixedSizeList
-						itemSize={50}
+						itemSize={rowHeight}
 						itemData={rules}
 						height={height}
 						width={width}
 						itemCount={rules?.length || 0}
 					>
 						{({ style, index, data }) => (
-								<LazyRulesTableRow style={style}>
-									{columns.map((column) => {
-                      const colWidth = column.columns / totalColumns * 100;
-                      return <LazyRulesTableColumn
-                        key={column.field}
-                        style={{
-                          minWidth: `${colWidth}%`,
-                          maxWidth: `${colWidth}%`,
-                        }}
-                      >
-                        <EuiText>
-                          {column.render(data[index], canEditRule)}
-                        </EuiText>
-                      </LazyRulesTableColumn>
-                    }
-									)}
-								</LazyRulesTableRow>
-							)
-						}
+							<LazyRulesTableRow style={style}>
+								{columns.map((column) => {
+									const colWidth = (column.columns / totalColumns) * 100;
+									return (
+										<LazyRulesTableColumn
+											key={column.field}
+											style={{
+												flexBasis: `${colWidth}%`,
+											}}
+										>
+											<EuiText>
+												{column.render(data[index], canEditRule)}
+											</EuiText>
+										</LazyRulesTableColumn>
+									);
+								})}
+							</LazyRulesTableRow>
+						)}
 					</FixedSizeList>
 				)}
 			</AutoSizer>
@@ -338,45 +363,25 @@ const RulesTable = () => {
 	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const hasCreatePermissions = useCreateEditPermissions();
 
-	const search = {
-		box: {
-			incremental: true,
-			schema: true,
+	const onSelect = useCallback(
+		(rule: DraftRule, selected: boolean) => {
+			if (selected) {
+				selectedRules.add(rule);
+			} else {
+				selectedRules.delete(rule);
+			}
+
+			const newSelectedRules = new Set([...selectedRules]);
+
+			setSelectedRules(newSelectedRules);
+			onSelectionChange(newSelectedRules);
 		},
-		toolsRight: (
-			<EuiToolTip
-				content={
-					hasCreatePermissions
-						? ''
-						: 'You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules.'
-				}
-			>
-				<EuiButton
-					isDisabled={!hasCreatePermissions}
-					onClick={() => openEditRulePanel(undefined)}
-				>
-					Create Rule
-				</EuiButton>
-			</EuiToolTip>
-		),
-	};
-
-	const onSelect = useCallback((rule: DraftRule, selected: boolean) => {
-		if (selected) {
-      selectedRules.add(rule)
-    } else {
-      selectedRules.delete(rule);
-    }
-
-    const newSelectedRules = new Set([...selectedRules]);
-
-    setSelectedRules(newSelectedRules);
-    onSelectionChange(newSelectedRules);
-	}, [rules, selectedRules]);
+		[rules, selectedRules],
+	);
 
 	const onSelectAll = (selected: boolean) => {
-    const newSelectedRules = new Set(selected ? [...rules] : []);
-    onSelectionChange(newSelectedRules);
+		const newSelectedRules = new Set(selected ? rules ?? [] : []);
+		onSelectionChange(newSelectedRules);
 	};
 
 	const openEditRulePanel = (ruleId: number | undefined) => {
@@ -395,7 +400,10 @@ const RulesTable = () => {
 
 	const onSelectionChange = (selectedRules: Set<DraftRule>) => {
 		setSelectedRules(selectedRules);
-		openEditRulePanel(Number(selectedRules[0]?.id));
+		const firstRule = rules?.find((rule) => selectedRules.has(rule));
+		if (firstRule?.id) {
+			openEditRulePanel(firstRule?.id);
+		}
 	};
 
 	useEffect(() => {
@@ -497,15 +505,39 @@ const RulesTable = () => {
 				</EuiFlexItem>
 				<EuiFlexGroup style={{ overflow: 'hidden' }}>
 					<EuiFlexItem grow={2}>
-						{rules && (
-							<LazyRulesTable
-								rules={rules}
-								columns={columns}
-								tags={tags}
-								editRule={openEditRulePanel}
-								canEditRule={hasCreatePermissions}
-							/>
-						)}
+						<EuiFlexGroup style={{ flexGrow: 0 }}>
+							<EuiFlexItem>
+								<EuiFieldSearch fullWidth />
+							</EuiFlexItem>
+							<EuiFlexItem grow={0}>
+								<EuiToolTip
+									content={
+										hasCreatePermissions
+											? ''
+											: 'You do not have the correct permissions to create a rule. Please contact Central Production if you need to create rules.'
+									}
+								>
+									<EuiButton
+										isDisabled={!hasCreatePermissions}
+										onClick={() => openEditRulePanel(undefined)}
+									>
+										Create Rule
+									</EuiButton>
+								</EuiToolTip>
+							</EuiFlexItem>
+						</EuiFlexGroup>
+						<EuiSpacer />
+						<EuiFlexGroup>
+							{rules && (
+								<LazyRulesTable
+									rules={rules}
+									columns={columns}
+									tags={tags}
+									editRule={openEditRulePanel}
+									canEditRule={hasCreatePermissions}
+								/>
+							)}
+						</EuiFlexGroup>
 					</EuiFlexItem>
 					{formMode !== 'closed' && (
 						<EuiFlexItem>
