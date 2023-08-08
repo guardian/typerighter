@@ -104,7 +104,6 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
         "-J-XX:InitialRAMFraction=2",
         "-J-XX:MaxMetaspaceSize=300m",
         "-J-XX:+PrintGCDetails",
-        "-J-XX:+PrintGCDateStamps",
         s"-J-Dlogs.home=/var/log/${packageName.value}",
         s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
       ),
