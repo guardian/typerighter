@@ -361,21 +361,10 @@ object RuleManager extends Loggable {
       bucketRuleResource: BucketRuleResource
   ) = {
     // Destroy existing draft dictionary rules
-    val ids = DbRuleDraft.findAllDictionaryRules().map(rule => rule.id)
-    for {
-      maybeId <- ids
-      id <- maybeId
-    } yield RuleTagDraft.destroyForRule(id)
-
     DbRuleDraft.destroyDictionaryRules()
     // Destroy existing live dictionary rules
-
-    val externalIds = DbRuleLive.findAllDictionaryRules().map(rule => rule.externalId)
-    for {
-      maybeId <- externalIds
-      id <- maybeId
-    } yield RuleTagLive.destroyForRule(id)
     DbRuleLive.destroyDictionaryRules()
+
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
     val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
       DbRuleDraft.withUser(
