@@ -1,6 +1,7 @@
 package db
 
 import db.DbRule._
+//import db.DbRuleDraft.rd
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
@@ -220,17 +221,17 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   ): List[DbRuleDraft] = {
     val limit = 1000
 
+    val baseArgs = List(
+      dbColumnsToFind,
+      isPublishedColumn,
+      hasUnpublishedChangesColumn,
+      tagColumn
+    )
+
     maybeWord match {
-      case Some(word) =>
+      case Some(word) => {
         withSQL {
-          val wordSimilarityColumn = wordSimilarity(word)
-          select(
-            dbColumnsToFind,
-            isPublishedColumn,
-            hasUnpublishedChangesColumn,
-            tagColumn,
-            wordSimilarityColumn
-          )
+          select((baseArgs :+ wordSimilarity(word)): _*)
             .from(DbRuleDraft as rd)
             .leftJoin(DbRuleLive as rl)
             .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -238,18 +239,18 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
             .on(rd.id, rt.ruleId)
             .where
             .eq(rd.ruleType, "dictionary")
-            .and
             .like(rd.pattern, s"$word%")
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
             .orderBy(sqls"sml DESC")
-            .limit(1000)
-            .offset(page * 1000)
+            .limit(limit)
+            .offset(page * limit)
         }.map(DbRuleDraft.fromRow)
           .list()
           .apply()
-      case None =>
+      }
+      case _ =>
         withSQL {
-          select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+          select(baseArgs: _*)
             .from(DbRuleDraft as rd)
             .leftJoin(DbRuleLive as rl)
             .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
