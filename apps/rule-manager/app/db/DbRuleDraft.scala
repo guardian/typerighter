@@ -431,47 +431,29 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       entities: collection.Seq[DbRuleDraft],
       hasNoExternalId: Boolean = false
   )(implicit session: DBSession = autoSession): List[Int] = {
-    val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
+    val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity => {
+      val baseFields = Seq(
+        Symbol("ruleType") -> entity.ruleType,
+        Symbol("pattern") -> entity.pattern,
+        Symbol("replacement") -> entity.replacement,
+        Symbol("category") -> entity.category,
+        Symbol("description") -> entity.description,
+        Symbol("ignore") -> entity.ignore,
+        Symbol("notes") -> entity.notes,
+        Symbol("forceRedRule") -> entity.forceRedRule,
+        Symbol("advisoryRule") -> entity.advisoryRule,
+        Symbol("createdBy") -> entity.createdBy,
+        Symbol("createdAt") -> entity.createdAt,
+        Symbol("updatedBy") -> entity.updatedBy,
+        Symbol("updatedAt") -> entity.updatedAt,
+        Symbol("isArchived") -> entity.isArchived,
+        Symbol("ruleOrder") -> entity.ruleOrder
+      )
       hasNoExternalId match {
-        case true =>
-          Seq(
-            Symbol("ruleType") -> entity.ruleType,
-            Symbol("pattern") -> entity.pattern,
-            Symbol("replacement") -> entity.replacement,
-            Symbol("category") -> entity.category,
-            Symbol("description") -> entity.description,
-            Symbol("ignore") -> entity.ignore,
-            Symbol("notes") -> entity.notes,
-            Symbol("forceRedRule") -> entity.forceRedRule,
-            Symbol("advisoryRule") -> entity.advisoryRule,
-            Symbol("createdBy") -> entity.createdBy,
-            Symbol("createdAt") -> entity.createdAt,
-            Symbol("updatedBy") -> entity.updatedBy,
-            Symbol("updatedAt") -> entity.updatedAt,
-            Symbol("isArchived") -> entity.isArchived,
-            Symbol("ruleOrder") -> entity.ruleOrder
-          )
-        case false =>
-          Seq(
-            Symbol("externalId") -> entity.externalId,
-            Symbol("ruleType") -> entity.ruleType,
-            Symbol("pattern") -> entity.pattern,
-            Symbol("replacement") -> entity.replacement,
-            Symbol("category") -> entity.category,
-            Symbol("description") -> entity.description,
-            Symbol("ignore") -> entity.ignore,
-            Symbol("notes") -> entity.notes,
-            Symbol("forceRedRule") -> entity.forceRedRule,
-            Symbol("advisoryRule") -> entity.advisoryRule,
-            Symbol("createdBy") -> entity.createdBy,
-            Symbol("createdAt") -> entity.createdAt,
-            Symbol("updatedBy") -> entity.updatedBy,
-            Symbol("updatedAt") -> entity.updatedAt,
-            Symbol("isArchived") -> entity.isArchived,
-            Symbol("ruleOrder") -> entity.ruleOrder
-          )
+        case true  => baseFields
+        case false => (Symbol("externalId") -> entity.externalId) +: baseFields
       }
-    )
+    })
     SQL(s"""insert into $tableName(
       ${if (hasNoExternalId) "" else "external_id,"}
       rule_type,
