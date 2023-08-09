@@ -4,6 +4,7 @@ import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
   CheckerRule,
   CheckerRuleResource,
+  DictionaryRule,
   LTRule,
   LTRuleCore,
   LTRuleXML,
@@ -11,7 +12,7 @@ import com.gu.typerighter.model.{
 }
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
-import db.DbRuleDraft.{autoSession}
+import db.DbRuleDraft.autoSession
 import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.Json
@@ -70,6 +71,18 @@ object RuleManager extends Loggable {
           id = None,
           ruleType = RuleType.languageToolCore,
           externalId = Some(languageToolRuleId),
+          ignore = false,
+          user = "Google Sheet",
+          replacement = None,
+          ruleOrder = 0
+        )
+      case DictionaryRule(id, word, category) =>
+        DbRuleDraft.withUser(
+          id = None,
+          pattern = Some(word),
+          ruleType = RuleType.dictionary,
+          category = Some(category.name),
+          externalId = Some(id),
           ignore = false,
           user = "Google Sheet",
           ruleOrder = 0
