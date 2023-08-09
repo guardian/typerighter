@@ -151,6 +151,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   }
 
   def findAllActive()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    println("howdyeightone")
     withSQL(
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
@@ -209,6 +210,8 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   def create(liveRule: DbRuleLive, user: String)(implicit
       session: DBSession = autoSession
   ): Try[DbRuleLive] = Try {
+    println("HowdyFive")
+
     withSQL {
       update(DbRuleLive)
         .set(column.isActive -> false)
@@ -255,8 +258,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   }
 
   def batchInsert(
-      entities: collection.Seq[DbRuleLive],
-      overrideIsActive: Boolean = false
+      entities: collection.Seq[DbRuleLive]
   )(implicit session: DBSession = autoSession): Unit = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
@@ -310,7 +312,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {updatedAt},
       {updatedBy},
       {reason},
-      ${if (overrideIsActive) "TRUE" else "{isActive}"},
+      {isActive},
       {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[List]()
     val ruleTags = entities.flatMap(entity =>

@@ -35,7 +35,7 @@ case class DbRuleDraft(
     hasUnpublishedChanges: Boolean
 ) extends DbRuleCommon {
 
-  def toLive(reason: String): DbRuleLive = {
+  def toLive(reason: String, isActive: Boolean = false): DbRuleLive = {
     id match {
       case None =>
         throw new Exception(
@@ -59,7 +59,8 @@ case class DbRuleDraft(
           updatedAt = updatedAt,
           updatedBy = updatedBy,
           reason = reason,
-          ruleOrder = ruleOrder
+          ruleOrder = ruleOrder,
+          isActive = isActive
         )
     }
   }
@@ -164,6 +165,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
+    println("HowdyTwo")
+
     withSQL {
       select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)

@@ -15,6 +15,8 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   private val RULES_KEY = s"$stage/rules/typerighter-rules.json"
   private val DICTIONARY_KEY = s"$stage/dictionary/typerighter-dictionary.xml"
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
+    println("HowdyEight")
+
     val ruleJson = Json.toJson(ruleResource)
     val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
 
@@ -31,6 +33,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
 
   def getRules(): Either[Exception, (CheckerRuleResource, Date)] = {
     logOnError(s"getting rules from S3 at $bucketName/$RULES_KEY") {
+      println("twotwo")
       val rules = s3.getObject(bucketName, RULES_KEY)
       val rulesStream = rules.getObjectContent()
       val rulesJson = Json.parse(rulesStream)

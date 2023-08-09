@@ -82,6 +82,8 @@ object RuleManager extends Loggable {
   }
 
   def liveDbRuleToCheckerRule(rule: DbRuleLive): Either[Seq[FormError], CheckerRule] = {
+    println("howdyeighttwo")
+
     rule match {
       case r: DbRuleLive if r.ruleType == RuleType.regex =>
         RegexRuleForm.form
@@ -113,6 +115,15 @@ object RuleManager extends Loggable {
             form => Right((LTRuleXMLForm.toLTRuleXML _).tupled(form))
           )
       case r: DbRuleLive if r.ruleType == RuleType.languageToolCore =>
+        LTRuleCoreForm.form
+          .fillAndValidate(
+            r.externalId.getOrElse("")
+          )
+          .fold(
+            err => Left(err.errors),
+            form => Right(LTRuleCoreForm.toLTRuleCore(form))
+          )
+      case r: DbRuleLive if r.ruleType == RuleType.dictionary =>
         LTRuleCoreForm.form
           .fillAndValidate(
             r.externalId.getOrElse("")
@@ -157,6 +168,8 @@ object RuleManager extends Loggable {
   def publishRule(id: Int, user: String, reason: String, bucketRuleResource: BucketRuleResource)(
       implicit session: DBSession = autoSession
   ): Either[Seq[FormError], AllRuleData] = {
+    println("HowdyThree")
+
     for {
       liveRule <- parseDraftRuleForPublication(id, reason)
       _ <- DbRuleLive
@@ -175,6 +188,8 @@ object RuleManager extends Loggable {
     * returns a valid live rule.
     */
   def parseDraftRuleForPublication(id: Int, reason: String) = {
+    println("HowdyFour")
+
     for {
       draftRule <- DbRuleDraft
         .find(id)
@@ -218,6 +233,8 @@ object RuleManager extends Loggable {
   def publishLiveRules(
       bucketRuleResource: BucketRuleResource
   ): Either[Seq[FormError], CheckerRuleResource] = {
+    println("HowdySix")
+
     for {
       ruleResource <- getRuleResourceFromLiveRules()
       _ <- bucketRuleResource.putRules(ruleResource).left.map { l =>
@@ -228,11 +245,14 @@ object RuleManager extends Loggable {
 
   private def getRuleResourceFromLiveRules(
   ): Either[Seq[FormError], CheckerRuleResource] = {
+    println("HowdySeven")
+
     val (failedDbRules, successfulDbRules) =
       DbRuleLive
         .findAllActive()
         .map(liveDbRuleToCheckerRule)
         .partitionMap(identity)
+    println("howdyeightthree")
 
     failedDbRules match {
       case Nil      => Right(CheckerRuleResource(successfulDbRules))
@@ -261,7 +281,11 @@ object RuleManager extends Loggable {
 
     liveRules
       .grouped(100)
+<<<<<<< HEAD
       .foreach(DbRuleLive.batchInsert(_))
+=======
+      .foreach(rule => DbRuleLive.batchInsert(rule))
+>>>>>>> 6964b1e8 (WIP include dict rules in artefact)
 
     val persistedRules = getDraftRules()
 
@@ -382,13 +406,15 @@ object RuleManager extends Loggable {
     dictionaryRules
       .grouped(100)
       .foreach(group => DbRuleDraft.batchInsert(group, true))
-
+    println("1")
     val liveRules = DbRuleDraft
       .findAllDictionaryRules()
-      .map(_.toLive("From Collins Dictionary"))
+      .map(_.toLive("From Collins Dictionary", true))
+    println("2")
     liveRules
       .grouped(100)
-      .foreach(_ => DbRuleLive.batchInsert(_, true))
+      .foreach(DbRuleLive.batchInsert(_))
+    println("3")
     publishLiveRules(bucketRuleResource)
   }
 }

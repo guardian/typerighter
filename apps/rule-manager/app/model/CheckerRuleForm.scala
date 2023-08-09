@@ -6,7 +6,8 @@ import com.gu.typerighter.model.{
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  TextSuggestion
+  TextSuggestion,
+  DictionaryRule
 }
 import play.api.data.Form
 import play.api.data.Forms._
@@ -71,6 +72,24 @@ object LTRuleCoreForm {
     LTRuleCore(
       id = externalId,
       languageToolRuleId = externalId
+    )
+  }
+}
+
+object DictionaryForm {
+  val form = Form(
+    tuple(
+      "pattern" -> nonEmptyText(),
+      "category" -> nonEmptyText(),
+      "externalId" -> nonEmptyText()
+    )
+  )
+
+  def toDictionary(pattern: String, externalId: String, category: String) = {
+    DictionaryRule(
+      id = externalId,
+      word = pattern,
+      category = Category(id = category, name = category)
     )
   }
 }

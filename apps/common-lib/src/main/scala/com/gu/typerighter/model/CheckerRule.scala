@@ -200,3 +200,17 @@ object LTRule {
   implicit val writes: Writes[LTRule] = Json.writes[LTRule]
   implicit val reads: Reads[LTRule] = Json.reads[LTRule]
 }
+
+case class DictionaryRule(
+    id: String,
+    word: String,
+    category: Category
+) extends CheckerRule {
+  val suggestions = List.empty
+  val replacement: Option[TextSuggestion] = None
+}
+
+object DictionaryRule {
+  implicit val writes: Writes[DictionaryRule] = Json.writes[DictionaryRule]
+  implicit val reads: Reads[DictionaryRule] = Json.reads[DictionaryRule]
+}
