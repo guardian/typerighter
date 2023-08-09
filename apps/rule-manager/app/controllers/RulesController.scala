@@ -222,40 +222,33 @@ class RulesController(
         case false => Left(Unauthorized("You don't have permission to edit rules"))
         case true  => Right(id)
       }
-    val draftRule =
-      authorisedId.flatMap(id => DbRuleDraft.find(id).toRight(NotFound("No draftRule id found")))
-    val externalId = draftRule.flatMap(rule =>
-      rule.externalId.toRight(NotFound("No externalId found for draftRule"))
-    )
-    val latestLiveRule = externalId.flatMap(id =>
-      DbRuleLive.findLatestRevision(id).toRight(NotFound("Latest live rule not found"))
-    )
-    val revertedDraftRule = draftRule.flatMap(dr =>
-      latestLiveRule.map(lr =>
-        dr.copy(
-          ruleType = lr.ruleType,
-          pattern = lr.pattern,
-          replacement = lr.replacement,
-          category = lr.category,
-          tags = lr.tags,
-          description = lr.description,
-          revisionId = lr.revisionId
-        )
+
+    val savedRuleResult = for {
+      draftRule <- authorisedId.flatMap(id =>
+        DbRuleDraft.find(id).toRight(NotFound("No draftRule id found"))
       )
-    )
-    val savedDraftRule = revertedDraftRule.map(revertedRule =>
-      DbRuleDraft.save(revertedRule, request.user.email, true).toEither
-    )
-    val savedRuleResult = savedDraftRule.map(savedRule =>
-      savedRule match {
-        case Left(throwable) => InternalServerError(throwable.getMessage)
-        case Right(_) =>
-          val ruleData = RuleManager.getAllRuleData(id)
-          ruleData
-            .map(data => Ok(Json.toJson(data)))
-            .getOrElse(NotFound("Rule not found matching ID"))
+      externalId <- draftRule.externalId.toRight(NotFound("No externalId found for draftRule"))
+      latestLiveRule <- DbRuleLive
+        .findLatestRevision(externalId)
+        .toRight(NotFound("Latest live rule not found"))
+
+      revertedDraftRule = draftRule.copy(
+        ruleType = latestLiveRule.ruleType,
+        pattern = latestLiveRule.pattern,
+        replacement = latestLiveRule.replacement,
+        category = latestLiveRule.category,
+        tags = latestLiveRule.tags,
+        description = latestLiveRule.description,
+        revisionId = latestLiveRule.revisionId
+      )
+
+      savedDraftRuleResponse <- {
+        DbRuleDraft.save(revertedDraftRule, request.user.email, true)
+        val ruleData = RuleManager.getAllRuleData(id)
+        ruleData.map(data => Ok(Json.toJson(data))).toRight(NotFound("Rule not found matching ID"))
       }
-    )
+    } yield savedDraftRuleResponse
+
     savedRuleResult.merge
   }
 }
