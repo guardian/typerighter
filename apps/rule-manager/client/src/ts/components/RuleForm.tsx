@@ -4,6 +4,7 @@ import {
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiForm,
+	EuiSpacer,
 	EuiText,
 	EuiToolTip,
 } from '@elastic/eui';
@@ -221,12 +222,12 @@ export const RuleForm = ({
 		<>
 			{
 				<EuiFlexGroup
-					gutterSize="m"
+					gutterSize="s"
 					direction="column"
 					style={{ overflow: 'hidden' }}
 				>
 					<EuiFlexItem grow={1} style={{ overflowY: 'scroll' }}>
-						<EuiFlexGroup gutterSize="m" direction="column">
+						<EuiFlexGroup gutterSize="s" direction="column">
 							<RuleStatus ruleData={rule} />
 							<RuleContent
 								isLoading={isLoading}
@@ -253,7 +254,7 @@ export const RuleForm = ({
 						</EuiFlexGroup>
 					</EuiFlexItem>
 					<EuiFlexItem grow={0}>
-						<EuiFlexGroup gutterSize="m">
+						<EuiFlexGroup gutterSize="s">
 							{canEditRuleContent && (
 								<EuiFlexItem>
 									<EuiButton
@@ -323,7 +324,10 @@ export const RuleForm = ({
 									</PublishTooltip>
 								</EuiFlexItem>
 							)}
-							{showErrors ? (
+						</EuiFlexGroup>
+						{showErrors ? (
+							<>
+								<EuiSpacer size="s" />
 								<EuiCallOut
 									title="Please resolve the following errors:"
 									color="danger"
@@ -333,8 +337,8 @@ export const RuleForm = ({
 										<EuiText key={index}>{`${error.message}`}</EuiText>
 									))}
 								</EuiCallOut>
-							) : null}
-						</EuiFlexGroup>
+							</>
+						) : null}
 					</EuiFlexItem>
 				</EuiFlexGroup>
 			}
