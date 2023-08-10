@@ -5,9 +5,10 @@ import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.model.Document
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.{JsValue, Json}
-import db.{DbRuleDraft, DbRuleLive}
+import db.{DbRuleDraft}
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
+import service.RuleManager.revertDraftRule
 import service.{RuleManager, RuleTesting, SheetsRuleResource}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
@@ -217,38 +218,13 @@ class RulesController(
   }
 
   def discardChanges(id: Int) = APIAuthAction { implicit request =>
-    val authorisedId =
-      hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
-        case false => Left(Unauthorized("You don't have permission to edit rules"))
-        case true  => Right(id)
-      }
-
-    val savedRuleResult = for {
-      draftRule <- authorisedId.flatMap(id =>
-        DbRuleDraft.find(id).toRight(NotFound("No draftRule id found"))
-      )
-      externalId <- draftRule.externalId.toRight(NotFound("No externalId found for draftRule"))
-      latestLiveRule <- DbRuleLive
-        .findLatestRevision(externalId)
-        .toRight(NotFound("Latest live rule not found"))
-
-      revertedDraftRule = draftRule.copy(
-        ruleType = latestLiveRule.ruleType,
-        pattern = latestLiveRule.pattern,
-        replacement = latestLiveRule.replacement,
-        category = latestLiveRule.category,
-        tags = latestLiveRule.tags,
-        description = latestLiveRule.description,
-        revisionId = latestLiveRule.revisionId
-      )
-
-      savedDraftRuleResponse <- {
-        DbRuleDraft.save(revertedDraftRule, request.user.email, true)
-        val ruleData = RuleManager.getAllRuleData(id)
-        ruleData.map(data => Ok(Json.toJson(data))).toRight(NotFound("Rule not found matching ID"))
-      }
-    } yield savedDraftRuleResponse
-
-    savedRuleResult.merge
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        revertDraftRule(id, request.user.email) match {
+          case Left(throwable) => InternalServerError(throwable.getMessage)
+          case Right(data)     => Ok(Json.toJson(data))
+        }
+    }
   }
 }

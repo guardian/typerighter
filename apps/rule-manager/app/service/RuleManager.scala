@@ -350,4 +350,29 @@ object RuleManager extends Loggable {
       case e: Exception => Left(e)
     }
   }
+
+  def revertDraftRule(id: Int, email: String) = {
+    for {
+      draftRule <- DbRuleDraft.find(id).toRight(new Exception("No draftRule id found"))
+      externalId <- draftRule.externalId.toRight(new Exception("No externalId found for draftRule"))
+      latestLiveRule <- DbRuleLive
+        .findLatestRevision(externalId)
+        .toRight(new Exception("Latest live rule not found"))
+
+      revertedDraftRule = draftRule.copy(
+        ruleType = latestLiveRule.ruleType,
+        pattern = latestLiveRule.pattern,
+        replacement = latestLiveRule.replacement,
+        category = latestLiveRule.category,
+        tags = latestLiveRule.tags,
+        description = latestLiveRule.description,
+        revisionId = latestLiveRule.revisionId
+      )
+      _ <- DbRuleDraft.save(revertedDraftRule, email, true).toEither
+
+      savedDraftRule <- RuleManager
+        .getAllRuleData(id)
+        .toRight(new Exception("Rule not found matching ID"))
+    } yield savedDraftRule
+  }
 }
