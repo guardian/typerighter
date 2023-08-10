@@ -39,6 +39,7 @@ export const RuleStatus = ({
 	discardRuleChangesHandler,
 }: {
 	ruleData: RuleData | undefined;
+	discardRuleChangesHandler: () => Promise<void>;
 }) => {
 	const state = capitalize(getRuleStatus(ruleData?.draft));
 
