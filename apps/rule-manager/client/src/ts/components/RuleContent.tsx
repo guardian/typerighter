@@ -17,11 +17,11 @@ import { css } from '@emotion/react';
 import React, { useState } from 'react';
 import { RuleFormSection } from './RuleFormSection';
 import { LineBreak } from './LineBreak';
-import {FormError, PartiallyUpdateRuleData} from './RuleForm';
+import { FormError, PartiallyUpdateRuleData } from './RuleForm';
 import { Label } from './Label';
 import { DraftRule, RuleData, RuleType } from './hooks/useRule';
 import { RuleDataLastUpdated } from './RuleDataLastUpdated';
-import { hasErrorsForField } from './helpers/errors';
+import { getErrorPropsForField } from './helpers/errors';
 
 type RuleTypeOption = {
 	id: RuleType;
@@ -44,14 +44,14 @@ export const RuleContent = ({
 	ruleFormData,
 	isLoading,
 	partiallyUpdateRuleData,
-  validationErrors,
-  hasSaveErrors
+	validationErrors,
+	hasSaveErrors,
 }: {
 	ruleData: RuleData | undefined;
 	ruleFormData: DraftRule;
 	partiallyUpdateRuleData: PartiallyUpdateRuleData;
-  validationErrors: FormError[] | undefined;
-  hasSaveErrors: boolean;
+	validationErrors: FormError[] | undefined;
+	hasSaveErrors: boolean;
 	isLoading: boolean;
 }) => {
 	const TextField =
@@ -62,6 +62,8 @@ export const RuleContent = ({
 	const handleButtonClick = () => {
 		setShowMarkdownPreview(!showMarkdownPreview);
 	};
+
+	const patternErrors = getErrorPropsForField('pattern', validationErrors);
 
 	return (
 		<RuleFormSection
@@ -145,7 +147,7 @@ export const RuleContent = ({
 				<EuiFormRow
 					label={<Label text="Pattern" required={true} />}
 					fullWidth={true}
-          isInvalid={hasErrorsForField("pattern", validationErrors)}
+					{...patternErrors}
 				>
 					<TextField
 						value={ruleFormData.pattern || ''}
@@ -154,7 +156,7 @@ export const RuleContent = ({
 						}
 						required={true}
 						fullWidth={true}
-            isInvalid={hasErrorsForField("pattern", validationErrors)}
+						{...patternErrors}
 					/>
 				</EuiFormRow>
 				<EuiFormRow

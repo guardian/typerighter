@@ -18,8 +18,11 @@ import scala.xml.XML
 object RegexRuleForm {
   val regexConstraint: Constraint[String] = Constraint("constraints.regexcheck") { regexStr =>
     Try(regexStr.r) match {
-      case Success(_)         => Valid
-      case Failure(exception) => Invalid(Seq(ValidationError(exception.getMessage())))
+      case Success(_) => Valid
+      case Failure(exception) =>
+        Invalid(
+          Seq(ValidationError(s"Error parsing the regular expression: ${exception.getMessage()}"))
+        )
     }
   }
 
@@ -54,8 +57,9 @@ object RegexRuleForm {
 object LTRuleXMLForm {
   val xmlConstraint: Constraint[String] = Constraint("constraints.xmlcheck") { xmlStr =>
     Try(XML.loadString(xmlStr)) match {
-      case Success(_)         => Valid
-      case Failure(exception) => Invalid(Seq(ValidationError(exception.getMessage())))
+      case Success(_) => Valid
+      case Failure(exception) =>
+        Invalid(Seq(ValidationError(s"Error parsing the XML: ${exception.getMessage()}")))
     }
   }
 

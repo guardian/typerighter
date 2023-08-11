@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { EuiFormRow, EuiComboBox } from '@elastic/eui';
 import { FormError, PartiallyUpdateRuleData } from './RuleForm';
 import { existingCategories } from '../constants/constants';
-import { hasErrorsForField } from './helpers/errors';
+import { getErrorPropsForField } from './helpers/errors';
+import { Label } from './Label';
 
 export type MetadataOption = { label: string };
 const singleSelectionOptions = { asPlainText: true };
@@ -35,11 +36,13 @@ export const CategorySelector = ({
 		partiallyUpdateRuleData({ category: newCategory });
 	}, [selectedCategory]);
 
+	const categoryErrors = getErrorPropsForField('category', validationErrors);
+
 	return (
 		<EuiFormRow
-			label="Source"
+			label={<Label text="Source" required={true} />}
 			fullWidth={true}
-			isInvalid={hasErrorsForField('category', validationErrors)}
+			{...categoryErrors}
 		>
 			<EuiComboBox
 				options={categories}
@@ -49,7 +52,7 @@ export const CategorySelector = ({
 				isClearable={true}
 				isCaseSensitive
 				fullWidth={true}
-				isInvalid={hasErrorsForField('category', validationErrors)}
+				{...categoryErrors}
 			/>
 		</EuiFormRow>
 	);

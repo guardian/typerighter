@@ -197,7 +197,7 @@ export function useRule(ruleId: number | undefined) {
 				} else {
 					setPublishValidationErrors(undefined);
 				}
-        return;
+				return;
 			}
 			setPublishValidationErrors(undefined);
 		} catch (error) {

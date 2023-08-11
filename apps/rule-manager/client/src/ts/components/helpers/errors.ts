@@ -1,6 +1,21 @@
+import { capitalize } from 'lodash';
 import { FormError } from '../RuleForm';
 
-export const hasErrorsForField = (
+const defaultErrors: FormError[] = [];
+
+/**
+ * Given a list of validation errors and a field name, return props that can be
+ * spread in
+ */
+export const getErrorPropsForField = (
 	fieldName: string,
 	formErrors: FormError[] | undefined,
-) => !!formErrors?.some(({ key }) => key === fieldName);
+) => {
+	const fieldErrors =
+		formErrors?.filter(({ key }) => key === fieldName) || defaultErrors;
+
+	return {
+		isInvalid: !!fieldErrors?.length,
+		error: fieldErrors?.map(({ message }) => capitalize(message)),
+	};
+};
