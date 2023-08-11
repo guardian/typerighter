@@ -63,7 +63,7 @@ flowchart LR
 
 Typerighter's built to manage document checks of every kind, include checks that we haven't yet thought of. To that end, a `MatcherPool` is instantiated for each running checker service, which is responsible for managing incoming checks, including parallelism, backpressure, and ensuring that our checks are given to the appropriate matchers.
 
-A `MatcherPool` accepts any matcher instance that satisfies the `Matcher` trait. Two core `Matcher` implementations include `RegexMatcher`, that checks copy with regular expressions, and `LanguageToolMatcher`, that checks copy with an instance of a `JLanguageTool`. Here's a diagram to illustrate:
+A `MatcherPool` accepts any matcher instance that satisfies the `Matcher` trait. Two core `Matcher` implementations include `RegexMatcher`, that checks copy with regular expressions, and `LanguageToolMatcher`, that checks copy with an instance of a `JLanguageTool`. The `MatcherPool` is excited to accommodate new matchers in the future! Here's a diagram to illustrate:
 ```mermaid
 flowchart TD
    CH(["Check requests"])
