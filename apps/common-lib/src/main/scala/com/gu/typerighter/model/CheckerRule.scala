@@ -2,7 +2,7 @@ package com.gu.typerighter.model
 
 import java.util.{List => JList}
 import java.util.regex.Pattern
-import play.api.libs.json.{JsPath, JsString, Json, Reads, Writes}
+import play.api.libs.json.{JsPath, JsString, Json, OFormat, Reads, Writes}
 import play.api.libs.json.Reads._
 import org.languagetool.Languages
 import org.languagetool.rules.patterns.{
@@ -205,12 +205,8 @@ case class DictionaryRule(
     id: String,
     word: String,
     category: Category
-) extends CheckerRule {
-  val suggestions = List.empty
-  val replacement: Option[TextSuggestion] = None
-}
+) extends CheckerRule
 
 object DictionaryRule {
-  implicit val writes: Writes[DictionaryRule] = Json.writes[DictionaryRule]
-  implicit val reads: Reads[DictionaryRule] = Json.reads[DictionaryRule]
+  implicit val formats: OFormat[DictionaryRule] = Json.format[DictionaryRule]
 }

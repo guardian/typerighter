@@ -1,7 +1,15 @@
 package service
 
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, DictionaryRule, LTRule, LTRuleCore, LTRuleXML, RegexRule}
+import com.gu.typerighter.model.{
+  CheckerRule,
+  CheckerRuleResource,
+  DictionaryRule,
+  LTRule,
+  LTRuleCore,
+  LTRuleXML,
+  RegexRule
+}
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
 import db.DbRuleDraft.autoSession
@@ -135,7 +143,7 @@ object RuleManager extends Loggable {
           )
           .fold(
             err => Left(err.errors),
-            form => Right((DictionaryForm.toDictionary  _).tupled(form))
+            form => Right((DictionaryForm.toDictionary _).tupled(form))
           )
       case other =>
         Left(
