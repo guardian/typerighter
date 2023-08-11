@@ -151,7 +151,6 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   }
 
   def findAllActive()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
-    println("howdyeightone")
     withSQL(
       select(dbColumnsToFind, tagColumn)
         .from(DbRuleLive as r)
@@ -164,6 +163,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .groupBy(dbColumnsToFind)
         .orderBy(r.ruleOrder)
     )
+      .fetchSize(1000)
       .map(DbRuleLive.fromRow)
       .list()
       .apply()
@@ -210,8 +210,6 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   def create(liveRule: DbRuleLive, user: String)(implicit
       session: DBSession = autoSession
   ): Try[DbRuleLive] = Try {
-    println("HowdyFive")
-
     withSQL {
       update(DbRuleLive)
         .set(column.isActive -> false)

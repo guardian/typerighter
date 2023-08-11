@@ -1,19 +1,11 @@
 package service
 
 import com.gu.typerighter.lib.Loggable
-import com.gu.typerighter.model.{
-  CheckerRule,
-  CheckerRuleResource,
-  DictionaryRule,
-  LTRule,
-  LTRuleCore,
-  LTRuleXML,
-  RegexRule
-}
+import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, DictionaryRule, LTRule, LTRuleCore, LTRuleXML, RegexRule}
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
 import db.DbRuleDraft.autoSession
-import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
+import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.Json
 import scalikejdbc.DBSession
@@ -95,8 +87,6 @@ object RuleManager extends Loggable {
   }
 
   def liveDbRuleToCheckerRule(rule: DbRuleLive): Either[Seq[FormError], CheckerRule] = {
-    println("howdyeighttwo")
-
     rule match {
       case r: DbRuleLive if r.ruleType == RuleType.regex =>
         RegexRuleForm.form
@@ -137,13 +127,15 @@ object RuleManager extends Loggable {
             form => Right(LTRuleCoreForm.toLTRuleCore(form))
           )
       case r: DbRuleLive if r.ruleType == RuleType.dictionary =>
-        LTRuleCoreForm.form
+        DictionaryForm.form
           .fillAndValidate(
+            r.pattern.getOrElse(""),
+            r.category.getOrElse(""),
             r.externalId.getOrElse("")
           )
           .fold(
             err => Left(err.errors),
-            form => Right(LTRuleCoreForm.toLTRuleCore(form))
+            form => Right((DictionaryForm.toDictionary  _).tupled(form))
           )
       case other =>
         Left(
@@ -181,8 +173,6 @@ object RuleManager extends Loggable {
   def publishRule(id: Int, user: String, reason: String, bucketRuleResource: BucketRuleResource)(
       implicit session: DBSession = autoSession
   ): Either[Seq[FormError], AllRuleData] = {
-    println("HowdyThree")
-
     for {
       liveRule <- parseDraftRuleForPublication(id, reason)
       _ <- DbRuleLive
@@ -201,8 +191,6 @@ object RuleManager extends Loggable {
     * returns a valid live rule.
     */
   def parseDraftRuleForPublication(id: Int, reason: String) = {
-    println("HowdyFour")
-
     for {
       draftRule <- DbRuleDraft
         .find(id)
@@ -246,8 +234,6 @@ object RuleManager extends Loggable {
   def publishLiveRules(
       bucketRuleResource: BucketRuleResource
   ): Either[Seq[FormError], CheckerRuleResource] = {
-    println("HowdySix")
-
     for {
       ruleResource <- getRuleResourceFromLiveRules()
       _ <- bucketRuleResource.putRules(ruleResource).left.map { l =>
@@ -258,14 +244,11 @@ object RuleManager extends Loggable {
 
   private def getRuleResourceFromLiveRules(
   ): Either[Seq[FormError], CheckerRuleResource] = {
-    println("HowdySeven")
-
     val (failedDbRules, successfulDbRules) =
       DbRuleLive
         .findAllActive()
         .map(liveDbRuleToCheckerRule)
         .partitionMap(identity)
-    println("howdyeightthree")
 
     failedDbRules match {
       case Nil      => Right(CheckerRuleResource(successfulDbRules))
@@ -415,15 +398,15 @@ object RuleManager extends Loggable {
     dictionaryRules
       .grouped(100)
       .foreach(group => DbRuleDraft.batchInsert(group, true))
-    println("1")
+
     val liveRules = DbRuleDraft
       .findAllDictionaryRules()
       .map(_.toLive("From Collins Dictionary", true))
-    println("2")
+
     liveRules
       .grouped(100)
       .foreach(DbRuleLive.batchInsert(_))
-    println("3")
+
     publishLiveRules(bucketRuleResource)
   }
 }

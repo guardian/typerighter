@@ -85,7 +85,7 @@ object DictionaryForm {
     )
   )
 
-  def toDictionary(pattern: String, externalId: String, category: String) = {
+  def toDictionary(pattern: String, category: String, externalId: String) = {
     DictionaryRule(
       id = externalId,
       word = pattern,

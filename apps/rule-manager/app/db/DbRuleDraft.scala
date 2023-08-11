@@ -165,8 +165,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
-    println("HowdyTwo")
-
     withSQL {
       select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
@@ -283,7 +281,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .eq(rd.ruleType, "dictionary")
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
-    }.map(DbRuleDraft.fromRow)
+    }
+      .fetchSize(1000)
+      .map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }
