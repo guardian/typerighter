@@ -221,51 +221,40 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   ): List[DbRuleDraft] = {
     val limit = 1000
 
-    val baseArgs = List(
+    val args = List(
       dbColumnsToFind,
       isPublishedColumn,
       hasUnpublishedChangesColumn,
       tagColumn
-    )
+    ) ++ maybeWord.map(wordSimilarity(_)).toList
 
-    maybeWord match {
-      case Some(word) => {
-        withSQL {
-          select((baseArgs :+ wordSimilarity(word)): _*)
-            .from(DbRuleDraft as rd)
-            .leftJoin(DbRuleLive as rl)
-            .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
-            .leftJoin(RuleTagDraft as rt)
-            .on(rd.id, rt.ruleId)
-            .where
-            .eq(rd.ruleType, "dictionary")
+    withSQL {
+      val selectDictionaryWords = select(args: _*)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .eq(rd.ruleType, "dictionary")
+
+      val filterGroupAndOrder = maybeWord match {
+        case Some(word) =>
+          selectDictionaryWords
             .like(rd.pattern, s"$word%")
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
             .orderBy(sqls"sml DESC")
-            .limit(limit)
-            .offset(page * limit)
-        }.map(DbRuleDraft.fromRow)
-          .list()
-          .apply()
-      }
-      case _ =>
-        withSQL {
-          select(baseArgs: _*)
-            .from(DbRuleDraft as rd)
-            .leftJoin(DbRuleLive as rl)
-            .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
-            .leftJoin(RuleTagDraft as rt)
-            .on(rd.id, rt.ruleId)
-            .where
-            .eq(rd.ruleType, "dictionary")
+        case _ =>
+          selectDictionaryWords
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
             .orderBy(rd.ruleOrder)
-            .limit(limit)
-            .offset(page * limit)
-        }.map(DbRuleDraft.fromRow)
-          .list()
-          .apply()
-    }
+      }
+      filterGroupAndOrder
+        .limit(limit)
+        .offset(page * limit)
+    }.map(DbRuleDraft.fromRow)
+      .list()
+      .apply()
   }
 
   def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
