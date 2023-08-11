@@ -249,9 +249,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
             .orderBy(rd.ruleOrder)
       }
+
       filterGroupAndOrder
         .limit(limit)
         .offset(page * limit)
+        .asInstanceOf[SQLBuilder[Any]]
     }.map(DbRuleDraft.fromRow)
       .list()
       .apply()
