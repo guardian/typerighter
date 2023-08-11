@@ -11,7 +11,7 @@ import com.gu.typerighter.model.{
 }
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
-import db.DbRuleDraft.autoSession
+import db.DbRuleDraft.{autoSession}
 import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{Json, OWrites}
@@ -34,6 +34,7 @@ object RuleManager extends Loggable {
     val regex = "regex"
     val languageToolXML = "languageToolXML"
     val languageToolCore = "languageToolCore"
+    val dictionary = "dictionary"
   }
 
   def checkerRuleToDraftDbRule(rule: CheckerRule): DbRuleDraft = {
@@ -141,6 +142,11 @@ object RuleManager extends Loggable {
 
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
+
+  def getDraftDictionaryRules(word: Option[String], page: Int)(implicit
+      session: DBSession = autoSession
+  ): List[DbRuleDraft] =
+    DbRuleDraft.findDictionaryRules(word, page)
 
   def getAllRuleData(id: Int)(implicit
       session: DBSession = autoSession
@@ -252,7 +258,7 @@ object RuleManager extends Loggable {
 
     incomingRules
       .grouped(100)
-      .foreach(DbRuleDraft.batchInsert)
+      .foreach(group => DbRuleDraft.batchInsert(group))
 
     val draftRules = DbRuleDraft.findAll()
 
@@ -262,7 +268,7 @@ object RuleManager extends Loggable {
 
     liveRules
       .grouped(100)
-      .foreach(DbRuleLive.batchInsert)
+      .foreach(DbRuleLive.batchInsert(_))
 
     val persistedRules = getDraftRules()
 
@@ -355,5 +361,41 @@ object RuleManager extends Loggable {
     } catch {
       case e: Exception => Left(e)
     }
+  }
+
+  def destructivelyPublishDictionaryRules(
+      words: List[String],
+      bucketRuleResource: BucketRuleResource
+  ) = {
+    // Destroy existing draft dictionary rules
+    DbRuleDraft.destroyDictionaryRules()
+    // Destroy existing live dictionary rules
+    DbRuleLive.destroyDictionaryRules()
+
+    val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
+    val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
+      DbRuleDraft.withUser(
+        id = None,
+        ruleType = "dictionary",
+        pattern = Some(wordAndIndex._1),
+        category = Some("Collins"),
+        ignore = false,
+        user = "Collins Dictionary",
+        ruleOrder = initialRuleOrder + wordAndIndex._2,
+        externalId = None
+      )
+    )
+
+    dictionaryRules
+      .grouped(100)
+      .foreach(group => DbRuleDraft.batchInsert(group, true))
+
+    val liveRules = DbRuleDraft
+      .findAllDictionaryRules()
+      .map(_.toLive("From Collins Dictionary"))
+    liveRules
+      .grouped(100)
+      .foreach(_ => DbRuleLive.batchInsert(_, true))
+    publishLiveRules(bucketRuleResource)
   }
 }

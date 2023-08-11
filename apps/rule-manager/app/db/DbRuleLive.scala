@@ -163,7 +163,25 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .groupBy(dbColumnsToFind)
         .orderBy(r.ruleOrder)
     )
+      .fetchSize(1000)
       .map(DbRuleLive.fromRow)
+      .list()
+      .apply()
+  }
+
+  def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleLive] = {
+    withSQL {
+      select(dbColumnsToFind, tagColumn)
+        .from(DbRuleLive as r)
+        .leftJoin(RuleTagLive as rtl)
+        .on(
+          sqls"${r.externalId} = ${rtl.ruleExternalId} and ${r.revisionId} = ${rtl.ruleRevisionId}"
+        )
+        .where
+        .eq(r.ruleType, "dictionary")
+        .groupBy(dbColumnsToFind, r.externalId, r.revisionId)
+        .orderBy(r.ruleOrder)
+    }.map(DbRuleLive.fromRow)
       .list()
       .apply()
   }
@@ -238,7 +256,8 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
   }
 
   def batchInsert(
-      entities: collection.Seq[DbRuleLive]
+      entities: collection.Seq[DbRuleLive],
+      overrideIsActive: Boolean = false
   )(implicit session: DBSession = autoSession): Unit = {
     val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
       Seq(
@@ -292,7 +311,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
       {updatedAt},
       {updatedBy},
       {reason},
-      {isActive},
+      ${if (overrideIsActive) "TRUE" else "{isActive}"},
       {ruleOrder}
     )""").batchByName(params.toSeq: _*).apply[List]()
     val ruleTags = entities.flatMap(entity =>
@@ -300,6 +319,15 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
     )
     RuleTagLive.batchInsert(ruleTags)
     ()
+  }
+
+  def destroyDictionaryRules()(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete
+        .from(DbRuleLive as r)
+        .where
+        .eq(r.ruleType, "dictionary")
+    }.update().apply()
   }
 
   def destroyAll()(implicit session: DBSession = autoSession): Int = {
