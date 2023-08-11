@@ -66,16 +66,15 @@ Typerighter's built to manage document checks of every kind, include checks that
 A `MatcherPool` accepts any matcher instance that satisfies the `Matcher` trait. Two core `Matcher` implementations include `RegexMatcher`, that checks copy with regular expressions, and `LanguageToolMatcher`, that checks copy with an instance of a `JLanguageTool`. Here's a diagram to illustrate:
 ```mermaid
 flowchart TD
-  subgraph C[Checker service]
-    MP-."matches[]".->CH
-    CH(["Check requests"])-.document.->MP
-    MP[MatcherPool]--has many--->MS
-    subgraph MS[Matchers]
-      R[RegexMatcher]
-      L[LanguageToolMatcher]
-      F[...FancyHypotheticalAIMatcher]
-    end
-  end
+   CH(["Check requests"])
+   MP-."matches[]".->CH
+   MP[MatcherPool]--has many--->MS
+   CH-.document.->MP
+   subgraph MS[Matchers]
+    R[RegexMatcher]
+    L[LanguageToolMatcher]
+    F[...FancyHypotheticalAIMatcher]
+   end
 ```
 
 ## Implementation
