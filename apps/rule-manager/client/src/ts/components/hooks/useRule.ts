@@ -187,9 +187,17 @@ export function useRule(ruleId: number | undefined) {
 			);
 			if (response.status === 200) {
 				const validationErrors: FormError[] = await response.json();
-				return validationErrors.length > 0
-					? setPublishValidationErrors(validationErrors)
-					: setPublishValidationErrors(undefined);
+				if (validationErrors.length > 0) {
+					setPublishValidationErrors(
+						validationErrors.map(({ key, message }) => ({
+							key: key.replace('invalid-', ''),
+							message,
+						})),
+					);
+				} else {
+					setPublishValidationErrors(undefined);
+				}
+        return;
 			}
 			setPublishValidationErrors(undefined);
 		} catch (error) {
