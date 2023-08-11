@@ -30,6 +30,12 @@ Matches contain the range that match applies to, a description of why the match 
 - Rule owner: a person responsible for maintaining the rules that Typerighter consumes.
 - Rule user: a person checking their copy with the checker service.
 
+The system consists of two Scala services:
+- The rule-manager service, which is responsible for the lifecycle of Typerighter's corpus of rules, and publishes them as an artefact
+- The checker service, which consumes that artefact and responds to requests to check copy against the corpus of rules with matches.
+
+They're arranged like so:
+
 ```mermaid
 flowchart LR
   checker[Checker service]
@@ -51,6 +57,25 @@ flowchart LR
   owner-."Force manager to re-fetch sheet".->manager
   user-."Request document check".->client
   owner-."Edit rules".->sheet
+```
+
+### The checker service
+
+Typerighter's built to manage document checks of every kind, include checks that we haven't yet thought of. To that end, a `MatcherPool` is instantiated for each running checker service, which is responsible for managing incoming checks, including parallelism, backpressure, and ensuring that our checks are given to the appropriate matchers.
+
+A `MatcherPool` accepts any matcher instance that satisfies the `Matcher` trait. Two core `Matcher` implementations include `RegexMatcher`, that checks copy with regular expressions, and `LanguageToolMatcher`, that checks copy with an instance of a `JLanguageTool`. Here's a diagram to illustrate:
+```mermaid
+flowchart TD
+  subgraph C[Checker service]
+    MP-."matches[]".->CH
+    CH(["Check requests"])-.document.->MP
+    MP[MatcherPool]--has many--->MS
+    subgraph MS[Matchers]
+      R[RegexMatcher]
+      L[LanguageToolMatcher]
+      F[...FancyHypotheticalAIMatcher]
+    end
+  end
 ```
 
 ## Implementation
