@@ -1,6 +1,6 @@
 # Typerighter
 
-<img width="1232" alt="The Typerighter checker service frontend" src="https://user-images.githubusercontent.com/7767575/103550037-353f3200-4ea0-11eb-9ba5-9e4f7ecf2d1f.png">
+<img width="1654" alt="image" src="https://github.com/guardian/typerighter/assets/34686302/db240fc4-cb2b-412d-b74b-02d6077a7258">
 
 Typerighter is the server-side part of a service to check a document against a set of user-defined rules. It's designed to work like a spelling or grammar checker. It contains two services, the [checker](https://checker.typerighter.gutools.co.uk/) and the [rule manager](https://manager.typerighter.gutools.co.uk/) – see [architecture](#architecture) for more information.
 
