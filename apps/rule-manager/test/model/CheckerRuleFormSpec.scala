@@ -19,7 +19,10 @@ class RuleManagerSpec extends AnyFlatSpec with Matchers {
       ("(invalidRegex", None, "category", "description", "externalId")
     )
     result.errors shouldBe Seq(
-      FormError("pattern", List("Unclosed group near index 13\n(invalidRegex"))
+      FormError(
+        "pattern",
+        List("Error parsing the regular expression: Unclosed group near index 13\n(invalidRegex")
+      )
     )
   }
 
@@ -37,7 +40,9 @@ class RuleManagerSpec extends AnyFlatSpec with Matchers {
     result.errors shouldBe Seq(
       FormError(
         "pattern",
-        List("XML document structures must start and end within the same entity.")
+        List(
+          "Error parsing the XML: XML document structures must start and end within the same entity."
+        )
       )
     )
   }

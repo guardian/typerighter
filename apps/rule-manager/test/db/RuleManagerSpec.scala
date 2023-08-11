@@ -88,6 +88,11 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       maybeCheckerRule shouldBe Left(
         List(
           FormError("invalid-pattern", List("error.required"), List()),
+          FormError(
+            "invalid-pattern",
+            List("Error parsing the XML: Premature end of file."),
+            List()
+          ),
           FormError("invalid-category", List("error.required"), List()),
           FormError("invalid-description", List("error.required"), List()),
           FormError("invalid-external-id", List("error.required"), List())
