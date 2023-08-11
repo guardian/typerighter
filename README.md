@@ -14,7 +14,7 @@ For an example of a Typerighter client (the part that presents the spellcheck-st
 
 ## How it works: an overview
 
-The Typerighter checker service ingests user-defined rules from a `RuleResource`. This is a Google sheet, but the interface could be fulfilled from an arbitrary source.
+The Typerighter Rule Manager produces a JSON artefact (stored in S3) which is ingested by the Checker service. This artefact represents all the rules in our system, currently including user-defined regex rules, user-defined Language Tool pattern rules (defined as XML) and Language Tool core rules (pre-defined rules from Language Tool). Historically, rules were derived from a Google Sheet, rather than the Rule Manager.
 
 Each rule in the service corresponds to a `Matcher` that receives the document and passes back a list of `RuleMatch`. We have the following `Matcher` implementations:
 
@@ -55,7 +55,7 @@ flowchart LR
 
 ## Implementation
 
-Both the checker and management services are built in Scala with the Play framework. Data is currently stored in a Google Sheet.
+Both the Checker and Rule Manager services are built in Scala with the Play framework. Data in the Rule Manager is stored in a Postgres database, queried via ScalikeJDBC.
 
 Google credentials are fetched from SSM using AWS Credentials or Instance Role.
 
