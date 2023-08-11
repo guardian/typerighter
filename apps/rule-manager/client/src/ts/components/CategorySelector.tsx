@@ -15,7 +15,7 @@ export const CategorySelector = ({
 }: {
 	currentCategory: string | undefined;
 	partiallyUpdateRuleData: PartiallyUpdateRuleData;
-	validationErrors: FormError[] | undefined;
+	validationErrors?: FormError[];
 }) => {
 	// This is an array in order to match the expected type for EuiComboBox, but
 	// it will never have more than one category selected
