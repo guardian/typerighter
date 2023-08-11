@@ -16,7 +16,7 @@ object Dictionary {
     // - one top-level "lemma_list" node, containing:
     //   - n child "entry" nodes, each containing:
     //     - one "lemma" node with a single string as its text
-    //     - zero or one "infl_list" nodes, each containing:
+    //     - zero or more "infl_list" nodes, each containing:
     //       - one or more "infl" nodes with a single string as its text
     val entries = dictionaryXml.child.toList
     val words = for {
@@ -25,7 +25,7 @@ object Dictionary {
       lemmaOrInflList <- lemmaOrInfl.toList
       word <- lemmaOrInflListToText(lemmaOrInflList)
     } yield word
-    words.distinct
+    words.distinct.filterNot(_ == "")
   }
 
 }

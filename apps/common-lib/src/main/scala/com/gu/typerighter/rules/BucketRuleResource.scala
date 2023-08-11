@@ -16,7 +16,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   private val DICTIONARY_KEY = s"$stage/dictionary/typerighter-dictionary.xml"
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
     val ruleJson = Json.toJson(ruleResource)
-    val bytes = ruleJson.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8.name)
+    val bytes = Json.toBytes(ruleJson)
 
     logOnError(
       s"writing rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleJson.hashCode}"
@@ -45,8 +45,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   def getDictionaryWords(): Either[Seq[FormError], List[String]] = {
     val words = Try({
       val dictionary = s3.getObject(bucketName, DICTIONARY_KEY).getObjectContent()
-      val dictionaryStream = dictionary
-      val dictionaryXml = SafeXMLParser.load(dictionaryStream)
+      val dictionaryXml = SafeXMLParser.load(dictionary)
       val words = Dictionary.dictionaryXmlToWordList(dictionaryXml)
       dictionary.close()
       words

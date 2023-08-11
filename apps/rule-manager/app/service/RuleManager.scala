@@ -4,6 +4,7 @@ import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
   CheckerRule,
   CheckerRuleResource,
+  DictionaryRule,
   LTRule,
   LTRuleCore,
   LTRuleXML,
@@ -11,8 +12,8 @@ import com.gu.typerighter.model.{
 }
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
-import db.DbRuleDraft.{autoSession}
-import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
+import db.DbRuleDraft.autoSession
+import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{Json, OWrites}
 import scalikejdbc.DBSession
@@ -72,6 +73,18 @@ object RuleManager extends Loggable {
           externalId = Some(languageToolRuleId),
           ignore = false,
           user = "Google Sheet",
+          replacement = None,
+          ruleOrder = 0
+        )
+      case DictionaryRule(id, word, category) =>
+        DbRuleDraft.withUser(
+          id = None,
+          pattern = Some(word),
+          ruleType = RuleType.dictionary,
+          category = Some(category.name),
+          externalId = Some(id),
+          ignore = false,
+          user = "Google Sheet",
           ruleOrder = 0
         )
       case _: LTRule =>
@@ -127,6 +140,17 @@ object RuleManager extends Loggable {
           .fold(
             err => Left(err.errors.map(prefixFormError)),
             form => Right(LTRuleCoreForm.toLTRuleCore(form))
+          )
+      case r: DbRuleLive if r.ruleType == RuleType.dictionary =>
+        DictionaryForm.form
+          .fillAndValidate(
+            r.pattern.getOrElse(""),
+            r.category.getOrElse(""),
+            r.externalId.getOrElse("")
+          )
+          .fold(
+            err => Left(err.errors),
+            form => Right((DictionaryForm.toDictionary _).tupled(form))
           )
       case other =>
         Left(
@@ -392,10 +416,12 @@ object RuleManager extends Loggable {
 
     val liveRules = DbRuleDraft
       .findAllDictionaryRules()
-      .map(_.toLive("From Collins Dictionary"))
+      .map(_.toLive("From Collins Dictionary", true))
+
     liveRules
       .grouped(100)
-      .foreach(_ => DbRuleLive.batchInsert(_, true))
+      .foreach(DbRuleLive.batchInsert(_))
+
     publishLiveRules(bucketRuleResource)
   }
 }

@@ -35,7 +35,7 @@ case class DbRuleDraft(
     hasUnpublishedChanges: Boolean
 ) extends DbRuleCommon {
 
-  def toLive(reason: String): DbRuleLive = {
+  def toLive(reason: String, isActive: Boolean = false): DbRuleLive = {
     id match {
       case None =>
         throw new Exception(
@@ -59,7 +59,8 @@ case class DbRuleDraft(
           updatedAt = updatedAt,
           updatedBy = updatedBy,
           reason = reason,
-          ruleOrder = ruleOrder
+          ruleOrder = ruleOrder,
+          isActive = isActive
         )
     }
   }
