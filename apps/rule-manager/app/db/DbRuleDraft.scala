@@ -271,7 +271,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .eq(rd.ruleType, "dictionary")
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
-    }.map(DbRuleDraft.fromRow)
+    }
+      .fetchSize(1000)
+      .map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }

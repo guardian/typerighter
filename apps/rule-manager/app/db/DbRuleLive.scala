@@ -163,6 +163,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .groupBy(dbColumnsToFind)
         .orderBy(r.ruleOrder)
     )
+      .fetchSize(1000)
       .map(DbRuleLive.fromRow)
       .list()
       .apply()
