@@ -65,8 +65,8 @@ class RulesController(
     }
   }
 
-  def list = APIAuthAction {
-    Ok(Json.toJson(RuleManager.getDraftRules()))
+  def list(page: Int = 1, word: Option[String] = None) = APIAuthAction {
+    Ok(Json.toJson(RuleManager.searchDraftRules(page, word)))
   }
 
   def listDictionaryRules(word: String, page: Int) = APIAuthAction {
