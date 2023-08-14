@@ -1,6 +1,7 @@
 package db
 
 import db.DbRule._
+import model.PaginatedResponse
 //import db.DbRuleDraft.rd
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
@@ -103,6 +104,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     )
   }
 
+  case class PaginatedRow(rule: DbRuleDraft, ruleCount: Int, pageCount: Int)
+
+  /** Returns a tuple with the rule, the total number of rules, and the total number of pages.
+    */
+  def fromPaginatedRow(rs: WrappedResultSet): PaginatedRow = {
+    PaginatedRow(fromRow(rs), rs.int("rule_count"), rs.int("page_count"))
+  }
+
   def withUser(
       id: Option[Int],
       ruleType: String,
@@ -156,6 +165,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val hasUnpublishedChangesColumn =
     sqls"(${rl.revisionId} IS NOT NULL AND ${rl.revisionId} < ${rd.revisionId}) AS has_unpublished_changes"
 
+  val countColumn = sqls"COUNT(*) OVER() AS rule_count"
+  val pageCountColumn = (pageSize: Int) => sqls"CEILING(COUNT(*) OVER() / $pageSize) as page_count"
+
   val dbColumnsToFind = SQLSyntax.createUnsafely(
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
   )
@@ -207,9 +219,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
-        .where
-        .not
-        .eq(rd.ruleType, "dictionary")
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
@@ -217,47 +226,51 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
-  def findDictionaryRules(maybeWord: Option[String], page: Int)(implicit
+  def searchRules(page: Int, maybeWord: Option[String])(implicit
       session: DBSession = autoSession
-  ): List[DbRuleDraft] = {
-    val limit = 1000
+  ): PaginatedResponse[DbRuleDraft] = {
+    val pageSize = 1000
 
-    val args = List(
+    val dataStmtArgs = List(
       dbColumnsToFind,
       isPublishedColumn,
       hasUnpublishedChangesColumn,
-      tagColumn
+      tagColumn,
+      countColumn,
+      pageCountColumn(pageSize)
     ) ++ maybeWord.map(wordSimilarity(_)).toList
 
-    withSQL {
-      val selectDictionaryWords = select(args: _*)
+    val data = withSQL {
+      val selectStmt = select(dataStmtArgs: _*)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
-        .where
-        .eq(rd.ruleType, "dictionary")
 
       val filterGroupAndOrder = maybeWord match {
         case Some(word) =>
-          selectDictionaryWords
-            .like(rd.pattern, s"$word%")
+          selectStmt.where
+            .like(rd.pattern, s"%$word%")
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
             .orderBy(sqls"sml DESC")
         case _ =>
-          selectDictionaryWords
+          selectStmt
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
             .orderBy(rd.ruleOrder)
       }
 
       filterGroupAndOrder
-        .limit(limit)
-        .offset(page * limit)
+        .limit(pageSize)
+        .offset(page * pageSize)
         .asInstanceOf[SQLBuilder[Any]]
-    }.map(DbRuleDraft.fromRow)
+    }.map(DbRuleDraft.fromPaginatedRow)
       .list()
       .apply()
+
+    val (maxPages, total) = data.headOption.map(a => (a.pageCount, a.ruleCount)).getOrElse((1, 0))
+
+    PaginatedResponse(data.map(_.rule), pageSize, page, maxPages, total)
   }
 
   def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {

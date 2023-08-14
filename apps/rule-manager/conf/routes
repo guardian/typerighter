@@ -13,7 +13,7 @@ POST    /api/refresh                    controllers.RulesController.refresh()
 +nocsrf
 POST    /api/refreshDictionary          controllers.RulesController.refreshDictionaryRules()
 +nocsrf
-GET     /api/rules                      controllers.RulesController.list()
+GET     /api/rules                      controllers.RulesController.list(page: Int)
 +nocsrf
 POST    /api/rules                      controllers.RulesController.create()
 +nocsrf
