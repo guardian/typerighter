@@ -351,7 +351,7 @@ object RuleManager extends Loggable {
     }
   }
 
-  def revertDraftRule(id: Int, email: String) = {
+  def revertDraftRule(id: Int, email: String): Either[Throwable, AllRuleData] = {
     for {
       draftRule <- DbRuleDraft.find(id).toRight(new Exception("No draftRule id found"))
       externalId <- draftRule.externalId.toRight(new Exception("No externalId found for draftRule"))
