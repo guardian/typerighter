@@ -2,14 +2,13 @@ package services
 
 import java.util.Date
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, LTRuleCore, LTRuleXML, RegexRule}
+import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, DictionaryRule, LTRuleCore, LTRuleXML, RegexRule}
 import com.gu.typerighter.rules.BucketRuleResource
-import matchers.RegexMatcher
+import matchers.{DictionaryMatcher, LanguageToolFactory, RegexMatcher}
 import play.api.Logging
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import matchers.LanguageToolFactory
 import utils.{CloudWatchClient, Matcher, Metrics}
 
 class MatcherProvisionerService(
@@ -35,6 +34,7 @@ class MatcherProvisionerService(
       ruleResource.rules.groupBy(_.category).toList.flatMap { case (_, rules) =>
         val regexRules = rules.collect { case r: RegexRule => r }
         val ltRules = rules.collect { case r: LTRuleXML => r }
+        val dictionaryRules = rules.collect { case r: DictionaryRule => r }
 
         if (regexRules.nonEmpty) {
           val regexMatcher = new RegexMatcher(regexRules)
@@ -42,6 +42,7 @@ class MatcherProvisionerService(
         }
 
         if (ltRules.nonEmpty) addLTMatcherToPool(matcherPool, ltRules) else Nil
+        if (dictionaryRules.nonEmpty) addDictionaryMatcherToPool(matcherPool, dictionaryRules) else Nil
       }
 
     lastModified = date
@@ -97,6 +98,13 @@ class MatcherProvisionerService(
         errors.foreach { logger.error(logPrefix, _) }
         errors
     }
+  }
+
+  private def addDictionaryMatcherToPool(pool: MatcherPool, dictionaryRules: List[DictionaryRule]) = {
+    // TODO: Make the binary from the word list and use that to build matcher
+    val dictionaryMatcher = new DictionaryMatcher(dictionaryRules)
+    matcherPool.addMatcher(dictionaryMatcher)
+    List()
   }
 
   def getMatcherForRule(rule: CheckerRule): Either[List[Throwable], Matcher] = {
