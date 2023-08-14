@@ -19,8 +19,9 @@ import {
 	EuiBadge,
 	EuiText,
 	EuiSpacer,
+	EuiSkeletonTitle,
 } from '@elastic/eui';
-import { useRules } from './hooks/useRules';
+import { PaginatedResponse, useRules } from './hooks/useRules';
 import { css } from '@emotion/react';
 import { RuleForm } from './RuleForm';
 import { PageContext } from '../utils/window';
@@ -38,6 +39,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { useEuiTheme } from '@elastic/eui/src/services/theme';
 import { EuiCheckbox } from '@elastic/eui/src/components/form/checkbox';
 import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
+import InfiniteLoader from 'react-window-infinite-loader';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -180,7 +182,7 @@ const createColumns = (
 			field: 'actions',
 			label: <EuiIcon type="pencil" />,
 			columns: 1,
-      justify: "right",
+			justify: 'right',
 			render: (item: DraftRule, enabled: boolean) => (
 				<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
 			),
@@ -277,17 +279,19 @@ const ellipsisOverflowStyles = {
 };
 
 const LazyRulesTable = ({
-	rules,
+	ruleData,
 	tags,
 	editRule,
 	canEditRule,
 	columns,
+	fetchRules,
 }: {
-	rules: DraftRule[];
+	ruleData: PaginatedResponse<DraftRule>;
 	tags: TagMap;
 	editRule: (ruleId: number) => void;
 	canEditRule: boolean;
 	columns: ReturnType<typeof createColumns>;
+	fetchRules: ReturnType<typeof useRules>['fetchRules'];
 }) => {
 	const totalColumns = columns
 		.map((col) => col.columns)
@@ -300,7 +304,10 @@ const LazyRulesTable = ({
 					return (
 						<LazyRulesTableHeaderCell
 							key={column.field}
-							style={{ width: `${(column.columns / totalColumns) * 100}%`, justifyContent: column.justify ?? "inherit"  }}
+							style={{
+								width: `${(column.columns / totalColumns) * 100}%`,
+								justifyContent: column.justify ?? 'inherit',
+							}}
 						>
 							{typeof column.label === 'string' ? (
 								<EuiText size="s" style={ellipsisOverflowStyles}>
@@ -315,34 +322,52 @@ const LazyRulesTable = ({
 			</LazyRulesTableHeader>
 			<AutoSizer>
 				{({ width, height }) => (
-					<FixedSizeList
-						itemSize={rowHeight}
-						itemData={rules}
-						height={height}
-						width={width}
-						itemCount={rules?.length || 0}
+					<InfiniteLoader
+						isItemLoaded={(index) => {
+							return ruleData.loadedRules.has(index);
+						}}
+						itemCount={ruleData.total}
+						loadMoreItems={(startIndex, stopIndex) => {
+							console.log(`fetching ${startIndex}, ${stopIndex}`);
+							fetchRules(startIndex);
+						}}
+						minimumBatchSize={1000}
 					>
-						{({ style, index, data }) => (
-							<LazyRulesTableRow style={style}>
-								{columns.map((column) => {
-									const colWidth = (column.columns / totalColumns) * 100;
-									return (
-										<LazyRulesTableColumn
-											key={column.field}
-											style={{
-												flexBasis: `${colWidth}%`
-                        , justifyContent: column.justify ?? "inherit"
-                      }}
-										>
-											<EuiText>
-												{column.render(data[index], canEditRule)}
-											</EuiText>
-										</LazyRulesTableColumn>
-									);
-								})}
-							</LazyRulesTableRow>
+						{({ onItemsRendered, ref }) => (
+							<FixedSizeList
+								itemSize={rowHeight}
+								itemData={ruleData.data}
+								height={height}
+								width={width}
+								itemCount={ruleData?.total || 0}
+								onItemsRendered={onItemsRendered}
+								ref={ref}
+							>
+								{({ style, index, data }) =>
+									<LazyRulesTableRow style={style}>
+										{columns.map((column) => {
+											const colWidth = (column.columns / totalColumns) * 100;
+											return (
+												<LazyRulesTableColumn
+													key={column.field}
+													style={{
+														flexBasis: `${colWidth}%`,
+														justifyContent: column.justify ?? 'inherit',
+													}}
+												>
+														{ruleData.loadedRules.has(index) ? (
+															<EuiText>{column.render(data[index], canEditRule)}</EuiText>
+														) : (
+															<div style={{width: "100%"}}><EuiSkeletonTitle size="s" isLoading={true} contentAriaLabel={`Rule at index ${index}`}></EuiSkeletonTitle></div>
+														)}
+												</LazyRulesTableColumn>
+											);
+										})}
+									</LazyRulesTableRow>
+								}
+							</FixedSizeList>
 						)}
-					</FixedSizeList>
+					</InfiniteLoader>
 				)}
 			</AutoSizer>
 		</LazyRulesTableContainer>
@@ -352,7 +377,7 @@ const LazyRulesTable = ({
 const RulesTable = () => {
 	const { tags, fetchTags, isLoading: isTagMapLoading } = useTags();
 	const {
-		rules,
+		ruleData,
 		isLoading,
 		error,
 		refreshRules,
@@ -384,11 +409,11 @@ const RulesTable = () => {
 			setSelectedRules(newSelectedRules);
 			onSelectionChange(newSelectedRules);
 		},
-		[rules, selectedRules],
+		[ruleData, selectedRules],
 	);
 
 	const onSelectAll = (selected: boolean) => {
-		const newSelectedRules = new Set(selected ? rules ?? [] : []);
+		const newSelectedRules = new Set(selected ? ruleData?.data ?? [] : []);
 		onSelectionChange(newSelectedRules);
 	};
 
@@ -400,7 +425,7 @@ const RulesTable = () => {
 	const columns = createColumns(
 		tags,
 		openEditRulePanel,
-		rules?.length || 0,
+		ruleData?.data.length || 0,
 		selectedRules,
 		onSelect,
 		onSelectAll,
@@ -408,7 +433,7 @@ const RulesTable = () => {
 
 	const onSelectionChange = (selectedRules: Set<DraftRule>) => {
 		setSelectedRules(selectedRules);
-		const firstRule = rules?.find((rule) => selectedRules.has(rule));
+		const firstRule = ruleData?.data.find((rule) => selectedRules.has(rule));
 		if (firstRule?.id) {
 			openEditRulePanel(firstRule?.id);
 		}
@@ -536,9 +561,10 @@ const RulesTable = () => {
 						</EuiFlexGroup>
 						<EuiSpacer />
 						<EuiFlexGroup>
-							{rules && (
+							{ruleData && (
 								<LazyRulesTable
-									rules={rules}
+									fetchRules={fetchRules}
+									ruleData={ruleData}
 									columns={columns}
 									tags={tags}
 									editRule={openEditRulePanel}
