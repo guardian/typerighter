@@ -523,4 +523,28 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
           }
       }
   }
+
+  "revertDraftRule" should "revert a draft rule to a previous version, using the properties of the latest live rule" in {
+    () =>
+      val draftRuleToPublish = createPublishableRule
+      RuleManager
+        .publishRule(draftRuleToPublish.id.get, user, reason, bucketRuleResource)
+        .toOption
+        .get
+      DbRuleDraft
+        .save(
+          draftRuleToPublish.copy(revisionId = 2, description = Some("changing draft rule")),
+          user
+        )
+        .get
+
+      RuleManager.revertDraftRule(draftRuleToPublish.id.get, user) match {
+        case Left(e) =>
+          fail(
+            (s"Unexpected error reverting rule id: ${draftRuleToPublish.id.get}: ${e.getMessage}")
+          )
+        case Right(allRuleData) =>
+          allRuleData.draft shouldBe draftRuleToPublish
+      }
+  }
 }
