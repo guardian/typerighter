@@ -366,7 +366,8 @@ object RuleManager extends Loggable {
         category = latestLiveRule.category,
         tags = latestLiveRule.tags,
         description = latestLiveRule.description,
-        revisionId = latestLiveRule.revisionId
+        revisionId = latestLiveRule.revisionId,
+        updatedAt = latestLiveRule.updatedAt
       )
       _ <- DbRuleDraft.save(revertedDraftRule, email, true).toEither
 
