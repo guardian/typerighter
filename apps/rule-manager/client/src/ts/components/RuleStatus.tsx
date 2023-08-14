@@ -50,7 +50,7 @@ export const RuleStatus = ({
 				!!ruleData &&
 				hasUnpublishedChanges(ruleData) && (
 					<EuiFlexGroup gutterSize="s">
-						<EuiFlexItem>
+						<EuiFlexItem grow={false}>
 							<EuiLink onClick={discardRuleChangesHandler} color={'warning'}>
 								Discard changes&nbsp;
 							</EuiLink>
