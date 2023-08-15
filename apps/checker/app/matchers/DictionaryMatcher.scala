@@ -1,11 +1,8 @@
 package matchers
 
-import com.gu.typerighter.model.{Category, DictionaryRule, LTRuleXML, RuleMatch}
-import org.languagetool.language.BritishEnglish
-import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
-import org.languagetool.{JLanguageTool, Language, Languages, ResultCache, UserConfig}
-import play.api.Logging
-import services.MatcherRequest
+import com.gu.typerighter.model.{Category, DictionaryRule}
+import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
+import services.{CollinsEnglish, MatcherRequest, MorfologikCollinsSpellerRule}
 import utils.Matcher
 
 import scala.concurrent.ExecutionContext
@@ -14,17 +11,20 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 class DictionaryMatcher(
    rules: List[DictionaryRule]
 ) extends Matcher {
-  val language: Language = new BritishEnglish()
+  val language: Language = new CollinsEnglish()
   val cache: ResultCache = new ResultCache(10000)
   val userConfig: UserConfig = new UserConfig()
 
   val instance = new JLanguageTool(language, cache, userConfig)
 
   instance.getAllRules().forEach(rule => {
-    if (!rule.isDictionaryBasedSpellingRule()) {
+    if (rule.getId() != MorfologikCollinsSpellerRule.RULE_ID) {
       instance.disableRule(rule.getId())
+    } else {
+      println(rule.getId())
     }
   })
+
   val matcher = new LanguageToolMatcher(instance)
 
   override def check(

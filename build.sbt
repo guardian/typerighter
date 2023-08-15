@@ -142,7 +142,8 @@ val checker = playProject(
       "com.gu" %% "content-api-client-default" % capiClientVersion,
       "org.apache.opennlp" % "opennlp" % "2.1.0",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-      "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it"
+      "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
+      "org.carrot2" % "morfologik-tools" % "2.1.7"
     ) ++ Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
