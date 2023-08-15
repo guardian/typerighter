@@ -11,7 +11,7 @@ type PaginatedResponse<Data> = {
 };
 
 export type PaginatedRuleData = {
-	data: DraftRule[];
+	data: { [index: number]: DraftRule };
 	loadedRules: Set<number>;
 	pageSize: number;
 	total: number;
@@ -41,14 +41,20 @@ export function useRules() {
 
 			setRulesData((currentRuleDataData) => {
 				const loadedRules = new Set([
-					...(ruleData?.loadedRules ?? []),
+					...(currentRuleDataData?.loadedRules ?? []),
 					...incomingRuleData.data.map(
 						(_, index) => (page - 1) * pageSize + index,
 					),
 				]);
 
+				const data = [...(currentRuleDataData?.data || [])];
+				incomingRuleData.data.forEach((rule, index) => {
+					const offsetIndex = (page - 1) * pageSize + index;
+					data[offsetIndex] = rule;
+				});
+
 				return {
-					data: (currentRuleDataData?.data ?? []).concat(incomingRuleData.data),
+					data,
 					loadedRules,
 					pageSize: incomingRuleData?.pageSize ?? 0,
 					total: incomingRuleData?.total ?? 0,

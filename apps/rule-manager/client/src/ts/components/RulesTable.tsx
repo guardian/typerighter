@@ -298,7 +298,9 @@ const LazyRulesTable = ({
 		.reduce((acc, cur) => acc + cur, 0);
 
 	return (
-		<LazyRulesTableContainer style={{ flex: '1 1 auto' }}>
+		<LazyRulesTableContainer
+			style={{ display: 'flex', flex: '1 1 auto', flexFlow: 'column' }}
+		>
 			<LazyRulesTableHeader>
 				{columns.map((column) => {
 					return (
@@ -320,56 +322,66 @@ const LazyRulesTable = ({
 					);
 				})}
 			</LazyRulesTableHeader>
-			<AutoSizer>
-				{({ width, height }) => (
-					<InfiniteLoader
-						isItemLoaded={(index) => {
-							return ruleData.loadedRules.has(index);
-						}}
-						itemCount={ruleData.total}
-						loadMoreItems={(startIndex, stopIndex) => {
-							console.log(`fetching ${startIndex}, ${stopIndex}`);
-							fetchRules(startIndex);
-						}}
-						minimumBatchSize={1000}
-					>
-						{({ onItemsRendered, ref }) => (
-							<FixedSizeList
-								itemSize={rowHeight}
-								itemData={ruleData.data}
-								height={height}
-								width={width}
-								itemCount={ruleData?.total || 0}
-								onItemsRendered={onItemsRendered}
-								ref={ref}
-							>
-								{({ style, index, data }) =>
-									<LazyRulesTableRow style={style}>
-										{columns.map((column) => {
-											const colWidth = (column.columns / totalColumns) * 100;
-											return (
-												<LazyRulesTableColumn
-													key={column.field}
-													style={{
-														flexBasis: `${colWidth}%`,
-														justifyContent: column.justify ?? 'inherit',
-													}}
-												>
+			<div style={{ display: 'flex', flex: 1, flexGrow: 2 }}>
+				<AutoSizer>
+					{({ width, height }) => (
+						<InfiniteLoader
+							isItemLoaded={(index) => {
+								return ruleData.loadedRules.has(index);
+							}}
+							itemCount={ruleData.total}
+							loadMoreItems={(startIndex, stopIndex) => {
+								console.log(`fetching ${startIndex}, ${stopIndex}`);
+								fetchRules(startIndex);
+							}}
+							minimumBatchSize={1000}
+						>
+							{({ onItemsRendered, ref }) => (
+								<FixedSizeList
+									itemSize={rowHeight}
+									itemData={ruleData.data}
+									height={height}
+									width={width}
+									itemCount={ruleData?.total || 0}
+									onItemsRendered={onItemsRendered}
+									ref={ref}
+								>
+									{({ style, index, data }) => (
+										<LazyRulesTableRow style={style}>
+											{columns.map((column) => {
+												const colWidth = (column.columns / totalColumns) * 100;
+												return (
+													<LazyRulesTableColumn
+														key={column.field}
+														style={{
+															flexBasis: `${colWidth}%`,
+															justifyContent: column.justify ?? 'inherit',
+														}}
+													>
 														{ruleData.loadedRules.has(index) ? (
-															<EuiText>{column.render(data[index], canEditRule)}</EuiText>
+															<EuiText>
+																{column.render(data[index], canEditRule)}
+															</EuiText>
 														) : (
-															<div style={{width: "100%"}}><EuiSkeletonTitle size="s" isLoading={true} contentAriaLabel={`Rule at index ${index}`}></EuiSkeletonTitle></div>
+															<div style={{ width: '100%' }}>
+																<EuiSkeletonTitle
+																	size="s"
+																	isLoading={true}
+																	contentAriaLabel={`Rule at index ${index}`}
+																></EuiSkeletonTitle>
+															</div>
 														)}
-												</LazyRulesTableColumn>
-											);
-										})}
-									</LazyRulesTableRow>
-								}
-							</FixedSizeList>
-						)}
-					</InfiniteLoader>
-				)}
-			</AutoSizer>
+													</LazyRulesTableColumn>
+												);
+											})}
+										</LazyRulesTableRow>
+									)}
+								</FixedSizeList>
+							)}
+						</InfiniteLoader>
+					)}
+				</AutoSizer>
+			</div>
 		</LazyRulesTableContainer>
 	);
 };
