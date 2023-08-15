@@ -64,10 +64,10 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
       maybeCheckerRule shouldBe Left(
         List(
-          FormError("pattern", List("error.required"), List()),
-          FormError("category", List("error.required"), List()),
-          FormError("description", List("error.required"), List()),
-          FormError("externalId", List("error.required"), List())
+          FormError("invalid-pattern", List("error.required"), List()),
+          FormError("invalid-category", List("error.required"), List()),
+          FormError("invalid-description", List("error.required"), List()),
+          FormError("invalid-external-id", List("error.required"), List())
         )
       )
   }
@@ -88,10 +88,15 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
       maybeCheckerRule shouldBe Left(
         List(
-          FormError("pattern", List("error.required"), List()),
-          FormError("category", List("error.required"), List()),
-          FormError("description", List("error.required"), List()),
-          FormError("externalId", List("error.required"), List())
+          FormError("invalid-pattern", List("error.required"), List()),
+          FormError(
+            "invalid-pattern",
+            List("Error parsing the XML: Premature end of file."),
+            List()
+          ),
+          FormError("invalid-category", List("error.required"), List()),
+          FormError("invalid-description", List("error.required"), List()),
+          FormError("invalid-external-id", List("error.required"), List())
         )
       )
   }
@@ -112,7 +117,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
       maybeCheckerRule shouldBe Left(
         List(
-          FormError("externalId", List("error.required"), List())
+          FormError("invalid-external-id", List("error.required"), List())
         )
       )
   }

@@ -17,7 +17,6 @@ class CheckerConfig(
   val serviceName = "checker"
   val ngramPath: Option[File] =
     playConfig.getOptional[String]("typerighter.ngramPath").map(new File(_))
-  val capiApiKey = playConfig.get[String]("capi.apiKey")
   val credentials = playConfig.get[String]("typerighter.google.credentials")
   val spreadsheetId = playConfig.get[String]("typerighter.sheetId")
 }

@@ -2,7 +2,7 @@ package com.gu.typerighter.model
 
 import java.util.{List => JList}
 import java.util.regex.Pattern
-import play.api.libs.json.{JsPath, JsString, Json, Reads, Writes}
+import play.api.libs.json.{JsPath, JsString, Json, OFormat, Reads, Writes}
 import play.api.libs.json.Reads._
 import org.languagetool.Languages
 import org.languagetool.rules.patterns.{
@@ -190,7 +190,7 @@ object LTRule {
     ltRule
   }
 
-  implicit val patternWrites = new Writes[Pattern] {
+  implicit val patternWrites: Writes[Pattern] = new Writes[Pattern] {
     def writes(pattern: Pattern) = JsString(pattern.toString)
   }
   implicit val patternReads: Reads[Pattern] = JsPath.read[String].map { regex =>
@@ -199,4 +199,14 @@ object LTRule {
 
   implicit val writes: Writes[LTRule] = Json.writes[LTRule]
   implicit val reads: Reads[LTRule] = Json.reads[LTRule]
+}
+
+case class DictionaryRule(
+    id: String,
+    word: String,
+    category: Category
+) extends CheckerRule
+
+object DictionaryRule {
+  implicit val formats: OFormat[DictionaryRule] = Json.format[DictionaryRule]
 }

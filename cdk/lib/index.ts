@@ -144,7 +144,7 @@ dpkg -i /tmp/package.deb`,
 
     const ruleManagerApp = new GuPlayApp(this, {
       app: ruleManagerAppName,
-      instanceType: new InstanceType("t4g.micro"),
+      instanceType: new InstanceType("t4g.small"),
       userData: `#!/bin/bash -ev
         aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
         dpkg -i /tmp/package.deb

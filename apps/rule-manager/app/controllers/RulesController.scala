@@ -9,7 +9,7 @@ import db.{DbRuleDraft}
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
 import service.RuleManager.revertDraftRule
-import service.{RuleManager, RuleTesting, SheetsRuleResource}
+import service.{RuleManager, RuleTesting, SheetsRuleResource, TestRuleCapiQuery}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,7 +32,7 @@ class RulesController(
       dbRules <- sheetsRuleResource
         .getRules()
         .left
-        .map(toFormError("Error getting rules from Google Sheet"))
+        .map(toFormError("refresh-sheet"))
       _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
     } yield {
       RuleManager.getDraftRules()
@@ -44,8 +44,35 @@ class RulesController(
     }
   }
 
+  def refreshDictionaryRules() = APIAuthAction {
+    val wordsOrError = bucketRuleResource.getDictionaryWords()
+
+    val newRuleWords =
+      wordsOrError.flatMap(words =>
+        RuleManager.destructivelyPublishDictionaryRules(words, bucketRuleResource)
+      )
+    newRuleWords match {
+      case Left(errors) => InternalServerError(Json.toJson(errors))
+      case Right(words) => Ok(Json.toJson(words))
+    }
+  }
+
   def list = APIAuthAction {
     Ok(Json.toJson(RuleManager.getDraftRules()))
+  }
+
+  def listDictionaryRules(word: String, page: Int) = APIAuthAction {
+    Ok(
+      Json.toJson(
+        RuleManager.getDraftDictionaryRules(
+          word match {
+            case ""  => None
+            case str => Some(str)
+          },
+          page
+        )
+      )
+    )
   }
 
   def get(id: Int) = APIAuthAction {
@@ -196,6 +223,17 @@ class RulesController(
     }
   }
 
+  def discardChanges(id: Int) = APIAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        revertDraftRule(id, request.user.email) match {
+          case Left(throwable) => InternalServerError(throwable.getMessage)
+          case Right(data)     => Ok(Json.toJson(data))
+        }
+    }
+  }
+
   def testWithBlock(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
     request.body.validate[Document].asEither match {
       case Right(document) =>
@@ -217,14 +255,18 @@ class RulesController(
     }
   }
 
-  def discardChanges(id: Int) = APIAuthAction { implicit request =>
-    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
-      case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
-        revertDraftRule(id, request.user.email) match {
-          case Left(throwable) => InternalServerError(throwable.getMessage)
-          case Right(data)     => Ok(Json.toJson(data))
+  def testWithCapiQuery(id: Int) = APIAuthAction[JsValue](parse.json) { implicit request =>
+    request.body.validate[TestRuleCapiQuery].asEither match {
+      case Right(query) =>
+        DbRuleDraft.find(id) match {
+          case Some(rule) =>
+            val matchStream = ruleTesting.testRuleWithCapiQuery(rule, query)
+            Ok.chunked(matchStream.map {
+              Json.toJson(_)
+            })
+          case None => NotFound
         }
+      case Left(error) => BadRequest(s"Invalid request: $error")
     }
   }
 }

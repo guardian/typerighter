@@ -3,12 +3,12 @@ import sys.process._
 
 name := "typerighter"
 ThisBuild / organization := "com.gu"
-ThisBuild / scalaVersion := "2.13.7"
+ThisBuild / scalaVersion := "2.13.11"
 ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
   "-encoding",
   "UTF-8",
-  "-target:jvm-1.8",
+  "-release:11",
   "-deprecation",
   "-Xfatal-warnings",
   "-Xlint:unused",
@@ -72,7 +72,8 @@ val commonSettings = Seq(
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.7",
     "com.gu" %% "content-api-client-default" % capiClientVersion,
-    "com.gu" %% "panda-hmac-play_2-8" % "2.2.0"
+    "com.gu" %% "panda-hmac-play_2-8" % "2.2.0",
+    "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29"
   ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
@@ -103,7 +104,6 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
         "-J-XX:InitialRAMFraction=2",
         "-J-XX:MaxMetaspaceSize=300m",
         "-J-XX:+PrintGCDetails",
-        "-J-XX:+PrintGCDateStamps",
         s"-J-Dlogs.home=/var/log/${packageName.value}",
         s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
       ),

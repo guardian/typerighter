@@ -1,6 +1,7 @@
 package db
 
 import db.DbRule._
+//import db.DbRuleDraft.rd
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
@@ -34,7 +35,7 @@ case class DbRuleDraft(
     hasUnpublishedChanges: Boolean
 ) extends DbRuleCommon {
 
-  def toLive(reason: String): DbRuleLive = {
+  def toLive(reason: String, isActive: Boolean = false): DbRuleLive = {
     id match {
       case None =>
         throw new Exception(
@@ -58,7 +59,8 @@ case class DbRuleDraft(
           updatedAt = updatedAt,
           updatedBy = updatedBy,
           reason = reason,
-          ruleOrder = ruleOrder
+          ruleOrder = ruleOrder,
+          isActive = isActive
         )
     }
   }
@@ -158,6 +160,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
   )
 
+  val wordSimilarity = (str: String) => sqls"similarity(${rd.pattern}, $str) AS sml"
+
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
@@ -203,9 +207,74 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
+        .where
+        .not
+        .eq(rd.ruleType, "dictionary")
         .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
+      .list()
+      .apply()
+  }
+
+  def findDictionaryRules(maybeWord: Option[String], page: Int)(implicit
+      session: DBSession = autoSession
+  ): List[DbRuleDraft] = {
+    val limit = 1000
+
+    val args = List(
+      dbColumnsToFind,
+      isPublishedColumn,
+      hasUnpublishedChangesColumn,
+      tagColumn
+    ) ++ maybeWord.map(wordSimilarity(_)).toList
+
+    withSQL {
+      val selectDictionaryWords = select(args: _*)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .eq(rd.ruleType, "dictionary")
+
+      val filterGroupAndOrder = maybeWord match {
+        case Some(word) =>
+          selectDictionaryWords
+            .like(rd.pattern, s"$word%")
+            .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+            .orderBy(sqls"sml DESC")
+        case _ =>
+          selectDictionaryWords
+            .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+            .orderBy(rd.ruleOrder)
+      }
+
+      filterGroupAndOrder
+        .limit(limit)
+        .offset(page * limit)
+        .asInstanceOf[SQLBuilder[Any]]
+    }.map(DbRuleDraft.fromRow)
+      .list()
+      .apply()
+  }
+
+  def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+    withSQL {
+      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .eq(rd.ruleType, "dictionary")
+        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .orderBy(rd.ruleOrder)
+    }
+      .fetchSize(1000)
+      .map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }
@@ -218,6 +287,15 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     withSQL {
       select(sqls.count).from(DbRuleDraft as rd).where.append(where)
     }.map(_.long(1)).single().apply().get
+  }
+
+  def getLatestRuleOrder()(implicit session: DBSession = autoSession): Int = {
+    SQL(s"""
+         |SELECT rule_order
+         |    FROM $tableName
+         |    ORDER BY rule_order DESC
+         |    LIMIT 1
+         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(0)
   }
 
   def create(
@@ -234,12 +312,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       isArchived: Boolean = false,
       tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
-    val latestRuleOrder = SQL(s"""
-         |SELECT rule_order
-         |    FROM $tableName
-         |    ORDER BY rule_order DESC
-         |    LIMIT 1
-         |""".stripMargin).map(_.int(1)).single().apply().getOrElse(0)
+    val latestRuleOrder = getLatestRuleOrder()
 
     val id = withSQL {
       insert
@@ -350,10 +423,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   }
 
   def batchInsert(
-      entities: collection.Seq[DbRuleDraft]
+      entities: collection.Seq[DbRuleDraft],
+      hasNoExternalId: Boolean = false
   )(implicit session: DBSession = autoSession): List[Int] = {
-    val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
-      Seq(
+    val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity => {
+      val baseFields = Seq(
         Symbol("ruleType") -> entity.ruleType,
         Symbol("pattern") -> entity.pattern,
         Symbol("replacement") -> entity.replacement,
@@ -361,7 +435,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("description") -> entity.description,
         Symbol("ignore") -> entity.ignore,
         Symbol("notes") -> entity.notes,
-        Symbol("externalId") -> entity.externalId,
         Symbol("forceRedRule") -> entity.forceRedRule,
         Symbol("advisoryRule") -> entity.advisoryRule,
         Symbol("createdBy") -> entity.createdBy,
@@ -371,8 +444,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         Symbol("isArchived") -> entity.isArchived,
         Symbol("ruleOrder") -> entity.ruleOrder
       )
-    )
+      hasNoExternalId match {
+        case true  => baseFields
+        case false => (Symbol("externalId") -> entity.externalId) +: baseFields
+      }
+    })
     SQL(s"""insert into $tableName(
+      ${if (hasNoExternalId) "" else "external_id,"}
       rule_type,
       pattern,
       replacement,
@@ -380,7 +458,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       description,
       ignore,
       notes,
-      external_id,
       force_red_rule,
       advisory_rule,
       created_by,
@@ -390,6 +467,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       is_archived,
       rule_order
     ) values (
+      ${if (hasNoExternalId) "" else "{externalId},"}
       {ruleType},
       {pattern},
       {replacement},
@@ -397,7 +475,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       {description},
       {ignore},
       {notes},
-      {externalId},
       {forceRedRule},
       {advisoryRule},
       {createdBy},
@@ -470,6 +547,15 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   def destroy(entity: DbRuleDraft)(implicit session: DBSession = autoSession): Int = {
     withSQL {
       delete.from(DbRuleDraft).where.eq(column.id, entity.id)
+    }.update().apply()
+  }
+
+  def destroyDictionaryRules()(implicit session: DBSession = autoSession): Int = {
+    withSQL {
+      delete
+        .from(DbRuleDraft as rd)
+        .where
+        .eq(rd.ruleType, "dictionary")
     }.update().apply()
   }
 

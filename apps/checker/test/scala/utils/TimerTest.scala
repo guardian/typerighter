@@ -10,7 +10,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class TimerTest extends AnyFlatSpec with Matchers with IdiomaticMockito {
-  implicit val executionContext = ExecutionContext.Implicits.global
+  implicit val executionContext: ExecutionContext = ExecutionContext.Implicits.global
 
   behavior of "time"
 

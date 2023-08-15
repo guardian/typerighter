@@ -3,7 +3,12 @@ We will need dev-nginx: `brew install dev-nginx`
 
 # Set up
 
-Run `dev-nginx setup-app ./nginx/nginx-mapping.yml` from the root of the project.
+Run `./script/setup` from the root of the project.
+
+This will:
+- Run the `dev-nginx` setup
+- Set up pre-commit hooks
+- Download our dictionary file for local use
 
 # Basic developer run
 

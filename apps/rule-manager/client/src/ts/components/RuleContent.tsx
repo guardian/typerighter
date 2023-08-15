@@ -17,10 +17,11 @@ import { css } from '@emotion/react';
 import React, { useState } from 'react';
 import { RuleFormSection } from './RuleFormSection';
 import { LineBreak } from './LineBreak';
-import { PartiallyUpdateRuleData } from './RuleForm';
+import { FormError, PartiallyUpdateRuleData } from './RuleForm';
 import { Label } from './Label';
 import { DraftRule, RuleData, RuleType } from './hooks/useRule';
 import { RuleDataLastUpdated } from './RuleDataLastUpdated';
+import { getErrorPropsForField } from './helpers/errors';
 
 type RuleTypeOption = {
 	id: RuleType;
@@ -42,16 +43,16 @@ export const RuleContent = ({
 	ruleData,
 	ruleFormData,
 	isLoading,
-	errors,
 	partiallyUpdateRuleData,
-	showErrors,
+	validationErrors,
+	hasSaveErrors,
 }: {
 	ruleData: RuleData | undefined;
 	ruleFormData: DraftRule;
 	partiallyUpdateRuleData: PartiallyUpdateRuleData;
-	showErrors: boolean;
+	validationErrors: FormError[] | undefined;
+	hasSaveErrors: boolean;
 	isLoading: boolean;
-	errors: string | undefined;
 }) => {
 	const TextField =
 		ruleFormData.ruleType === 'languageToolXML' ? EuiTextArea : EuiFieldText;
@@ -62,6 +63,8 @@ export const RuleContent = ({
 		setShowMarkdownPreview(!showMarkdownPreview);
 	};
 
+	const patternErrors = getErrorPropsForField('pattern', validationErrors);
+
 	return (
 		<RuleFormSection
 			title="RULE CONTENT"
@@ -70,7 +73,7 @@ export const RuleContent = ({
 					<RuleDataLastUpdated
 						ruleData={ruleData}
 						isLoading={isLoading}
-						hasErrors={!!errors}
+						hasErrors={hasSaveErrors}
 					/>
 				)
 			}
@@ -143,8 +146,8 @@ export const RuleContent = ({
 				<EuiSpacer size="s" />
 				<EuiFormRow
 					label={<Label text="Pattern" required={true} />}
-					isInvalid={showErrors && !ruleFormData.pattern}
 					fullWidth={true}
+					{...patternErrors}
 				>
 					<TextField
 						value={ruleFormData.pattern || ''}
@@ -152,8 +155,8 @@ export const RuleContent = ({
 							partiallyUpdateRuleData({ pattern: _.target.value })
 						}
 						required={true}
-						isInvalid={showErrors && !ruleFormData.pattern}
 						fullWidth={true}
+						{...patternErrors}
 					/>
 				</EuiFormRow>
 				<EuiFormRow

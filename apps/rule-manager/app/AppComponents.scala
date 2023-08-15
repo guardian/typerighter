@@ -8,7 +8,8 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
-import com.gu.typerighter.lib.HMACClient
+import com.gu.contentapi.client.GuardianContentClient
+import com.gu.typerighter.lib.{HMACClient, ContentClient}
 import com.gu.typerighter.rules.BucketRuleResource
 import router.Routes
 import db.DB
@@ -54,7 +55,9 @@ class AppComponents(
   val hmacClient = new HMACClient(stage, secretKey = config.hmacSecrets.head)
   val sheetsRuleResource = new SheetsRuleResource(config.credentials, config.spreadsheetId)
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
-  val ruleTesting = new RuleTesting(wsClient, hmacClient, config.checkerServiceUrl)
+  val guardianContentClient = GuardianContentClient(config.capiApiKey)
+  val contentClient = new ContentClient(guardianContentClient)
+  val ruleTesting = new RuleTesting(wsClient, hmacClient, contentClient, config.checkerServiceUrl)
 
   val homeController = new HomeController(
     controllerComponents,

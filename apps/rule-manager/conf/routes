@@ -11,13 +11,15 @@ GET     /healthcheck                    controllers.HomeController.healthcheck()
 +nocsrf
 POST    /api/refresh                    controllers.RulesController.refresh()
 +nocsrf
+POST    /api/refreshDictionary          controllers.RulesController.refreshDictionaryRules()
++nocsrf
 GET     /api/rules                      controllers.RulesController.list()
 +nocsrf
 POST    /api/rules                      controllers.RulesController.create()
 +nocsrf
 GET     /api/rules/batch/:ids           controllers.RulesController.getRules(ids: String)
 +nocsrf
-POST    /api/rules/batch               controllers.RulesController.batchUpdate()
+POST    /api/rules/batch                controllers.RulesController.batchUpdate()
 +nocsrf
 GET     /api/rules/:id                  controllers.RulesController.get(id: Int)
 +nocsrf
@@ -33,9 +35,13 @@ POST    /api/rules/:id/archive          controllers.RulesController.archive(id: 
 +nocsrf
 POST    /api/rules/:id/unarchive        controllers.RulesController.unarchive(id: Int)
 +nocsrf
+POST    /api/rules/:id/discard-changes  controllers.RulesController.discardChanges(id: Int)
++nocsrf
 GET     /api/rules/:id/test-block       controllers.RulesController.testWithBlock(id: Int)
 +nocsrf
-POST    /api/rules/:id/discard-changes  controllers.RulesController.discardChanges(id: Int)
+GET     /api/rules/:id/test-capi        controllers.RulesController.testWithCapiQuery(id: Int)
++nocsrf
+GET     /api/dictionary                 controllers.RulesController.listDictionaryRules(word: String ?= "", page: Int ?= 0)
 
 # Tags
 +nocsrf

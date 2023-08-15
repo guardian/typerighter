@@ -6,15 +6,30 @@ import com.gu.typerighter.model.{
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  TextSuggestion
+  TextSuggestion,
+  DictionaryRule
 }
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+
+import scala.util.{Failure, Success, Try}
+import scala.xml.XML
 
 object RegexRuleForm {
+  val regexConstraint: Constraint[String] = Constraint("constraints.regexcheck") { regexStr =>
+    Try(regexStr.r) match {
+      case Success(_) => Valid
+      case Failure(exception) =>
+        Invalid(
+          Seq(ValidationError(s"Error parsing the regular expression: ${exception.getMessage()}"))
+        )
+    }
+  }
+
   val form = Form(
     tuple(
-      "pattern" -> nonEmptyText(),
+      "pattern" -> nonEmptyText().verifying(regexConstraint),
       "replacement" -> optional(text()),
       "category" -> nonEmptyText(),
       "description" -> nonEmptyText(),
@@ -41,9 +56,17 @@ object RegexRuleForm {
 }
 
 object LTRuleXMLForm {
+  val xmlConstraint: Constraint[String] = Constraint("constraints.xmlcheck") { xmlStr =>
+    Try(XML.loadString(xmlStr)) match {
+      case Success(_) => Valid
+      case Failure(exception) =>
+        Invalid(Seq(ValidationError(s"Error parsing the XML: ${exception.getMessage()}")))
+    }
+  }
+
   val form = Form(
     tuple(
-      "pattern" -> nonEmptyText(),
+      "pattern" -> nonEmptyText().verifying(xmlConstraint),
       "category" -> nonEmptyText(),
       "description" -> nonEmptyText(),
       "externalId" -> nonEmptyText()
@@ -71,6 +94,24 @@ object LTRuleCoreForm {
     LTRuleCore(
       id = externalId,
       languageToolRuleId = externalId
+    )
+  }
+}
+
+object DictionaryForm {
+  val form = Form(
+    tuple(
+      "pattern" -> nonEmptyText(),
+      "category" -> nonEmptyText(),
+      "externalId" -> nonEmptyText()
+    )
+  )
+
+  def toDictionary(pattern: String, category: String, externalId: String) = {
+    DictionaryRule(
+      id = externalId,
+      word = pattern,
+      category = Category(id = category, name = category)
     )
   }
 }

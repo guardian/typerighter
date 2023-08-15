@@ -4,6 +4,7 @@ import {
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiForm,
+	EuiSpacer,
 	EuiText,
 	EuiToolTip,
 } from '@elastic/eui';
@@ -48,10 +49,6 @@ export const SpinnerContainer = styled.div`
 `;
 
 const formDebounceMs = 1000;
-export const emptyPatternFieldError = {
-	key: 'pattern',
-	message: 'A pattern is required',
-};
 
 export const RuleForm = ({
 	tags,
@@ -86,7 +83,6 @@ export const RuleForm = ({
 	} = useRule(ruleId);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
-	const [formErrors, setFormErrors] = useState<FormError[]>([]);
 	const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
 
 	const partiallyUpdateRuleData: PartiallyUpdateRuleData = (
@@ -105,19 +101,12 @@ export const RuleForm = ({
 		}
 	}, [rule]);
 
+	// Remove the form errors when the data is altered
 	useEffect(() => {
-		if (!ruleFormData.pattern) {
-			setFormErrors([emptyPatternFieldError]);
-		} else {
-			setFormErrors([]);
-		}
-	}, [ruleFormData]);
-
-	useEffect(() => {
-		if (!errors && !formErrors.length) {
+		if (!errors) {
 			setShowErrors(false);
 		}
-	}, [errors, formErrors]);
+	}, [errors]);
 
 	/**
 	 * Automatically save the form data when it changes. Debounces saves.
@@ -127,7 +116,7 @@ export const RuleForm = ({
 			return;
 		}
 
-		if (formErrors.length > 0 || errors) {
+		if (errors) {
 			setShowErrors(true);
 			return;
 		}
@@ -231,29 +220,30 @@ export const RuleForm = ({
 		<>
 			{
 				<EuiFlexGroup
-					gutterSize="m"
+					gutterSize="s"
 					direction="column"
 					style={{ overflow: 'hidden' }}
 				>
 					<EuiFlexItem grow={1} style={{ overflowY: 'scroll' }}>
-						<EuiFlexGroup gutterSize="m" direction="column">
+						<EuiFlexGroup gutterSize="s" direction="column">
 							<RuleStatus
 								ruleData={rule}
 								discardRuleChangesHandler={discardRuleChangesHandler}
 							/>
 							<RuleContent
 								isLoading={isLoading}
-								errors={errors}
+								validationErrors={publishValidationErrors}
 								ruleData={rule}
 								ruleFormData={ruleFormData}
 								partiallyUpdateRuleData={partiallyUpdateRuleData}
-								showErrors={showErrors}
+								hasSaveErrors={!!errors}
 							/>
 							<RuleFormSection title="RULE METADATA">
 								<LineBreak />
 								<CategorySelector
 									currentCategory={ruleFormData.category}
 									partiallyUpdateRuleData={partiallyUpdateRuleData}
+									validationErrors={publishValidationErrors}
 								/>
 								<TagsSelector
 									tags={tags}
@@ -266,7 +256,7 @@ export const RuleForm = ({
 						</EuiFlexGroup>
 					</EuiFlexItem>
 					<EuiFlexItem grow={0}>
-						<EuiFlexGroup gutterSize="m">
+						<EuiFlexGroup gutterSize="s">
 							{canEditRuleContent && (
 								<EuiFlexItem>
 									<EuiButton
@@ -336,18 +326,19 @@ export const RuleForm = ({
 									</PublishTooltip>
 								</EuiFlexItem>
 							)}
-							{showErrors ? (
+						</EuiFlexGroup>
+						{showErrors ? (
+							<>
+								<EuiSpacer size="s" />
 								<EuiCallOut
 									title="Please resolve the following errors:"
 									color="danger"
 									iconType="error"
 								>
-									{formErrors.map((error, index) => (
-										<EuiText key={index}>{`${error.message}`}</EuiText>
-									))}
+									<EuiText>{errors}</EuiText>
 								</EuiCallOut>
-							) : null}
-						</EuiFlexGroup>
+							</>
+						) : null}
 					</EuiFlexItem>
 				</EuiFlexGroup>
 			}

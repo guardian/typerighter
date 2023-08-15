@@ -1,6 +1,6 @@
 # Typerighter
 
-<img width="1232" alt="The Typerighter checker service frontend" src="https://user-images.githubusercontent.com/7767575/103550037-353f3200-4ea0-11eb-9ba5-9e4f7ecf2d1f.png">
+<img width="1654" alt="image" src="https://github.com/guardian/typerighter/assets/34686302/db240fc4-cb2b-412d-b74b-02d6077a7258">
 
 Typerighter is the server-side part of a service to check a document against a set of user-defined rules. It's designed to work like a spelling or grammar checker. It contains two services, the [checker](https://checker.typerighter.gutools.co.uk/) and the [rule manager](https://manager.typerighter.gutools.co.uk/) – see [architecture](#architecture) for more information.
 
@@ -14,7 +14,7 @@ For an example of a Typerighter client (the part that presents the spellcheck-st
 
 ## How it works: an overview
 
-The Typerighter checker service ingests user-defined rules from a `RuleResource`. This is a Google sheet, but the interface could be fulfilled from an arbitrary source.
+The Typerighter Rule Manager produces a JSON artefact (stored in S3) which is ingested by the Checker service. This artefact represents all the rules in our system, currently including user-defined regex rules, user-defined Language Tool pattern rules (defined as XML) and Language Tool core rules (pre-defined rules from Language Tool). Historically, rules were derived from a Google Sheet, rather than the Rule Manager.
 
 Each rule in the service corresponds to a `Matcher` that receives the document and passes back a list of `RuleMatch`. We have the following `Matcher` implementations:
 
@@ -29,6 +29,12 @@ Matches contain the range that match applies to, a description of why the match 
 
 - Rule owner: a person responsible for maintaining the rules that Typerighter consumes.
 - Rule user: a person checking their copy with the checker service.
+
+The system consists of two Scala services:
+- The rule-manager service, which is responsible for the lifecycle of Typerighter's corpus of rules, and publishes them as an artefact
+- The checker service, which consumes that artefact and responds to requests to check copy against the corpus of rules with matches.
+
+They're arranged like so:
 
 ```mermaid
 flowchart LR
@@ -53,9 +59,27 @@ flowchart LR
   owner-."Edit rules".->sheet
 ```
 
+### The checker service
+
+Typerighter's built to manage document checks of every kind, include checks that we haven't yet thought of. To that end, a `MatcherPool` is instantiated for each running checker service, which is responsible for managing incoming checks, including parallelism, backpressure, and ensuring that our checks are given to the appropriate matchers.
+
+A `MatcherPool` accepts any matcher instance that satisfies the `Matcher` trait. Two core `Matcher` implementations include `RegexMatcher`, that checks copy with regular expressions, and `LanguageToolMatcher`, that checks copy with an instance of a `JLanguageTool`. The `MatcherPool` is excited to accommodate new matchers in the future! Here's a diagram to illustrate:
+```mermaid
+flowchart TD
+   CH(["Check requests"])
+   MP-."matches[]".->CH
+   MP[MatcherPool]--has many--->MS
+   CH-.document.->MP
+   subgraph MS[Matchers]
+    R[RegexMatcher]
+    L[LanguageToolMatcher]
+    F[...FancyHypotheticalAIMatcher]
+   end
+```
+
 ## Implementation
 
-Both the checker and management services are built in Scala with the Play framework. Data is currently stored in a Google Sheet.
+Both the Checker and Rule Manager services are built in Scala with the Play framework. Data in the Rule Manager is stored in a Postgres database, queried via ScalikeJDBC.
 
 Google credentials are fetched from SSM using AWS Credentials or Instance Role.
 
@@ -91,7 +115,7 @@ For intellij there is a guide to set up automated linting on save [here](https:/
 
 ### Automatic formatting
 
-The project contains a pre-commit hook which will automatically run the Scala formatter on all staged files. To enable this, run `./script/setup-hooks` from the root of the project.
+The project contains a pre-commit hook which will automatically run the Scala formatter on all staged files. To enable this, run `./script/setup` from the root of the project.
 
 ## Developer how-tos
 

@@ -4,6 +4,7 @@ import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.model.{
   CheckerRule,
   CheckerRuleResource,
+  DictionaryRule,
   LTRule,
   LTRuleCore,
   LTRuleXML,
@@ -12,13 +13,13 @@ import com.gu.typerighter.model.{
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
 import db.DbRuleDraft.autoSession
-import model.{LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
+import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
 import play.api.data.FormError
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OWrites}
 import scalikejdbc.DBSession
 
 object AllRuleData {
-  implicit val writes = Json.writes[AllRuleData]
+  implicit val writes: OWrites[AllRuleData] = Json.writes[AllRuleData]
 }
 
 /* All the data associated with a rule, including the current draft rule, the active
@@ -34,6 +35,7 @@ object RuleManager extends Loggable {
     val regex = "regex"
     val languageToolXML = "languageToolXML"
     val languageToolCore = "languageToolCore"
+    val dictionary = "dictionary"
   }
 
   def checkerRuleToDraftDbRule(rule: CheckerRule): DbRuleDraft = {
@@ -71,6 +73,18 @@ object RuleManager extends Loggable {
           externalId = Some(languageToolRuleId),
           ignore = false,
           user = "Google Sheet",
+          replacement = None,
+          ruleOrder = 0
+        )
+      case DictionaryRule(id, word, category) =>
+        DbRuleDraft.withUser(
+          id = None,
+          pattern = Some(word),
+          ruleType = RuleType.dictionary,
+          category = Some(category.name),
+          externalId = Some(id),
+          ignore = false,
+          user = "Google Sheet",
           ruleOrder = 0
         )
       case _: LTRule =>
@@ -79,6 +93,13 @@ object RuleManager extends Loggable {
         )
     }
   }
+
+  def camelToKebab: String => String = _.foldLeft("") {
+    case (acc, chr) if chr.isUpper => acc :+ '-' :+ chr.toLower
+    case (acc, chr)                => acc :+ chr
+  }
+  def prefixFormError(e: FormError): FormError =
+    FormError(s"invalid-${camelToKebab(e.key)}", e.message)
 
   def liveDbRuleToCheckerRule(rule: DbRuleLive): Either[Seq[FormError], CheckerRule] = {
     rule match {
@@ -94,7 +115,7 @@ object RuleManager extends Loggable {
             )
           )
           .fold(
-            err => Left(err.errors),
+            err => Left(err.errors.map(prefixFormError)),
             form => Right((RegexRuleForm.toRegexRule _).tupled(form))
           )
       case r: DbRuleLive if r.ruleType == RuleType.languageToolXML =>
@@ -108,7 +129,7 @@ object RuleManager extends Loggable {
             )
           )
           .fold(
-            err => Left(err.errors),
+            err => Left(err.errors.map(prefixFormError)),
             form => Right((LTRuleXMLForm.toLTRuleXML _).tupled(form))
           )
       case r: DbRuleLive if r.ruleType == RuleType.languageToolCore =>
@@ -117,15 +138,26 @@ object RuleManager extends Loggable {
             r.externalId.getOrElse("")
           )
           .fold(
-            err => Left(err.errors),
+            err => Left(err.errors.map(prefixFormError)),
             form => Right(LTRuleCoreForm.toLTRuleCore(form))
+          )
+      case r: DbRuleLive if r.ruleType == RuleType.dictionary =>
+        DictionaryForm.form
+          .fillAndValidate(
+            r.pattern.getOrElse(""),
+            r.category.getOrElse(""),
+            r.externalId.getOrElse("")
+          )
+          .fold(
+            err => Left(err.errors),
+            form => Right((DictionaryForm.toDictionary _).tupled(form))
           )
       case other =>
         Left(
           Seq(
             FormError(
-              s"Could not create a CheckerRule for DBRule $other",
-              "Rule type not recognised"
+              s"db-to-checker-rule",
+              s"Rule type not recognised for DBRule $other"
             )
           )
         )
@@ -134,6 +166,11 @@ object RuleManager extends Loggable {
 
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
+
+  def getDraftDictionaryRules(word: Option[String], page: Int)(implicit
+      session: DBSession = autoSession
+  ): List[DbRuleDraft] =
+    DbRuleDraft.findDictionaryRules(word, page)
 
   def getAllRuleData(id: Int)(implicit
       session: DBSession = autoSession
@@ -157,11 +194,11 @@ object RuleManager extends Loggable {
         .create(liveRule, user)
         .toEither
         .left
-        .map(e => Seq(FormError("Error writing rule to live table", e.getMessage)))
+        .map(e => Seq(FormError("write-live-table", e.getMessage)))
 
       _ <- publishLiveRules(bucketRuleResource)
       allRuleData <- getAllRuleData(id)
-        .toRight(Seq(FormError("Error reading rule from live table", "Rule not found")))
+        .toRight(Seq(FormError("read-live-table", "Rule not found")))
     } yield allRuleData
   }
 
@@ -175,7 +212,7 @@ object RuleManager extends Loggable {
         .toRight(
           Seq(
             FormError(
-              "Finding existing rule",
+              "find-draft-rule",
               s"Could not find a draft rule with id $id"
             )
           )
@@ -185,7 +222,7 @@ object RuleManager extends Loggable {
           Left(
             Seq(
               FormError(
-                "Rule is archived",
+                "publish-archived-rule",
                 "Only unarchived rules can be published"
               )
             )
@@ -200,7 +237,7 @@ object RuleManager extends Loggable {
         .map(_ =>
           Seq(
             FormError(
-              "Rule already exists",
+              "rule-already-exists",
               "the current draft rule has not changed since it was last published"
             )
           )
@@ -215,7 +252,7 @@ object RuleManager extends Loggable {
     for {
       ruleResource <- getRuleResourceFromLiveRules()
       _ <- bucketRuleResource.putRules(ruleResource).left.map { l =>
-        Seq(FormError("Error writing rules to the artefact bucket", l.toString))
+        Seq(FormError("write-artefact-to-bucket", l.toString))
       }
     } yield ruleResource
   }
@@ -245,7 +282,7 @@ object RuleManager extends Loggable {
 
     incomingRules
       .grouped(100)
-      .foreach(DbRuleDraft.batchInsert)
+      .foreach(group => DbRuleDraft.batchInsert(group))
 
     val draftRules = DbRuleDraft.findAll()
 
@@ -255,7 +292,7 @@ object RuleManager extends Loggable {
 
     liveRules
       .grouped(100)
-      .foreach(DbRuleLive.batchInsert)
+      .foreach(DbRuleLive.batchInsert(_))
 
     val persistedRules = getDraftRules()
 
@@ -280,7 +317,7 @@ object RuleManager extends Loggable {
       Left(
         List(
           FormError(
-            "Error publishing rules",
+            "publish-rules",
             s"Rules were written to the live table, but the persisted rules differ from the rules we received from the sheet."
           )
         )
@@ -312,7 +349,6 @@ object RuleManager extends Loggable {
       case e: Exception => Left(e)
     }
   }
-
   def archiveRule(
       id: Int,
       user: String
@@ -350,7 +386,6 @@ object RuleManager extends Loggable {
       case e: Exception => Left(e)
     }
   }
-
   def revertDraftRule(id: Int, email: String): Either[Throwable, AllRuleData] = {
     for {
       draftRule <- DbRuleDraft.find(id).toRight(new Exception("No draftRule id found"))
@@ -375,5 +410,43 @@ object RuleManager extends Loggable {
         .getAllRuleData(id)
         .toRight(new Exception("Rule not found matching ID"))
     } yield savedDraftRule
+  }
+
+  def destructivelyPublishDictionaryRules(
+      words: List[String],
+      bucketRuleResource: BucketRuleResource
+  ) = {
+    // Destroy existing draft dictionary rules
+    DbRuleDraft.destroyDictionaryRules()
+    // Destroy existing live dictionary rules
+    DbRuleLive.destroyDictionaryRules()
+
+    val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
+    val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
+      DbRuleDraft.withUser(
+        id = None,
+        ruleType = "dictionary",
+        pattern = Some(wordAndIndex._1),
+        category = Some("Collins"),
+        ignore = false,
+        user = "Collins Dictionary",
+        ruleOrder = initialRuleOrder + wordAndIndex._2,
+        externalId = None
+      )
+    )
+
+    dictionaryRules
+      .grouped(100)
+      .foreach(group => DbRuleDraft.batchInsert(group, true))
+
+    val liveRules = DbRuleDraft
+      .findAllDictionaryRules()
+      .map(_.toLive("From Collins Dictionary", true))
+
+    liveRules
+      .grouped(100)
+      .foreach(DbRuleLive.batchInsert(_))
+
+    publishLiveRules(bucketRuleResource)
   }
 }

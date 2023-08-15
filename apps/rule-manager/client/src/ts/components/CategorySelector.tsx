@@ -1,18 +1,21 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { EuiFormRow, EuiComboBox } from '@elastic/eui';
-import React from 'react';
-import { PartiallyUpdateRuleData } from './RuleForm';
+import { FormError, PartiallyUpdateRuleData } from './RuleForm';
 import { existingCategories } from '../constants/constants';
-import { RuleData } from './hooks/useRule';
+import { getErrorPropsForField } from './helpers/errors';
+import { Label } from './Label';
 
 export type MetadataOption = { label: string };
 const singleSelectionOptions = { asPlainText: true };
 export const CategorySelector = ({
 	currentCategory,
 	partiallyUpdateRuleData,
+	validationErrors,
 }: {
 	currentCategory: string | undefined;
 	partiallyUpdateRuleData: PartiallyUpdateRuleData;
+	validationErrors?: FormError[];
 }) => {
 	// This is an array in order to match the expected type for EuiComboBox, but
 	// it will never have more than one category selected
@@ -33,8 +36,14 @@ export const CategorySelector = ({
 		partiallyUpdateRuleData({ category: newCategory });
 	}, [selectedCategory]);
 
+	const categoryErrors = getErrorPropsForField('category', validationErrors);
+
 	return (
-		<EuiFormRow label="Source" fullWidth={true}>
+		<EuiFormRow
+			label={<Label text="Source" required={true} />}
+			fullWidth={true}
+			{...categoryErrors}
+		>
 			<EuiComboBox
 				options={categories}
 				singleSelection={singleSelectionOptions}
@@ -43,6 +52,7 @@ export const CategorySelector = ({
 				isClearable={true}
 				isCaseSensitive
 				fullWidth={true}
+				{...categoryErrors}
 			/>
 		</EuiFormRow>
 	);
