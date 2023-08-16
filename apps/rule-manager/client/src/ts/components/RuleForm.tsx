@@ -222,6 +222,9 @@ export const RuleForm = ({
 		}
 
 		await discardRuleChanges(ruleId);
+		if (isRevertModalVisible) {
+			setIsRevertModalVisible(false);
+		}
 		onUpdate(ruleId);
 	};
 
