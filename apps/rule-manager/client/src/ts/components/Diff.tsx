@@ -152,7 +152,15 @@ export const transformToHumanReadableValues = (
 	});
 };
 
-export const Diff = ({ rule }: { rule: RuleData | undefined }) => {
+export const Diff = ({
+	rule,
+	beforeText,
+	afterText,
+}: {
+	rule: RuleData | undefined;
+	beforeText: string;
+	afterText: string;
+}) => {
 	const { tags } = useTags();
 
 	const diffedFields = rule
@@ -179,10 +187,10 @@ export const Diff = ({ rule }: { rule: RuleData | undefined }) => {
 							<strong>Field</strong>
 						</EuiFlexItem>
 						<EuiFlexItem grow>
-							<strong>Before republish:</strong>
+							<strong>{beforeText}</strong>
 						</EuiFlexItem>
 						<EuiFlexItem grow>
-							<strong>After republish:</strong>
+							<strong>{afterText}</strong>
 						</EuiFlexItem>
 					</EuiFlexGroup>
 					{diffedFields.map((diffedField) => (

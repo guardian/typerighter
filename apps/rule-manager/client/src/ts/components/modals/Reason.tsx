@@ -60,7 +60,11 @@ export const ReasonModal = ({
 						/>
 					</EuiFormRow>
 				</EuiForm>
-				<Diff rule={rule} />
+				<Diff
+					rule={rule}
+					beforeText={'Before republish:'}
+					afterText={'After republish:'}
+				/>
 			</EuiModalBody>
 
 			<EuiModalFooter>

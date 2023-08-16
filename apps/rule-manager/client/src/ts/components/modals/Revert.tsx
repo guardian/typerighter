@@ -39,12 +39,14 @@ export const RevertModal = ({
 			</EuiModalHeader>
 			<EuiModalBody>
 				<EuiForm id={modalFormId} component="form" onSubmit={handleSubmit}>
-					<EuiText>
-						Are you sure you want to discard these unpublished changes?
-					</EuiText>
+					<EuiText>Are you sure you want to discard these changes?</EuiText>
 					<EuiSpacer />
 				</EuiForm>
-				<Diff rule={rule} />
+				<Diff
+					rule={rule}
+					beforeText={'Before changes:'}
+					afterText={'After changes:'}
+				/>
 			</EuiModalBody>
 
 			<EuiModalFooter>
