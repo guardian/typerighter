@@ -1,9 +1,10 @@
 import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
+  forwardRef,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import {
 	EuiTitle,
@@ -270,6 +271,15 @@ const LazyRulesTableHeaderCell = styled.div`
 
 const LazyRulesTableContainer = styled.div`
 	background-color: white;
+	display: flex;
+	flex: 1 1 auto;
+	flex-flow: column;
+`;
+
+const LazyRulesTableBody = styled.div`
+  display: 'flex';
+  flex: 1;
+  flexGrow: 2;
 `;
 
 const ellipsisOverflowStyles = {
@@ -277,6 +287,14 @@ const ellipsisOverflowStyles = {
 	whiteSpace: 'nowrap',
 	overflow: 'hidden',
 };
+
+const LazyLoadOuterBackground = styled.div`
+  background: repeating-linear-gradient(transparent, transparent ${rowHeight - 1}px, ${(() => useEuiTheme().euiTheme.colors.lightShade)} ${rowHeight - 1}px, ${(() => useEuiTheme().euiTheme.colors.lightShade)} ${rowHeight}px);
+`
+
+const lazyLoadInner = forwardRef((props, ref) => (
+  <LazyLoadOuterBackground ref={ref} {...props} />
+))
 
 const LazyRulesTable = ({
 	ruleData,
@@ -298,9 +316,7 @@ const LazyRulesTable = ({
 		.reduce((acc, cur) => acc + cur, 0);
 
 	return (
-		<LazyRulesTableContainer
-			style={{ display: 'flex', flex: '1 1 auto', flexFlow: 'column' }}
-		>
+		<LazyRulesTableContainer>
 			<LazyRulesTableHeader>
 				{columns.map((column) => {
 					return (
@@ -322,7 +338,7 @@ const LazyRulesTable = ({
 					);
 				})}
 			</LazyRulesTableHeader>
-			<div style={{ display: 'flex', flex: 1, flexGrow: 2 }}>
+			<LazyRulesTableBody>
 				<AutoSizer>
 					{({ width, height }) => (
 						<InfiniteLoader
@@ -335,6 +351,7 @@ const LazyRulesTable = ({
 								fetchRules(startIndex);
 							}}
 							minimumBatchSize={1000}
+              threshold={500}
 						>
 							{({ onItemsRendered, ref }) => (
 								<FixedSizeList
@@ -344,6 +361,7 @@ const LazyRulesTable = ({
 									width={width}
 									itemCount={ruleData?.total || 0}
 									onItemsRendered={onItemsRendered}
+                  innerElementType={lazyLoadInner}
 									ref={ref}
 								>
 									{({ style, index, data }) => (
@@ -381,7 +399,7 @@ const LazyRulesTable = ({
 						</InfiniteLoader>
 					)}
 				</AutoSizer>
-			</div>
+			</LazyRulesTableBody>
 		</LazyRulesTableContainer>
 	);
 };
