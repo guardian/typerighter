@@ -255,7 +255,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       val filterGroupAndOrderAndLimit = addSearchClause(selectSubquery)
         .orderBy(rd.ruleOrder)
         .limit(pageSize)
-        .offset(page * pageSize)
+        .offset((page - 1) * pageSize)
 
       select(dataStmtArgs: _*)
         .from(filterGroupAndOrderAndLimit.as(rdSubQuery))
