@@ -79,6 +79,7 @@ export const RuleForm = ({
 		unarchiveRule,
 		unpublishRule,
 		ruleStatus,
+		discardRuleChanges,
 	} = useRule(ruleId);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
@@ -203,6 +204,15 @@ export const RuleForm = ({
 		onUpdate(ruleId);
 	};
 
+	const discardRuleChangesHandler = async () => {
+		if (!ruleId || ruleStatus !== 'live') {
+			return;
+		}
+
+		await discardRuleChanges(ruleId);
+		onUpdate(ruleId);
+	};
+
 	const hasUnsavedChanges = ruleFormData !== rule?.draft;
 	const canEditRuleContent = ruleStatus === 'draft' || ruleStatus === 'live';
 
@@ -216,7 +226,10 @@ export const RuleForm = ({
 				>
 					<EuiFlexItem grow={1} style={{ overflowY: 'scroll' }}>
 						<EuiFlexGroup gutterSize="s" direction="column">
-							<RuleStatus ruleData={rule} />
+							<RuleStatus
+								ruleData={rule}
+								discardRuleChangesHandler={discardRuleChangesHandler}
+							/>
 							<RuleContent
 								isLoading={isLoading}
 								validationErrors={publishValidationErrors}

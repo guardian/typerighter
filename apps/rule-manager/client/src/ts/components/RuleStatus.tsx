@@ -7,7 +7,14 @@ import {
 	getRuleStatusColour,
 	hasUnpublishedChanges,
 } from '../utils/rule';
-import { EuiFlexGroup, EuiHealth, EuiIcon, EuiText } from '@elastic/eui';
+import {
+	EuiFlexGroup,
+	EuiFlexItem,
+	EuiHealth,
+	EuiIcon,
+	EuiLink,
+	EuiText,
+} from '@elastic/eui';
 import { css } from '@emotion/react';
 import { euiTextTruncate } from '@elastic/eui/src/global_styling/mixins/_typography';
 import styled from '@emotion/styled';
@@ -29,10 +36,13 @@ const UnpublishedChangesContainer = styled.div`
 
 export const RuleStatus = ({
 	ruleData,
+	discardRuleChangesHandler,
 }: {
 	ruleData: RuleData | undefined;
+	discardRuleChangesHandler: () => Promise<void>;
 }) => {
 	const state = capitalize(getRuleStatus(ruleData?.draft));
+
 	return (
 		<RuleFormSection
 			title="RULE STATUS"
@@ -40,7 +50,11 @@ export const RuleStatus = ({
 				!!ruleData &&
 				hasUnpublishedChanges(ruleData) && (
 					<EuiFlexGroup gutterSize="s">
-						Has unpublished changes
+						<EuiFlexItem>
+							<EuiLink onClick={discardRuleChangesHandler} color={'warning'}>
+								Discard unpublished changes
+							</EuiLink>
+						</EuiFlexItem>
 						<EuiIcon type="warning" />
 					</EuiFlexGroup>
 				)

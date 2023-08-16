@@ -8,6 +8,7 @@ import play.api.libs.json.{JsValue, Json}
 import db.{DbRuleDraft}
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
+import service.RuleManager.revertDraftRule
 import service.{RuleManager, RuleTesting, SheetsRuleResource, TestRuleCapiQuery}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
@@ -218,6 +219,17 @@ class RulesController(
         RuleManager.unarchiveRule(id, request.user.email) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
           case Right(allRuleData) => Ok(Json.toJson(allRuleData))
+        }
+    }
+  }
+
+  def discardChanges(id: Int) = APIAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        revertDraftRule(id, request.user.email) match {
+          case Left(throwable) => InternalServerError(throwable.getMessage)
+          case Right(data)     => Ok(Json.toJson(data))
         }
     }
   }

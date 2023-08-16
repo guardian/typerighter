@@ -20,6 +20,7 @@ import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import fixtures.RuleFixtures
 import play.api.data.FormError
 import utils.LocalStack
+import java.time.OffsetDateTime
 
 class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val bucketRuleResource =
@@ -526,6 +527,35 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
               allRuleData.live.head.updatedBy shouldBe user
               allRuleData.live.head.updatedAt shouldBe >(ruleToUnpublish.updatedAt)
           }
+      }
+  }
+
+  "revertDraftRule" should "revert a draft rule to a previous version, using the properties of the latest live rule" in {
+    () =>
+      val draftRuleToPublish = createPublishableRule
+
+      val publishedRule = RuleManager
+        .publishRule(draftRuleToPublish.id.get, user, reason, bucketRuleResource)
+        .toOption
+        .get
+
+      DbRuleDraft
+        .save(
+          draftRuleToPublish.copy(revisionId = 2, description = Some("changing draft rule")),
+          user
+        )
+        .get
+
+      RuleManager.revertDraftRule(draftRuleToPublish.id.get, user) match {
+        case Left(e) =>
+          fail(
+            (s"Unexpected error reverting rule id: ${draftRuleToPublish.id.get}: ${e.getMessage}")
+          )
+        case Right(allRuleData) =>
+          // in production the draft rule updatedAt time will reflect the updatedAt time of the latest live rule
+          val mockUpdatedAt = OffsetDateTime.now
+          allRuleData.draft.copy(updatedAt = mockUpdatedAt) shouldBe publishedRule.draft
+            .copy(updatedAt = mockUpdatedAt)
       }
   }
 }

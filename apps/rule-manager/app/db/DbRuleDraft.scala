@@ -503,7 +503,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     ruleIds
   }
 
-  def save(entity: DbRuleDraft, user: String)(implicit
+  def save(entity: DbRuleDraft, user: String, overrideRevisionId: Boolean = false)(implicit
       session: DBSession = autoSession
   ): Try[DbRuleDraft] = {
     val id = withSQL {
@@ -524,7 +524,10 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.updatedAt -> OffsetDateTime.now(),
           column.updatedBy -> user,
           column.isArchived -> entity.isArchived,
-          column.revisionId -> sqls"${column.revisionId} + 1"
+          column.revisionId -> (overrideRevisionId match {
+            case false => sqls"${column.revisionId} + 1"
+            case true  => sqls"${entity.revisionId}"
+          })
         )
         .where
         .eq(column.id, entity.id)
