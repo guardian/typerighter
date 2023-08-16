@@ -34,7 +34,7 @@ public final class MorfologikCollinsSpellerRule extends AbstractEnglishSpellerRu
 
     public static final String RULE_ID = "MORFOLOGIK_RULE_COLLINS";
 
-    private static final String RESOURCE_FILENAME = "/dictionary/collins.dict";
+    private static final String RESOURCE_FILENAME = "/resources/dictionary/collins.dict";
     private static final Map<String,String> US_ENGLISH = loadWordlist("en/en-US-GB.txt", 0);
 
     public MorfologikCollinsSpellerRule(ResourceBundle messages, Language language, UserConfig userConfig, List<Language> altLanguages) throws IOException {
