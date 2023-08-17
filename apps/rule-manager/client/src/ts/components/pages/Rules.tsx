@@ -1,5 +1,5 @@
 import React from 'react';
-import RulesTable from '../RulesTable';
+import RulesTable from '../table/SearchableRulesTable';
 
 export const Rules = () => {
 	return <RulesTable />;
