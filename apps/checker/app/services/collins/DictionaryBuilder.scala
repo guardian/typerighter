@@ -1,24 +1,14 @@
-package services
+package services.collins
 
-import java.io.BufferedReader
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.util
-import java.util.Collections
-import java.util.Scanner
-import java.util.regex.Pattern
+import morfologik.tools.{DictCompile, FSACompile, SerializationFormat}
 import org.languagetool.JLanguageTool
-import morfologik.tools.DictCompile
-import morfologik.tools.FSACompile
-import morfologik.tools.SerializationFormat
+
+import java.io._
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, StandardCopyOption}
+import java.util
+import java.util.regex.Pattern
+import java.util.{Collections, Scanner}
 
 /* Scala conversion of Java original, derived from languagetool-tools: https://github.com/languagetool-org/languagetool/blob/master/languagetool-tools/src/main/java/org/languagetool/tools/DictionaryBuilder.java
  * Hopefully we can publish from that repository and remove this version entirely.

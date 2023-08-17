@@ -4,6 +4,7 @@ import com.gu.typerighter.model.{Category, DictionaryRule, TextBlock}
 import matchers.DictionaryMatcher
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
+import services.collins.SpellDictionaryBuilder
 
 class DictionaryBuilderTest extends AsyncFlatSpec with Matchers {
   it should "build a dictionary from a list of words" in {

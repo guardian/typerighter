@@ -2,12 +2,8 @@ package matchers
 
 import com.gu.typerighter.model.{Category, DictionaryRule}
 import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
-import services.{
-  CollinsEnglish,
-  MatcherRequest,
-  MorfologikCollinsSpellerRule,
-  SpellDictionaryBuilder
-}
+import services.collins.{CollinsEnglish, MorfologikCollinsSpellerRule, SpellDictionaryBuilder}
+import services.MatcherRequest
 import utils.Matcher
 
 import scala.concurrent.ExecutionContext

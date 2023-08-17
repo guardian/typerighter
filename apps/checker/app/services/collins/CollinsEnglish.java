@@ -1,4 +1,4 @@
-package services;
+package services.collins;
 
 import org.jetbrains.annotations.Nullable;
 import org.languagetool.GlobalConfig;
@@ -7,7 +7,6 @@ import org.languagetool.UserConfig;
 import org.languagetool.language.BritishEnglish;
 import org.languagetool.languagemodel.LanguageModel;
 import org.languagetool.rules.Rule;
-import org.languagetool.rules.en.MorfologikBritishSpellerRule;
 import org.languagetool.rules.spelling.SpellingCheckRule;
 
 import java.io.IOException;

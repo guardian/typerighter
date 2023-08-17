@@ -1,10 +1,6 @@
-package services
+package services.collins
 
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStreamWriter
+import java.io._
 import java.util
 import java.util.Scanner
 
