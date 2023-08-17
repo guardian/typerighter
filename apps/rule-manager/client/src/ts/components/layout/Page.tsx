@@ -8,7 +8,7 @@ import { Routes, Route, useParams } from 'react-router-dom';
 import createCache from '@emotion/cache';
 import { FeatureSwitchesProvider } from '../context/featureSwitches';
 import { PageDataProvider } from '../../utils/window';
-import RulesTable from '../RulesTable';
+import RulesTable from '../table/SearchableRulesTable';
 import styled from '@emotion/styled';
 import { PageNotFound } from '../PageNotFound';
 import { TagsTable } from '../TagsTable';

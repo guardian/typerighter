@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { errorToString } from '../../utils/error';
 import { DraftRule } from './useRule';
 
-type PaginatedResponse<Data> = {
+export type PaginatedResponse<Data> = {
 	data: Data[];
 	page: number;
 	pageSize: number;
@@ -11,7 +11,7 @@ type PaginatedResponse<Data> = {
 };
 
 export type PaginatedRuleData = {
-	data: { [index: number]: DraftRule };
+	data: DraftRule[];
 	loadedRules: Set<number>;
 	pageSize: number;
 	total: number;
