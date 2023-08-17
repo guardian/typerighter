@@ -1,6 +1,3 @@
-/* To be used by languagetool
- */
-
 package services.collins;
 
 import java.io.IOException;
