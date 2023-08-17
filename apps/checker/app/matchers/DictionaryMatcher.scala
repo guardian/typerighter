@@ -17,6 +17,7 @@ class DictionaryMatcher(
   val userConfig: UserConfig = new UserConfig()
 
   val instance = new JLanguageTool(language, cache, userConfig)
+  // As a side effect, make sure the .dict artefact is available to languageTool
   new SpellDictionaryBuilder().buildDictionary(rules.map(rule => rule.word))
 
   instance
@@ -24,8 +25,6 @@ class DictionaryMatcher(
     .forEach(rule => {
       if (rule.getId() != MorfologikCollinsSpellerRule.RULE_ID) {
         instance.disableRule(rule.getId())
-      } else {
-        println(rule.getId())
       }
     })
 
