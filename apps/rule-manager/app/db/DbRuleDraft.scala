@@ -241,9 +241,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     val addSearchClause = (stmt: SelectSQLBuilder[Nothing]) =>
       maybeWord match {
         case Some(word) =>
-          stmt.where
-            .like(rd.pattern, s"%$word%")
-            .asInstanceOf[SelectSQLBuilder[Any]]
+          stmt.append(sqls"WHERE rd.ts_vector @@ to_tsquery('english', $word)")
         case _ =>
           stmt
       }

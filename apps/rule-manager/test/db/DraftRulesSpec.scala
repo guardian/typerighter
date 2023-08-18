@@ -65,6 +65,62 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     published.isPublished should be(true)
   }
 
+  it should "search rules using a search phrase – pattern" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        pattern = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("cats"))
+    results.data shouldBe List(rule)
+  }
+
+  it should "search rules using a search phrase – description" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        description = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("cats"))
+    results.data shouldBe List(rule)
+  }
+
+  it should "search rules using a search phrase – category" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("cats"))
+    results.data shouldBe List(rule)
+  }
+
+  it should "search rules using a search phrase – replacement" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        replacement = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("cats"))
+    results.data shouldBe List(rule)
+  }
+
   it should "count all records" in { implicit session =>
     val count = DbRuleDraft.countAll()
     count should be > 0L
