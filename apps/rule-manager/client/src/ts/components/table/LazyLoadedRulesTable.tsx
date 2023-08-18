@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
 	EuiTableHeader,
 	EuiTableHeaderCell,
@@ -215,6 +215,7 @@ export const LazyLoadedRulesTable = ({
 	selectedRules,
 	onSelect,
 	onSelectAll,
+  queryStr
 }: {
 	ruleData: PaginatedRuleData;
 	tags: TagMap;
@@ -224,6 +225,7 @@ export const LazyLoadedRulesTable = ({
 	selectedRules: Set<DraftRule>;
 	onSelect: (rule: DraftRule, isSelected: boolean) => void;
 	onSelectAll: (selected: boolean) => void;
+  queryStr: string
 }) => {
 	const columns = createColumns(
 		tags,
@@ -238,13 +240,17 @@ export const LazyLoadedRulesTable = ({
 		.map((col) => col.columns)
 		.reduce((acc, cur) => acc + cur, 0);
 
+  useEffect(() => {
+    fetchRules(0, queryStr)
+  }, [queryStr])
+
 	return (
 		<AutoSizer>
 			{({ width, height }) => (
 				<InfiniteLoader
 					isItemLoaded={(index) => ruleData.loadedRules.has(index)}
 					itemCount={ruleData.total}
-					loadMoreItems={fetchRules}
+					loadMoreItems={startIndex => fetchRules(startIndex, queryStr)}
 					minimumBatchSize={1000}
 					threshold={500}
 				>

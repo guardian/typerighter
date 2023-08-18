@@ -33,6 +33,7 @@ export const useCreateEditPermissions = () => {
 };
 
 const RulesTable = () => {
+  const [queryStr, setQueryStr] = useState<string>("");
 	const { tags, fetchTags, isLoading: isTagMapLoading } = useTags();
 	const { ruleData, error, refreshRules, isRefreshing, setError, fetchRules } =
 		useRules();
@@ -156,7 +157,7 @@ const RulesTable = () => {
 					<EuiFlexItem grow={2}>
 						<EuiFlexGroup style={{ flexGrow: 0 }}>
 							<EuiFlexItem>
-								<EuiFieldSearch fullWidth />
+								<EuiFieldSearch fullWidth value={queryStr} onChange={e => setQueryStr(e.target.value)} />
 							</EuiFlexItem>
 							<EuiFlexItem grow={0}>
 								<EuiToolTip
@@ -179,7 +180,7 @@ const RulesTable = () => {
 						<EuiFlexGroup>
 							{ruleData && (
 								<LazyLoadedRulesTable
-									fetchRules={fetchRules}
+									fetchRules={index => fetchRules(index, queryStr)}
 									ruleData={ruleData}
 									tags={tags}
 									editRule={openEditRulePanel}
@@ -187,6 +188,7 @@ const RulesTable = () => {
 									selectedRules={selectedRules}
 									onSelect={onSelect}
 									onSelectAll={onSelectAll}
+                  queryStr={queryStr}
 								/>
 							)}
 						</EuiFlexGroup>
