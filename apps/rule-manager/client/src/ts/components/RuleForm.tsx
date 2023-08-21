@@ -207,11 +207,7 @@ export const RuleForm = ({
 		onUpdate(ruleId);
 	};
 
-	const maybeDiscardRuleChangesHandler = () => {
-		if (!ruleId || ruleStatus !== 'live') {
-			return;
-		}
-
+	const showRuleRevertModal = () => {
 		setIsRevertModalVisible(true);
 	};
 
@@ -242,7 +238,7 @@ export const RuleForm = ({
 						<EuiFlexGroup gutterSize="s" direction="column">
 							<RuleStatus
 								ruleData={rule}
-								discardRuleChangesHandler={maybeDiscardRuleChangesHandler}
+								showRuleRevertModal={showRuleRevertModal}
 							/>
 							<RuleContent
 								isLoading={isLoading}

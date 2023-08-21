@@ -36,10 +36,10 @@ const UnpublishedChangesContainer = styled.div`
 
 export const RuleStatus = ({
 	ruleData,
-	discardRuleChangesHandler,
+	showRuleRevertModal,
 }: {
 	ruleData: RuleData | undefined;
-	discardRuleChangesHandler: () => void;
+	showRuleRevertModal: () => void;
 }) => {
 	const state = capitalize(getRuleStatus(ruleData?.draft));
 
@@ -51,7 +51,7 @@ export const RuleStatus = ({
 				hasUnpublishedChanges(ruleData) && (
 					<EuiFlexGroup gutterSize="s">
 						<EuiFlexItem>
-							<EuiLink onClick={discardRuleChangesHandler} color={'warning'}>
+							<EuiLink onClick={showRuleRevertModal} color={'warning'}>
 								Discard unpublished changes
 							</EuiLink>
 						</EuiFlexItem>
