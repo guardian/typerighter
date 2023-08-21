@@ -216,8 +216,7 @@ export const RuleForm = ({
 	};
 
 	const discardRuleChangesHandler = async () => {
-		const isDraftOrLive = ruleStatus === 'draft' || ruleStatus === 'live';
-		if (!ruleId || !isDraftOrLive) {
+		if (!ruleId || ruleStatus !== 'live') {
 			return;
 		}
 
