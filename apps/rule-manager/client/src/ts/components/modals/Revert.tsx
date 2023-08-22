@@ -39,13 +39,17 @@ export const RevertModal = ({
 			</EuiModalHeader>
 			<EuiModalBody>
 				<EuiForm id={modalFormId} component="form" onSubmit={handleSubmit}>
-					<EuiText>Are you sure you want to discard these changes?</EuiText>
+					<EuiText>
+						Are you sure you want to discard these changes? Below shows the
+						changes you would be discarding.
+					</EuiText>
 					<EuiSpacer />
 				</EuiForm>
 				<Diff
 					rule={rule}
-					beforeText={'Before changes:'}
-					afterText={'After changes:'}
+					beforeHeading={'Before revert:'}
+					afterHeading={'After revert:'}
+					modalType={'Revert'}
 				/>
 			</EuiModalBody>
 

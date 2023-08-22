@@ -62,8 +62,9 @@ export const ReasonModal = ({
 				</EuiForm>
 				<Diff
 					rule={rule}
-					beforeText={'Before republish:'}
-					afterText={'After republish:'}
+					beforeHeading={'Before republish:'}
+					afterHeading={'After republish:'}
+					modalType={'Reason'}
 				/>
 			</EuiModalBody>
 
