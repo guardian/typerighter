@@ -27,33 +27,41 @@ class RulesController(
     extends PandaAuthController(controllerComponents, config)
     with PermissionsHandler
     with FormHelpers {
-  def refresh = APIAuthAction {
-    val maybeWrittenRules = for {
-      dbRules <- sheetsRuleResource
-        .getRules()
-        .left
-        .map(toFormError("refresh-sheet"))
-      _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
-    } yield {
-      RuleManager.getDraftRules()
-    }
+  def refresh = APIAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to refresh rules")
+      case true =>
+        val maybeWrittenRules = for {
+          dbRules <- sheetsRuleResource
+            .getRules()
+            .left
+            .map(toFormError("refresh-sheet"))
+          _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
+        } yield {
+          RuleManager.getDraftRules()
+        }
 
-    maybeWrittenRules match {
-      case Right(ruleResource) => Ok(Json.toJson(ruleResource))
-      case Left(errors)        => InternalServerError(Json.toJson(errors))
+        maybeWrittenRules match {
+          case Right(ruleResource) => Ok(Json.toJson(ruleResource))
+          case Left(errors)        => InternalServerError(Json.toJson(errors))
+        }
     }
   }
 
-  def refreshDictionaryRules() = APIAuthAction {
-    val wordsOrError = bucketRuleResource.getDictionaryWords()
+  def refreshDictionaryRules() = APIAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to refresh dictionary rules")
+      case true =>
+        val wordsOrError = bucketRuleResource.getDictionaryWords()
 
-    val newRuleWords =
-      wordsOrError.flatMap(words =>
-        RuleManager.destructivelyPublishDictionaryRules(words, bucketRuleResource)
-      )
-    newRuleWords match {
-      case Left(errors) => InternalServerError(Json.toJson(errors))
-      case Right(words) => Ok(Json.toJson(words))
+        val newRuleWords =
+          wordsOrError.flatMap(words =>
+            RuleManager.destructivelyPublishDictionaryRules(words, bucketRuleResource)
+          )
+        newRuleWords match {
+          case Left(errors) => InternalServerError(Json.toJson(errors))
+          case Right(words) => Ok(Json.toJson(words))
+        }
     }
   }
 
