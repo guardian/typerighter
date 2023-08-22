@@ -84,22 +84,26 @@ class RulesController(
   }
 
   def publish(id: Int) = APIAuthAction { implicit request =>
-    PublishRuleForm.form
-      .bindFromRequest()
-      .fold(
-        form => BadRequest(Json.toJson(FormErrorEnvelope(form.errors))),
-        reason => {
-          DbRuleDraft.find(id) match {
-            case None => NotFound
-            case _ =>
-              RuleManager
-                .publishRule(id, request.user.email, reason, bucketRuleResource) match {
-                case Right(result) => Ok(Json.toJson(result))
-                case Left(errors)  => BadRequest(Json.toJson(FormErrorEnvelope(errors)))
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to publish rules")
+      case true =>
+        PublishRuleForm.form
+          .bindFromRequest()
+          .fold(
+            form => BadRequest(Json.toJson(FormErrorEnvelope(form.errors))),
+            reason => {
+              DbRuleDraft.find(id) match {
+                case None => NotFound
+                case _ =>
+                  RuleManager
+                    .publishRule(id, request.user.email, reason, bucketRuleResource) match {
+                    case Right(result) => Ok(Json.toJson(result))
+                    case Left(errors)  => BadRequest(Json.toJson(FormErrorEnvelope(errors)))
+                  }
               }
-          }
-        }
-      )
+            }
+          )
+    }
   }
 
   def create = APIAuthAction { implicit request =>
