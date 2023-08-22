@@ -27,6 +27,8 @@ export type FieldObject = {
 	value: FieldValue;
 };
 
+type Modal = 'Reason' | 'Revert';
+
 const ComparisonPanel = styled.div`
 	height: 100%;
 `;
@@ -161,7 +163,7 @@ export const Diff = ({
 	rule: RuleData | undefined;
 	beforeHeading: string;
 	afterHeading: string;
-	modalType: 'Reason' | 'Revert';
+	modalType: Modal;
 }) => {
 	const { tags } = useTags();
 
@@ -252,7 +254,7 @@ export const FieldDiff = ({
 	draft: FieldValue;
 	live: FieldValue;
 	name: string;
-	modalType: 'Reason' | 'Revert';
+	modalType: Modal;
 }) => {
 	const isTextField = textDiffFields.includes(name);
 	const isComparisonField = comparisonDiffFields.includes(name);
@@ -283,7 +285,7 @@ export const ComparisonDiff = ({
 	draft: FieldValue;
 	live: FieldValue;
 	name: string;
-	modalType: 'Reason' | 'Revert';
+	modalType: Modal;
 }) => {
 	return (
 		<div>
@@ -340,7 +342,7 @@ export const TextDiff = ({
 	draft: FieldValue;
 	live: FieldValue;
 	name: string;
-	modalType: 'Reason' | 'Revert';
+	modalType: Modal;
 }) => {
 	const [rendered] = useEuiTextDiff({
 		beforeText: live ? live.toString() : '',
