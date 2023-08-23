@@ -27,6 +27,8 @@ export type FieldObject = {
 	value: FieldValue;
 };
 
+type Modal = 'Reason' | 'Revert';
+
 const ComparisonPanel = styled.div`
 	height: 100%;
 `;
@@ -152,7 +154,17 @@ export const transformToHumanReadableValues = (
 	});
 };
 
-export const Diff = ({ rule }: { rule: RuleData | undefined }) => {
+export const Diff = ({
+	rule,
+	beforeHeading,
+	afterHeading,
+	modalType,
+}: {
+	rule: RuleData | undefined;
+	beforeHeading: string;
+	afterHeading: string;
+	modalType: Modal;
+}) => {
 	const { tags } = useTags();
 
 	const diffedFields = rule
@@ -179,10 +191,10 @@ export const Diff = ({ rule }: { rule: RuleData | undefined }) => {
 							<strong>Field</strong>
 						</EuiFlexItem>
 						<EuiFlexItem grow>
-							<strong>Before republish:</strong>
+							<strong>{beforeHeading}</strong>
 						</EuiFlexItem>
 						<EuiFlexItem grow>
-							<strong>After republish:</strong>
+							<strong>{afterHeading}</strong>
 						</EuiFlexItem>
 					</EuiFlexGroup>
 					{diffedFields.map((diffedField) => (
@@ -191,6 +203,7 @@ export const Diff = ({ rule }: { rule: RuleData | undefined }) => {
 							live={diffedField.live}
 							name={diffedField.fieldName}
 							key={diffedField.fieldName}
+							modalType={modalType}
 						/>
 					))}
 				</EuiFlexItem>
@@ -236,19 +249,28 @@ export const FieldDiff = ({
 	draft,
 	live,
 	name,
+	modalType,
 }: {
 	draft: FieldValue;
 	live: FieldValue;
 	name: string;
+	modalType: Modal;
 }) => {
 	const isTextField = textDiffFields.includes(name);
 	const isComparisonField = comparisonDiffFields.includes(name);
 
 	return (
 		<>
-			{isTextField ? <TextDiff draft={draft} live={live} name={name} /> : null}
+			{isTextField ? (
+				<TextDiff draft={draft} live={live} name={name} modalType={modalType} />
+			) : null}
 			{isComparisonField ? (
-				<ComparisonDiff draft={draft} live={live} name={name} />
+				<ComparisonDiff
+					draft={draft}
+					live={live}
+					name={name}
+					modalType={modalType}
+				/>
 			) : null}
 		</>
 	);
@@ -258,30 +280,56 @@ export const ComparisonDiff = ({
 	draft,
 	live,
 	name,
+	modalType,
 }: {
 	draft: FieldValue;
 	live: FieldValue;
 	name: string;
+	modalType: Modal;
 }) => {
 	return (
-		<Comparison
-			left={
-				Array.isArray(live) ? (
-					live.map((item) => <EuiBadge>{item}</EuiBadge>)
-				) : (
-					<EuiBadge>{live}</EuiBadge>
-				)
-			}
-			right={
-				Array.isArray(draft) ? (
-					draft.map((item) => <EuiBadge>{item}</EuiBadge>)
-				) : (
-					<EuiBadge>{draft}</EuiBadge>
-				)
-			}
-			fieldName={startCase(name)}
-			key={name}
-		/>
+		<div>
+			{modalType === 'Reason' && (
+				<Comparison
+					left={
+						Array.isArray(live) ? (
+							live.map((item) => <EuiBadge>{item}</EuiBadge>)
+						) : (
+							<EuiBadge>{live}</EuiBadge>
+						)
+					}
+					right={
+						Array.isArray(draft) ? (
+							draft.map((item) => <EuiBadge>{item}</EuiBadge>)
+						) : (
+							<EuiBadge>{draft}</EuiBadge>
+						)
+					}
+					fieldName={startCase(name)}
+					key={name}
+				/>
+			)}
+			{modalType === 'Revert' && (
+				<Comparison
+					left={
+						Array.isArray(draft) ? (
+							draft.map((item) => <EuiBadge>{item}</EuiBadge>)
+						) : (
+							<EuiBadge>{draft}</EuiBadge>
+						)
+					}
+					right={
+						Array.isArray(live) ? (
+							live.map((item) => <EuiBadge>{item}</EuiBadge>)
+						) : (
+							<EuiBadge>{live}</EuiBadge>
+						)
+					}
+					fieldName={startCase(name)}
+					key={name}
+				/>
+			)}
+		</div>
 	);
 };
 
@@ -289,20 +337,33 @@ export const TextDiff = ({
 	draft,
 	live,
 	name,
+	modalType,
 }: {
 	draft: FieldValue;
 	live: FieldValue;
 	name: string;
+	modalType: Modal;
 }) => {
 	const [rendered] = useEuiTextDiff({
 		beforeText: live ? live.toString() : '',
 		afterText: draft ? draft.toString() : '',
 	});
 	return (
-		<Comparison
-			left={<>{live}</>}
-			right={<>{rendered}</>}
-			fieldName={startCase(name)}
-		/>
+		<div>
+			{modalType === 'Reason' && (
+				<Comparison
+					left={<>{live}</>}
+					right={<>{rendered}</>}
+					fieldName={startCase(name)}
+				/>
+			)}
+			{modalType === 'Revert' && (
+				<Comparison
+					left={<>{rendered}</>}
+					right={<>{live}</>}
+					fieldName={startCase(name)}
+				/>
+			)}
+		</div>
 	);
 };

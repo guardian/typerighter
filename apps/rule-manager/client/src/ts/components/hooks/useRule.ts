@@ -47,6 +47,7 @@ export function useRule(ruleId: number | undefined) {
 	const [errors, setErrors] = useState<string | undefined>(undefined);
 	const [ruleData, setRuleData] = useState<RuleData | undefined>(undefined);
 	const [ruleStatus, setRuleStatus] = useState<RuleStatus>('draft');
+	const [isDiscarding, setIsDiscarding] = useState(false);
 
 	const setRuleDataAndClearErrors = (ruleData: RuleData) => {
 		setRuleData(ruleData);
@@ -284,7 +285,7 @@ export function useRule(ruleId: number | undefined) {
 	};
 
 	const discardRuleChanges = async (ruleId: number) => {
-		setIsLoading(true);
+		setIsDiscarding(true);
 
 		try {
 			const response = await fetch(
@@ -305,7 +306,7 @@ export function useRule(ruleId: number | undefined) {
 		} catch (error) {
 			setErrors(errorToString(error));
 		} finally {
-			setIsLoading(false);
+			setIsDiscarding(false);
 		}
 	};
 
@@ -338,6 +339,7 @@ export function useRule(ruleId: number | undefined) {
 		unarchiveRule,
 		unpublishRule,
 		ruleStatus,
+		isDiscarding,
 		discardRuleChanges,
 	};
 }

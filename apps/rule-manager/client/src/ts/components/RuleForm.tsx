@@ -22,6 +22,7 @@ import { LineBreak } from './LineBreak';
 import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
 import { RuleFormSection } from './RuleFormSection';
+import { RevertModal } from './modals/Revert';
 
 export type PartiallyUpdateRuleData = (
 	partialReplacement: Partial<DraftRule>,
@@ -79,11 +80,13 @@ export const RuleForm = ({
 		unarchiveRule,
 		unpublishRule,
 		ruleStatus,
+		isDiscarding,
 		discardRuleChanges,
 	} = useRule(ruleId);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
 	const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
+	const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
 
 	const partiallyUpdateRuleData: PartiallyUpdateRuleData = (
 		partialReplacement,
@@ -204,12 +207,19 @@ export const RuleForm = ({
 		onUpdate(ruleId);
 	};
 
+	const showRuleRevertModal = () => {
+		setIsRevertModalVisible(true);
+	};
+
 	const discardRuleChangesHandler = async () => {
 		if (!ruleId || ruleStatus !== 'live') {
 			return;
 		}
 
 		await discardRuleChanges(ruleId);
+		if (isRevertModalVisible) {
+			setIsRevertModalVisible(false);
+		}
 		onUpdate(ruleId);
 	};
 
@@ -228,7 +238,7 @@ export const RuleForm = ({
 						<EuiFlexGroup gutterSize="s" direction="column">
 							<RuleStatus
 								ruleData={rule}
-								discardRuleChangesHandler={discardRuleChangesHandler}
+								showRuleRevertModal={showRuleRevertModal}
 							/>
 							<RuleContent
 								isLoading={isLoading}
@@ -347,6 +357,14 @@ export const RuleForm = ({
 					onClose={() => setIsReasonModalVisible(false)}
 					onSubmit={publishRuleHandler}
 					isLoading={isPublishing}
+					rule={rule}
+				/>
+			)}
+			{isRevertModalVisible && (
+				<RevertModal
+					onClose={() => setIsRevertModalVisible(false)}
+					onSubmit={discardRuleChangesHandler}
+					isLoading={isDiscarding}
 					rule={rule}
 				/>
 			)}
