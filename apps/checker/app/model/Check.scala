@@ -17,6 +17,7 @@ case class Check(
     documentId: Option[String],
     requestId: String,
     categoryIds: Option[Set[String]],
+    excludeCategoryIds: Option[Set[String]],
     blocks: List[TextBlock]
 ) {
   def toMarker: LogstashMarker = Markers.appendEntries(
@@ -24,7 +25,8 @@ case class Check(
       "requestId" -> this.requestId,
       "documentId" -> this.documentId,
       "blocks" -> this.blocks.map(_.id).mkString(", "),
-      "categoryIds" -> this.categoryIds.mkString(", ")
+      "categoryIds" -> this.categoryIds.mkString(", "),
+      "excludeCategoryIds" -> this.excludeCategoryIds.mkString(", ")
     ).asJava
   )
 
@@ -46,5 +48,5 @@ case class CheckResult(
     categoryIds: Set[String],
     blocks: List[TextBlock],
     matches: List[RuleMatch],
-    percentageRequestComplete: Option[Int] = None
+    percentageRequestComplete: Option[Int] = None,
 )
