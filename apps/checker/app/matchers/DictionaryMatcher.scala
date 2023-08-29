@@ -37,7 +37,7 @@ class DictionaryMatcher(
   }
 
   def getCategories() = instance.getAllActiveRules.asScala.toList.map { rule =>
-    Category("COLLINS_DICTIONARY", "Collins Dictionary")
+    Category.fromLT(rule.getCategory)
   }.toSet
 
   def getType() = matcher.getType()

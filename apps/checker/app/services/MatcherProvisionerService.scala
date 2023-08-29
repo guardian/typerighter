@@ -2,7 +2,14 @@ package services
 
 import java.util.Date
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, DictionaryRule, LTRuleCore, LTRuleXML, RegexRule}
+import com.gu.typerighter.model.{
+  CheckerRule,
+  CheckerRuleResource,
+  DictionaryRule,
+  LTRuleCore,
+  LTRuleXML,
+  RegexRule
+}
 import com.gu.typerighter.rules.BucketRuleResource
 import matchers.{DictionaryMatcher, LanguageToolFactory, RegexMatcher}
 import play.api.Logging
