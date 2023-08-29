@@ -10,9 +10,8 @@ object RuleMatch {
     val suggestions = lt.getSuggestedReplacements.asScala.toList.map {
       TextSuggestion(_)
     }
-    // Placeholder rule-of-thumb: if a rule has exactly one suggestion, add
-    // it as a replacement to trigger the 'replacement' behaviour in the client.
-    val replacement = if (suggestions.size == 1) Some(suggestions.head) else None
+    // If a rule has one or more suggestions, trigger the 'replacement' behaviour in the client.
+    val replacement = if (suggestions.size >= 1) Some(suggestions.head) else None
     val matchedText = block.text.substring(lt.getFromPos, lt.getToPos)
     val (precedingText, subsequentText) =
       Text.getSurroundingText(block.text, lt.getFromPos, lt.getToPos)
