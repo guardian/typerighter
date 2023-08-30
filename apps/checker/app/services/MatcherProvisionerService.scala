@@ -49,7 +49,6 @@ class MatcherProvisionerService(
 
         val dictionaryRules = rules.collect { case r: DictionaryRule => r }
         if (dictionaryRules.nonEmpty) {
-          println(dictionaryRules.head)
           matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules))
         }
         if (ltRules.nonEmpty) addLTMatcherToPool(matcherPool, ltRules) else Nil
