@@ -17,9 +17,12 @@ class DictionaryMatcher(
   val userConfig: UserConfig = new UserConfig()
 
   val instance = new JLanguageTool(language, cache, userConfig)
+
   // As a side effect, make sure the .dict artefact is available to languageTool
   new SpellDictionaryBuilder().buildDictionary(rules.map(rule => rule.word))
 
+  // Disable default LanguageTool rules in the instance, i.e. anything that
+  // isn't a MORFOLOGIK_RULE_COLLINS
   instance
     .getAllRules()
     .forEach(rule => {
