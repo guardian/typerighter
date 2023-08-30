@@ -46,7 +46,7 @@ class MatcherProvisionerService(
           val regexMatcher = new RegexMatcher(regexRules)
           matcherPool.addMatcher(regexMatcher)
         }
-//     ** Uncomment the following lines to test the dictionary matcher **
+
         val dictionaryRules = rules.collect { case r: DictionaryRule => r }
         if (dictionaryRules.nonEmpty) {
           println(dictionaryRules.head)
