@@ -241,10 +241,10 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
       val filterGroupAndOrder = maybeWord match {
         case Some(word) =>
-          selectDictionaryWords
+          selectDictionaryWords.and
             .like(rd.pattern, s"$word%")
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
-            .orderBy(sqls"sml DESC")
+            .orderBy(rd.ruleOrder)
         case _ =>
           selectDictionaryWords
             .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
