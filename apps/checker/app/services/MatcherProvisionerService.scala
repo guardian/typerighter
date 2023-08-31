@@ -2,14 +2,20 @@ package services
 
 import java.util.Date
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource, LTRuleCore, LTRuleXML, RegexRule}
+import com.gu.typerighter.model.{
+  CheckerRule,
+  CheckerRuleResource,
+  DictionaryRule,
+  LTRuleCore,
+  LTRuleXML,
+  RegexRule
+}
 import com.gu.typerighter.rules.BucketRuleResource
-import matchers.RegexMatcher
+import matchers.{DictionaryMatcher, LanguageToolFactory, RegexMatcher}
 import play.api.Logging
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import matchers.LanguageToolFactory
 import utils.{CloudWatchClient, Matcher, Metrics}
 
 class MatcherProvisionerService(
@@ -40,7 +46,10 @@ class MatcherProvisionerService(
           val regexMatcher = new RegexMatcher(regexRules)
           matcherPool.addMatcher(regexMatcher)
         }
-
+        val dictionaryRules = rules.collect { case r: DictionaryRule => r }
+        if (dictionaryRules.nonEmpty) {
+          matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules))
+        }
         if (ltRules.nonEmpty) addLTMatcherToPool(matcherPool, ltRules) else Nil
       }
 
