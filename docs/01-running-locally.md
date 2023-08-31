@@ -3,6 +3,8 @@ We will need dev-nginx: `brew install dev-nginx`
 
 # Set up
 
+Get credentials for Composer profile.
+
 Run `./script/setup` from the root of the project.
 
 This will:
