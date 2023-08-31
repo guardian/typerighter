@@ -24,6 +24,8 @@ To run everything, run `./script/start` (`--debug` will attach debuggers on both
 
 If you're testing changes to the rule audit client, see [the additional steps in its README](https://github.com/guardian/typerighter/tree/main/rule-audit-client).
 
+In order to create, edit, and delete rules in Rule Manager, you first need to have the relevant permissions (see: `manage_rules`) enabled in the [permissions manager in CODE](https://permissions.code.dev-gutools.co.uk/).
+
 ## Demonstration of null request
 
 Each request has the following format, of zero or more text blocks, and zero or more rule sets to check.
