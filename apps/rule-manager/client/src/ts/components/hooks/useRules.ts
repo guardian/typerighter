@@ -51,6 +51,31 @@ export function useRules() {
 		}
 	};
 
+	const refreshDictionaryRules = async (): Promise<void> => {
+		setIsRefreshing(true);
+		try {
+			const updatedRulesResponse = await fetch(
+				`${location.origin}/api/refreshDictionary`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				},
+			);
+			if (!updatedRulesResponse.ok) {
+				throw new Error(
+					`Failed to refresh rules: ${updatedRulesResponse.status} ${updatedRulesResponse.statusText}`,
+				);
+			}
+			await updatedRulesResponse.json();
+		} catch (e) {
+			setError(errorToString(error));
+		} finally {
+			setIsRefreshing(false);
+		}
+	};
+
 	useEffect(() => {
 		fetchRules();
 	}, []);
@@ -60,6 +85,7 @@ export function useRules() {
 		isLoading,
 		error,
 		refreshRules,
+		refreshDictionaryRules,
 		isRefreshing,
 		setError,
 		fetchRules,
