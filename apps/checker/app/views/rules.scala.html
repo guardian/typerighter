@@ -27,56 +27,13 @@ rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit r
                     </tr>
                 </thead>
                 <tbody>
-                @for(matcher <- matchers) {
+                @for(matcher <- matchers.sortBy(matcher => 0 - matcher.getRules().size)) {
                     <tr>
                         <td>
                         @matcher.getType()
                         </td>
                         <td>@matcher.getCategories().map(_.id).mkString(", ")</td>
-                        <td>@matcher.getRules().size</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-        <div class="col-sm-7">
-            <h5>Rules (@rules.length)</h5>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Type</th>
-                        <th scope="col">ID</th>
-                        <th scope="col">Category</th>
-                        <th scope="col">Match</th>
-                        <th scope="col">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @for(rule <- rules) {
-                    <tr>
-                        <td>@rule match {
-                            case r: RegexRule => { regex }
-                            case r: LTRule => { languagetool }
-                            case _ => { unknown }
-                        }
-                        </td>
-                        <td>
-                        @rule.id
-                        </td>
-                        <td>
-                        @rule.category.name
-                        </td>
-                        <td>@rule match {
-                            case r: RegexRule => { @r.regex.toString.slice(0, 30) }
-                            case _ => { N/A }
-                        }</td>
-                        <td>
-                        @rule match {
-                            case p: RegexRule if p.description.nonEmpty => { @p.description }
-                            case p: LTRuleXML if p.description.nonEmpty => { @p.description }
-                            case _ => { N/A }
-                        }
-                        </td>
+                        <td>@(java.text.NumberFormat.getIntegerInstance.format(matcher.getRules().size))</td>
                     </tr>
                 }
                 </tbody>
