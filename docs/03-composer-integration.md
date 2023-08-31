@@ -8,31 +8,25 @@ It should be accessible at `https://composer.local.dev-gutools.co.uk/`.
 
 Run a local typerighter service (see instructions for [running locally](./01-running-locally.md)).
 
-Edit /etc/gu/flexible-composerbackend.properties and set 
-`typerighter.url=http://localhost:9000`
+Edit /.gu/flexible-composerbackend.properties and set
+`typerighter.url=https://checker.typerighter.local.dev-gutools.co.uk`
 
-## Turning on typerighter and proving it works
+## Running typerighter checker
 
 "reStart" composer.
 
- * Create an article and edit it. 
- * Press shift-F12 to bring up the feature switch menu.
- * Turn on 'typerighter'
- * Reload article page.
- * You will now see the box-out for typerighter features in the top right of the article.
- * Click "advanced", then "refresh".
+- Create an article and edit it
+- Open the typerighter sidebar by clicking the button on the right
+- Add the following text:
 
-Add the following text:
+"Kier Starmer and Rishi Sunak debate live on TV"
 
-"Diane Abbott and Kier Starmer have been re-elected"
+- Click "Check document".
+  - "Rishi Sunak" should have a green underline.
+  - "Kier Starmer" should not have a green underline. This is because his first name is spelt "Keir"!
 
-Click "Check whole document".  You should see "Diane Abbott" ticked with green underline.
-You should not see "Kier Starmer" ticked.  This is because his first name is spelt "Keir"!
+Correct this, and click "Check document" again. Both names should now have a green underline.
 
-Correct this, and click "Check whole document" again.  Both names should now be ticked with green underline.
+## Adding new typerighter rules
 
-## Developing new typerighter rules.
-
-If you wish to test new rules, you should visit the google doc (see [here](./02-google-sheet.md)) and edit appropriately
-Once you have added a rule to the doc, you must visit the [local typerighter rules page](https://manager.typerighter.local.dev-gutools.co.uk/) 
-and click the "refresh rules" button.
+If you wish to test new rules, you can add and edit rules in the [typerighter rule manager](https://manager.typerighter.local.dev-gutools.co.uk/).
