@@ -9,7 +9,7 @@ export type FeatureSwitch = {
 
 const allFeatureSwitches = [
 	{
-		name: 'Enable destructive reload from rules sheet',
+		name: 'Enable destructive reload from rules sheet and Collins dictionary XML doc',
 		id: 'enable-destructive-reload',
 		default: false,
 	},

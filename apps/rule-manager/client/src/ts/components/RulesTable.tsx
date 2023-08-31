@@ -204,6 +204,7 @@ const RulesTable = () => {
 		isLoading,
 		error,
 		refreshRules,
+		refreshDictionaryRules,
 		isRefreshing,
 		setError,
 		fetchRules,
@@ -280,6 +281,10 @@ const RulesTable = () => {
 		await fetchTags();
 	};
 
+	const handleRefreshDictionaryRules = async () => {
+		await refreshDictionaryRules();
+	};
+
 	return (
 		<>
 			<EuiFlexGroup
@@ -332,6 +337,19 @@ const RulesTable = () => {
 												<strong>
 													Destroy all rules in the manager and reload from the
 													original Google Sheet
+												</strong>
+											</EuiButton>
+											&nbsp;
+											<EuiButton
+												size="s"
+												fill={true}
+												color={'danger'}
+												onClick={handleRefreshDictionaryRules}
+												isLoading={isRefreshing}
+											>
+												<strong>
+													Destroy all dictionary rules and reload from Collins
+													XML wordlist
 												</strong>
 											</EuiButton>
 										</>
