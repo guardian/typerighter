@@ -283,7 +283,7 @@ const RulesTable = () => {
 
 	const handleRefreshDictionaryRules = async () => {
 		await refreshDictionaryRules();
-	}
+	};
 
 	return (
 		<>
@@ -348,7 +348,8 @@ const RulesTable = () => {
 												isLoading={isRefreshing}
 											>
 												<strong>
-													Destroy all dictionary rules and reload from Collins XML wordlist
+													Destroy all dictionary rules and reload from Collins
+													XML wordlist
 												</strong>
 											</EuiButton>
 										</>
