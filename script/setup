@@ -8,5 +8,9 @@ ln -sfn  ../../script/hooks/pre-commit .git/hooks/pre-commit
 printf "✅ Pre-commit hooks set up\n"
 
 printf "⚙️  Downloading dictionary for local use\n"
-aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/typerighter-dictionary.xml ~/.gu/typerighter/typerighter-dictionary.xml
-printf "✅ Dictionary downloaded\n"
+{
+    aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/typerighter-dictionary.xml ~/.gu/typerighter/typerighter-dictionary.xml &&
+    printf "✅ Dictionary downloaded\n"
+} || {
+    printf "❌ Dictionary download failed. Are your Composer credentials up to date?\n"
+}
