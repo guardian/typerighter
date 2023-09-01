@@ -33,10 +33,24 @@ class DictionaryMatcher(
 
   val matcher = new LanguageToolMatcher(instance)
 
+  def isTitleCase(str: String): Boolean = {
+    val upperCaseIncludingAccents = """[A-ZÀ-Ü]"""
+    val lowerCaseIncludingAccents = """[a-zà-ü']"""
+    val validSeparators = """(\s|\b|-)"""
+    // The below regex should match a string of title case words with any number
+    // of spaces, word boundaries, hyphens or apostrophes between them
+    str.matches(
+      raw"""($validSeparators*($upperCaseIncludingAccents$lowerCaseIncludingAccents*\b)$validSeparators*)+"""
+    )
+  }
+
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext) = {
-    matcher.check(request)
+    val matcherResult = matcher.check(request)
+    matcherResult.map(ruleMatches =>
+      ruleMatches.filter(ruleMatch => !isTitleCase(ruleMatch.matchedText))
+    )
   }
 
   def getCategories() = instance.getAllActiveRules.asScala.toList.map { rule =>
