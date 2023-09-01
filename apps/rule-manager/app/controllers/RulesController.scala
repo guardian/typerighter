@@ -60,7 +60,7 @@ class RulesController(
           )
         newRuleWords match {
           case Left(errors) => InternalServerError(Json.toJson(errors))
-          case Right(words) => Ok(Json.toJson(words))
+          case Right(_) => Ok("Dictionary words successfully added as rules.")
         }
     }
   }
