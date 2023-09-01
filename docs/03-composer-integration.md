@@ -8,7 +8,7 @@ It should be accessible at `https://composer.local.dev-gutools.co.uk/`.
 
 Run a local typerighter service (see instructions for [running locally](./01-running-locally.md)).
 
-Edit /.gu/flexible-composerbackend.properties and set
+Edit ~/.gu/flexible-composerbackend.properties and set
 `typerighter.url=https://checker.typerighter.local.dev-gutools.co.uk`
 
 ## Running typerighter checker
