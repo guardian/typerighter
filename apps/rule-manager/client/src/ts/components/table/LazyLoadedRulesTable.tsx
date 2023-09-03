@@ -1,16 +1,17 @@
-import React, { LegacyRef, useEffect, useRef } from 'react';
+import React, { LegacyRef, useEffect, useRef, useState } from 'react';
 import InfiniteLoader from 'react-window-infinite-loader';
-import { PaginatedRuleData, useRules } from '../hooks/useRules';
+import { PaginatedRuleData, SortColumns, useRules } from '../hooks/useRules';
 import { TagMap } from '../hooks/useTags';
 import { DraftRule } from '../hooks/useRule';
 import {
 	EuiBadge,
 	EuiCheckbox,
 	EuiDataGrid,
+	EuiDataGridColumn,
 	EuiFlexGroup,
-	EuiFlexItem,
 	EuiHealth,
 	EuiIcon,
+	EuiSkeletonText,
 	EuiText,
 	EuiToolTip,
 	euiTextTruncate,
@@ -72,41 +73,42 @@ export const createColumns = (
 	selectedRules: Set<DraftRule>,
 	onSelect: (rule: DraftRule, value: boolean) => void,
 	onSelectAll: (value: boolean) => void,
-) => {
+): EuiDataGridColumn[] => {
 	const allRulesSelected = selectedRules.size === totalRules;
 
 	return [
-		{
-			id: 'select',
-			label: (
-				<EuiFlexItem>
-					<EuiCheckbox
-						id={`rule-table-checkbox`}
-						type="inList"
-						checked={allRulesSelected}
-						disabled={totalRules > 100}
-						onChange={(e) => onSelectAll(e.target.checked)}
-						title={'Select all rules in search'}
-						aria-label={'Select all rules in search'}
-					/>
-				</EuiFlexItem>
-			),
-			render: (rule: DraftRule) => (
-				<EuiCheckbox
-					id={`rule-table-checkbox-${rule.id}`}
-					type="inList"
-					checked={selectedRules.has(rule)}
-					onChange={(e) => onSelect(rule, e.target.checked)}
-					title={`Select rule ${rule.id}`}
-					aria-label={`Select rule ${rule.id}`}
-				/>
-			),
-			width: '30px',
-			columns: 1,
-		},
+		// {
+		// 	id: 'select',
+		// 	label: (
+		// 		<EuiFlexItem>
+		// 			<EuiCheckbox
+		// 				id={`rule-table-checkbox`}
+		// 				type="inList"
+		// 				checked={allRulesSelected}
+		// 				disabled={totalRules > 100}
+		// 				onChange={(e) => onSelectAll(e.target.checked)}
+		// 				title={'Select all rules in search'}
+		// 				aria-label={'Select all rules in search'}
+		// 			/>
+		// 		</EuiFlexItem>
+		// 	),
+		// 	render: (rule: DraftRule) => (
+		// 		<EuiCheckbox
+		// 			id={`rule-table-checkbox-${rule.id}`}
+		// 			type="inList"
+		// 			checked={selectedRules.has(rule)}
+		// 			onChange={(e) => onSelect(rule, e.target.checked)}
+		// 			title={`Select rule ${rule.id}`}
+		// 			aria-label={`Select rule ${rule.id}`}
+		// 		/>
+		// 	),
+		// 	width: '30px',
+		// 	columns: 1,
+		// },
 		{
 			id: 'description',
 			label: 'Description',
+      isSortable: true,
 			truncateText: true,
 			render: (rule: DraftRule) =>
 				!!rule.description ? rule.description : '–',
@@ -115,6 +117,7 @@ export const createColumns = (
 		{
 			id: 'pattern',
 			label: 'Pattern',
+      isSortable: true,
 			truncateText: true,
 			render: (rule: DraftRule) => (!!rule.pattern ? rule.pattern : '–'),
 			columns: 4,
@@ -122,18 +125,21 @@ export const createColumns = (
 		{
 			id: 'replacement',
 			label: 'Replacement',
+      isSortable: true,
 			render: (rule: DraftRule) =>
 				!!rule.replacement ? rule.replacement : '–',
 			columns: 4,
 		},
 		{
 			id: 'category',
+      isSortable: true,
 			label: 'Source',
 			render: (rule: DraftRule) => (!!rule.category ? rule.category : '–'),
 			columns: 4,
 		},
 		{
 			id: 'tags',
+      isSortable: false,
 			label: 'Tags',
 			render: (rule: DraftRule) =>
 				rule.tags && rule.tags.length > 0 ? (
@@ -154,6 +160,7 @@ export const createColumns = (
 		{
 			id: 'status',
 			label: 'Status',
+      isSortable: false,
 			columns: 4,
 			render: (rule: DraftRule) => {
 				const state = capitalize(getRuleStatus(rule));
@@ -204,7 +211,7 @@ export const LazyLoadedRulesTable = ({
 	selectedRules,
 	onSelect,
 	onSelectAll,
-	queryStr,
+	queryStr
 }: {
 	ruleData: PaginatedRuleData;
 	tags: TagMap;
@@ -216,6 +223,11 @@ export const LazyLoadedRulesTable = ({
 	onSelectAll: (selected: boolean) => void;
 	queryStr: string;
 }) => {
+  const [pageIndex, setPageIndex] = useState(0);
+	const [sortColumns, setSortColumns] = useState<
+		SortColumns
+	>([{ id: 'description', direction: 'asc' }]);
+
 	const columns = createColumns(
 		tags,
 		editRule,
@@ -226,8 +238,8 @@ export const LazyLoadedRulesTable = ({
 	);
 
 	useEffect(() => {
-		fetchRules(1, queryStr);
-	}, [queryStr]);
+		fetchRules(1, queryStr, sortColumns);
+	}, [queryStr, sortColumns]);
 
 	const infiniteLoaderRef: LegacyRef<InfiniteLoader> | undefined = useRef(null);
 	const hasMountedRef = useRef(false);
@@ -241,23 +253,53 @@ export const LazyLoadedRulesTable = ({
 	}, [queryStr]);
 
 	return (
-    <div style={{width: "100%"}}>
-		<EuiDataGrid
-			aria-labelledby=""
-			columnVisibility={{
-				visibleColumns: columns.map((_) => _.id),
-				setVisibleColumns: () => {},
-			}}
-			renderCellValue={({ rowIndex, columnId }) => ruleData.data[rowIndex][columnId] || ""}
-			rowCount={ruleData.total}
-			columns={columns}
-			pagination={{
-				pageIndex: 0,
-				pageSize: ruleData.pageSize,
-				onChangePage: (pageIndex) => fetchRules(pageIndex + 1, queryStr),
-				onChangeItemsPerPage: () => {},
-			}}
-		/>
-    </div>
+		<div style={{ width: '100%' }}>
+			<EuiDataGrid
+				inMemory={{ level: 'enhancements' }}
+				aria-labelledby=""
+				columnVisibility={{
+					visibleColumns: columns.map((_) => _.id),
+					setVisibleColumns: () => {},
+				}}
+				renderCellValue={({ rowIndex, columnId }) =>
+        ruleData.data[rowIndex] ?
+					ruleData.data[rowIndex][columnId] || '' : <EuiSkeletonText />
+				}
+				leadingControlColumns={[
+					{
+						id: 'selection',
+						width: 31,
+						headerCellRender: () => (
+							<div>
+								<EuiCheckbox checked={false} onChange={() => {}} />
+							</div>
+						),
+						headerCellProps: { className: 'eui-textCenter' },
+						rowCellRender: () => (
+							<div>
+								<EuiCheckbox checked={false} onChange={() => {}} />
+							</div>
+						),
+						footerCellRender: () => <span>Select a row</span>,
+						footerCellProps: { className: 'eui-textCenter' },
+					},
+				]}
+				sorting={{
+					columns: sortColumns,
+					onSort: (cols) => setSortColumns(cols),
+				}}
+				rowCount={ruleData.total}
+				columns={columns}
+				pagination={{
+					pageIndex,
+					pageSize: ruleData.pageSize,
+					onChangePage: (pageIndex) => {
+            setPageIndex(pageIndex);
+            fetchRules(pageIndex + 1, queryStr, sortColumns);
+          },
+					onChangeItemsPerPage: () => {},
+				}}
+			/>
+		</div>
 	);
 };

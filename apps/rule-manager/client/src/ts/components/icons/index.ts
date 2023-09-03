@@ -32,6 +32,11 @@ import { icon as tableDensityExpanded } from '@elastic/eui/src/components/icon/a
 import { icon as tableDensityCompact } from '@elastic/eui/src/components/icon/assets/table_density_compact';
 import { icon as listAdd } from '@elastic/eui/src/components/icon/assets/list_add';
 import { icon as fullScreen } from '@elastic/eui/src/components/icon/assets/full_screen';
+import { icon as sortable } from '@elastic/eui/src/components/icon/assets/sortable';
+import { icon as expandMini } from '@elastic/eui/src/components/icon/assets/expandMini';
+import { icon as sortLeft } from '@elastic/eui/src/components/icon/assets/sortLeft';
+import { icon as sortRight } from '@elastic/eui/src/components/icon/assets/sortRight';
+
 
 const cachedIcons = {
 	apps,
@@ -66,7 +71,11 @@ const cachedIcons = {
   tableDensityExpanded,
   tableDensityNormal,
   listAdd,
-  fullScreen
+  fullScreen,
+  sortable,
+  sortLeft,
+  sortRight,
+  expandMini
 };
 
 appendIconComponentCache(cachedIcons);

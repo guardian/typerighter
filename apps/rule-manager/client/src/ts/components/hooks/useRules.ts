@@ -17,7 +17,12 @@ export type PaginatedRuleData = {
 	total: number;
 };
 
-const pageSize = 1000;
+export type SortColumns = Array<{
+	id: string;
+	direction: 'asc' | 'desc';
+}>;
+
+const pageSize = 100;
 
 export function useRules() {
 	const { location } = window;
@@ -25,10 +30,26 @@ export function useRules() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const fetchRules = async (page: number = 1, queryStr?: string): Promise<void> => {
+	const fetchRules = async (
+		page: number = 1,
+		queryStr: string = '',
+		sortColumns: SortColumns = [],
+	): Promise<void> => {
 		setIsLoading(true);
 		try {
-			const response = await fetch(`${location.origin}/api/rules?page=${page}${queryStr ? `&queryStr=${queryStr}` : ''}`);
+			const queryParams = new URLSearchParams({
+				page: page.toString(),
+				...(queryStr ? { queryStr } : {}),
+			});
+			sortColumns.forEach((colAndDir) =>
+				queryParams.append(
+					'sortBy',
+					`${colAndDir.direction === 'asc' ? '+' : '-'}${colAndDir.id}`,
+				),
+			);
+			const response = await fetch(
+				`${location.origin}/api/rules?${queryParams}`,
+			);
 			if (!response.ok) {
 				throw new Error(
 					`Failed to fetch rules: ${response.status} ${response.statusText}`,

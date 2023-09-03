@@ -35,7 +35,7 @@ export const useCreateEditPermissions = () => {
 const RulesTable = () => {
   const [queryStr, setQueryStr] = useState<string>("");
 	const { tags, fetchTags, isLoading: isTagMapLoading } = useTags();
-	const { ruleData, error, refreshRules, isRefreshing, setError, fetchRules } =
+	const { ruleData, error, refreshRules, isRefreshing, setError, fetchRules, isLoading } =
 		useRules();
 	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
 		'closed',
@@ -180,7 +180,7 @@ const RulesTable = () => {
 						<EuiFlexGroup>
 							{ruleData && (
 								<LazyLoadedRulesTable
-									fetchRules={index => fetchRules(index, queryStr)}
+									fetchRules={fetchRules}
 									ruleData={ruleData}
 									tags={tags}
 									editRule={openEditRulePanel}
