@@ -167,10 +167,10 @@ object RuleManager extends Loggable {
   def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
     DbRuleDraft.findAll()
 
-  def searchDraftRules(page: Int, queryStr: Option[String])(implicit
+  def searchDraftRules(page: Int, queryStr: Option[String], sortBy: List[String])(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] =
-    DbRuleDraft.searchRules(page, queryStr)
+    DbRuleDraft.searchRules(page, queryStr, sortBy)
 
   def getDraftDictionaryRules(word: Option[String], page: Int)(implicit
       session: DBSession = autoSession

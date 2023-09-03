@@ -65,9 +65,10 @@ class RulesController(
     }
   }
 
-  def list(page: Int = 1, word: Option[String] = None) = APIAuthAction {
-    Ok(Json.toJson(RuleManager.searchDraftRules(page, word)))
-  }
+  def list(page: Int = 1, word: Option[String] = None, sortBy: List[String] = List.empty) =
+    APIAuthAction {
+      Ok(Json.toJson(RuleManager.searchDraftRules(page, word, sortBy)))
+    }
 
   def listDictionaryRules(word: String, page: Int) = APIAuthAction {
     Ok(

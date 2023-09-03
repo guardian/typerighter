@@ -226,10 +226,10 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
-  def searchRules(page: Int, maybeWord: Option[String])(implicit
+  def searchRules(page: Int, maybeWord: Option[String], sortBy: List[String] = List.empty)(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] = {
-    val pageSize = 1000
+    val pageSize = 100
 
     val dataStmtArgs = List(
       dbColumnsToFind,
@@ -238,7 +238,22 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       tagColumn
     ) ++ maybeWord.map(wordSimilarity(_)).toList
 
-    val addSearchClause = (stmt: SelectSQLBuilder[Nothing]) =>
+    def addOrderByClause(stmt: PagingSQLBuilder[Nothing]) = {
+      if (sortBy.isEmpty) stmt
+      else {
+        val orderStmts = sortBy.map { sortByStr =>
+          val col = rd.column(sortByStr.slice(1, sortByStr.length))
+          sortByStr.slice(0, 1) match {
+            case "+" => sqls"$col ASC"
+            case "-" => sqls"$col DESC"
+          }
+        }
+
+        stmt.append(sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}")
+      }
+    }
+
+    def addSearchClause(stmt: SelectSQLBuilder[Nothing]) =
       maybeWord match {
         case Some(word) =>
           stmt.append(sqls"WHERE rd.ts_vector @@ to_tsquery('english', $word)")
@@ -250,18 +265,22 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       val selectSubquery = select(dbColumnsToFind)
         .from(DbRuleDraft as rd)
 
-      val filterGroupAndOrderAndLimit = addSearchClause(selectSubquery)
-        .orderBy(rd.ruleOrder)
-        .limit(pageSize)
-        .offset((page - 1) * pageSize)
+      val a = addSearchClause(selectSubquery).orderBy()
+      val filterGroupAndOrderAndLimit =
+        addOrderByClause(a)
+          .limit(pageSize)
+          .offset((page - 1) * pageSize)
 
-      select(dataStmtArgs: _*)
-        .from(filterGroupAndOrderAndLimit.as(rdSubQuery))
-        .leftJoin(DbRuleLive as rl)
-        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
-        .leftJoin(RuleTagDraft as rt)
-        .on(rd.id, rt.ruleId)
-        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+      addOrderByClause(
+        select(dataStmtArgs: _*)
+          .from(filterGroupAndOrderAndLimit.as(rdSubQuery))
+          .leftJoin(DbRuleLive as rl)
+          .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+          .leftJoin(RuleTagDraft as rt)
+          .on(rd.id, rt.ruleId)
+          .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+      )
+        .asInstanceOf[SQLBuilder[Any]]
     }.map(DbRuleDraft.fromRow)
       .list()
       .apply()
