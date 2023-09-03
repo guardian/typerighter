@@ -25,9 +25,8 @@ export function useRules() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const fetchRules = async (startIndex: number = 0, queryStr?: string): Promise<void> => {
+	const fetchRules = async (page: number = 1, queryStr?: string): Promise<void> => {
 		setIsLoading(true);
-		const page = Math.floor(startIndex / pageSize) + 1;
 		try {
 			const response = await fetch(`${location.origin}/api/rules?page=${page}${queryStr ? `&queryStr=${queryStr}` : ''}`);
 			if (!response.ok) {

@@ -1,24 +1,16 @@
 import React, { LegacyRef, useEffect, useRef } from 'react';
-import {
-	EuiTableHeader,
-	EuiTableHeaderCell,
-	EuiTableRow,
-	EuiTableRowCell,
-} from '@elastic/eui/src/components/table';
-import { EuiVirtualTable } from './VirtualTable';
 import InfiniteLoader from 'react-window-infinite-loader';
-import AutoSizer from 'react-virtualized-auto-sizer';
 import { PaginatedRuleData, useRules } from '../hooks/useRules';
 import { TagMap } from '../hooks/useTags';
 import { DraftRule } from '../hooks/useRule';
 import {
 	EuiBadge,
 	EuiCheckbox,
+	EuiDataGrid,
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiHealth,
 	EuiIcon,
-	EuiSkeletonTitle,
 	EuiText,
 	EuiToolTip,
 	euiTextTruncate,
@@ -34,9 +26,6 @@ const TagWrapContainer = styled.div`
 	}
 	width: 100%;
 `;
-
-const tableHeaderHeight = 33;
-const tableRowHeight = 41;
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -88,7 +77,7 @@ export const createColumns = (
 
 	return [
 		{
-			field: 'select',
+			id: 'select',
 			label: (
 				<EuiFlexItem>
 					<EuiCheckbox
@@ -116,7 +105,7 @@ export const createColumns = (
 			columns: 1,
 		},
 		{
-			field: 'description',
+			id: 'description',
 			label: 'Description',
 			truncateText: true,
 			render: (rule: DraftRule) =>
@@ -124,27 +113,27 @@ export const createColumns = (
 			columns: 6,
 		},
 		{
-			field: 'pattern',
+			id: 'pattern',
 			label: 'Pattern',
 			truncateText: true,
 			render: (rule: DraftRule) => (!!rule.pattern ? rule.pattern : '–'),
 			columns: 4,
 		},
 		{
-			field: 'replacement',
+			id: 'replacement',
 			label: 'Replacement',
 			render: (rule: DraftRule) =>
 				!!rule.replacement ? rule.replacement : '–',
 			columns: 4,
 		},
 		{
-			field: 'category',
+			id: 'category',
 			label: 'Source',
 			render: (rule: DraftRule) => (!!rule.category ? rule.category : '–'),
 			columns: 4,
 		},
 		{
-			field: 'tags',
+			id: 'tags',
 			label: 'Tags',
 			render: (rule: DraftRule) =>
 				rule.tags && rule.tags.length > 0 ? (
@@ -163,7 +152,7 @@ export const createColumns = (
 			columns: 4,
 		},
 		{
-			field: 'status',
+			id: 'status',
 			label: 'Status',
 			columns: 4,
 			render: (rule: DraftRule) => {
@@ -195,7 +184,7 @@ export const createColumns = (
 			},
 		},
 		{
-			field: 'actions',
+			id: 'actions',
 			label: <EuiIcon type="pencil" />,
 			columns: 1,
 			justify: 'right',
@@ -236,19 +225,15 @@ export const LazyLoadedRulesTable = ({
 		onSelectAll,
 	);
 
-	const totalColumns = columns
-		.map((col) => col.columns)
-		.reduce((acc, cur) => acc + cur, 0);
-
 	useEffect(() => {
-		fetchRules(0, queryStr);
+		fetchRules(1, queryStr);
 	}, [queryStr]);
 
 	const infiniteLoaderRef: LegacyRef<InfiniteLoader> | undefined = useRef(null);
 	const hasMountedRef = useRef(false);
 
-  // Invalidate the cache when the search string changes
-  useEffect(() => {
+	// Invalidate the cache when the search string changes
+	useEffect(() => {
 		if (hasMountedRef.current && infiniteLoaderRef.current) {
 			infiniteLoaderRef.current.resetloadMoreItemsCache();
 		}
@@ -256,83 +241,23 @@ export const LazyLoadedRulesTable = ({
 	}, [queryStr]);
 
 	return (
-		<AutoSizer>
-			{({ width, height }) => (
-				<InfiniteLoader
-					isItemLoaded={(index) => ruleData.loadedRules.has(index)}
-					itemCount={ruleData.total}
-					loadMoreItems={(startIndex) => fetchRules(startIndex, queryStr)}
-					minimumBatchSize={1000}
-					threshold={500}
-					ref={infiniteLoaderRef}
-				>
-					{({ onItemsRendered }) => (
-						<EuiVirtualTable
-							height={height}
-							width={width}
-							itemSize={tableRowHeight}
-							itemData={ruleData.data}
-							itemCount={ruleData?.total || 0}
-							onItemsRendered={onItemsRendered}
-							header={
-								<EuiTableHeader style={{ backgroundColor: 'white' }}>
-									{columns.map((column) => (
-										<EuiTableHeaderCell
-											style={{
-												position: 'sticky',
-												top: 0,
-												width: `${(column.columns / totalColumns) * 100}%`,
-												backgroundColor: 'white',
-												zIndex: 1,
-											}}
-											key={column.field}
-										>
-											{column.label}
-										</EuiTableHeaderCell>
-									))}
-								</EuiTableHeader>
-							}
-							row={({
-								style: { top, position, ...otherStyles },
-								index,
-								data,
-							}) => (
-								<EuiTableRow
-									style={{
-										height: `${tableRowHeight}px`,
-										position: 'absolute',
-										display: 'flex',
-										top: parseFloat(top?.toString() || '0') + tableHeaderHeight,
-										...otherStyles,
-									}}
-								>
-									{columns.map((column) => {
-										const colWidth = (column.columns / totalColumns) * 100;
-										return (
-											<EuiTableRowCell
-												key={column.field}
-												style={{ width: `${colWidth}%`, borderBottom: 0 }}
-												truncateText={true}
-											>
-												{ruleData.loadedRules.has(index) ? (
-													column.render(data[index], canEditRule)
-												) : (
-													<EuiSkeletonTitle
-														size="s"
-														isLoading={true}
-														contentAriaLabel={`Rule at index ${index}`}
-														style={{ width: '300px' }}
-													></EuiSkeletonTitle>
-												)}
-											</EuiTableRowCell>
-										);
-									})}
-								</EuiTableRow>
-							)}
-						/>
-					)}
-				</InfiniteLoader>
-			)}
-		</AutoSizer>
+    <div style={{width: "100%"}}>
+		<EuiDataGrid
+			aria-labelledby=""
+			columnVisibility={{
+				visibleColumns: columns.map((_) => _.id),
+				setVisibleColumns: () => {},
+			}}
+			renderCellValue={({ rowIndex, columnId }) => ruleData.data[rowIndex][columnId] || ""}
+			rowCount={ruleData.total}
+			columns={columns}
+			pagination={{
+				pageIndex: 0,
+				pageSize: ruleData.pageSize,
+				onChangePage: (pageIndex) => fetchRules(pageIndex + 1, queryStr),
+				onChangeItemsPerPage: () => {},
+			}}
+		/>
+    </div>
 	);
 };

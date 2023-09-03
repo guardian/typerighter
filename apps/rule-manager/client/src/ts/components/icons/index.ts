@@ -25,6 +25,13 @@ import { icon as iInCircle } from '@elastic/eui/src/components/icon/assets/iInCi
 import { icon as sortDown } from '@elastic/eui/src/components/icon/assets/sort_down';
 import { icon as sortUp } from '@elastic/eui/src/components/icon/assets/sort_up';
 import { icon as trash } from '@elastic/eui/src/components/icon/assets/trash';
+import { icon as grab } from '@elastic/eui/src/components/icon/assets/grab';
+import { icon as keyboard } from '@elastic/eui/src/components/icon/assets/keyboard';
+import { icon as tableDensityNormal } from '@elastic/eui/src/components/icon/assets/table_density_normal';
+import { icon as tableDensityExpanded } from '@elastic/eui/src/components/icon/assets/table_density_expanded';
+import { icon as tableDensityCompact } from '@elastic/eui/src/components/icon/assets/table_density_compact';
+import { icon as listAdd } from '@elastic/eui/src/components/icon/assets/list_add';
+import { icon as fullScreen } from '@elastic/eui/src/components/icon/assets/full_screen';
 
 const cachedIcons = {
 	apps,
@@ -53,6 +60,13 @@ const cachedIcons = {
 	sortDown,
 	sortUp,
 	trash,
+  grab,
+  keyboard,
+  tableDensityCompact,
+  tableDensityExpanded,
+  tableDensityNormal,
+  listAdd,
+  fullScreen
 };
 
 appendIconComponentCache(cachedIcons);
