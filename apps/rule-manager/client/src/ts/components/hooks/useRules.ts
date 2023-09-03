@@ -29,7 +29,7 @@ export function useRules() {
 		setIsLoading(true);
 		const page = Math.floor(startIndex / pageSize) + 1;
 		try {
-			const response = await fetch(`${location.origin}/api/rules?page=${page}&queryStr=${queryStr}`);
+			const response = await fetch(`${location.origin}/api/rules?page=${page}${queryStr ? `&queryStr=${queryStr}` : ''}`);
 			if (!response.ok) {
 				throw new Error(
 					`Failed to fetch rules: ${response.status} ${response.statusText}`,
