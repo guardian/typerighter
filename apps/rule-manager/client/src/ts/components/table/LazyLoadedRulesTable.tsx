@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { LegacyRef, useEffect, useRef } from 'react';
 import {
 	EuiTableHeader,
 	EuiTableHeaderCell,
@@ -215,7 +215,7 @@ export const LazyLoadedRulesTable = ({
 	selectedRules,
 	onSelect,
 	onSelectAll,
-  queryStr
+	queryStr,
 }: {
 	ruleData: PaginatedRuleData;
 	tags: TagMap;
@@ -225,7 +225,7 @@ export const LazyLoadedRulesTable = ({
 	selectedRules: Set<DraftRule>;
 	onSelect: (rule: DraftRule, isSelected: boolean) => void;
 	onSelectAll: (selected: boolean) => void;
-  queryStr: string
+	queryStr: string;
 }) => {
 	const columns = createColumns(
 		tags,
@@ -240,9 +240,20 @@ export const LazyLoadedRulesTable = ({
 		.map((col) => col.columns)
 		.reduce((acc, cur) => acc + cur, 0);
 
+	useEffect(() => {
+		fetchRules(0, queryStr);
+	}, [queryStr]);
+
+	const infiniteLoaderRef: LegacyRef<InfiniteLoader> | undefined = useRef(null);
+	const hasMountedRef = useRef(false);
+
+  // Invalidate the cache when the search string changes
   useEffect(() => {
-    fetchRules(0, queryStr)
-  }, [queryStr])
+		if (hasMountedRef.current && infiniteLoaderRef.current) {
+			infiniteLoaderRef.current.resetloadMoreItemsCache();
+		}
+		hasMountedRef.current = true;
+	}, [queryStr]);
 
 	return (
 		<AutoSizer>
@@ -250,9 +261,10 @@ export const LazyLoadedRulesTable = ({
 				<InfiniteLoader
 					isItemLoaded={(index) => ruleData.loadedRules.has(index)}
 					itemCount={ruleData.total}
-					loadMoreItems={startIndex => fetchRules(startIndex, queryStr)}
+					loadMoreItems={(startIndex) => fetchRules(startIndex, queryStr)}
 					minimumBatchSize={1000}
 					threshold={500}
+					ref={infiniteLoaderRef}
 				>
 					{({ onItemsRendered }) => (
 						<EuiVirtualTable
