@@ -20,6 +20,8 @@ import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import { getRuleStatus, getRuleStatusColour } from '../../utils/rule';
 import { capitalize } from 'lodash';
+import { RuleStatus } from '../RuleStatus';
+import { ConciseRuleStatus } from '../rule/ConciseRuleStatus';
 
 const TagWrapContainer = styled.div`
 	& > span {
@@ -77,127 +79,26 @@ export const createColumns = (
 	const allRulesSelected = selectedRules.size === totalRules;
 
 	return [
-		// {
-		// 	id: 'select',
-		// 	label: (
-		// 		<EuiFlexItem>
-		// 			<EuiCheckbox
-		// 				id={`rule-table-checkbox`}
-		// 				type="inList"
-		// 				checked={allRulesSelected}
-		// 				disabled={totalRules > 100}
-		// 				onChange={(e) => onSelectAll(e.target.checked)}
-		// 				title={'Select all rules in search'}
-		// 				aria-label={'Select all rules in search'}
-		// 			/>
-		// 		</EuiFlexItem>
-		// 	),
-		// 	render: (rule: DraftRule) => (
-		// 		<EuiCheckbox
-		// 			id={`rule-table-checkbox-${rule.id}`}
-		// 			type="inList"
-		// 			checked={selectedRules.has(rule)}
-		// 			onChange={(e) => onSelect(rule, e.target.checked)}
-		// 			title={`Select rule ${rule.id}`}
-		// 			aria-label={`Select rule ${rule.id}`}
-		// 		/>
-		// 	),
-		// 	width: '30px',
-		// 	columns: 1,
-		// },
 		{
 			id: 'description',
-			label: 'Description',
-      isSortable: true,
-			truncateText: true,
-			render: (rule: DraftRule) =>
-				!!rule.description ? rule.description : '–',
-			columns: 6,
+			display: 'Description',
+			isSortable: true,
 		},
 		{
 			id: 'pattern',
-			label: 'Pattern',
-      isSortable: true,
-			truncateText: true,
-			render: (rule: DraftRule) => (!!rule.pattern ? rule.pattern : '–'),
-			columns: 4,
+			display: 'Pattern',
+			isSortable: true,
 		},
 		{
 			id: 'replacement',
-			label: 'Replacement',
-      isSortable: true,
-			render: (rule: DraftRule) =>
-				!!rule.replacement ? rule.replacement : '–',
-			columns: 4,
+			display: 'Replacement',
+			isSortable: true,
 		},
 		{
 			id: 'category',
-      isSortable: true,
-			label: 'Source',
-			render: (rule: DraftRule) => (!!rule.category ? rule.category : '–'),
-			columns: 4,
-		},
-		{
-			id: 'tags',
-      isSortable: false,
-			label: 'Tags',
-			render: (rule: DraftRule) =>
-				rule.tags && rule.tags.length > 0 ? (
-					<TagWrapContainer>
-						{rule.tags.map((tagId) => (
-							<span key={tagId}>
-								<EuiBadge>
-									{tags[tagId.toString()]?.name ?? 'Unknown tag'}
-								</EuiBadge>
-							</span>
-						))}
-					</TagWrapContainer>
-				) : (
-					<>–</>
-				),
-			columns: 4,
-		},
-		{
-			id: 'status',
-			label: 'Status',
-      isSortable: false,
-			columns: 4,
-			render: (rule: DraftRule) => {
-				const state = capitalize(getRuleStatus(rule));
-				return (
-					<EuiFlexGroup
-						alignItems="center"
-						justifyContent="flexStart"
-						gutterSize="none"
-					>
-						<EuiHealth color={getRuleStatusColour(rule)} />
-						<EuiText
-							css={css`
-								${euiTextTruncate()}
-							`}
-						>
-							{state}
-						</EuiText>
-						{rule.hasUnpublishedChanges && (
-							<>
-								&nbsp;&nbsp;
-								<EuiToolTip content="This rule has unpublished changes">
-									<EuiIcon type="warning" />
-								</EuiToolTip>
-							</>
-						)}
-					</EuiFlexGroup>
-				);
-			},
-		},
-		{
-			id: 'actions',
-			label: <EuiIcon type="pencil" />,
-			columns: 1,
-			justify: 'right',
-			render: (item: DraftRule, enabled: boolean) => (
-				<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
-			),
+			isSortable: true,
+			display: 'Source',
+			initialWidth: 150,
 		},
 	];
 };
@@ -211,7 +112,7 @@ export const LazyLoadedRulesTable = ({
 	selectedRules,
 	onSelect,
 	onSelectAll,
-	queryStr
+	queryStr,
 }: {
 	ruleData: PaginatedRuleData;
 	tags: TagMap;
@@ -223,10 +124,10 @@ export const LazyLoadedRulesTable = ({
 	onSelectAll: (selected: boolean) => void;
 	queryStr: string;
 }) => {
-  const [pageIndex, setPageIndex] = useState(0);
-	const [sortColumns, setSortColumns] = useState<
-		SortColumns
-	>([{ id: 'description', direction: 'asc' }]);
+	const [pageIndex, setPageIndex] = useState(0);
+	const [sortColumns, setSortColumns] = useState<SortColumns>([
+		{ id: 'description', direction: 'asc' },
+	]);
 
 	const columns = createColumns(
 		tags,
@@ -262,8 +163,11 @@ export const LazyLoadedRulesTable = ({
 					setVisibleColumns: () => {},
 				}}
 				renderCellValue={({ rowIndex, columnId }) =>
-        ruleData.data[rowIndex] ?
-					ruleData.data[rowIndex][columnId] || '' : <EuiSkeletonText />
+					ruleData.data[rowIndex] ? (
+						ruleData.data[rowIndex][columnId] || ''
+					) : (
+						<EuiSkeletonText />
+					)
 				}
 				leadingControlColumns={[
 					{
@@ -284,6 +188,49 @@ export const LazyLoadedRulesTable = ({
 						footerCellProps: { className: 'eui-textCenter' },
 					},
 				]}
+				trailingControlColumns={[
+					{
+						id: 'tags',
+						width: 65,
+						headerCellRender: () => <>Tags</>,
+						rowCellRender: ({ rowIndex }) => {
+							const value = ruleData.data[rowIndex]?.tags;
+							return value && value.length > 0 ? (
+								<TagWrapContainer>
+									{value.map((tagId) => (
+										<span style={{ width: '100%' }} key={tagId}>
+											<EuiBadge>
+												{tags[tagId.toString()]?.name ?? 'Unknown tag'}
+											</EuiBadge>
+										</span>
+									))}
+								</TagWrapContainer>
+							) : (
+								<>–</>
+							);
+						},
+					},
+					{
+						id: 'actions',
+						width: 65,
+						headerCellRender: () => <>Actions</>,
+						rowCellRender: () => <></>,
+					},
+					{
+						id: 'status',
+						width: 65,
+						headerCellRender: () => <>Status</>,
+						rowCellRender: ({ rowIndex, columnId }) => (
+							<>
+								{ruleData.data[rowIndex] ? (
+									<ConciseRuleStatus rule={ruleData.data[rowIndex]} />
+								) : (
+									<EuiSkeletonText />
+								)}
+							</>
+						),
+					},
+				]}
 				sorting={{
 					columns: sortColumns,
 					onSort: (cols) => setSortColumns(cols),
@@ -294,9 +241,9 @@ export const LazyLoadedRulesTable = ({
 					pageIndex,
 					pageSize: ruleData.pageSize,
 					onChangePage: (pageIndex) => {
-            setPageIndex(pageIndex);
-            fetchRules(pageIndex + 1, queryStr, sortColumns);
-          },
+						setPageIndex(pageIndex);
+						fetchRules(pageIndex + 1, queryStr, sortColumns);
+					},
 					onChangeItemsPerPage: () => {},
 				}}
 			/>
