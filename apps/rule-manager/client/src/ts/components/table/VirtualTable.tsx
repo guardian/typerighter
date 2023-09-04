@@ -20,6 +20,7 @@ const VirtualTableInner = React.forwardRef<
 	React.HTMLProps<HTMLDivElement>
 >(({ children, ...rest }) => {
 	const { header, footer } = useContext(VirtualTableContext);
+
 	return (
 		<EuiTable {...rest}>
 			{header}

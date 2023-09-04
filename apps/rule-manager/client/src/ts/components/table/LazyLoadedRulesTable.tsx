@@ -47,6 +47,11 @@ const EditRuleButton = styled.button<EditRuleButtonProps>((props) => ({
 	cursor: props.editIsEnabled ? 'pointer' : 'not-allowed',
 }));
 
+const TableHeaderRow = styled.tr`
+  display: flex;
+  background-color: white;
+`
+
 // We use our own button rather than an EuiIconButton because that component won't allow us to
 // show a tooltip on hover when the button is disabled
 const EditRule = ({
@@ -112,8 +117,7 @@ export const createColumns = (
 					aria-label={`Select rule ${rule.id}`}
 				/>
 			),
-			width: '30px',
-			columns: 1,
+			fixedWidth: 35,
 		},
 		{
 			field: 'description',
@@ -197,14 +201,23 @@ export const createColumns = (
 		{
 			field: 'actions',
 			label: <EuiIcon type="pencil" />,
-			columns: 1,
 			justify: 'right',
 			render: (item: DraftRule, enabled: boolean) => (
 				<EditRule editIsEnabled={enabled} editRule={editRule} rule={item} />
 			),
+			fixedWidth: 35,
 		},
 	];
 };
+
+const getColumnWidth = (column, totalColumns, totalFixedWidth) => {
+	const width = column.columns
+		? `calc((100% - ${totalFixedWidth}px) * ${
+				(column.columns / totalColumns)
+		  })`
+		: `${column.fixedWidth}px`;
+    return width;
+}
 
 export const LazyLoadedRulesTable = ({
 	ruleData,
@@ -236,9 +249,12 @@ export const LazyLoadedRulesTable = ({
 		onSelectAll,
 	);
 
+	const totalFixedWidth = columns
+		.map((col) => col.fixedWidth)
+		.reduce((acc: number, cur) => acc + (cur || 0), 0);
 	const totalColumns = columns
 		.map((col) => col.columns)
-		.reduce((acc, cur) => acc + cur, 0);
+		.reduce((acc: number, cur) => acc + (cur || 0), 0);
 
 	useEffect(() => {
 		fetchRules(0, queryStr);
@@ -247,8 +263,8 @@ export const LazyLoadedRulesTable = ({
 	const infiniteLoaderRef: LegacyRef<InfiniteLoader> | undefined = useRef(null);
 	const hasMountedRef = useRef(false);
 
-  // Invalidate the cache when the search string changes
-  useEffect(() => {
+	// Invalidate the cache when the search string changes
+	useEffect(() => {
 		if (hasMountedRef.current && infiniteLoaderRef.current) {
 			infiniteLoaderRef.current.resetloadMoreItemsCache();
 		}
@@ -275,13 +291,18 @@ export const LazyLoadedRulesTable = ({
 							itemCount={ruleData?.total || 0}
 							onItemsRendered={onItemsRendered}
 							header={
-								<EuiTableHeader style={{ backgroundColor: 'white' }}>
-									{columns.map((column) => (
+								<EuiTableHeader style={{ backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 1 }} wrapWithTableRow={false}>
+                  <TableHeaderRow>
+                  {columns.map((column) => (
 										<EuiTableHeaderCell
 											style={{
 												position: 'sticky',
 												top: 0,
-												width: `${(column.columns / totalColumns) * 100}%`,
+												width: getColumnWidth(
+													column,
+													totalColumns,
+													totalFixedWidth,
+												),
 												backgroundColor: 'white',
 												zIndex: 1,
 											}}
@@ -290,6 +311,8 @@ export const LazyLoadedRulesTable = ({
 											{column.label}
 										</EuiTableHeaderCell>
 									))}
+                  </TableHeaderRow>
+
 								</EuiTableHeader>
 							}
 							row={({
@@ -307,11 +330,20 @@ export const LazyLoadedRulesTable = ({
 									}}
 								>
 									{columns.map((column) => {
-										const colWidth = (column.columns / totalColumns) * 100;
+										const colWidth = column.columns
+											? (column.columns / totalColumns) * 100
+											: column.fixedWidth;
 										return (
 											<EuiTableRowCell
 												key={column.field}
-												style={{ width: `${colWidth}%`, borderBottom: 0 }}
+												style={{
+													width: getColumnWidth(
+														column,
+														totalColumns,
+														totalFixedWidth,
+													),
+													borderBottom: 0,
+												}}
 												truncateText={true}
 											>
 												{ruleData.loadedRules.has(index) ? (
