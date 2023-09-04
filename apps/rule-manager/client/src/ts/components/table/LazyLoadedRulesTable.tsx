@@ -68,40 +68,29 @@ const EditRule = ({
 	);
 };
 
-export const createColumns = (
-	tags: TagMap,
-	editRule: (ruleId: number) => void,
-	totalRules: number,
-	selectedRules: Set<DraftRule>,
-	onSelect: (rule: DraftRule, value: boolean) => void,
-	onSelectAll: (value: boolean) => void,
-): EuiDataGridColumn[] => {
-	const allRulesSelected = selectedRules.size === totalRules;
-
-	return [
-		{
-			id: 'description',
-			display: 'Description',
-			isSortable: true,
-		},
-		{
-			id: 'pattern',
-			display: 'Pattern',
-			isSortable: true,
-		},
-		{
-			id: 'replacement',
-			display: 'Replacement',
-			isSortable: true,
-		},
-		{
-			id: 'category',
-			isSortable: true,
-			display: 'Source',
-			initialWidth: 150,
-		},
-	];
-};
+const columns: EuiDataGridColumn[] = [
+  {
+    id: 'description',
+    display: 'Description',
+    isSortable: true,
+  },
+  {
+    id: 'pattern',
+    display: 'Pattern',
+    isSortable: true,
+  },
+  {
+    id: 'replacement',
+    display: 'Replacement',
+    isSortable: true,
+  },
+  {
+    id: 'category',
+    isSortable: true,
+    display: 'Source',
+    initialWidth: 150,
+  },
+]
 
 export const LazyLoadedRulesTable = ({
 	ruleData,
@@ -129,13 +118,8 @@ export const LazyLoadedRulesTable = ({
 		{ id: 'description', direction: 'asc' },
 	]);
 
-	const columns = createColumns(
-		tags,
-		editRule,
-		ruleData?.data.length || 0,
-		selectedRules,
-		onSelect,
-		onSelectAll,
+	const [visibleColumns, setVisibleColumns] = useState(
+		columns.map((_) => _.id),
 	);
 
 	useEffect(() => {
@@ -159,8 +143,8 @@ export const LazyLoadedRulesTable = ({
 				inMemory={{ level: 'enhancements' }}
 				aria-labelledby=""
 				columnVisibility={{
-					visibleColumns: columns.map((_) => _.id),
-					setVisibleColumns: () => {},
+					visibleColumns,
+					setVisibleColumns,
 				}}
 				renderCellValue={({ rowIndex, columnId }) =>
 					ruleData.data[rowIndex] ? (
@@ -206,21 +190,15 @@ export const LazyLoadedRulesTable = ({
 									))}
 								</TagWrapContainer>
 							) : (
-								<>–</>
+								<></>
 							);
 						},
-					},
-					{
-						id: 'actions',
-						width: 65,
-						headerCellRender: () => <>Actions</>,
-						rowCellRender: () => <></>,
 					},
 					{
 						id: 'status',
 						width: 65,
 						headerCellRender: () => <>Status</>,
-						rowCellRender: ({ rowIndex, columnId }) => (
+						rowCellRender: ({ rowIndex }) => (
 							<>
 								{ruleData.data[rowIndex] ? (
 									<ConciseRuleStatus rule={ruleData.data[rowIndex]} />
@@ -229,6 +207,12 @@ export const LazyLoadedRulesTable = ({
 								)}
 							</>
 						),
+					},
+					{
+						id: 'actions',
+						width: 35,
+						headerCellRender: () => <></>,
+						rowCellRender: ({rowIndex}) => <EditRule editIsEnabled={true} editRule={editRule} rule={ruleData.data[rowIndex]} />,
 					},
 				]}
 				sorting={{
