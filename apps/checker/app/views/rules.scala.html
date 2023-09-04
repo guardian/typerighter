@@ -27,7 +27,7 @@ rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit r
                     </tr>
                 </thead>
                 <tbody>
-                @for(matcher <- matchers.sortBy(matcher => 0 - matcher.getRules().size)) {
+                @for(matcher <- matchers.sortBy(0 - _.getRules().size)) {
                     <tr>
                         <td>
                         @matcher.getType()
