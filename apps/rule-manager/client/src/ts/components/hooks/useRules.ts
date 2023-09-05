@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { errorToString } from '../../utils/error';
-import { DraftRule } from './useRule';
+import { BaseRule, DraftRule } from './useRule';
 
 export type PaginatedResponse<Data> = {
 	data: Data[];
@@ -31,12 +31,13 @@ export function useRules() {
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const fetchRules = async (
-		page: number = 1,
+		pageIndex: number = 0,
 		queryStr: string = '',
 		sortColumns: SortColumns = [],
 	): Promise<void> => {
 		setIsLoading(true);
 		try {
+			const page = pageIndex + 1;
 			const queryParams = new URLSearchParams({
 				page: page.toString(),
 				...(queryStr ? { queryStr } : {}),
@@ -67,7 +68,7 @@ export function useRules() {
 					),
 				]);
 
-				const data = [...(currentRuleDataData?.data || [])];
+				const data: BaseRule[] = [];
 				incomingRuleData.data.forEach((rule, index) => {
 					const offsetIndex = (page - 1) * pageSize + index;
 					data[offsetIndex] = rule;
@@ -136,10 +137,6 @@ export function useRules() {
 			setIsRefreshing(false);
 		}
 	};
-
-	useEffect(() => {
-		fetchRules();
-	}, []);
 
 	return {
 		ruleData,

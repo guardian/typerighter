@@ -1,5 +1,4 @@
 import React, {
-	useCallback,
 	useContext,
 	useEffect,
 	useMemo,
@@ -15,12 +14,11 @@ import {
 	EuiToolTip,
 	EuiSpacer,
 } from '@elastic/eui';
-import { useRules } from '../hooks/useRules';
+import { SortColumns, useRules } from '../hooks/useRules';
 import { RuleForm } from '../RuleForm';
 import { PageContext } from '../../utils/window';
 import { hasCreateEditPermissions } from '../helpers/hasCreateEditPermissions';
 import { FeatureSwitchesContext } from '../context/featureSwitches';
-import { DraftRule } from '../hooks/useRule';
 import { useTags } from '../hooks/useTags';
 import { RuleFormBatchEdit } from '../RuleFormBatchEdit';
 import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
@@ -33,64 +31,46 @@ export const useCreateEditPermissions = () => {
 };
 
 const RulesTable = () => {
-  const [queryStr, setQueryStr] = useState<string>("");
+	const [queryStr, setQueryStr] = useState<string>('');
 	const { tags, fetchTags, isLoading: isTagMapLoading } = useTags();
-	const { ruleData, error, refreshRules, isRefreshing, setError, fetchRules, isLoading } =
+	const { ruleData, error, refreshRules, isRefreshing, setError, fetchRules } =
 		useRules();
+
 	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
 		'closed',
 	);
+	const [pageIndex, setPageIndex] = useState(0);
+	const [sortColumns, setSortColumns] = useState<SortColumns>([
+		{ id: 'description', direction: 'desc' },
+	]);
 	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
 		undefined,
 	);
-	const [selectedRules, setSelectedRules] = useState<Set<DraftRule>>(new Set());
+	const [rowSelection, setRowSelection] = useState<Set<number>>(new Set());
 	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const hasCreatePermissions = useCreateEditPermissions();
-
-	const onSelect = useCallback(
-		(rule: DraftRule, selected: boolean) => {
-			if (selected) {
-				selectedRules.add(rule);
-			} else {
-				selectedRules.delete(rule);
-			}
-
-			const newSelectedRules = new Set([...selectedRules]);
-
-			setSelectedRules(newSelectedRules);
-			onSelectionChange(newSelectedRules);
-		},
-		[ruleData, selectedRules],
-	);
-
-	const onSelectAll = (selected: boolean) => {
-		const newSelectedRules = new Set(selected ? ruleData?.data ?? [] : []);
-		onSelectionChange(newSelectedRules);
-	};
 
 	const openEditRulePanel = (ruleId: number | undefined) => {
 		setCurrentRuleId(ruleId);
 		setFormMode(ruleId ? 'edit' : 'create');
 	};
 
-	const onSelectionChange = (selectedRules: Set<DraftRule>) => {
-		setSelectedRules(selectedRules);
-		const firstRule = ruleData?.data.find((rule) => selectedRules.has(rule));
-		if (firstRule?.id) {
-			openEditRulePanel(firstRule?.id);
-		}
-	};
+	useEffect(() => {
+		fetchRules(pageIndex, queryStr, sortColumns);
+	}, [pageIndex, queryStr, sortColumns]);
 
 	useEffect(() => {
-		if (selectedRules.size === 0) {
+		if (rowSelection.size === 0) {
 			setFormMode('closed');
 		}
-	}, [selectedRules]);
+	}, [rowSelection]);
 
 	const handleRefreshRules = async () => {
 		await refreshRules();
 		await fetchTags();
 	};
+
+	const rowSelectionArray = useMemo(() => [...rowSelection], [rowSelection]);
 
 	return (
 		<>
@@ -154,10 +134,14 @@ const RulesTable = () => {
 					</EuiFlexGroup>
 				</EuiFlexItem>
 				<EuiFlexGroup style={{ overflow: 'hidden' }}>
-					<EuiFlexItem grow={2}>
+					<EuiFlexItem grow={2} style={{ minWidth: 0 }}>
 						<EuiFlexGroup style={{ flexGrow: 0 }}>
 							<EuiFlexItem>
-								<EuiFieldSearch fullWidth value={queryStr} onChange={e => setQueryStr(e.target.value)} />
+								<EuiFieldSearch
+									fullWidth
+									value={queryStr}
+									onChange={(e) => setQueryStr(e.target.value)}
+								/>
 							</EuiFlexItem>
 							<EuiFlexItem grow={0}>
 								<EuiToolTip
@@ -180,33 +164,36 @@ const RulesTable = () => {
 						<EuiFlexGroup>
 							{ruleData && (
 								<LazyLoadedRulesTable
-									fetchRules={fetchRules}
 									ruleData={ruleData}
 									tags={tags}
-									editRule={openEditRulePanel}
 									canEditRule={hasCreatePermissions}
-									selectedRules={selectedRules}
-									onSelect={onSelect}
-									onSelectAll={onSelectAll}
-                  queryStr={queryStr}
+									onSelectionChanged={(rows) => {
+										setRowSelection(rows);
+										if (rows.size === 1) {
+											setCurrentRuleId([...rows].pop());
+										}
+										setFormMode('edit');
+									}}
+									pageIndex={pageIndex}
+									setPageIndex={setPageIndex}
+									sortColumns={sortColumns}
+									setSortColumns={setSortColumns}
 								/>
 							)}
 						</EuiFlexGroup>
 					</EuiFlexItem>
 					{formMode !== 'closed' && (
 						<EuiFlexItem>
-							{selectedRules.size > 1 ? (
+							{rowSelection.size > 1 ? (
 								<RuleFormBatchEdit
 									tags={tags}
 									isTagMapLoading={isTagMapLoading}
 									onClose={() => {
 										setFormMode('closed');
-										fetchRules();
+										fetchRules(pageIndex, queryStr, sortColumns);
 									}}
-									onUpdate={fetchRules}
-									ruleIds={
-										[...selectedRules].map((rule) => rule.id) as number[]
-									}
+									onUpdate={() => fetchRules(pageIndex, queryStr, sortColumns)}
+									ruleIds={rowSelectionArray}
 								/>
 							) : (
 								<RuleForm
@@ -214,10 +201,10 @@ const RulesTable = () => {
 									isTagMapLoading={isTagMapLoading}
 									onClose={() => {
 										setFormMode('closed');
-										fetchRules();
+										fetchRules(pageIndex, queryStr, sortColumns);
 									}}
 									onUpdate={(id) => {
-										fetchRules();
+										fetchRules(pageIndex, queryStr, sortColumns);
 										setCurrentRuleId(id);
 										if (formMode === 'create') {
 											setFormMode('edit');

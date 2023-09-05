@@ -36,7 +36,8 @@ import { icon as sortable } from '@elastic/eui/src/components/icon/assets/sortab
 import { icon as expandMini } from '@elastic/eui/src/components/icon/assets/expandMini';
 import { icon as sortLeft } from '@elastic/eui/src/components/icon/assets/sortLeft';
 import { icon as sortRight } from '@elastic/eui/src/components/icon/assets/sortRight';
-
+import { icon as fullScreenExit } from '@elastic/eui/src/components/icon/assets/fullScreenExit';
+import { icon as tokenString } from '@elastic/eui/src/components/icon/assets/tokenString';
 
 const cachedIcons = {
 	apps,
@@ -65,17 +66,19 @@ const cachedIcons = {
 	sortDown,
 	sortUp,
 	trash,
-  grab,
-  keyboard,
-  tableDensityCompact,
-  tableDensityExpanded,
-  tableDensityNormal,
-  listAdd,
-  fullScreen,
-  sortable,
-  sortLeft,
-  sortRight,
-  expandMini
+	grab,
+	keyboard,
+	tableDensityCompact,
+	tableDensityExpanded,
+	tableDensityNormal,
+	listAdd,
+	fullScreen,
+	fullScreenExit,
+	sortable,
+	sortLeft,
+	sortRight,
+	expandMini,
+	tokenString,
 };
 
 appendIconComponentCache(cachedIcons);
