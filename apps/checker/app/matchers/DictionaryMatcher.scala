@@ -48,8 +48,7 @@ class DictionaryMatcher(
       request: MatcherRequest
   )(implicit ec: ExecutionContext) = {
     val matcherResult = matcher.check(request)
-    matcherResult.map(ruleMatches =>
-      ruleMatches.filter(ruleMatch => !isTitleCase(ruleMatch.matchedText))
+    matcherResult.map(_.filter(ruleMatch => !isTitleCase(ruleMatch.matchedText))
     )
   }
 
