@@ -1,9 +1,4 @@
-import React, {
-	useContext,
-	useEffect,
-	useMemo,
-	useState,
-} from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
 	EuiTitle,
 	EuiFlexItem,
@@ -33,10 +28,17 @@ export const useCreateEditPermissions = () => {
 
 export const Rules = () => {
 	const [queryStr, setQueryStr] = useState<string>('');
-  const debouncedQueryStr = useDebouncedValue(queryStr, 200);
+	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
 	const { tags, fetchTags, isLoading: isTagMapLoading } = useTags();
-	const { ruleData, error, refreshRules, isRefreshing, setError, fetchRules, refreshDictionaryRules } =
-		useRules();
+	const {
+		ruleData,
+		error,
+		refreshRules,
+		isRefreshing,
+		setError,
+		fetchRules,
+		refreshDictionaryRules,
+	} = useRules();
 
 	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
 		'closed',
@@ -128,19 +130,19 @@ export const Rules = () => {
 													original Google Sheet
 												</strong>
 											</EuiButton>
-                      &nbsp;
-                      <EuiButton
-                        size="s"
-                        fill={true}
-                        color={'danger'}
-                        onClick={refreshDictionaryRules}
-                        isLoading={isRefreshing}
-                      >
-                        <strong>
-                          Destroy all dictionary rules and reload from Collins
-                          XML wordlist
-                        </strong>
-                      </EuiButton>
+											&nbsp;
+											<EuiButton
+												size="s"
+												fill={true}
+												color={'danger'}
+												onClick={refreshDictionaryRules}
+												isLoading={isRefreshing}
+											>
+												<strong>
+													Destroy all dictionary rules and reload from Collins
+													XML wordlist
+												</strong>
+											</EuiButton>
 										</>
 									) : null}
 								</h1>

@@ -227,7 +227,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   def searchRules(page: Int, maybeWord: Option[String], sortBy: List[String] = List.empty)(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] = {
-    val pageSize = 100
+    val pageSize = 200
 
     val dbColumns = List(
       draftRuleColumns,

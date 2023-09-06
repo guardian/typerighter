@@ -93,7 +93,9 @@ const columns: EuiDataGridColumn[] = [
 ];
 
 const inMemory = { level: 'enhancements' } as const;
-const rowHeightsOptions: EuiDataGridRowHeightsOptions = { defaultHeight: { lineCount: 2 } } as const;
+const rowHeightsOptions: EuiDataGridRowHeightsOptions = {
+	defaultHeight: { lineCount: 2 },
+} as const;
 
 export const PaginatedRulesTable = ({
 	ruleData,
@@ -212,7 +214,7 @@ export const PaginatedRulesTable = ({
 			},
 			{
 				id: 'status',
-				width: 65,
+				width: 80,
 				headerCellRender: () => <>Status</>,
 				rowCellRender: ({ rowIndex }) =>
 					ruleData.data[rowIndex] ? (
