@@ -178,26 +178,24 @@ export const Rules = () => {
 							</EuiFlexItem>
 						</EuiFlexGroup>
 						<EuiSpacer />
-						<EuiFlexGroup>
-							{ruleData && (
-								<PaginatedRulesTable
-									ruleData={ruleData}
-									tags={tags}
-									canEditRule={hasCreatePermissions}
-									onSelectionChanged={(rows) => {
-										setRowSelection(rows);
-										if (rows.size === 1) {
-											setCurrentRuleId([...rows].pop());
-										}
-										setFormMode('edit');
-									}}
-									pageIndex={pageIndex}
-									setPageIndex={setPageIndex}
-									sortColumns={sortColumns}
-									setSortColumns={setSortColumns}
-								/>
-							)}
-						</EuiFlexGroup>
+						{ruleData && (
+							<PaginatedRulesTable
+								ruleData={ruleData}
+								tags={tags}
+								canEditRule={hasCreatePermissions}
+								onSelectionChanged={(rows) => {
+									setRowSelection(rows);
+									if (rows.size === 1) {
+										setCurrentRuleId([...rows].pop());
+									}
+									setFormMode('edit');
+								}}
+								pageIndex={pageIndex}
+								setPageIndex={setPageIndex}
+								sortColumns={sortColumns}
+								setSortColumns={setSortColumns}
+							/>
+						)}
 					</EuiFlexItem>
 					{formMode !== 'closed' && (
 						<EuiFlexItem>

@@ -15,7 +15,6 @@ import {
 } from '@elastic/eui';
 import styled from '@emotion/styled';
 import { ConciseRuleStatus } from '../rule/ConciseRuleStatus';
-import { css } from '@emotion/react';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -33,6 +32,12 @@ const TagWrapContainer = styled.div`
 		margin-right: 5px;
 	}
 	width: 100%;
+`;
+
+const PaginatedRulesTableContainer = styled.div`
+	width: 100%;
+	minheight: 0;
+	height: 100%;
 `;
 
 const EditRuleButton = styled.button<EditRuleButtonProps>((props) => ({
@@ -307,7 +312,7 @@ export const PaginatedRulesTable = ({
 	}, [rowSelection]);
 
 	return (
-		<div style={{ width: '100%' }}>
+		<PaginatedRulesTableContainer>
 			<EuiDataGrid
 				aria-label="Rules grid"
 				inMemory={inMemory}
@@ -322,6 +327,6 @@ export const PaginatedRulesTable = ({
 				pagination={pagination}
 				gridStyle={gridStyle}
 			/>
-		</div>
+		</PaginatedRulesTableContainer>
 	);
 };
