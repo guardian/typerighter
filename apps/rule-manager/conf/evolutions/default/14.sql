@@ -1,15 +1,16 @@
 -- !Ups
 
-ALTER TABLE rules_draft
-  ADD COLUMN ts_vector tsvector GENERATED ALWAYS AS (
-    (setweight(to_tsvector('english', coalesce(description, '')), 'A') ||
-    setweight(to_tsvector('english', coalesce(pattern, '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(category, '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(replacement, '')), 'B'))
-  ) STORED;
-
-CREATE INDEX rules_draft_ts_vector_idx ON rules_draft USING GIN (ts_vector);
+DROP INDEX trgm_idx;
+CREATE INDEX rules_draft_pattern_trgm_idx ON rules_draft USING GIN (pattern gin_trgm_ops);
+CREATE INDEX rules_draft_description_trgm_idx ON rules_draft USING GIN (description gin_trgm_ops);
+CREATE INDEX rules_draft_category_trgm_idx ON rules_draft USING GIN (category gin_trgm_ops);
+CREATE INDEX rules_draft_replacement_trgm_idx ON rules_draft USING GIN (replacement gin_trgm_ops);
 
 -- !Downs
 
-ALTER TABLE rules_draft DROP COLUMN ts_vector;
+DROP INDEX rules_draft_pattern_trgm_idx;
+DROP INDEX rules_draft_description_trgm_idx;
+DROP INDEX rules_draft_category_trgm_idx;
+DROP INDEX rules_draft_replacement_trgm_idx;
+
+CREATE INDEX trgm_idx ON rules_draft USING GIN (pattern gin_trgm_ops);
