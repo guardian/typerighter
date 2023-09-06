@@ -40,8 +40,6 @@ POST    /api/rules/:id/discard-changes  controllers.RulesController.discardChang
 GET     /api/rules/:id/test-block       controllers.RulesController.testWithBlock(id: Int)
 +nocsrf
 GET     /api/rules/:id/test-capi        controllers.RulesController.testWithCapiQuery(id: Int)
-+nocsrf
-GET     /api/dictionary                 controllers.RulesController.listDictionaryRules(word: String ?= "", page: Int ?= 0)
 
 # Tags
 +nocsrf

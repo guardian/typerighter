@@ -95,7 +95,7 @@ const inMemory = { level: 'enhancements' } as const;
 const rowHeightsOptions = { defaultHeight: 'auto' } as const;
 const rowCharMax = 300;
 
-export const LazyLoadedRulesTable = ({
+export const PaginatedRulesTable = ({
 	ruleData,
 	canEditRule,
 	pageIndex,

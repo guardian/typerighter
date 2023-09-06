@@ -27,7 +27,7 @@ import { css } from '@emotion/react';
 import { Tag, useTags, TagContent } from './hooks/useTags';
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { useCreateEditPermissions } from './table/SearchableRulesTable';
+import { useCreateEditPermissions } from './pages/Rules';
 import { RuleFormSection } from './RuleFormSection';
 import { ErrorIResponse } from '../utils/api';
 

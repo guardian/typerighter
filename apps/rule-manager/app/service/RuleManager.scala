@@ -164,9 +164,6 @@ object RuleManager extends Loggable {
     }
   }
 
-  def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
-    DbRuleDraft.findAll()
-
   def searchDraftRules(page: Int, queryStr: Option[String], sortBy: List[String])(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] =
@@ -299,7 +296,7 @@ object RuleManager extends Loggable {
       .grouped(100)
       .foreach(DbRuleLive.batchInsert(_))
 
-    val persistedRules = getDraftRules()
+    val persistedRules = DbRuleDraft.findAll()
 
     val persistedRulesToCompare =
       persistedRules.map(rule => rule.copy(id = None, tags = rule.tags.sorted))
