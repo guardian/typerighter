@@ -45,7 +45,7 @@ export const Rules = () => {
 	);
 	const [pageIndex, setPageIndex] = useState(0);
 	const [sortColumns, setSortColumns] = useState<SortColumns>([
-		{ id: 'description', direction: 'desc' },
+		{ id: 'description', direction: 'asc' },
 	]);
 	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
 		undefined,

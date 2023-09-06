@@ -22,8 +22,6 @@ export type SortColumns = Array<{
 	direction: 'asc' | 'desc';
 }>;
 
-const pageSize = 100;
-
 export function useRules() {
 	const { location } = window;
 	const [ruleData, setRulesData] = useState<PaginatedRuleData | null>(null);
@@ -64,13 +62,13 @@ export function useRules() {
 				const loadedRules = new Set([
 					...(currentRuleDataData?.loadedRules ?? []),
 					...incomingRuleData.data.map(
-						(_, index) => (page - 1) * pageSize + index,
+						(_, index) => (page - 1) * incomingRuleData.pageSize + index,
 					),
 				]);
 
 				const data: BaseRule[] = [];
 				incomingRuleData.data.forEach((rule, index) => {
-					const offsetIndex = (page - 1) * pageSize + index;
+					const offsetIndex = (page - 1) * incomingRuleData.pageSize + index;
 					data[offsetIndex] = rule;
 				});
 
