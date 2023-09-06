@@ -13,7 +13,6 @@ import { ProfileMenu } from './ProfileMenu';
 import { EuiPopover } from '@elastic/eui';
 import { PageContext } from '../../utils/window';
 import { Link, useLocation } from 'react-router-dom';
-import { FeatureSwitchesContext } from '../context/featureSwitches';
 
 export const headerHeight = '50px';
 
@@ -52,7 +51,6 @@ const UserActionMenu = withEuiTheme(styled.div<WithEuiThemeProps>`
 export const Header = () => {
 	const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 	const pageData = useContext(PageContext);
-	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 
 	const toggleProfileMenu = () => setIsProfileMenuOpen(!isProfileMenuOpen);
 

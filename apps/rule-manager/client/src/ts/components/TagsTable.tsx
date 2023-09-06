@@ -379,22 +379,7 @@ export const TagsTable = () => {
 		<>
 			<EuiFlexGroup>
 				<EuiFlexItem
-					css={css`
-						width: 32rem;
-					`}
 				>
-					<EuiFlexGroup>
-						<EuiFlexItem
-							grow={false}
-							css={css`
-								padding-bottom: 20px;
-							`}
-						>
-							<EuiTitle>
-								<h1>Tags</h1>
-							</EuiTitle>
-						</EuiFlexItem>
-					</EuiFlexGroup>
 					<EuiFlexGroup>
 						<CreateTagForm
 							createTag={createTag}

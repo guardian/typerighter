@@ -111,13 +111,9 @@ export const Rules = () => {
 						)}
 					</EuiFlexGrid>
 					<EuiFlexGroup>
-						<EuiFlexItem grow={0} style={{ paddingBottom: '20px' }}>
-							<EuiTitle>
-								<h1>
-									Current rules
 									{getFeatureSwitchValue('enable-destructive-reload') ? (
-										<>
-											&nbsp;
+
+                      <div>
 											<EuiButton
 												size="s"
 												fill={true}
@@ -129,8 +125,7 @@ export const Rules = () => {
 													Destroy all rules in the manager and reload from the
 													original Google Sheet
 												</strong>
-											</EuiButton>
-											&nbsp;
+											</EuiButton>&nbsp;
 											<EuiButton
 												size="s"
 												fill={true}
@@ -143,11 +138,9 @@ export const Rules = () => {
 													XML wordlist
 												</strong>
 											</EuiButton>
-										</>
+                      <EuiSpacer />
+                      </div>
 									) : null}
-								</h1>
-							</EuiTitle>
-						</EuiFlexItem>
 					</EuiFlexGroup>
 				</EuiFlexItem>
 				<EuiFlexGroup style={{ overflow: 'hidden' }}>
