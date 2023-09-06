@@ -8,6 +8,7 @@ import {
 	EuiDataGrid,
 	EuiDataGridColumn,
 	EuiDataGridControlColumn,
+	EuiDataGridRowHeightsOptions,
 	EuiIcon,
 	EuiSkeletonText,
 	EuiToolTip,
@@ -92,8 +93,7 @@ const columns: EuiDataGridColumn[] = [
 ];
 
 const inMemory = { level: 'enhancements' } as const;
-const rowHeightsOptions = { defaultHeight: 'auto' } as const;
-const rowCharMax = 300;
+const rowHeightsOptions: EuiDataGridRowHeightsOptions = { defaultHeight: { lineCount: 2 } } as const;
 
 export const PaginatedRulesTable = ({
 	ruleData,
@@ -252,11 +252,7 @@ export const PaginatedRulesTable = ({
 				if (!rule) {
 					return <EuiSkeletonText />;
 				}
-				const data = (ruleData.data[rowIndex][columnId as keyof BaseRule] ||
-					'') as string;
-				return data.length > rowCharMax
-					? data.slice(0, rowCharMax) + '…'
-					: data;
+				return ruleData.data[rowIndex][columnId as keyof BaseRule] || '';
 			},
 		[ruleData],
 	);
