@@ -427,7 +427,7 @@ object RuleManager extends Loggable {
         id = None,
         ruleType = "dictionary",
         pattern = Some(wordAndIndex._1),
-        category = Some("Collins"),
+        category = Some("Collins Dictionary"),
         ignore = false,
         user = "Collins Dictionary",
         ruleOrder = initialRuleOrder + wordAndIndex._2,

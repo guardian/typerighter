@@ -375,7 +375,7 @@ class MatcherPool(
     * available categories.
     */
   private def getApplicableCategories(query: Check) = query.categoryIds match {
-    case None      => getCurrentCategories.map(_.id)
-    case Some(ids) => ids
+    case Some(ids) if ids.size > 0 => ids
+    case _                         => getCurrentCategories.map(_.id)
   }
 }
