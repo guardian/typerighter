@@ -5,3 +5,9 @@ $euiFontFamily: 'Guardian Agate Sans', BlinkMacSystemFont, Helvetica, Arial,
 	sans-serif;
 
 @import '../../node_modules/@elastic/eui/src/themes/amsterdam/theme_light.scss';
+
+/* Bit of an CSS escape hatch as EuiDataGrid is still reliant on classes – see */
+/* https://github.com/elastic/eui/issues/4401 */
+.typerighter-euiDataGrid--selected-row {
+	background-color: $euiColorHighlight;
+}

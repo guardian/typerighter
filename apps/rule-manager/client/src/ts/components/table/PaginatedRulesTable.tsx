@@ -15,6 +15,7 @@ import {
 } from '@elastic/eui';
 import styled from '@emotion/styled';
 import { ConciseRuleStatus } from '../rule/ConciseRuleStatus';
+import { css } from '@emotion/react';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -285,6 +286,26 @@ export const PaginatedRulesTable = ({
 		[pageIndex, ruleData],
 	);
 
+	const gridStyle = useMemo(() => {
+		if (rowSelection.size !== 1) {
+			return {};
+		}
+		const ruleId = [...rowSelection].pop();
+		const rowIndex = ruleData.data.findIndex((rule) => rule.id === ruleId);
+
+		if (rowIndex === -1) {
+			return {};
+		}
+
+		// Bit of an CSS escape hatch as EuiDataGrid is still reliant on classes – see
+		// https://github.com/elastic/eui/issues/4401
+		return {
+			rowClasses: {
+				[rowIndex]: 'typerighter-euiDataGrid--selected-row',
+			},
+		};
+	}, [rowSelection]);
+
 	return (
 		<div style={{ width: '100%' }}>
 			<EuiDataGrid
@@ -299,6 +320,7 @@ export const PaginatedRulesTable = ({
 				rowCount={ruleData.total}
 				columns={columns}
 				pagination={pagination}
+				gridStyle={gridStyle}
 			/>
 		</div>
 	);
