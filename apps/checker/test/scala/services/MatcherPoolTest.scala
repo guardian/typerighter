@@ -149,12 +149,14 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private def getCheck(
       text: String,
       categoryIds: Option[Set[String]] = None,
-      skippedRanges: List[TextRange] = Nil
+      skippedRanges: List[TextRange] = Nil,
+      excludeCategoryIds: Option[Set[String]] = None,
   ) = Check(
     Some("example-document"),
     setId,
     categoryIds,
-    List(TextBlock(blockId, text, 0, text.length, Some(skippedRanges)))
+    List(TextBlock(blockId, text, 0, text.length, Some(skippedRanges))),
+    excludeCategoryIds
   )
 
   val checkWithManyBlocks = Check(
@@ -320,6 +322,23 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers(1).completeWith(secondMatch)
 
     val futureResult = pool.check(getCheck(text = "Example text"))
+
+    futureResult.map { result =>
+      result.matches.size shouldMatchTo (1)
+      result.matches shouldMatchTo (secondMatch)
+    }
+  }
+
+  it should "not check categories in excludeCategoryIds" in {
+    val matchers = getMatchers(2)
+    val categoriesToExclude = matchers.head.getCategories().map(_.id)
+    val pool = getPool(matchers, 4, 100, MatcherPool.blockLevelCheckStrategy)
+    val firstMatch = getResponses(List((0, 5, "test-response")), 0)
+    val secondMatch = getResponses(List((6, 10, "test-response-2")), 1)
+    matchers(0).completeWith(firstMatch)
+    matchers(1).completeWith(secondMatch)
+
+    val futureResult = pool.check(getCheck(text = "Example text", excludeCategoryIds = Some(categoriesToExclude)))
 
     futureResult.map { result =>
       result.matches.size shouldMatchTo (1)

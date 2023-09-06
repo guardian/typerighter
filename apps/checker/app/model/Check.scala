@@ -17,14 +17,16 @@ case class Check(
     documentId: Option[String],
     requestId: String,
     categoryIds: Option[Set[String]],
-    blocks: List[TextBlock]
+    blocks: List[TextBlock],
+    excludeCategoryIds: Option[Set[String]] = None
 ) {
   def toMarker: LogstashMarker = Markers.appendEntries(
     Map(
       "requestId" -> this.requestId,
       "documentId" -> this.documentId,
       "blocks" -> this.blocks.map(_.id).mkString(", "),
-      "categoryIds" -> this.categoryIds.mkString(", ")
+      "categoryIds" -> this.categoryIds.mkString(", "),
+      "excludeCategoryIds" -> this.excludeCategoryIds.mkString(", ")
     ).asJava
   )
 
