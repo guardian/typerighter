@@ -2,8 +2,6 @@ package model
 
 import play.api.libs.json.{Format, Json}
 
-import scala.annotation.nowarn
-
 case class PaginatedResponse[Data](
     data: List[Data],
     pageSize: Int,
@@ -13,7 +11,6 @@ case class PaginatedResponse[Data](
 )
 
 object PaginatedResponse {
-  @nowarn
-  implicit def format[Data](implicit _underlying: Format[Data]): Format[PaginatedResponse[Data]] =
+  implicit def format[Data: Format]: Format[PaginatedResponse[Data]] =
     Json.format[PaginatedResponse[Data]]
 }
