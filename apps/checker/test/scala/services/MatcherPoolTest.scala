@@ -150,7 +150,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       text: String,
       categoryIds: Option[Set[String]] = None,
       skippedRanges: List[TextRange] = Nil,
-      excludeCategoryIds: Option[Set[String]] = None,
+      excludeCategoryIds: Option[Set[String]] = None
   ) = Check(
     Some("example-document"),
     setId,
@@ -338,7 +338,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     matchers(0).completeWith(firstMatch)
     matchers(1).completeWith(secondMatch)
 
-    val futureResult = pool.check(getCheck(text = "Example text", excludeCategoryIds = Some(categoriesToExclude)))
+    val futureResult =
+      pool.check(getCheck(text = "Example text", excludeCategoryIds = Some(categoriesToExclude)))
 
     futureResult.map { result =>
       result.matches.size shouldMatchTo (1)

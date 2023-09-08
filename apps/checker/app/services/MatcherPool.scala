@@ -374,9 +374,11 @@ class MatcherPool(
   /** Get the categories to apply to this check. If no categories are supplied, default to all
     * available categories.
     */
-  private def getApplicableCategories(query: Check) = (query.categoryIds, query.excludeCategoryIds) match {
-    case (Some(ids), _) if ids.nonEmpty => ids
-    case (_, Some(excludeIds)) if excludeIds.nonEmpty => getCurrentCategories.map(_.id).filter(!excludeIds.contains(_))
-    case _                         => getCurrentCategories.map(_.id)
-  }
+  private def getApplicableCategories(query: Check) =
+    (query.categoryIds, query.excludeCategoryIds) match {
+      case (Some(ids), _) if ids.nonEmpty => ids
+      case (_, Some(excludeIds)) if excludeIds.nonEmpty =>
+        getCurrentCategories.map(_.id).filter(!excludeIds.contains(_))
+      case _ => getCurrentCategories.map(_.id)
+    }
 }
