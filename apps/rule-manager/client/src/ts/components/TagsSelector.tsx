@@ -1,22 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { EuiComboBox, EuiFormRow, EuiLoadingSpinner } from '@elastic/eui';
-import { DraftRule } from './hooks/useRule';
-import { TagMap } from './hooks/useTags';
 import { PartiallyUpdateRuleData } from './RuleForm';
-
-type TagOption = { label: string; value?: number };
+import { TagsContext } from './context/tags';
 
 export const TagsSelector = ({
-	tags,
 	selectedTagIds,
 	partiallyUpdateRuleData,
-	isLoading,
 }: {
-	tags: TagMap;
 	selectedTagIds: number[];
-	isLoading: boolean;
 	partiallyUpdateRuleData: PartiallyUpdateRuleData;
 }) => {
+	const { isLoading, tags } = useContext(TagsContext);
+
 	if (isLoading) {
 		return (
 			<EuiFormRow label="Tags" fullWidth={true}>

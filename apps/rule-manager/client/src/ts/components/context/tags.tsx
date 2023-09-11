@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 import { errorToString } from '../../utils/error';
 import {
 	ErrorIResponse,
@@ -18,7 +18,27 @@ export type TagContent = Omit<Tag, 'ruleCount'>;
 
 export type TagMap = Record<string, Tag>;
 
-export function useTags() {
+export const TagsContext = createContext<{
+	fetchTags: () => Promise<void>;
+	updateTag: (tagForm: TagContent) => Promise<ErrorIResponse | undefined>;
+	deleteTag: (tagForm: Tag) => Promise<ErrorIResponse | undefined>;
+	createTag: (tagName: string) => Promise<void>;
+	tags: TagMap;
+	isLoading: boolean;
+	isLoadingCreatedTag: boolean;
+	error: string | undefined;
+}>({
+	fetchTags: () => Promise.resolve(),
+	updateTag: () => Promise.resolve(undefined),
+	deleteTag: () => Promise.resolve(undefined),
+	createTag: () => Promise.resolve(),
+	tags: {},
+	isLoading: false,
+	isLoadingCreatedTag: false,
+	error: undefined,
+});
+
+export const TagsProvider: React.FC = ({ children }) => {
 	const [tags, setTags] = useState<Record<number, Tag>>(defaultTags);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isLoadingCreatedTag, setIsLoadingCreatedTag] = useState(false);
@@ -143,18 +163,24 @@ export function useTags() {
 		}
 	};
 
-	useEffect(() => {
-		fetchTags();
-	}, []);
+  useEffect(() => {
+    fetchTags()
+  }, [])
 
-	return {
-		tags,
-		isLoading,
-		error,
-		fetchTags,
-		updateTag,
-		deleteTag,
-		createTag,
-		isLoadingCreatedTag,
-	};
-}
+	return (
+		<TagsContext.Provider
+			value={{
+				fetchTags,
+				updateTag,
+				deleteTag,
+				createTag,
+				tags,
+				isLoading,
+				isLoadingCreatedTag,
+				error,
+			}}
+		>
+			{children}
+		</TagsContext.Provider>
+	);
+};

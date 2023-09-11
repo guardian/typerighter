@@ -15,7 +15,6 @@ import { RuleHistory } from './RuleHistory';
 import styled from '@emotion/styled';
 import { capitalize } from 'lodash';
 import { ReasonModal } from './modals/Reason';
-import { TagMap } from './hooks/useTags';
 import { useDebouncedValue } from './hooks/useDebounce';
 import { RuleStatus } from './RuleStatus';
 import { LineBreak } from './LineBreak';
@@ -52,14 +51,10 @@ export const SpinnerContainer = styled.div`
 const formDebounceMs = 1000;
 
 export const RuleForm = ({
-	tags,
 	ruleId,
 	onClose,
 	onUpdate,
-	isTagMapLoading,
 }: {
-	tags: TagMap;
-	isTagMapLoading: boolean;
 	ruleId: number | undefined;
 	onClose: () => void;
 	onUpdate: (id: number) => void;
@@ -256,8 +251,6 @@ export const RuleForm = ({
 									validationErrors={publishValidationErrors}
 								/>
 								<TagsSelector
-									tags={tags}
-									isLoading={isTagMapLoading}
 									selectedTagIds={ruleFormData.tags}
 									partiallyUpdateRuleData={partiallyUpdateRuleData}
 								/>

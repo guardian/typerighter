@@ -6,7 +6,7 @@ import {
 } from './Diff';
 import { ruleTypeOptions } from './RuleContent';
 import { RuleData } from './hooks/useRule';
-import { Tag } from './hooks/useTags';
+import {Tag} from "./context/tags";
 
 const mockRuleData: RuleData = {
 	draft: {

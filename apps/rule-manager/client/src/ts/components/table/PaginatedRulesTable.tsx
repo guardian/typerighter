@@ -1,6 +1,11 @@
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
+import React, {
+	useContext,
+	useEffect,
+	useMemo,
+	useReducer,
+	useState,
+} from 'react';
 import { PaginatedRuleData, SortColumns } from '../hooks/useRules';
-import { TagMap } from '../hooks/useTags';
 import { BaseRule, DraftRule } from '../hooks/useRule';
 import {
 	EuiBadge,
@@ -15,6 +20,7 @@ import {
 } from '@elastic/eui';
 import styled from '@emotion/styled';
 import { ConciseRuleStatus } from '../rule/ConciseRuleStatus';
+import { TagsContext } from '../context/tags';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -110,11 +116,9 @@ export const PaginatedRulesTable = ({
 	setPageIndex,
 	sortColumns,
 	setSortColumns,
-	tags,
 	onSelectionChanged,
 }: {
 	ruleData: PaginatedRuleData;
-	tags: TagMap;
 	canEditRule: boolean;
 	onSelectionChanged: (rows: RowState) => void;
 	pageIndex: number;
@@ -122,6 +126,8 @@ export const PaginatedRulesTable = ({
 	sortColumns: SortColumns;
 	setSortColumns: (columns: SortColumns) => void;
 }) => {
+	const { tags } = useContext(TagsContext);
+
 	const [rowSelection, setRowSelection] = useReducer(
 		(selectedRows: RowState, action: RowAction): RowState => {
 			switch (action.type) {

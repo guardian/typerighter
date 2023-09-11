@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import {
-	EuiTitle,
 	EuiFlexItem,
 	EuiButton,
 	EuiFlexGroup,
@@ -14,7 +13,6 @@ import { RuleForm } from '../RuleForm';
 import { PageContext } from '../../utils/window';
 import { hasCreateEditPermissions } from '../helpers/hasCreateEditPermissions';
 import { FeatureSwitchesContext } from '../context/featureSwitches';
-import { useTags } from '../hooks/useTags';
 import { RuleFormBatchEdit } from '../RuleFormBatchEdit';
 import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 import { PaginatedRulesTable } from '../table/PaginatedRulesTable';
@@ -30,7 +28,6 @@ export const useCreateEditPermissions = () => {
 export const Rules = () => {
 	const [queryStr, setQueryStr] = useState<string>('');
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
-	const { tags, fetchTags, isLoading: isTagMapLoading } = useTags();
 	const {
 		ruleData,
 		error,
@@ -69,11 +66,6 @@ export const Rules = () => {
 			setFormMode('closed');
 		}
 	}, [rowSelection]);
-
-	const handleRefreshRules = async () => {
-		await refreshRules();
-		await fetchTags();
-	};
 
 	const rowSelectionArray = useMemo(() => [...rowSelection], [rowSelection]);
 
@@ -154,6 +146,7 @@ export const Rules = () => {
 						</EuiButton>
 					</EuiToolTip>
 				</EuiFlexItem>
+
 			</EuiFlexGroup>
 			<EuiSpacer />
 		</div>
@@ -164,7 +157,6 @@ export const Rules = () => {
 			{ruleData && (
 				<PaginatedRulesTable
 					ruleData={ruleData}
-					tags={tags}
 					canEditRule={hasCreatePermissions}
 					onSelectionChanged={(rows) => {
 						setRowSelection(rows);
@@ -192,8 +184,6 @@ export const Rules = () => {
 				<EuiFlexItem>
 					{rowSelection.size > 1 ? (
 						<RuleFormBatchEdit
-							tags={tags}
-							isTagMapLoading={isTagMapLoading}
 							onClose={() => {
 								setFormMode('closed');
 								fetchRules(pageIndex, queryStr, sortColumns);
@@ -203,8 +193,6 @@ export const Rules = () => {
 						/>
 					) : (
 						<RuleForm
-							tags={tags}
-							isTagMapLoading={isTagMapLoading}
 							onClose={() => {
 								setFormMode('closed');
 								fetchRules(pageIndex, queryStr, sortColumns);
