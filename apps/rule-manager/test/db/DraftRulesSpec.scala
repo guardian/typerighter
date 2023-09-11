@@ -65,6 +65,128 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     published.isPublished should be(true)
   }
 
+  it should "search rules using a partial search phrase – pattern" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        pattern = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("The ca"))
+    results.data shouldBe List(rule)
+  }
+
+  it should "search rules using a partial search phrase – description" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        description = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("The ca"))
+    results.data shouldBe List(rule)
+  }
+
+  it should "search rules using a partial search phrase – category" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        category = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("The ca"))
+    results.data shouldBe List(rule)
+  }
+
+  it should "search rules using a partial search phrase – replacement" in { implicit session =>
+    val rule = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        replacement = Some("The cat sat on the mat"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val results = DbRuleDraft.searchRules(1, Some("The ca"))
+    results.data shouldBe List(rule)
+  }
+
+  it should "order rules given a sort column, ASC and DESC" in { implicit session =>
+    DbRuleDraft
+      .create(
+        ruleType = "regex",
+        replacement = Some("A"),
+        user = "test.user",
+        ignore = false
+      )
+    DbRuleDraft
+      .create(
+        ruleType = "regex",
+        replacement = Some("B"),
+        user = "test.user",
+        ignore = false
+      )
+
+    val descResults = DbRuleDraft.searchRules(1, None, List("-replacement"))
+    descResults.data shouldMatchTo descResults.data.sortBy(_.replacement.getOrElse("")).reverse
+
+    val ascResults = DbRuleDraft.searchRules(1, None, List("+replacement"))
+    ascResults.data shouldMatchTo ascResults.data.sortBy(_.replacement.getOrElse(""))
+  }
+
+  it should "order rules given multiple sort columns, ASC and DESC" in { implicit session =>
+    val ruleA = DbRuleDraft.findAll().head
+    val ruleB = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        description = Some("B"),
+        replacement = Some("Same replacement"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+    val ruleC = DbRuleDraft
+      .create(
+        ruleType = "regex",
+        description = Some("A"),
+        replacement = Some("Same replacement"),
+        user = "test.user",
+        ignore = false
+      )
+      .get
+
+    val descResults = DbRuleDraft
+      .searchRules(1, None, List("-description", "-replacement"))
+      .data
+      .map(d => d.description -> d.replacement)
+    val descExpected = List(
+      ruleA,
+      ruleB,
+      ruleC
+    ).map(d => d.description -> d.replacement)
+
+    descResults shouldMatchTo descExpected
+
+    val ascResults = DbRuleDraft
+      .searchRules(1, None, List("+description", "+replacement"))
+      .data
+      .map(d => d.description -> d.replacement)
+    val ascExpected = List(ruleC, ruleB, ruleA)
+      .map(d => d.description -> d.replacement)
+
+    ascResults shouldMatchTo ascExpected
+  }
+
   it should "count all records" in { implicit session =>
     val count = DbRuleDraft.countAll()
     count should be > 0L

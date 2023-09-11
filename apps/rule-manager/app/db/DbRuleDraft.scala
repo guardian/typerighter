@@ -1,7 +1,7 @@
 package db
 
 import db.DbRule._
-//import db.DbRuleDraft.rd
+import model.PaginatedResponse
 import model.{CreateRuleForm, UpdateRuleForm}
 import play.api.libs.json.{Format, Json}
 import play.api.mvc.Result
@@ -41,7 +41,7 @@ case class DbRuleDraft(
         throw new Exception(
           s"Attempted to make live rule for rule with externalId $externalId, but the rule did not have an id"
         )
-      case Some(id) =>
+      case Some(_) =>
         DbRuleLive(
           ruleType = ruleType,
           pattern = pattern,
@@ -103,6 +103,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     )
   }
 
+  case class PaginatedRow(rule: DbRuleDraft, ruleCount: Int, pageCount: Int)
+
+  /** Returns a tuple with the rule, the total number of rules, and the total number of pages.
+    */
+  def fromPaginatedRow(rs: WrappedResultSet): PaginatedRow = {
+    PaginatedRow(fromRow(rs), rs.int("rule_count"), rs.int("page_count"))
+  }
+
   def withUser(
       id: Option[Int],
       ruleType: String,
@@ -145,6 +153,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   }
 
   val rd = DbRuleDraft.syntax("rd")
+  val rdSubQuery = SubQuery.syntax("rd").include(rd)
   val rl = DbRuleLive.syntax("rl")
   val rt = RuleTagDraft.syntax("rt")
 
@@ -156,17 +165,18 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val hasUnpublishedChangesColumn =
     sqls"(${rl.revisionId} IS NOT NULL AND ${rl.revisionId} < ${rd.revisionId}) AS has_unpublished_changes"
 
-  val dbColumnsToFind = SQLSyntax.createUnsafely(
+  val countColumn = sqls"COUNT(*) AS rule_count"
+  val getPageCountColumn = (pageSize: Int) => sqls"CEILING(COUNT(*) / $pageSize) as page_count"
+
+  val draftRuleColumns = SQLSyntax.createUnsafely(
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
   )
-
-  val wordSimilarity = (str: String) => sqls"similarity(${rd.pattern}, $str) AS sml"
 
   override val autoSession = AutoSession
 
   def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
     withSQL {
-      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -174,7 +184,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(rd.id, rt.ruleId)
         .where
         .eq(rd.id, id)
-        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .groupBy(draftRuleColumns, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .single()
@@ -183,7 +193,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -191,7 +201,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(rd.id, rt.ruleId)
         .where
         .in(rd.id, ids)
-        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .groupBy(draftRuleColumns, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }
       .map(DbRuleDraft.fromRow)
@@ -201,68 +211,92 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
         .leftJoin(RuleTagDraft as rt)
         .on(rd.id, rt.ruleId)
-        .where
-        .not
-        .eq(rd.ruleType, "dictionary")
-        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .groupBy(draftRuleColumns, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }.map(DbRuleDraft.fromRow)
       .list()
       .apply()
   }
 
-  def findDictionaryRules(maybeWord: Option[String], page: Int)(implicit
+  def searchRules(page: Int, maybeWord: Option[String], sortBy: List[String] = List.empty)(implicit
       session: DBSession = autoSession
-  ): List[DbRuleDraft] = {
-    val limit = 1000
+  ): PaginatedResponse[DbRuleDraft] = {
+    val pageSize = 200
 
-    val args = List(
-      dbColumnsToFind,
+    val dbColumns = List(
+      draftRuleColumns,
       isPublishedColumn,
       hasUnpublishedChangesColumn,
       tagColumn
-    ) ++ maybeWord.map(wordSimilarity(_)).toList
+    )
 
-    withSQL {
-      val selectDictionaryWords = select(args: _*)
-        .from(DbRuleDraft as rd)
-        .leftJoin(DbRuleLive as rl)
-        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
-        .leftJoin(RuleTagDraft as rt)
-        .on(rd.id, rt.ruleId)
-        .where
-        .eq(rd.ruleType, "dictionary")
-
-      val filterGroupAndOrder = maybeWord match {
-        case Some(word) =>
-          selectDictionaryWords.and
-            .like(rd.pattern, s"$word%")
-            .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
-            .orderBy(rd.ruleOrder)
-        case _ =>
-          selectDictionaryWords
-            .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
-            .orderBy(rd.ruleOrder)
+    val orderByClause = if (sortBy.nonEmpty) {
+      val orderStmts = sortBy.map { sortByStr =>
+        val col = rd.column(sortByStr.slice(1, sortByStr.length))
+        sortByStr.slice(0, 1) match {
+          case "+" => sqls"$col ASC"
+          case "-" => sqls"$col DESC"
+        }
       }
 
-      filterGroupAndOrder
-        .limit(limit)
-        .offset(page * limit)
-        .asInstanceOf[SQLBuilder[Any]]
-    }.map(DbRuleDraft.fromRow)
+      sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}"
+    } else sqls.empty
+
+    val searchClause = maybeWord
+      .map { word =>
+        sqls"""WHERE
+        coalesce(${rd.column("pattern")}, '') ||
+        coalesce(${rd.column("description")}, '') ||
+        coalesce(${rd.column("replacement")}, '') ||
+        coalesce(${rd.column("category")}, '') ILIKE ${s"%$word%"}"""
+      }
+      .getOrElse(sqls.empty)
+
+    val subclause = sqls"""
+          SELECT $draftRuleColumns FROM ${DbRuleDraft.as(rd)}
+            $searchClause
+            $orderByClause
+            LIMIT $pageSize
+            OFFSET ${(page - 1) * pageSize}
+        """
+
+    val data = sql"""
+      SELECT $dbColumns
+        FROM ($subclause) as rd
+        LEFT JOIN ${DbRuleLive.as(rl)}
+            ON ${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true
+        LEFT JOIN ${RuleTagDraft.as(rt)}
+            ON ${rd.id} = ${rt.ruleId}
+        GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId}
+        $orderByClause
+    """
+      .map(DbRuleDraft.fromRow)
       .list()
       .apply()
+
+    val (maxPages, total) =
+      sql"""
+         SELECT $countColumn, ${getPageCountColumn(pageSize)}
+         FROM ${DbRuleDraft.as(rd)}
+         $searchClause
+      """
+        .map(rs => (rs.int("page_count"), rs.int("rule_count")))
+        .single()
+        .apply()
+        .getOrElse((1, 0))
+
+    PaginatedResponse(data, pageSize, page, maxPages, total)
   }
 
   def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(dbColumnsToFind, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -270,7 +304,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         .on(rd.id, rt.ruleId)
         .where
         .eq(rd.ruleType, "dictionary")
-        .groupBy(dbColumnsToFind, rl.externalId, rl.revisionId)
+        .groupBy(draftRuleColumns, rl.externalId, rl.revisionId)
         .orderBy(rd.ruleOrder)
     }
       .fetchSize(1000)

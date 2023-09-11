@@ -28,11 +28,6 @@ const RuleStatusContainer = styled.div`
 const AnotherContainer = styled.div`
 	display: flex;
 `;
-const UnpublishedChangesContainer = styled.div`
-	display: flex;
-	align-items: center;
-	flex-grow: 0;
-`;
 
 export const RuleStatus = ({
 	ruleData,

@@ -1,24 +1,84 @@
 import { useEffect, useState } from 'react';
 import { errorToString } from '../../utils/error';
-import { DraftRule } from './useRule';
+import { BaseRule, DraftRule } from './useRule';
+
+export type PaginatedResponse<Data> = {
+	data: Data[];
+	page: number;
+	pageSize: number;
+	pages: number;
+	total: number;
+};
+
+export type PaginatedRuleData = {
+	data: DraftRule[];
+	loadedRules: Set<number>;
+	pageSize: number;
+	total: number;
+};
+
+export type SortColumns = Array<{
+	id: string;
+	direction: 'asc' | 'desc';
+}>;
 
 export function useRules() {
 	const { location } = window;
-	const [rules, setRules] = useState<DraftRule[] | null>(null);
+	const [ruleData, setRulesData] = useState<PaginatedRuleData | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const fetchRules = async (): Promise<void> => {
+	const fetchRules = async (
+		pageIndex: number = 0,
+		queryStr: string = '',
+		sortColumns: SortColumns = [],
+	): Promise<void> => {
 		setIsLoading(true);
 		try {
-			const response = await fetch(`${location.origin}/api/rules`);
+			const page = pageIndex + 1;
+			const queryParams = new URLSearchParams({
+				page: page.toString(),
+				...(queryStr ? { queryStr } : {}),
+			});
+			sortColumns.forEach((colAndDir) =>
+				queryParams.append(
+					'sortBy',
+					`${colAndDir.direction === 'asc' ? '+' : '-'}${colAndDir.id}`,
+				),
+			);
+			const response = await fetch(
+				`${location.origin}/api/rules?${queryParams}`,
+			);
 			if (!response.ok) {
 				throw new Error(
 					`Failed to fetch rules: ${response.status} ${response.statusText}`,
 				);
 			}
-			const rules = await response.json();
-			setRules(rules);
+
+			const incomingRuleData =
+				(await response.json()) as PaginatedResponse<DraftRule>;
+
+			setRulesData((currentRuleDataData) => {
+				const loadedRules = new Set([
+					...(currentRuleDataData?.loadedRules ?? []),
+					...incomingRuleData.data.map(
+						(_, index) => (page - 1) * incomingRuleData.pageSize + index,
+					),
+				]);
+
+				const data: BaseRule[] = [];
+				incomingRuleData.data.forEach((rule, index) => {
+					const offsetIndex = (page - 1) * incomingRuleData.pageSize + index;
+					data[offsetIndex] = rule;
+				});
+
+				return {
+					data,
+					loadedRules,
+					pageSize: incomingRuleData?.pageSize ?? 0,
+					total: incomingRuleData?.total ?? 0,
+				};
+			});
 		} catch (error) {
 			setError(errorToString(error));
 		}
@@ -43,7 +103,7 @@ export function useRules() {
 				);
 			}
 			const rules = await updatedRulesResponse.json();
-			setRules(rules);
+			setRulesData(rules);
 		} catch (e) {
 			setError(errorToString(error));
 		} finally {
@@ -76,12 +136,8 @@ export function useRules() {
 		}
 	};
 
-	useEffect(() => {
-		fetchRules();
-	}, []);
-
 	return {
-		rules,
+		ruleData,
 		isLoading,
 		error,
 		refreshRules,

@@ -13,7 +13,7 @@ import com.gu.typerighter.model.{
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
 import db.DbRuleDraft.autoSession
-import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, RegexRuleForm}
+import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, RegexRuleForm}
 import play.api.data.FormError
 import play.api.libs.json.{Json, OWrites}
 import scalikejdbc.DBSession
@@ -164,13 +164,15 @@ object RuleManager extends Loggable {
     }
   }
 
-  def getDraftRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] =
-    DbRuleDraft.findAll()
+  def searchDraftRules(page: Int, queryStr: Option[String], sortBy: List[String])(implicit
+      session: DBSession = autoSession
+  ): PaginatedResponse[DbRuleDraft] =
+    DbRuleDraft.searchRules(page, queryStr, sortBy)
 
   def getDraftDictionaryRules(word: Option[String], page: Int)(implicit
       session: DBSession = autoSession
-  ): List[DbRuleDraft] =
-    DbRuleDraft.findDictionaryRules(word, page)
+  ): PaginatedResponse[DbRuleDraft] =
+    DbRuleDraft.searchRules(page, word)
 
   def getAllRuleData(id: Int)(implicit
       session: DBSession = autoSession
@@ -294,7 +296,7 @@ object RuleManager extends Loggable {
       .grouped(100)
       .foreach(DbRuleLive.batchInsert(_))
 
-    val persistedRules = getDraftRules()
+    val persistedRules = DbRuleDraft.findAll()
 
     val persistedRulesToCompare =
       persistedRules.map(rule => rule.copy(id = None, tags = rule.tags.sorted))

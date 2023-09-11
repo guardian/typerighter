@@ -3,12 +3,10 @@ import { EuiPageTemplate, EuiProvider } from '@elastic/eui';
 import { Header, headerHeight } from './Header';
 import { Rules } from '../pages/Rules';
 import { euiThemeOverrides } from '../../constants/euiTheme';
-import { Routes, Route, useParams } from 'react-router-dom';
-
+import { Routes, Route } from 'react-router-dom';
 import createCache from '@emotion/cache';
 import { FeatureSwitchesProvider } from '../context/featureSwitches';
 import { PageDataProvider } from '../../utils/window';
-import RulesTable from '../RulesTable';
 import styled from '@emotion/styled';
 import { PageNotFound } from '../PageNotFound';
 import { TagsTable } from '../TagsTable';
@@ -37,7 +35,7 @@ export const Page = () => (
 							element={
 								<>
 									<PageContent>
-										<RulesTable />
+										<Rules />
 									</PageContent>
 								</>
 							}
