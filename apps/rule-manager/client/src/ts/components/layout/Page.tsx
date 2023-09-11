@@ -90,7 +90,7 @@ const router = createBrowserRouter([
 			{
 				path: '*',
 				handle: {
-					name: 'Page not found',
+					name: '404 – Page not found',
 				},
 				element: <PageNotFound />,
 			},
