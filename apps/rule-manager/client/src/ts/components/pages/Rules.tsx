@@ -146,6 +146,7 @@ export const Rules = () => {
 						</EuiButton>
 					</EuiToolTip>
 				</EuiFlexItem>
+
 			</EuiFlexGroup>
 			<EuiSpacer />
 		</div>
