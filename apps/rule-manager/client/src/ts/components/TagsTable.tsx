@@ -378,8 +378,7 @@ export const TagsTable = () => {
 	return (
 		<>
 			<EuiFlexGroup>
-				<EuiFlexItem
-				>
+				<EuiFlexItem>
 					<EuiFlexGroup>
 						<CreateTagForm
 							createTag={createTag}

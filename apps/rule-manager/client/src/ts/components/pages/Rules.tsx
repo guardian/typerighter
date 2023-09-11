@@ -111,36 +111,36 @@ export const Rules = () => {
 						)}
 					</EuiFlexGrid>
 					<EuiFlexGroup>
-									{getFeatureSwitchValue('enable-destructive-reload') ? (
-
-                      <div>
-											<EuiButton
-												size="s"
-												fill={true}
-												color={'danger'}
-												onClick={handleRefreshRules}
-												isLoading={isRefreshing}
-											>
-												<strong>
-													Destroy all rules in the manager and reload from the
-													original Google Sheet
-												</strong>
-											</EuiButton>&nbsp;
-											<EuiButton
-												size="s"
-												fill={true}
-												color={'danger'}
-												onClick={refreshDictionaryRules}
-												isLoading={isRefreshing}
-											>
-												<strong>
-													Destroy all dictionary rules and reload from Collins
-													XML wordlist
-												</strong>
-											</EuiButton>
-                      <EuiSpacer />
-                      </div>
-									) : null}
+						{getFeatureSwitchValue('enable-destructive-reload') ? (
+							<div>
+								<EuiButton
+									size="s"
+									fill={true}
+									color={'danger'}
+									onClick={handleRefreshRules}
+									isLoading={isRefreshing}
+								>
+									<strong>
+										Destroy all rules in the manager and reload from the
+										original Google Sheet
+									</strong>
+								</EuiButton>
+								&nbsp;
+								<EuiButton
+									size="s"
+									fill={true}
+									color={'danger'}
+									onClick={refreshDictionaryRules}
+									isLoading={isRefreshing}
+								>
+									<strong>
+										Destroy all dictionary rules and reload from Collins XML
+										wordlist
+									</strong>
+								</EuiButton>
+								<EuiSpacer />
+							</div>
+						) : null}
 					</EuiFlexGroup>
 				</EuiFlexItem>
 				<EuiFlexGroup style={{ overflow: 'hidden' }}>
