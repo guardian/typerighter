@@ -15,6 +15,8 @@ import {
 	createBrowserRouter,
 	useMatch,
 	useMatches,
+	Params,
+	RouteMatch,
 } from 'react-router-dom';
 import createCache from '@emotion/cache';
 import { FeatureSwitchesProvider } from '../context/featureSwitches';
@@ -25,8 +27,9 @@ import { TagsTable } from '../TagsTable';
 import { Breadcrumbs } from './Breadcrumbs';
 import { Rules } from '../pages/Rules';
 import { FullHeightContentWithFixedHeader } from './FullHeightContentWithFixedHeader';
-import { RuleForm } from '../RuleForm';
+import { newRuleId, RuleForm } from '../RuleForm';
 import { TagsProvider } from '../context/tags';
+import { RuleFormBatchEdit } from '../RuleFormBatchEdit';
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -40,8 +43,18 @@ const PageContentContainer = styled.div`
 	padding: calc(${headerHeight} + 24px) 24px 24px 24px;
 `;
 
+export const getNameFromRouteMatch = (
+	match: ReturnType<typeof useMatches>[number],
+): string => {
+	const handle = match.handle as RouteHandle;
+	return typeof (handle as RouteHandle).name === 'function'
+		? (handle.name as RouteNameFn)(match.params)
+		: (handle as { name: string })?.name || '';
+};
+
 const PageContent: React.FC = () => {
-	const { name } = (useMatches()?.pop()?.handle || {}) as { name?: string };
+	const maybeMatch = useMatches()?.pop();
+	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
 	return (
 		<EuiPageTemplate>
 			<Header />
@@ -64,6 +77,11 @@ const PageContent: React.FC = () => {
 	);
 };
 
+export type RouteNameFn = (params: Params) => string;
+export type RouteHandle = {
+	name: string | RouteNameFn;
+};
+
 const router = createBrowserRouter([
 	{
 		element: <PageContent />,
@@ -77,6 +95,23 @@ const router = createBrowserRouter([
 					name: 'Rules',
 				},
 				element: <Rules />,
+				children: [
+					{
+						path: 'rule/:id',
+						handle: {
+							name: (params: Params) =>
+								params.id === newRuleId ? 'New rule' : `Rule ${params.id}`,
+						},
+						element: <RuleForm />,
+					},
+					{
+						path: 'rule/batch',
+						handle: {
+							name: 'Batch',
+						},
+						element: <RuleFormBatchEdit />,
+					},
+				],
 			},
 			{
 				path: 'tags',

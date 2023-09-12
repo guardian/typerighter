@@ -20,16 +20,11 @@ import {
 import { LineBreak } from './LineBreak';
 import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
+import { useOutletContext } from 'react-router-dom';
+import { RulesRouteContext } from './pages/Rules';
 
-export const RuleFormBatchEdit = ({
-	ruleIds,
-	onClose,
-	onUpdate,
-}: {
-	ruleIds: number[];
-	onClose: () => void;
-	onUpdate: () => void;
-}) => {
+export const RuleFormBatchEdit = () => {
+	const { ruleIds, onUpdate } = useOutletContext() as RulesRouteContext;
 	const { isLoading, rules, updateRules } = useBatchRules(ruleIds);
 	const [ruleFormData, setRuleFormData] = useState<DraftRule[]>([baseForm]);
 
@@ -120,7 +115,6 @@ export const RuleFormBatchEdit = ({
 									if (!shouldClose) {
 										return;
 									}
-									onClose();
 									setRuleFormData([baseForm]);
 								}}
 							>

@@ -4,20 +4,27 @@ import {
 	EuiButton,
 	EuiFlexGroup,
 	EuiButtonIcon,
-	EuiFlexGrid,
 	EuiToolTip,
 	EuiSpacer,
 } from '@elastic/eui';
 import { SortColumns, useRules } from '../hooks/useRules';
-import { RuleForm } from '../RuleForm';
+import { newRuleId } from '../RuleForm';
 import { PageContext } from '../../utils/window';
 import { hasCreateEditPermissions } from '../helpers/hasCreateEditPermissions';
-import { FeatureSwitchesContext } from '../context/featureSwitches';
-import { RuleFormBatchEdit } from '../RuleFormBatchEdit';
 import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 import { PaginatedRulesTable } from '../table/PaginatedRulesTable';
 import { useDebouncedValue } from '../hooks/useDebounce';
 import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWithFixedHeader';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { css } from '@emotion/react';
+
+// The data passed from the rules page to its child components.
+export type RulesRouteContext = {
+	// The rules currently selected, if any.
+	ruleIds: number[] | undefined;
+	// Called when a child component updates rule data, to allow the rules table to refresh in response.
+	onUpdate: () => void;
+};
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -26,46 +33,30 @@ export const useCreateEditPermissions = () => {
 };
 
 export const Rules = () => {
+	const navigate = useNavigate();
 	const [queryStr, setQueryStr] = useState<string>('');
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
-	const {
-		ruleData,
-		error,
-		refreshRules,
-		isRefreshing,
-		setError,
-		fetchRules,
-		refreshDictionaryRules,
-	} = useRules();
-
-	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
-		'closed',
-	);
+	const { ruleData, error, setError, fetchRules } = useRules();
 	const [pageIndex, setPageIndex] = useState(0);
 	const [sortColumns, setSortColumns] = useState<SortColumns>([
 		{ id: 'description', direction: 'asc' },
 	]);
-	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
-		undefined,
-	);
 	const [rowSelection, setRowSelection] = useState<Set<number>>(new Set());
-	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const hasCreatePermissions = useCreateEditPermissions();
 
-	const openEditRulePanel = (ruleId: number | undefined) => {
-		setCurrentRuleId(ruleId);
-		setFormMode(ruleId ? 'edit' : 'create');
+	const openEditRulePanel = (ruleId: number | typeof newRuleId) => {
+		navigate(`/rule/${ruleId}`);
 	};
+
+	useEffect(() => {
+		if (rowSelection.size === 1) {
+			openEditRulePanel(rowSelection.values().next().value);
+		}
+	}, [rowSelection]);
 
 	useEffect(() => {
 		fetchRules(pageIndex, debouncedQueryStr, sortColumns);
 	}, [pageIndex, debouncedQueryStr, sortColumns]);
-
-	useEffect(() => {
-		if (rowSelection.size === 0) {
-			setFormMode('closed');
-		}
-	}, [rowSelection]);
 
 	const rowSelectionArray = useMemo(() => [...rowSelection], [rowSelection]);
 
@@ -126,6 +117,7 @@ export const Rules = () => {
 				<EuiFlexItem>
 					<EuiFieldSearch
 						fullWidth
+						placeholder="Search across description, pattern, replacement and category …"
 						value={queryStr}
 						onChange={(e) => setQueryStr(e.target.value)}
 					/>
@@ -140,7 +132,7 @@ export const Rules = () => {
 					>
 						<EuiButton
 							isDisabled={!hasCreatePermissions}
-							onClick={() => openEditRulePanel(undefined)}
+							onClick={() => openEditRulePanel(newRuleId)}
 						>
 							Create Rule
 						</EuiButton>
@@ -160,10 +152,6 @@ export const Rules = () => {
 					canEditRule={hasCreatePermissions}
 					onSelectionChanged={(rows) => {
 						setRowSelection(rows);
-						if (rows.size === 1) {
-							setCurrentRuleId([...rows].pop());
-						}
-						setFormMode('edit');
 					}}
 					pageIndex={pageIndex}
 					setPageIndex={setPageIndex}
@@ -176,39 +164,21 @@ export const Rules = () => {
 
 	return (
 		<EuiFlexGroup direction="row" style={{ height: '100%' }}>
-			<FullHeightContentWithFixedHeader
-				header={tableHeader}
-				content={tableContent}
-			/>
-			{formMode !== 'closed' && (
-				<EuiFlexItem>
-					{rowSelection.size > 1 ? (
-						<RuleFormBatchEdit
-							onClose={() => {
-								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
-							}}
-							onUpdate={() => fetchRules(pageIndex, queryStr, sortColumns)}
-							ruleIds={rowSelectionArray}
-						/>
-					) : (
-						<RuleForm
-							onClose={() => {
-								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
-							}}
-							onUpdate={(id) => {
-								fetchRules(pageIndex, queryStr, sortColumns);
-								setCurrentRuleId(id);
-								if (formMode === 'create') {
-									setFormMode('edit');
-								}
-							}}
-							ruleId={currentRuleId}
-						/>
-					)}
-				</EuiFlexItem>
-			)}
+			<EuiFlexItem grow={2}>
+				<FullHeightContentWithFixedHeader
+					header={tableHeader}
+					content={tableContent}
+				/>
+			</EuiFlexItem>
+			<EuiFlexItem grow={1}>
+				<Outlet
+					context={{
+						ruleIds: rowSelectionArray,
+						onUpdate: () =>
+							fetchRules(pageIndex, debouncedQueryStr, sortColumns),
+					}}
+				/>
+			</EuiFlexItem>
 		</EuiFlexGroup>
 	);
 };

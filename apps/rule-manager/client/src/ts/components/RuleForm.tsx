@@ -3,7 +3,6 @@ import {
 	EuiCallOut,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiForm,
 	EuiSpacer,
 	EuiText,
 	EuiToolTip,
@@ -22,6 +21,13 @@ import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
 import { RuleFormSection } from './RuleFormSection';
 import { RevertModal } from './modals/Revert';
+import {
+	redirect,
+	useNavigate,
+	useOutletContext,
+	useParams,
+} from 'react-router-dom';
+import { RulesRouteContext } from './pages/Rules';
 
 export type PartiallyUpdateRuleData = (
 	partialReplacement: Partial<DraftRule>,
@@ -50,15 +56,12 @@ export const SpinnerContainer = styled.div`
 
 const formDebounceMs = 1000;
 
-export const RuleForm = ({
-	ruleId,
-	onClose,
-	onUpdate,
-}: {
-	ruleId: number | undefined;
-	onClose: () => void;
-	onUpdate: (id: number) => void;
-}) => {
+export const newRuleId = 'new-rule';
+
+export const RuleForm = () => {
+	const navigate = useNavigate();
+	const { onUpdate } = useOutletContext() as RulesRouteContext;
+	const { id: ruleId } = useParams() as { id: string };
 	const [showErrors, setShowErrors] = useState(false);
 	const {
 		isLoading,
@@ -77,7 +80,7 @@ export const RuleForm = ({
 		ruleStatus,
 		isDiscarding,
 		discardRuleChanges,
-	} = useRule(ruleId);
+	} = useRule(ruleId === newRuleId ? undefined : ruleId);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
 	const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
@@ -92,7 +95,8 @@ export const RuleForm = ({
 	useEffect(() => {
 		if (rule) {
 			setRuleFormData(rule.draft);
-			rule.draft.id && validateRule(rule.draft.id);
+			rule.draft.id && validateRule(rule.draft.id.toString());
+			navigate(`/rule/${rule.draft.id}`);
 		} else {
 			setRuleFormData(baseForm);
 			resetPublishValidationErrors();
@@ -119,11 +123,13 @@ export const RuleForm = ({
 			return;
 		}
 
-		ruleId ? updateRule(ruleFormData) : createRule(ruleFormData);
+		ruleId && ruleId !== newRuleId
+			? updateRule(ruleFormData)
+			: createRule(ruleFormData);
 	}, [debouncedFormData]);
 
 	useEffect(() => {
-		rule?.draft.id && onUpdate(rule.draft.id);
+		rule?.draft.id && onUpdate();
 	}, [rule?.draft.id]);
 
 	const maybePublishRuleHandler = () => {
@@ -143,7 +149,7 @@ export const RuleForm = ({
 		if (isReasonModalVisible) {
 			setIsReasonModalVisible(false);
 		}
-		onUpdate(ruleId);
+		onUpdate();
 	};
 
 	const PublishTooltip: React.FC<{ children: ReactElement }> = ({
@@ -181,7 +187,7 @@ export const RuleForm = ({
 		}
 
 		await archiveRule(ruleId);
-		onUpdate(ruleId);
+		onUpdate();
 	};
 
 	const unarchiveRuleHandler = async () => {
@@ -190,7 +196,7 @@ export const RuleForm = ({
 		}
 
 		await unarchiveRule(ruleId);
-		onUpdate(ruleId);
+		onUpdate();
 	};
 
 	const unpublishRuleHandler = async () => {
@@ -199,7 +205,7 @@ export const RuleForm = ({
 		}
 
 		await unpublishRule(ruleId);
-		onUpdate(ruleId);
+		onUpdate();
 	};
 
 	const showRuleRevertModal = () => {
@@ -215,7 +221,7 @@ export const RuleForm = ({
 		if (isRevertModalVisible) {
 			setIsRevertModalVisible(false);
 		}
-		onUpdate(ruleId);
+		onUpdate();
 	};
 
 	const hasUnsavedChanges = ruleFormData !== rule?.draft;
@@ -223,128 +229,124 @@ export const RuleForm = ({
 
 	return (
 		<>
-			{
-				<EuiFlexGroup
-					gutterSize="s"
-					direction="column"
-					style={{ overflow: 'hidden' }}
-				>
-					<EuiFlexItem grow={1} style={{ overflowY: 'scroll' }}>
-						<EuiFlexGroup gutterSize="s" direction="column">
-							<RuleStatus
-								ruleData={rule}
-								showRuleRevertModal={showRuleRevertModal}
-							/>
-							<RuleContent
-								isLoading={isLoading}
-								validationErrors={publishValidationErrors}
-								ruleData={rule}
-								ruleFormData={ruleFormData}
+			<EuiFlexGroup
+				gutterSize="s"
+				direction="column"
+				style={{ overflow: 'hidden' }}
+			>
+				<EuiFlexItem grow={1} style={{ overflowY: 'scroll' }}>
+					<EuiFlexGroup gutterSize="s" direction="column">
+						<RuleStatus
+							ruleData={rule}
+							showRuleRevertModal={showRuleRevertModal}
+						/>
+						<RuleContent
+							isLoading={isLoading}
+							validationErrors={publishValidationErrors}
+							ruleData={rule}
+							ruleFormData={ruleFormData}
+							partiallyUpdateRuleData={partiallyUpdateRuleData}
+							hasSaveErrors={!!errors}
+						/>
+						<RuleFormSection title="RULE METADATA">
+							<LineBreak />
+							<CategorySelector
+								currentCategory={ruleFormData.category}
 								partiallyUpdateRuleData={partiallyUpdateRuleData}
-								hasSaveErrors={!!errors}
+								validationErrors={publishValidationErrors}
 							/>
-							<RuleFormSection title="RULE METADATA">
-								<LineBreak />
-								<CategorySelector
-									currentCategory={ruleFormData.category}
-									partiallyUpdateRuleData={partiallyUpdateRuleData}
-									validationErrors={publishValidationErrors}
-								/>
-								<TagsSelector
-									selectedTagIds={ruleFormData.tags}
-									partiallyUpdateRuleData={partiallyUpdateRuleData}
-								/>
-							</RuleFormSection>
-							{rule && <RuleHistory ruleHistory={rule.live} />}
-						</EuiFlexGroup>
-					</EuiFlexItem>
-					<EuiFlexItem grow={0}>
-						<EuiFlexGroup gutterSize="s">
-							{canEditRuleContent && (
-								<EuiFlexItem>
-									<EuiButton
-										onClick={() => {
-											const shouldClose = hasUnsavedChanges
-												? window.confirm(
-														'Your rule has unsaved changes. Are you sure you want to discard them?',
-												  )
-												: true;
-											if (!shouldClose) {
-												return;
-											}
-											onClose();
-											setRuleFormData(baseForm);
-										}}
-									>
-										Close
-									</EuiButton>
-								</EuiFlexItem>
-							)}
-							{ruleStatus === 'archived' && (
-								<EuiFlexItem>
-									<EuiButton
-										onClick={unarchiveRuleHandler}
-										color={'danger'}
-										disabled={!ruleId || isLoading}
-									>
-										Unarchive Rule
-									</EuiButton>
-								</EuiFlexItem>
-							)}
-							{ruleStatus === 'draft' && (
-								<EuiFlexItem>
-									<EuiButton
-										onClick={archiveRuleHandler}
-										color={'danger'}
-										disabled={!ruleId || isLoading}
-									>
-										Archive Rule
-									</EuiButton>
-								</EuiFlexItem>
-							)}
-							{ruleStatus === 'live' && (
-								<EuiFlexItem>
-									<EuiButton
-										onClick={unpublishRuleHandler}
-										color={'danger'}
-										disabled={!ruleId || isLoading}
-									>
-										Unpublish Rule
-									</EuiButton>
-								</EuiFlexItem>
-							)}
-							{canEditRuleContent && (
-								<EuiFlexItem>
-									<PublishTooltip>
-										<EuiButton
-											fill={true}
-											disabled={
-												!ruleId || isLoading || !!publishValidationErrors
-											}
-											isLoading={isPublishing}
-											onClick={maybePublishRuleHandler}
-										>
-											{'Publish'}
-										</EuiButton>
-									</PublishTooltip>
-								</EuiFlexItem>
-							)}
-						</EuiFlexGroup>
-						{showErrors ? (
-							<>
-								<EuiSpacer size="s" />
-								<EuiCallOut
-									title="Please resolve the following errors:"
-									color="danger"
-									iconType="error"
+							<TagsSelector
+								selectedTagIds={ruleFormData.tags}
+								partiallyUpdateRuleData={partiallyUpdateRuleData}
+							/>
+						</RuleFormSection>
+						{rule && <RuleHistory ruleHistory={rule.live} />}
+					</EuiFlexGroup>
+				</EuiFlexItem>
+				<EuiFlexItem grow={0}>
+					<EuiFlexGroup gutterSize="s">
+						{canEditRuleContent && (
+							<EuiFlexItem>
+								<EuiButton
+									onClick={() => {
+										const shouldClose = hasUnsavedChanges
+											? window.confirm(
+													'Your rule has unsaved changes. Are you sure you want to discard them?',
+											  )
+											: true;
+										if (!shouldClose) {
+											return;
+										}
+										redirect('/rules');
+										setRuleFormData(baseForm);
+									}}
 								>
-									<EuiText>{errors}</EuiText>
-								</EuiCallOut>
-							</>
-						) : null}
-					</EuiFlexItem>
-				</EuiFlexGroup>
-			}
+									Close
+								</EuiButton>
+							</EuiFlexItem>
+						)}
+						{ruleStatus === 'archived' && (
+							<EuiFlexItem>
+								<EuiButton
+									onClick={unarchiveRuleHandler}
+									color={'danger'}
+									disabled={!ruleId || isLoading}
+								>
+									Unarchive Rule
+								</EuiButton>
+							</EuiFlexItem>
+						)}
+						{ruleStatus === 'draft' && (
+							<EuiFlexItem>
+								<EuiButton
+									onClick={archiveRuleHandler}
+									color={'danger'}
+									disabled={!ruleId || isLoading}
+								>
+									Archive Rule
+								</EuiButton>
+							</EuiFlexItem>
+						)}
+						{ruleStatus === 'live' && (
+							<EuiFlexItem>
+								<EuiButton
+									onClick={unpublishRuleHandler}
+									color={'danger'}
+									disabled={!ruleId || isLoading}
+								>
+									Unpublish Rule
+								</EuiButton>
+							</EuiFlexItem>
+						)}
+						{canEditRuleContent && (
+							<EuiFlexItem>
+								<PublishTooltip>
+									<EuiButton
+										fill={true}
+										disabled={!ruleId || isLoading || !!publishValidationErrors}
+										isLoading={isPublishing}
+										onClick={maybePublishRuleHandler}
+									>
+										{'Publish'}
+									</EuiButton>
+								</PublishTooltip>
+							</EuiFlexItem>
+						)}
+					</EuiFlexGroup>
+					{showErrors ? (
+						<>
+							<EuiSpacer size="s" />
+							<EuiCallOut
+								title="Please resolve the following errors:"
+								color="danger"
+								iconType="error"
+							>
+								<EuiText>{errors}</EuiText>
+							</EuiCallOut>
+						</>
+					) : null}
+				</EuiFlexItem>
+			</EuiFlexGroup>
 			{isReasonModalVisible && (
 				<ReasonModal
 					onClose={() => setIsReasonModalVisible(false)}

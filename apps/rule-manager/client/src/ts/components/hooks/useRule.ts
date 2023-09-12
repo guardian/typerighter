@@ -37,7 +37,7 @@ export type RuleData = {
 	live: LiveRule[];
 };
 
-export function useRule(ruleId: number | undefined) {
+export function useRule(ruleId: string | undefined) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [isPublishing, setIsPublishing] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
@@ -54,7 +54,7 @@ export function useRule(ruleId: number | undefined) {
 		setErrors(undefined);
 	};
 
-	const fetchRule = async (ruleId: number) => {
+	const fetchRule = async (ruleId: string) => {
 		setIsLoading(true);
 		setIsValidating(true); // Mark the rule as pending validation until the server tells us otherwise
 
@@ -74,7 +74,7 @@ export function useRule(ruleId: number | undefined) {
 		setIsLoading(false);
 	};
 
-	const publishRule = async (ruleId: number, reason: string) => {
+	const publishRule = async (ruleId: string, reason: string) => {
 		setIsPublishing(true);
 
 		try {
@@ -101,7 +101,7 @@ export function useRule(ruleId: number | undefined) {
 		}
 	};
 
-	const archiveRule = async (ruleId: number) => {
+	const archiveRule = async (ruleId: string) => {
 		setIsLoading(true);
 
 		try {
@@ -127,7 +127,7 @@ export function useRule(ruleId: number | undefined) {
 		}
 	};
 
-	const unarchiveRule = async (ruleId: number) => {
+	const unarchiveRule = async (ruleId: string) => {
 		setIsLoading(true);
 
 		try {
@@ -153,7 +153,7 @@ export function useRule(ruleId: number | undefined) {
 		}
 	};
 
-	const unpublishRule = async (ruleId: number) => {
+	const unpublishRule = async (ruleId: string) => {
 		setIsLoading(true);
 
 		try {
@@ -179,7 +179,7 @@ export function useRule(ruleId: number | undefined) {
 		}
 	};
 
-	const validateRule = async (ruleId: number) => {
+	const validateRule = async (ruleId: string) => {
 		setIsValidating(false);
 
 		try {
@@ -284,7 +284,7 @@ export function useRule(ruleId: number | undefined) {
 		}
 	};
 
-	const discardRuleChanges = async (ruleId: number) => {
+	const discardRuleChanges = async (ruleId: string) => {
 		setIsDiscarding(true);
 
 		try {
