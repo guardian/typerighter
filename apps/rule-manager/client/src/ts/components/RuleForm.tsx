@@ -21,12 +21,8 @@ import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
 import { RuleFormSection } from './RuleFormSection';
 import { RevertModal } from './modals/Revert';
-import {
-	redirect,
-	useNavigate,
-	useOutletContext,
-	useParams,
-} from 'react-router-dom';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
+
 import { RulesRouteContext } from './pages/Rules';
 
 export type PartiallyUpdateRuleData = (
@@ -277,8 +273,7 @@ export const RuleForm = () => {
 										if (!shouldClose) {
 											return;
 										}
-										redirect('/rules');
-										setRuleFormData(baseForm);
+										navigate('/');
 									}}
 								>
 									Close

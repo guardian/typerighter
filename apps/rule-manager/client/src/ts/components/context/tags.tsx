@@ -163,9 +163,9 @@ export const TagsProvider: React.FC = ({ children }) => {
 		}
 	};
 
-  useEffect(() => {
-    fetchTags()
-  }, [])
+	useEffect(() => {
+		fetchTags();
+	}, []);
 
 	return (
 		<TagsContext.Provider

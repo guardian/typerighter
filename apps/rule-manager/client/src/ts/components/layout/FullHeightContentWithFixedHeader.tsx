@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import styled from '@emotion/styled';
-import { Interpolation, Theme } from '@emotion/react';
 
 const Container = styled.div`
 	display: flex;

@@ -15,8 +15,8 @@ import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 import { PaginatedRulesTable } from '../table/PaginatedRulesTable';
 import { useDebouncedValue } from '../hooks/useDebounce';
 import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWithFixedHeader';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { css } from '@emotion/react';
+import { matchPath, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { FeatureSwitchesContext } from '../context/featureSwitches';
 
 // The data passed from the rules page to its child components.
 export type RulesRouteContext = {
@@ -34,9 +34,20 @@ export const useCreateEditPermissions = () => {
 
 export const Rules = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
+	const hasChildRoutes = !!matchPath('/rule/*', location.pathname);
 	const [queryStr, setQueryStr] = useState<string>('');
+	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
-	const { ruleData, error, setError, fetchRules } = useRules();
+	const {
+		ruleData,
+		error,
+		setError,
+		fetchRules,
+		refreshRules,
+		isRefreshing,
+		refreshDictionaryRules,
+	} = useRules();
 	const [pageIndex, setPageIndex] = useState(0);
 	const [sortColumns, setSortColumns] = useState<SortColumns>([
 		{ id: 'description', direction: 'asc' },
@@ -49,8 +60,14 @@ export const Rules = () => {
 	};
 
 	useEffect(() => {
+		if (!rowSelection.size) {
+			return;
+		}
+
 		if (rowSelection.size === 1) {
 			openEditRulePanel(rowSelection.values().next().value);
+		} else {
+			navigate(`rule/batch`);
 		}
 	}, [rowSelection]);
 
@@ -138,7 +155,6 @@ export const Rules = () => {
 						</EuiButton>
 					</EuiToolTip>
 				</EuiFlexItem>
-
 			</EuiFlexGroup>
 			<EuiSpacer />
 		</div>
@@ -164,21 +180,23 @@ export const Rules = () => {
 
 	return (
 		<EuiFlexGroup direction="row" style={{ height: '100%' }}>
-			<EuiFlexItem grow={2}>
+			<EuiFlexItem grow={2} style={{ minWidth: 0 }}>
 				<FullHeightContentWithFixedHeader
 					header={tableHeader}
 					content={tableContent}
 				/>
 			</EuiFlexItem>
-			<EuiFlexItem grow={1}>
-				<Outlet
-					context={{
-						ruleIds: rowSelectionArray,
-						onUpdate: () =>
-							fetchRules(pageIndex, debouncedQueryStr, sortColumns),
-					}}
-				/>
-			</EuiFlexItem>
+			{hasChildRoutes && (
+				<EuiFlexItem grow={1}>
+					<Outlet
+						context={{
+							ruleIds: rowSelectionArray,
+							onUpdate: () =>
+								fetchRules(pageIndex, debouncedQueryStr, sortColumns),
+						}}
+					/>
+				</EuiFlexItem>
+			)}
 		</EuiFlexGroup>
 	);
 };

@@ -20,10 +20,12 @@ import {
 import { LineBreak } from './LineBreak';
 import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
-import { useOutletContext } from 'react-router-dom';
+
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { RulesRouteContext } from './pages/Rules';
 
 export const RuleFormBatchEdit = () => {
+	const navigate = useNavigate();
 	const { ruleIds, onUpdate } = useOutletContext() as RulesRouteContext;
 	const { isLoading, rules, updateRules } = useBatchRules(ruleIds);
 	const [ruleFormData, setRuleFormData] = useState<DraftRule[]>([baseForm]);
@@ -44,9 +46,9 @@ export const RuleFormBatchEdit = () => {
 		}
 	}, [rules]);
 
-	// We need the errors at the form level, so that we can prevent save etc. when there are errors
-	// We need to be able to change the errors depending on which fields are invalid
-	// We need to be able to show errors on a field by field basis
+	useEffect(() => {
+		if (!ruleIds || !ruleIds.length) navigate('/');
+	}, [ruleIds]);
 
 	const saveRuleHandler = async () => {
 		const response = await updateRules(ruleFormData as DraftRule[]);
@@ -115,6 +117,7 @@ export const RuleFormBatchEdit = () => {
 									if (!shouldClose) {
 										return;
 									}
+									navigate('/');
 									setRuleFormData([baseForm]);
 								}}
 							>
