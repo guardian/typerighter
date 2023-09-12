@@ -20,13 +20,13 @@ import {
 	EuiToolTip,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useCreateEditPermissions } from './pages/Rules';
 import { RuleFormSection } from './RuleFormSection';
 import { ErrorIResponse } from '../utils/api';
 import { FullHeightContentWithFixedHeader } from './layout/FullHeightContentWithFixedHeader';
-import {Tag, TagContent, TagsContext} from "./context/tags";
+import { Tag, TagContent, TagsContext } from './context/tags';
 
 type DeleteTagButtonProps = {
 	editIsEnabled: boolean;

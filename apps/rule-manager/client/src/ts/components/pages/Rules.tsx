@@ -99,7 +99,7 @@ export const Rules = () => {
 						size="s"
 						fill={true}
 						color={'danger'}
-						onClick={handleRefreshRules}
+						onClick={refreshRules}
 						isLoading={isRefreshing}
 					>
 						<strong>
@@ -146,7 +146,6 @@ export const Rules = () => {
 						</EuiButton>
 					</EuiToolTip>
 				</EuiFlexItem>
-
 			</EuiFlexGroup>
 			<EuiSpacer />
 		</div>

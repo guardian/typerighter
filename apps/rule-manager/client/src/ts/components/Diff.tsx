@@ -12,7 +12,7 @@ import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ruleTypeOptions } from './RuleContent';
 import { isEqual, startCase } from 'lodash';
-import {Tag, TagsContext} from './context/tags';
+import { Tag, TagsContext } from './context/tags';
 import { useContext } from 'react';
 
 type DivergentField = {

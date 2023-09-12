@@ -1,4 +1,4 @@
-import React, {createContext, useEffect, useState} from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { errorToString } from '../../utils/error';
 import {
 	ErrorIResponse,
@@ -163,9 +163,9 @@ export const TagsProvider: React.FC = ({ children }) => {
 		}
 	};
 
-  useEffect(() => {
-    fetchTags()
-  }, [])
+	useEffect(() => {
+		fetchTags();
+	}, []);
 
 	return (
 		<TagsContext.Provider
