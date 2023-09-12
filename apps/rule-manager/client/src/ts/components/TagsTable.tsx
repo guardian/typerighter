@@ -347,10 +347,10 @@ const TagsTableContainer = styled.div`
 	max-width: 600px;
 	height: 100%;
 	thead {
-	  position: sticky;
-	  top: 0;
-	  background-color: white;
-	  z-index: 1;
+		position: sticky;
+		top: 0;
+		background-color: white;
+		z-index: 1;
 	}
 `;
 
