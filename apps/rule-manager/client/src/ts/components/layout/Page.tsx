@@ -53,7 +53,9 @@ export const getNameFromRouteMatch = (
 };
 
 const PageContent: React.FC = () => {
-	const maybeMatch = useMatches()?.pop();
+	const maybeMatch = useMatches()
+		.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
+		.pop();
 	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
 	return (
 		<EuiPageTemplate>
@@ -79,7 +81,10 @@ const PageContent: React.FC = () => {
 
 export type RouteNameFn = (params: Params) => string;
 export type RouteHandle = {
+	// The user-facing name of the route
 	name: string | RouteNameFn;
+	// Should we use this route as the page title? Defaults to `true`
+	useAsPageTitle?: boolean;
 };
 
 const router = createBrowserRouter([
@@ -99,6 +104,7 @@ const router = createBrowserRouter([
 					{
 						path: 'rule/:id',
 						handle: {
+							useAsPageTitle: false,
 							name: (params: Params) =>
 								params.id === newRuleId ? 'New rule' : `Rule ${params.id}`,
 						},
@@ -107,6 +113,7 @@ const router = createBrowserRouter([
 					{
 						path: 'rule/batch',
 						handle: {
+							useAsPageTitle: false,
 							name: 'Batch',
 						},
 						element: <RuleFormBatchEdit />,
