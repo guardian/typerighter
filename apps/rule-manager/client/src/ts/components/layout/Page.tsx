@@ -24,6 +24,7 @@ import { PageNotFound } from '../PageNotFound';
 import { TagsTable } from '../TagsTable';
 import { Breadcrumbs } from './Breadcrumbs';
 import { Rules } from '../pages/Rules';
+import { FullHeightContentWithFixedHeader } from './FullHeightContentWithFixedHeader';
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -43,23 +44,19 @@ const PageContent: React.FC = () => {
 		<EuiPageTemplate>
 			<Header />
 			<PageContentContainer>
-				<EuiFlexGroup
-					direction="column"
-					gutterSize="none"
-					style={{ height: '100%' }}
-				>
-					<EuiFlexItem grow={0}>
-						<Breadcrumbs />
-						<EuiSpacer size="s" />
-						<EuiTitle>
-							<h1>{name}</h1>
-						</EuiTitle>
-						<EuiSpacer size="m" />
-					</EuiFlexItem>
-					<EuiFlexItem style={{ overflow: 'hidden' }}>
-						<Outlet />
-					</EuiFlexItem>
-				</EuiFlexGroup>
+				<FullHeightContentWithFixedHeader
+					header={
+						<>
+							<Breadcrumbs />
+							<EuiSpacer size="s" />
+							<EuiTitle>
+								<h1>{name}</h1>
+							</EuiTitle>
+							<EuiSpacer size="m" />
+						</>
+					}
+					content={<Outlet />}
+				/>
 			</PageContentContainer>
 		</EuiPageTemplate>
 	);
