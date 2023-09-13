@@ -16,7 +16,6 @@ import {
 	EuiDataGridRowHeightsOptions,
 	EuiIcon,
 	EuiSkeletonText,
-	EuiText,
 	EuiToolTip,
 	withEuiTheme,
 	WithEuiThemeProps,
@@ -122,6 +121,7 @@ const rowHeightsOptions: EuiDataGridRowHeightsOptions = {
 
 export const PaginatedRulesTable = ({
 	ruleData,
+	isLoading,
 	canEditRule,
 	pageIndex,
 	setPageIndex,
@@ -130,6 +130,7 @@ export const PaginatedRulesTable = ({
 	onSelectionChanged,
 }: {
 	ruleData: PaginatedRuleData;
+	isLoading: boolean;
 	canEditRule: boolean;
 	onSelectionChanged: (rows: RowState) => void;
 	pageIndex: number;
@@ -167,6 +168,9 @@ export const PaginatedRulesTable = ({
 		},
 		new Set<number>(),
 	);
+
+	const getRuleAtRowIndex = (rowIndex: number) =>
+		ruleData.data[rowIndex - pagination.pageIndex * pagination.pageSize];
 
 	const [visibleColumns, setVisibleColumns] = useState(
 		columns.map((_) => _.id),
@@ -208,7 +212,7 @@ export const PaginatedRulesTable = ({
 				),
 				headerCellProps: { className: 'eui-textCenter' },
 				rowCellRender: ({ rowIndex }) => {
-					const rule = ruleData.data[rowIndex];
+					const rule = getRuleAtRowIndex(rowIndex);
 					if (!rule) {
 						return <EuiSkeletonText />;
 					}
@@ -237,7 +241,9 @@ export const PaginatedRulesTable = ({
 				width: 90,
 				headerCellRender: () => <>Tags</>,
 				rowCellRender: ({ rowIndex }) => {
-					const value = ruleData.data[rowIndex]?.tags;
+					if (isLoading) return <EuiSkeletonText />;
+
+					const value = getRuleAtRowIndex(rowIndex).tags;
 					return value && value.length > 0 ? (
 						<TagWrapContainer>
 							{value.map((tagId) => (
@@ -258,10 +264,10 @@ export const PaginatedRulesTable = ({
 				width: 80,
 				headerCellRender: () => <>Status</>,
 				rowCellRender: ({ rowIndex }) =>
-					ruleData.data[rowIndex] ? (
-						<ConciseRuleStatus rule={ruleData.data[rowIndex]} />
-					) : (
+					isLoading ? (
 						<EuiSkeletonText />
+					) : (
+						<ConciseRuleStatus rule={getRuleAtRowIndex(rowIndex)} />
 					),
 			},
 			{
@@ -269,35 +275,35 @@ export const PaginatedRulesTable = ({
 				width: 35,
 				headerCellRender: () => <></>,
 				rowCellRender: ({ rowIndex }) =>
-					ruleData.data[rowIndex] ? (
+					isLoading ? (
+						<EuiSkeletonText />
+					) : (
 						<EditRule
 							editIsEnabled={canEditRule}
 							editRule={() =>
 								setRowSelection({
 									type: 'set',
-									id: ruleData.data[rowIndex].id!,
+									id: getRuleAtRowIndex(rowIndex).id!,
 								})
 							}
-							rule={ruleData.data[rowIndex]}
+							rule={getRuleAtRowIndex(rowIndex)}
 						/>
-					) : (
-						<EuiSkeletonText />
 					),
 			},
 		],
-		[ruleData, setRowSelection, canEditRule, tags],
+		[isLoading, ruleData, setRowSelection, pageIndex, canEditRule, tags],
 	);
 
 	const renderCellValue = useMemo(
 		() =>
 			({ rowIndex, columnId }: { rowIndex: number; columnId: string }) => {
-				const rule = ruleData.data[rowIndex];
-				if (!rule) {
+				const rule = getRuleAtRowIndex(rowIndex);
+				if (!rule || isLoading) {
 					return <EuiSkeletonText />;
 				}
-				return ruleData.data[rowIndex][columnId as keyof BaseRule] || '';
+				return getRuleAtRowIndex(rowIndex)[columnId as keyof BaseRule] || '';
 			},
-		[ruleData],
+		[ruleData, isLoading],
 	);
 
 	const columnVisibility = useMemo(

@@ -30,6 +30,7 @@ export const Rules = () => {
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
 	const {
 		ruleData,
+		isLoading,
 		error,
 		refreshRules,
 		isRefreshing,
@@ -153,6 +154,7 @@ export const Rules = () => {
 		<>
 			{ruleData && (
 				<PaginatedRulesTable
+          isLoading={isLoading}
 					ruleData={ruleData}
 					canEditRule={hasCreatePermissions}
 					onSelectionChanged={(rows) => {
