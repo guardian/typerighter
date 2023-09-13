@@ -154,7 +154,7 @@ export const Rules = () => {
 		<>
 			{ruleData && (
 				<PaginatedRulesTable
-          isLoading={isLoading}
+					isLoading={isLoading}
 					ruleData={ruleData}
 					canEditRule={hasCreatePermissions}
 					onSelectionChanged={(rows) => {
