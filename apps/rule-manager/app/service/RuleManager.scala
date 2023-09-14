@@ -423,7 +423,6 @@ object RuleManager extends Loggable {
     DbRuleDraft.destroyDictionaryRules()
     // Destroy existing live dictionary rules
     DbRuleLive.destroyDictionaryRules()
-
     var availableTags = Tags.findAll()
     // Add any tags from wordsToNotPublish that aren't already in the DB
     val tagsToAdd = wordsToNotPublish
@@ -465,7 +464,7 @@ object RuleManager extends Loggable {
 
     val liveRules = DbRuleDraft
       .findAllDictionaryRules()
-      .filter(rule => wordsToNotPublish.exists(wordTag => wordTag.word == rule.pattern.get))
+      .filter(rule => !wordsToNotPublish.exists(wordTag => wordTag.word == rule.pattern.get))
       .map(_.toLive("From Collins Dictionary", true))
 
     liveRules
