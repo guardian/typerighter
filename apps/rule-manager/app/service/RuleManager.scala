@@ -8,7 +8,10 @@ import com.gu.typerighter.model.{
   LTRule,
   LTRuleCore,
   LTRuleXML,
-  RegexRule
+  RegexRule,
+  WordTag,
+  WordlistsToNotPublish,
+  WordsToNotPublish
 }
 import com.gu.typerighter.rules.BucketRuleResource
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
@@ -416,7 +419,8 @@ object RuleManager extends Loggable {
 
   def destructivelyPublishDictionaryRules(
       words: List[String],
-      bucketRuleResource: BucketRuleResource
+      bucketRuleResource: BucketRuleResource,
+      wordsToNotPublish: List[WordTag]
   ) = {
     // Destroy existing draft dictionary rules
     DbRuleDraft.destroyDictionaryRules()
@@ -424,18 +428,27 @@ object RuleManager extends Loggable {
     DbRuleLive.destroyDictionaryRules()
 
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
-    val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
-      DbRuleDraft.withUser(
-        id = None,
-        ruleType = "dictionary",
-        pattern = Some(wordAndIndex._1),
-        category = Some("Collins Dictionary"),
-        ignore = false,
-        user = "Collins Dictionary",
-        ruleOrder = initialRuleOrder + wordAndIndex._2,
-        externalId = None
+    val dictionaryRules = words.zipWithIndex
+      .map(word => {
+        val taggedWord = wordsToNotPublish.find(taggedWord => taggedWord.word == word) match {
+          case Some(wordTag) => List(wordTag.tag)
+          case _             => Nil
+        }
+        (word._1, word._2, taggedWord)
+      })
+      .map(wordIndexAndTag =>
+        DbRuleDraft.withUser(
+          id = None,
+          ruleType = "dictionary",
+          pattern = Some(wordIndexAndTag._1),
+          category = Some("Collins Dictionary"),
+          ignore = false,
+          user = "Collins Dictionary",
+          ruleOrder = initialRuleOrder + wordIndexAndTag._2,
+          externalId = None,
+          tags = wordIndexAndTag._3
+        )
       )
-    )
 
     dictionaryRules
       .grouped(100)
