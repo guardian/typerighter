@@ -9,12 +9,10 @@ import com.gu.typerighter.model.{
   LTRuleCore,
   LTRuleXML,
   RegexRule,
-  WordTag,
-  WordlistsToNotPublish,
-  WordsToNotPublish
+  WordTag
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
+import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tags, Tag}
 import db.DbRuleDraft.autoSession
 import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, RegexRuleForm}
 import play.api.data.FormError
@@ -284,7 +282,6 @@ object RuleManager extends Loggable {
     RuleTagLive.destroyAll()
     DbRuleDraft.destroyAll()
     DbRuleLive.destroyAll()
-
     incomingRules
       .grouped(100)
       .foreach(group => DbRuleDraft.batchInsert(group))
@@ -427,14 +424,26 @@ object RuleManager extends Loggable {
     // Destroy existing live dictionary rules
     DbRuleLive.destroyDictionaryRules()
 
+    var availableTags = Tags.findAll()
+    // Add any tags from wordsToNotPublish that aren't already in the DB
+    val tagsToAdd = wordsToNotPublish
+      .map(wordTag => wordTag.tag)
+      .distinct
+      .filter(tagName => !availableTags.exists(tag => tag.name == tagName))
+      .map(name => Tag(None, name))
+    if (tagsToAdd.size > 0) {
+      Tags.batchInsert(tagsToAdd)
+      availableTags = Tags.findAll()
+    }
+
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
     val dictionaryRules = words.zipWithIndex
       .map(word => {
-        val taggedWord = wordsToNotPublish.find(taggedWord => taggedWord.word == word) match {
-          case Some(wordTag) => List(wordTag.tag)
+        val tagId = wordsToNotPublish.find(taggedWord => taggedWord.word == word) match {
+          case Some(wordTag) => List(availableTags.find(tag => tag.name == wordTag.tag).get.id.get)
           case _             => Nil
         }
-        (word._1, word._2, taggedWord)
+        (word._1, word._2, tagId)
       })
       .map(wordIndexAndTag =>
         DbRuleDraft.withUser(
@@ -456,6 +465,7 @@ object RuleManager extends Loggable {
 
     val liveRules = DbRuleDraft
       .findAllDictionaryRules()
+      .filter(rule => wordsToNotPublish.exists(wordTag => wordTag.word == rule.pattern.get))
       .map(_.toLive("From Collins Dictionary", true))
 
     liveRules
