@@ -17,7 +17,6 @@ printf "⚙️  Downloading dictionary for local use\n"
 
 printf "⚙️  Downloading 'words to not publish' for local use\n"
 {
-    aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/typerighter-dictionary.xml ~/.gu/typerighter/typerighter-dictionary.xml &&
     aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/words-to-not-publish.json ~/.gu/typerighter/words-to-not-publish.json &&
     printf "✅ 'Words to not publish' for local use downloaded\n"
 } || {
