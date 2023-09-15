@@ -61,7 +61,7 @@ export const Rules = () => {
 
 	useEffect(() => {
 		if (!rowSelection.size) {
-			return;
+			return navigate(`/`);
 		}
 
 		if (rowSelection.size === 1) {
