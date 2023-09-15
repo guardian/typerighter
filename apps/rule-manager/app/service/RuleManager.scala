@@ -437,26 +437,24 @@ object RuleManager extends Loggable {
 
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
     val dictionaryRules = words.zipWithIndex
-      .map(word => {
-        val tagId = wordsToNotPublish.find(taggedWord => taggedWord.word == word) match {
-          case Some(wordTag) => List(availableTags.find(tag => tag.name == wordTag.tag).get.id.get)
-          case _             => Nil
+      .map { case (word, index) =>
+        val tagId = wordsToNotPublish.find(_.word == word) match {
+          case Some(wordTag) =>
+            List(availableTags.find(_.name == wordTag.tag).flatMap(_.id)).flatten
+          case _ => Nil
         }
-        (word._1, word._2, tagId)
-      })
-      .map(wordIndexAndTag =>
         DbRuleDraft.withUser(
           id = None,
           ruleType = "dictionary",
-          pattern = Some(wordIndexAndTag._1),
+          pattern = Some(word),
           category = Some("Collins Dictionary"),
           ignore = false,
           user = "Collins Dictionary",
-          ruleOrder = initialRuleOrder + wordIndexAndTag._2,
+          ruleOrder = initialRuleOrder + index,
           externalId = None,
-          tags = wordIndexAndTag._3
+          tags = tagId
         )
-      )
+      }
 
     dictionaryRules
       .grouped(100)
