@@ -54,17 +54,7 @@ const TypeyArrow = styled.img`
 
 export const PageNotFound = () => {
 	return (
-		<>
-			<EuiFlexItem
-				grow={false}
-				css={css`
-					padding-bottom: 20px;
-				`}
-			>
-				<EuiTitle>
-					<h1>404 - Page not found</h1>
-				</EuiTitle>
-			</EuiFlexItem>
+		<div>
 			<EuiFlexGroup>
 				<EuiFlexItem></EuiFlexItem>
 				<TypeyContainer>
@@ -86,6 +76,6 @@ export const PageNotFound = () => {
 				</TypeyContainer>
 				<EuiFlexItem></EuiFlexItem>
 			</EuiFlexGroup>
-		</>
+		</div>
 	);
 };

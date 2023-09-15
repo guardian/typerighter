@@ -1,15 +1,30 @@
 import React from 'react';
-import { EuiPageTemplate, EuiProvider } from '@elastic/eui';
+import {
+	EuiFlexGroup,
+	EuiFlexItem,
+	EuiPageTemplate,
+	EuiProvider,
+	EuiSpacer,
+	EuiTitle,
+} from '@elastic/eui';
 import { Header, headerHeight } from './Header';
-import { Rules } from '../pages/Rules';
 import { euiThemeOverrides } from '../../constants/euiTheme';
-import { Routes, Route } from 'react-router-dom';
+import {
+	Outlet,
+	RouterProvider,
+	createBrowserRouter,
+	useMatch,
+	useMatches,
+} from 'react-router-dom';
 import createCache from '@emotion/cache';
 import { FeatureSwitchesProvider } from '../context/featureSwitches';
 import { PageDataProvider } from '../../utils/window';
 import styled from '@emotion/styled';
 import { PageNotFound } from '../PageNotFound';
 import { TagsTable } from '../TagsTable';
+import { Breadcrumbs } from './Breadcrumbs';
+import { Rules } from '../pages/Rules';
+import { FullHeightContentWithFixedHeader } from './FullHeightContentWithFixedHeader';
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -18,50 +33,73 @@ const cache = createCache({
 	prepend: true,
 });
 
-const PageContent = styled.div`
+const PageContentContainer = styled.div`
 	height: 100vh;
 	padding: calc(${headerHeight} + 24px) 24px 24px 24px;
 `;
+
+const PageContent: React.FC = () => {
+	const { name } = (useMatches()?.pop()?.handle || {}) as { name?: string };
+	return (
+		<EuiPageTemplate>
+			<Header />
+			<PageContentContainer>
+				<FullHeightContentWithFixedHeader
+					header={
+						<>
+							<Breadcrumbs />
+							<EuiSpacer size="s" />
+							<EuiTitle>
+								<h1>{name}</h1>
+							</EuiTitle>
+							<EuiSpacer size="m" />
+						</>
+					}
+					content={<Outlet />}
+				/>
+			</PageContentContainer>
+		</EuiPageTemplate>
+	);
+};
+
+const router = createBrowserRouter([
+	{
+		path: '/',
+		handle: {
+			name: 'Home',
+		},
+		element: <PageContent />,
+		children: [
+			{
+				index: true,
+				handle: {
+					name: 'Search rules',
+				},
+				element: <Rules />,
+			},
+			{
+				path: 'tags',
+				handle: {
+					name: 'Tags',
+				},
+				element: <TagsTable />,
+			},
+			{
+				path: '*',
+				handle: {
+					name: '404 – Page not found',
+				},
+				element: <PageNotFound />,
+			},
+		],
+	},
+]);
 
 export const Page = () => (
 	<PageDataProvider>
 		<FeatureSwitchesProvider>
 			<EuiProvider modify={euiThemeOverrides} cache={cache}>
-				<EuiPageTemplate>
-					<Header />
-					<Routes>
-						<Route
-							path="/"
-							element={
-								<>
-									<PageContent>
-										<Rules />
-									</PageContent>
-								</>
-							}
-						/>
-						<Route
-							path="/tags"
-							element={
-								<>
-									<PageContent>
-										<TagsTable />
-									</PageContent>
-								</>
-							}
-						/>
-						<Route
-							path="/*"
-							element={
-								<>
-									<PageContent>
-										<PageNotFound />
-									</PageContent>
-								</>
-							}
-						/>
-					</Routes>
-				</EuiPageTemplate>
+				<RouterProvider router={router} />
 			</EuiProvider>
 		</FeatureSwitchesProvider>
 	</PageDataProvider>

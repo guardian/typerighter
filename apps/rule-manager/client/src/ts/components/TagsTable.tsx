@@ -5,11 +5,8 @@ import {
 	EuiFieldText,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiForm,
-	EuiFormRow,
 	EuiIcon,
 	EuiInMemoryTable,
-	EuiInMemoryTableProps,
 	EuiInlineEditText,
 	EuiLoadingSpinner,
 	EuiModal,
@@ -19,7 +16,6 @@ import {
 	EuiSpacer,
 	EuiText,
 	EuiTextColor,
-	EuiTitle,
 	EuiToast,
 	EuiToolTip,
 } from '@elastic/eui';
@@ -30,6 +26,7 @@ import styled from '@emotion/styled';
 import { useCreateEditPermissions } from './pages/Rules';
 import { RuleFormSection } from './RuleFormSection';
 import { ErrorIResponse } from '../utils/api';
+import { FullHeightContentWithFixedHeader } from './layout/FullHeightContentWithFixedHeader';
 
 type DeleteTagButtonProps = {
 	editIsEnabled: boolean;
@@ -345,6 +342,18 @@ const ServerErrorNotification = ({ error }: { error: string }) => {
 		</EuiToast>
 	);
 };
+
+const TagsTableContainer = styled.div`
+	max-width: 600px;
+	height: 100%;
+	thead {
+		position: sticky;
+		top: 0;
+		background-color: white;
+		z-index: 1;
+	}
+`;
+
 export const TagsTable = () => {
 	const {
 		tags,
@@ -376,33 +385,20 @@ export const TagsTable = () => {
 	);
 
 	return (
-		<>
-			<EuiFlexGroup>
-				<EuiFlexItem
-					css={css`
-						width: 32rem;
-					`}
-				>
-					<EuiFlexGroup>
-						<EuiFlexItem
-							grow={false}
-							css={css`
-								padding-bottom: 20px;
-							`}
-						>
-							<EuiTitle>
-								<h1>Tags</h1>
-							</EuiTitle>
-						</EuiFlexItem>
-					</EuiFlexGroup>
-					<EuiFlexGroup>
+		<TagsTableContainer>
+			<FullHeightContentWithFixedHeader
+				header={
+					<>
 						<CreateTagForm
 							createTag={createTag}
 							enabled={hasEditPermissions}
 							isLoadingCreatedTag={isLoadingCreatedTag}
 						/>
-					</EuiFlexGroup>
-					<EuiFlexGroup>
+						{error ? <ServerErrorNotification error={error} /> : null}
+					</>
+				}
+				content={
+					<EuiFlexGroup style={{ overflowY: 'scroll', height: '100%' }}>
 						{tagToDelete && !hideDeletionModal ? (
 							<DeleteTagWarning
 								tag={tagToDelete}
@@ -424,10 +420,8 @@ export const TagsTable = () => {
 							></EuiInMemoryTable>
 						</EuiFlexItem>
 					</EuiFlexGroup>
-				</EuiFlexItem>
-				<EuiFlexItem />
-				{error ? <ServerErrorNotification error={error} /> : null}
-			</EuiFlexGroup>
-		</>
+				}
+			/>
+		</TagsTableContainer>
 	);
 };
