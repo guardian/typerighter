@@ -53,10 +53,15 @@ class RulesController(
       case false => Unauthorized("You don't have permission to refresh dictionary rules")
       case true =>
         val wordsOrError = bucketRuleResource.getDictionaryWords()
+        val wordsToNotPublish = bucketRuleResource.getWordsToNotPublish()
 
         val newRuleWords =
           wordsOrError.flatMap(words =>
-            RuleManager.destructivelyPublishDictionaryRules(words, bucketRuleResource)
+            RuleManager.destructivelyPublishDictionaryRules(
+              words,
+              bucketRuleResource,
+              wordsToNotPublish
+            )
           )
         newRuleWords match {
           case Left(errors) => InternalServerError(Json.toJson(errors))

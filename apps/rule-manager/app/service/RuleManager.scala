@@ -8,10 +8,11 @@ import com.gu.typerighter.model.{
   LTRule,
   LTRuleCore,
   LTRuleXML,
-  RegexRule
+  RegexRule,
+  WordTag
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive}
+import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tags, Tag}
 import db.DbRuleDraft.autoSession
 import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, RegexRuleForm}
 import play.api.data.FormError
@@ -281,7 +282,6 @@ object RuleManager extends Loggable {
     RuleTagLive.destroyAll()
     DbRuleDraft.destroyAll()
     DbRuleLive.destroyAll()
-
     incomingRules
       .grouped(100)
       .foreach(group => DbRuleDraft.batchInsert(group))
@@ -416,26 +416,45 @@ object RuleManager extends Loggable {
 
   def destructivelyPublishDictionaryRules(
       words: List[String],
-      bucketRuleResource: BucketRuleResource
+      bucketRuleResource: BucketRuleResource,
+      wordsToNotPublish: List[WordTag]
   ) = {
     // Destroy existing draft dictionary rules
     DbRuleDraft.destroyDictionaryRules()
     // Destroy existing live dictionary rules
     DbRuleLive.destroyDictionaryRules()
+    var availableTags = Tags.findAll()
+    // Add any tags from wordsToNotPublish that aren't already in the DB
+    val tagsToAdd = wordsToNotPublish
+      .map(wordTag => wordTag.tag)
+      .distinct
+      .filter(tagName => !availableTags.exists(tag => tag.name == tagName))
+      .map(name => Tag(None, name))
+    if (tagsToAdd.size > 0) {
+      Tags.batchInsert(tagsToAdd)
+      availableTags = Tags.findAll()
+    }
 
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
-    val dictionaryRules = words.zipWithIndex.map(wordAndIndex =>
-      DbRuleDraft.withUser(
-        id = None,
-        ruleType = "dictionary",
-        pattern = Some(wordAndIndex._1),
-        category = Some("Collins Dictionary"),
-        ignore = false,
-        user = "Collins Dictionary",
-        ruleOrder = initialRuleOrder + wordAndIndex._2,
-        externalId = None
-      )
-    )
+    val dictionaryRules = words.zipWithIndex
+      .map { case (word, index) =>
+        val tagId = wordsToNotPublish.find(_.word == word) match {
+          case Some(wordTag) =>
+            List(availableTags.find(_.name == wordTag.tag).flatMap(_.id)).flatten
+          case _ => Nil
+        }
+        DbRuleDraft.withUser(
+          id = None,
+          ruleType = "dictionary",
+          pattern = Some(word),
+          category = Some("Collins Dictionary"),
+          ignore = false,
+          user = "Collins Dictionary",
+          ruleOrder = initialRuleOrder + index,
+          externalId = None,
+          tags = tagId
+        )
+      }
 
     dictionaryRules
       .grouped(100)
@@ -443,6 +462,7 @@ object RuleManager extends Loggable {
 
     val liveRules = DbRuleDraft
       .findAllDictionaryRules()
+      .filter(rule => !wordsToNotPublish.exists(wordTag => wordTag.word == rule.pattern.get))
       .map(_.toLive("From Collins Dictionary", true))
 
     liveRules
