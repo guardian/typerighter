@@ -8,11 +8,7 @@ import com.amazonaws.regions.Regions
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
-import controllers.{
-  ApiController,
-  HomeController,
-  RulesController
-}
+import controllers.{ApiController, HomeController, RulesController}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{
