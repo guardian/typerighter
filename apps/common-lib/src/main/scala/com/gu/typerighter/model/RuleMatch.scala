@@ -1,7 +1,7 @@
 package com.gu.typerighter.model
 
 import org.languagetool.rules.{RuleMatch => LTRuleMatch}
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{JsObject, JsString, Json, Reads, Writes}
 
 import scala.jdk.CollectionConverters._
 
@@ -30,7 +30,16 @@ object RuleMatch {
     )
   }
 
-  implicit val format: Format[RuleMatch] = Json.format[RuleMatch]
+  implicit val reads: Reads[RuleMatch] = Json.reads[RuleMatch]
+
+  // Overwrite the default `groupKey` with the derivedGroupKey on serialisation
+  val defaultWrites: Writes[RuleMatch] = Json.writes[RuleMatch]
+  implicit val writes: Writes[RuleMatch] = (ruleMatch: RuleMatch) => {
+    defaultWrites.writes(ruleMatch) match {
+      case obj: JsObject => obj ++ JsObject(Seq("groupKey" -> JsString(ruleMatch.derivedGroupKey)))
+      case _             => throw new Error("Serialised to incorrect type")
+    }
+  }
 }
 
 case class RuleMatch(
@@ -45,8 +54,10 @@ case class RuleMatch(
     suggestions: List[Suggestion] = List.empty,
     replacement: Option[Suggestion] = None,
     markAsCorrect: Boolean = false,
-    matchContext: String
+    matchContext: String,
+    groupKey: Option[String] = None
 ) {
+  val derivedGroupKey = groupKey.getOrElse(rule.id)
 
   /** Map the range this match applies to through the given ranges, adjusting its range accordingly.
     */

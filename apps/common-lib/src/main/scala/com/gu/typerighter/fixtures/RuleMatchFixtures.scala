@@ -16,6 +16,7 @@ object RuleMatchFixtures {
     subsequentText = "",
     matchedText = "placeholder text",
     message = "placeholder message",
-    matchContext = "[placeholder text]"
+    matchContext = "[placeholder text]",
+    groupKey = Option("group-key")
   )
 }
