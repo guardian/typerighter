@@ -24,7 +24,7 @@ abstract class PandaAuthController(
     with HMACAuthActions
     with BaseController
     with Loggable {
-  override val apiGracePeriod: Long = 2 * 60 * 60 * 10000 // two hours worth of milliseconds
+  override val apiGracePeriod: Long = 2 * 60 * 60 * 1000 // two hours worth of milliseconds
 
   override def validateUser(authedUser: AuthenticatedUser): Boolean = {
     log.info(s"Validating user $authedUser")
