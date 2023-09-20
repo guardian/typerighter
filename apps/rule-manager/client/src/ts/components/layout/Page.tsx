@@ -25,6 +25,8 @@ import { TagsTable } from '../TagsTable';
 import { Breadcrumbs } from './Breadcrumbs';
 import { Rules } from '../pages/Rules';
 import { FullHeightContentWithFixedHeader } from './FullHeightContentWithFixedHeader';
+import { RuleForm } from '../RuleForm';
+import { TagsProvider } from '../context/tags';
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -64,16 +66,15 @@ const PageContent: React.FC = () => {
 
 const router = createBrowserRouter([
 	{
-		path: '/',
+		element: <PageContent />,
 		handle: {
 			name: 'Home',
 		},
-		element: <PageContent />,
 		children: [
 			{
-				index: true,
+				path: '/',
 				handle: {
-					name: 'Search rules',
+					name: 'Rules',
 				},
 				element: <Rules />,
 			},
@@ -98,9 +99,11 @@ const router = createBrowserRouter([
 export const Page = () => (
 	<PageDataProvider>
 		<FeatureSwitchesProvider>
-			<EuiProvider modify={euiThemeOverrides} cache={cache}>
-				<RouterProvider router={router} />
-			</EuiProvider>
+			<TagsProvider>
+				<EuiProvider modify={euiThemeOverrides} cache={cache}>
+					<RouterProvider router={router} />
+				</EuiProvider>
+			</TagsProvider>
 		</FeatureSwitchesProvider>
 	</PageDataProvider>
 );

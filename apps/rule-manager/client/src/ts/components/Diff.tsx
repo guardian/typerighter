@@ -8,11 +8,12 @@ import {
 	useEuiTextDiff,
 } from '@elastic/eui';
 import { BaseRule, RuleData } from './hooks/useRule';
-import { Tag, useTags } from './hooks/useTags';
 import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { ruleTypeOptions } from './RuleContent';
 import { isEqual, startCase } from 'lodash';
+import { Tag, TagsContext } from './context/tags';
+import { useContext } from 'react';
 
 type DivergentField = {
 	fieldName: string;
@@ -165,7 +166,7 @@ export const Diff = ({
 	afterHeading: string;
 	modalType: Modal;
 }) => {
-	const { tags } = useTags();
+	const { tags } = useContext(TagsContext);
 
 	const diffedFields = rule
 		? transformToHumanReadableValues(findFieldsWithDiffs(rule), tags)

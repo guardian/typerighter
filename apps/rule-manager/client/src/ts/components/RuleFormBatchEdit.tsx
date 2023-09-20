@@ -1,18 +1,15 @@
 import {
 	EuiButton,
-	EuiCallOut,
 	EuiFlexGroup,
 	EuiFlexItem,
 	EuiForm,
 	EuiLoadingSpinner,
-	EuiText,
 } from '@elastic/eui';
 import React, { useEffect, useState } from 'react';
 import { DraftRule } from './hooks/useRule';
 
 import { useBatchRules } from './hooks/useBatchRules';
 import { RuleFormSection } from './RuleFormSection';
-import { TagMap } from './hooks/useTags';
 import {
 	baseForm,
 	PartiallyUpdateRuleData,
@@ -25,14 +22,10 @@ import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
 
 export const RuleFormBatchEdit = ({
-	tags,
 	ruleIds,
 	onClose,
 	onUpdate,
-	isTagMapLoading,
 }: {
-	tags: TagMap;
-	isTagMapLoading: boolean;
 	ruleIds: number[];
 	onClose: () => void;
 	onUpdate: () => void;
@@ -111,8 +104,6 @@ export const RuleFormBatchEdit = ({
 							partiallyUpdateRuleData={partiallyUpdateRuleData}
 						/>
 						<TagsSelector
-							tags={tags}
-							isLoading={isTagMapLoading}
 							selectedTagIds={uniqueTagIds}
 							partiallyUpdateRuleData={partiallyUpdateRuleData}
 						/>

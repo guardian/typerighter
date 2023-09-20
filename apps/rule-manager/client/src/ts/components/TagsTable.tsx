@@ -20,13 +20,13 @@ import {
 	EuiToolTip,
 } from '@elastic/eui';
 import { css } from '@emotion/react';
-import { Tag, useTags, TagContent } from './hooks/useTags';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useCreateEditPermissions } from './pages/Rules';
 import { RuleFormSection } from './RuleFormSection';
 import { ErrorIResponse } from '../utils/api';
 import { FullHeightContentWithFixedHeader } from './layout/FullHeightContentWithFixedHeader';
+import { Tag, TagContent, TagsContext } from './context/tags';
 
 type DeleteTagButtonProps = {
 	editIsEnabled: boolean;
@@ -364,7 +364,7 @@ export const TagsTable = () => {
 		createTag,
 		error,
 		isLoadingCreatedTag,
-	} = useTags();
+	} = useContext(TagsContext);
 	const items = Object.values(tags);
 
 	const [tagToDelete, setTagToDelete] = useState<Tag | null>(null);
