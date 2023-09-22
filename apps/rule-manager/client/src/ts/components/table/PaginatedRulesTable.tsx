@@ -302,7 +302,7 @@ export const PaginatedRulesTable = ({
 			return {};
 		}
 		const ruleId = [...rowSelection].pop();
-		const rowIndex = ruleData.data.findIndex((rule) => rule.id === ruleId);
+		const rowIndex = ruleData.data.findIndex((rule) => rule?.id === ruleId);
 
 		if (rowIndex === -1) {
 			return {};
