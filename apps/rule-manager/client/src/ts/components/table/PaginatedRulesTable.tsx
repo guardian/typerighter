@@ -333,24 +333,27 @@ export const PaginatedRulesTable = ({
 	);
 
 	const gridStyle = useMemo(() => {
-		if (rowSelection.size !== 1) {
-			return {};
+		if (isLoading) {
+			return { rowClasses: {} };
 		}
-		const ruleId = [...rowSelection].pop();
-		const rowIndex = ruleData.data.findIndex((rule) => rule?.id === ruleId);
 
-		if (rowIndex === -1) {
-			return {};
-		}
+		const rowClasses: Record<number, string> = {};
+		rowSelection.forEach((ruleId) => {
+			const rowIndex =
+				ruleData.data.findIndex((rule) => rule?.id === ruleId) +
+				pagination.pageIndex * pagination.pageSize;
+
+			if (rowIndex !== -1) {
+				rowClasses[rowIndex] = 'typerighter-euiDataGrid--selected-row';
+			}
+		});
 
 		// Bit of an CSS escape hatch as EuiDataGrid is still reliant on classes – see
 		// https://github.com/elastic/eui/issues/4401
 		return {
-			rowClasses: {
-				[rowIndex]: 'typerighter-euiDataGrid--selected-row',
-			},
+			rowClasses,
 		};
-	}, [rowSelection]);
+	}, [rowSelection, pagination, isLoading]);
 
 	return (
 		<PaginatedRulesTableContainer>
