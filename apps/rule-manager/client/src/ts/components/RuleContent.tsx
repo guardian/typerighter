@@ -67,6 +67,7 @@ export const RuleContent = ({
 	};
 
 	const patternErrors = getErrorPropsForField('pattern', validationErrors);
+	const isDictionaryRule = ruleFormData.ruleType === 'dictionary'
 
 	return (
 		<RuleFormSection
@@ -108,6 +109,7 @@ export const RuleContent = ({
 					}
 					helpText="What will the users see in Composer?"
 					fullWidth={true}
+					isDisabled={isDictionaryRule}
 				>
 					{!showMarkdownPreview ? (
 						<EuiTextArea
@@ -166,6 +168,7 @@ export const RuleContent = ({
 					label="Replacement"
 					helpText="What is the ideal term as per the house style?"
 					fullWidth={true}
+					isDisabled={isDictionaryRule}
 				>
 					<EuiFieldText
 						value={ruleFormData.replacement || ''}
