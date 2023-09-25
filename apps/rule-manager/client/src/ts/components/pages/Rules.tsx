@@ -15,7 +15,13 @@ import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 import { PaginatedRulesTable } from '../table/PaginatedRulesTable';
 import { useDebouncedValue } from '../hooks/useDebounce';
 import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWithFixedHeader';
-import { matchPath, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import {
+	matchPath,
+	Outlet,
+	useLocation,
+	useNavigate,
+	useParams,
+} from 'react-router-dom';
 import { FeatureSwitchesContext } from '../context/featureSwitches';
 
 // The data passed from the rules page to its child components.
@@ -36,6 +42,7 @@ export const Rules = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const hasChildRoutes = !!matchPath('/rule/*', location.pathname);
+	const { id: ruleIdFromRoute } = useParams() as { id: string };
 	const [queryStr, setQueryStr] = useState<string>('');
 	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
@@ -53,7 +60,9 @@ export const Rules = () => {
 	const [sortColumns, setSortColumns] = useState<SortColumns>([
 		{ id: 'description', direction: 'asc' },
 	]);
-	const [rowSelection, setRowSelection] = useState<Set<number>>(new Set());
+	const [rowSelection, setRowSelection] = useState<Set<number>>(
+		ruleIdFromRoute ? new Set([parseInt(ruleIdFromRoute)]) : new Set(),
+	);
 	const hasCreatePermissions = useCreateEditPermissions();
 
 	const openEditRulePanel = (ruleId: number | typeof newRuleId) => {
@@ -168,6 +177,7 @@ export const Rules = () => {
 					isLoading={isLoading}
 					ruleData={ruleData}
 					canEditRule={hasCreatePermissions}
+					initialSelection={rowSelection}
 					onSelectionChanged={(rows) => {
 						setRowSelection(rows);
 					}}

@@ -124,10 +124,6 @@ export const RuleForm = () => {
 			: createRule(ruleFormData);
 	}, [debouncedFormData]);
 
-	useEffect(() => {
-		rule?.draft.id && onUpdate();
-	}, [rule?.draft.id]);
-
 	const maybePublishRuleHandler = () => {
 		if (rule?.live.length) {
 			setIsReasonModalVisible(true);
@@ -273,6 +269,7 @@ export const RuleForm = () => {
 										if (!shouldClose) {
 											return;
 										}
+										onUpdate();
 										navigate('/');
 									}}
 								>

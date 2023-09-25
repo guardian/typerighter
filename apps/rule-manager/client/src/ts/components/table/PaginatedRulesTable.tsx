@@ -128,10 +128,12 @@ export const PaginatedRulesTable = ({
 	sortColumns,
 	setSortColumns,
 	onSelectionChanged,
+	initialSelection,
 }: {
 	ruleData: PaginatedRuleData;
 	isLoading: boolean;
 	canEditRule: boolean;
+	initialSelection: Set<number>;
 	onSelectionChanged: (rows: RowState) => void;
 	pageIndex: number;
 	setPageIndex: (index: number) => void;
@@ -166,7 +168,7 @@ export const PaginatedRulesTable = ({
 				}
 			}
 		},
-		new Set<number>(),
+		initialSelection,
 	);
 
 	const getRuleAtRowIndex = (rowIndex: number) =>
