@@ -12,7 +12,6 @@ export type PaginatedResponse<Data> = {
 
 export type PaginatedRuleData = {
 	data: DraftRule[];
-	loadedRules: Set<number>;
 	pageSize: number;
 	total: number;
 };
@@ -58,26 +57,10 @@ export function useRules() {
 			const incomingRuleData =
 				(await response.json()) as PaginatedResponse<DraftRule>;
 
-			setRulesData((currentRuleDataData) => {
-				const loadedRules = new Set([
-					...(currentRuleDataData?.loadedRules ?? []),
-					...incomingRuleData.data.map(
-						(_, index) => (page - 1) * incomingRuleData.pageSize + index,
-					),
-				]);
-
-				const data: BaseRule[] = [];
-				incomingRuleData.data.forEach((rule, index) => {
-					const offsetIndex = (page - 1) * incomingRuleData.pageSize + index;
-					data[offsetIndex] = rule;
-				});
-
-				return {
-					data,
-					loadedRules,
-					pageSize: incomingRuleData?.pageSize ?? 0,
-					total: incomingRuleData?.total ?? 0,
-				};
+			setRulesData({
+				data: incomingRuleData.data,
+				pageSize: incomingRuleData?.pageSize ?? 0,
+				total: incomingRuleData?.total ?? 0,
 			});
 		} catch (error) {
 			setError(errorToString(error));

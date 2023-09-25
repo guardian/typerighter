@@ -17,10 +17,14 @@ import {
 	EuiIcon,
 	EuiSkeletonText,
 	EuiToolTip,
+	withEuiTheme,
+	WithEuiThemeProps,
 } from '@elastic/eui';
 import styled from '@emotion/styled';
 import { ConciseRuleStatus } from '../rule/ConciseRuleStatus';
 import { TagsContext } from '../context/tags';
+import { EuiDataGridToolBarVisibilityOptions } from '@elastic/eui/src/components/datagrid/data_grid_types';
+import { useEuiFontSize } from '@elastic/eui/src/global_styling/mixins/_typography';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -45,6 +49,12 @@ const PaginatedRulesTableContainer = styled.div`
 	minheight: 0;
 	height: 100%;
 `;
+
+const ToolbarText = withEuiTheme(styled.span<WithEuiThemeProps>`
+	vertical-align: middle;
+	${({ theme }) => `padding-left: ${theme.euiTheme.base / 2}px;`}
+	${() => useEuiFontSize('xs')}
+`);
 
 const EditRuleButton = styled.button<EditRuleButtonProps>((props) => ({
 	width: '16px',
@@ -111,6 +121,7 @@ const rowHeightsOptions: EuiDataGridRowHeightsOptions = {
 
 export const PaginatedRulesTable = ({
 	ruleData,
+	isLoading,
 	canEditRule,
 	pageIndex,
 	setPageIndex,
@@ -119,6 +130,7 @@ export const PaginatedRulesTable = ({
 	onSelectionChanged,
 }: {
 	ruleData: PaginatedRuleData;
+	isLoading: boolean;
 	canEditRule: boolean;
 	onSelectionChanged: (rows: RowState) => void;
 	pageIndex: number;
@@ -157,6 +169,9 @@ export const PaginatedRulesTable = ({
 		new Set<number>(),
 	);
 
+	const getRuleAtRowIndex = (rowIndex: number) =>
+		ruleData.data[rowIndex - pagination.pageIndex * pagination.pageSize];
+
 	const [visibleColumns, setVisibleColumns] = useState(
 		columns.map((_) => _.id),
 	);
@@ -164,6 +179,24 @@ export const PaginatedRulesTable = ({
 	useEffect(() => {
 		onSelectionChanged(rowSelection);
 	}, [rowSelection]);
+
+	const toolbarVisibility: EuiDataGridToolBarVisibilityOptions = useMemo(
+		() => ({
+			additionalControls: {
+				left: {
+					append: (
+						<ToolbarText>
+							{ruleData.data.length} of {ruleData.total.toLocaleString()} rules
+							{rowSelection.size > 1 && (
+								<span>, {rowSelection.size} selected</span>
+							)}
+						</ToolbarText>
+					),
+				},
+			},
+		}),
+		[rowSelection, ruleData],
+	);
 
 	const leadingColumns: EuiDataGridControlColumn[] = useMemo(
 		() => [
@@ -179,7 +212,7 @@ export const PaginatedRulesTable = ({
 				),
 				headerCellProps: { className: 'eui-textCenter' },
 				rowCellRender: ({ rowIndex }) => {
-					const rule = ruleData.data[rowIndex];
+					const rule = getRuleAtRowIndex(rowIndex);
 					if (!rule) {
 						return <EuiSkeletonText />;
 					}
@@ -208,7 +241,9 @@ export const PaginatedRulesTable = ({
 				width: 90,
 				headerCellRender: () => <>Tags</>,
 				rowCellRender: ({ rowIndex }) => {
-					const value = ruleData.data[rowIndex]?.tags;
+					if (isLoading) return <EuiSkeletonText />;
+
+					const value = getRuleAtRowIndex(rowIndex).tags;
 					return value && value.length > 0 ? (
 						<TagWrapContainer>
 							{value.map((tagId) => (
@@ -229,10 +264,10 @@ export const PaginatedRulesTable = ({
 				width: 80,
 				headerCellRender: () => <>Status</>,
 				rowCellRender: ({ rowIndex }) =>
-					ruleData.data[rowIndex] ? (
-						<ConciseRuleStatus rule={ruleData.data[rowIndex]} />
-					) : (
+					isLoading ? (
 						<EuiSkeletonText />
+					) : (
+						<ConciseRuleStatus rule={getRuleAtRowIndex(rowIndex)} />
 					),
 			},
 			{
@@ -240,35 +275,35 @@ export const PaginatedRulesTable = ({
 				width: 35,
 				headerCellRender: () => <></>,
 				rowCellRender: ({ rowIndex }) =>
-					ruleData.data[rowIndex] ? (
+					isLoading ? (
+						<EuiSkeletonText />
+					) : (
 						<EditRule
 							editIsEnabled={canEditRule}
 							editRule={() =>
 								setRowSelection({
 									type: 'set',
-									id: ruleData.data[rowIndex].id!,
+									id: getRuleAtRowIndex(rowIndex).id!,
 								})
 							}
-							rule={ruleData.data[rowIndex]}
+							rule={getRuleAtRowIndex(rowIndex)}
 						/>
-					) : (
-						<EuiSkeletonText />
 					),
 			},
 		],
-		[ruleData, setRowSelection, canEditRule, tags],
+		[isLoading, ruleData, setRowSelection, pageIndex, canEditRule, tags],
 	);
 
 	const renderCellValue = useMemo(
 		() =>
 			({ rowIndex, columnId }: { rowIndex: number; columnId: string }) => {
-				const rule = ruleData.data[rowIndex];
-				if (!rule) {
+				const rule = getRuleAtRowIndex(rowIndex);
+				if (!rule || isLoading) {
 					return <EuiSkeletonText />;
 				}
-				return ruleData.data[rowIndex][columnId as keyof BaseRule] || '';
+				return getRuleAtRowIndex(rowIndex)[columnId as keyof BaseRule] || '';
 			},
-		[ruleData],
+		[ruleData, isLoading],
 	);
 
 	const columnVisibility = useMemo(
@@ -298,30 +333,34 @@ export const PaginatedRulesTable = ({
 	);
 
 	const gridStyle = useMemo(() => {
-		if (rowSelection.size !== 1) {
-			return {};
+		if (isLoading) {
+			return { rowClasses: {} };
 		}
-		const ruleId = [...rowSelection].pop();
-		const rowIndex = ruleData.data.findIndex((rule) => rule?.id === ruleId);
 
-		if (rowIndex === -1) {
-			return {};
-		}
+		const rowClasses: Record<number, string> = {};
+		rowSelection.forEach((ruleId) => {
+			const rowIndex =
+				ruleData.data.findIndex((rule) => rule?.id === ruleId) +
+				pagination.pageIndex * pagination.pageSize;
+
+			if (rowIndex !== -1) {
+				rowClasses[rowIndex] = 'typerighter-euiDataGrid--selected-row';
+			}
+		});
 
 		// Bit of an CSS escape hatch as EuiDataGrid is still reliant on classes – see
 		// https://github.com/elastic/eui/issues/4401
 		return {
-			rowClasses: {
-				[rowIndex]: 'typerighter-euiDataGrid--selected-row',
-			},
+			rowClasses,
 		};
-	}, [rowSelection]);
+	}, [rowSelection, pagination, isLoading]);
 
 	return (
 		<PaginatedRulesTableContainer>
 			<EuiDataGrid
 				aria-label="Rules grid"
 				inMemory={inMemory}
+				toolbarVisibility={toolbarVisibility}
 				columnVisibility={columnVisibility}
 				renderCellValue={renderCellValue}
 				leadingControlColumns={leadingColumns}

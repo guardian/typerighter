@@ -30,6 +30,7 @@ export const Rules = () => {
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
 	const {
 		ruleData,
+		isLoading,
 		error,
 		refreshRules,
 		isRefreshing,
@@ -42,9 +43,7 @@ export const Rules = () => {
 		'closed',
 	);
 	const [pageIndex, setPageIndex] = useState(0);
-	const [sortColumns, setSortColumns] = useState<SortColumns>([
-		{ id: 'description', direction: 'asc' },
-	]);
+	const [sortColumns, setSortColumns] = useState<SortColumns>([]);
 	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
 		undefined,
 	);
@@ -155,6 +154,7 @@ export const Rules = () => {
 		<>
 			{ruleData && (
 				<PaginatedRulesTable
+					isLoading={isLoading}
 					ruleData={ruleData}
 					canEditRule={hasCreatePermissions}
 					onSelectionChanged={(rows) => {
@@ -197,6 +197,10 @@ export const Rules = () => {
 								fetchRules(pageIndex, queryStr, sortColumns);
 							}}
 							onUpdate={(id) => {
+								if (id === currentRuleId) {
+									return;
+								}
+
 								fetchRules(pageIndex, queryStr, sortColumns);
 								setCurrentRuleId(id);
 								if (formMode === 'create') {
