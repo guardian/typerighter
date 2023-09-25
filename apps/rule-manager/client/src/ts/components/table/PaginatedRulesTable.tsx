@@ -16,11 +16,16 @@ import {
 	EuiDataGridRowHeightsOptions,
 	EuiIcon,
 	EuiSkeletonText,
+	EuiText,
 	EuiToolTip,
+	withEuiTheme,
+	WithEuiThemeProps,
 } from '@elastic/eui';
 import styled from '@emotion/styled';
 import { ConciseRuleStatus } from '../rule/ConciseRuleStatus';
 import { TagsContext } from '../context/tags';
+import { EuiDataGridToolBarVisibilityOptions } from '@elastic/eui/src/components/datagrid/data_grid_types';
+import { useEuiFontSize } from '@elastic/eui/src/global_styling/mixins/_typography';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -45,6 +50,12 @@ const PaginatedRulesTableContainer = styled.div`
 	minheight: 0;
 	height: 100%;
 `;
+
+const ToolbarText = withEuiTheme(styled.span<WithEuiThemeProps>`
+	vertical-align: middle;
+	${({ theme }) => `padding-left: ${theme.euiTheme.base / 2}px;`}
+	${() => useEuiFontSize('xs')}
+`);
 
 const EditRuleButton = styled.button<EditRuleButtonProps>((props) => ({
 	width: '16px',
@@ -164,6 +175,24 @@ export const PaginatedRulesTable = ({
 	useEffect(() => {
 		onSelectionChanged(rowSelection);
 	}, [rowSelection]);
+
+	const toolbarVisibility: EuiDataGridToolBarVisibilityOptions = useMemo(
+		() => ({
+			additionalControls: {
+				left: {
+					append: (
+						<ToolbarText>
+							{ruleData.data.length} of {ruleData.total.toLocaleString()} rules
+							{rowSelection.size > 1 && (
+								<span>, {rowSelection.size} selected</span>
+							)}
+						</ToolbarText>
+					),
+				},
+			},
+		}),
+		[rowSelection, ruleData],
+	);
 
 	const leadingColumns: EuiDataGridControlColumn[] = useMemo(
 		() => [
@@ -322,6 +351,7 @@ export const PaginatedRulesTable = ({
 			<EuiDataGrid
 				aria-label="Rules grid"
 				inMemory={inMemory}
+				toolbarVisibility={toolbarVisibility}
 				columnVisibility={columnVisibility}
 				renderCellValue={renderCellValue}
 				leadingControlColumns={leadingColumns}
