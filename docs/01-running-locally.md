@@ -22,8 +22,6 @@ To start the Rule Manager, run `./script/start-manager` (`--debug` to attach a d
 
 To run everything, run `./script/start` (`--debug` will attach debuggers on both services in the respective ports above) and visit [the locally running app](https://manager.typerighter.local.dev-gutools.co.uk/) to confirm the service came up correctly.
 
-If you're testing changes to the rule audit client, see [the additional steps in its README](https://github.com/guardian/typerighter/tree/main/rule-audit-client).
-
 In order to create, edit, and delete rules in Rule Manager, you first need to have the relevant permissions (see: `manage_rules`) enabled in the [permissions manager in CODE](https://permissions.code.dev-gutools.co.uk/).
 
 ## Demonstration of null request

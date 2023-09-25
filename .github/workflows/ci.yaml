@@ -35,11 +35,6 @@ jobs:
           npm run format:check
           npm run test
           npm run build
-      - name: build rule-audit-client
-        working-directory: ./apps/rule-audit-client
-        run: |
-          npm ci
-          npm run build
       - name: cdk synth
         working-directory: ./cdk
         run: |

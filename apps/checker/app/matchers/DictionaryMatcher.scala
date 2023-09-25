@@ -36,7 +36,16 @@ class DictionaryMatcher(
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext) = {
-    matcher.check(request)
+    // groupKey is used to control how rules are grouped in the client when they produces matches.
+    // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
+    // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
+    matcher
+      .check(request)
+      .map(ruleMatches =>
+        ruleMatches.map(ruleMatch =>
+          ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText))
+        )
+      )
   }
 
   def getCategories() = instance.getAllActiveRules.asScala.toList.map { rule =>

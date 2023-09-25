@@ -14,3 +14,12 @@ printf "⚙️  Downloading dictionary for local use\n"
 } || {
     printf "❌ Dictionary download failed. Are your Composer credentials up to date?\n"
 }
+
+printf "⚙️  Downloading 'words to not publish' for local use\n"
+{
+    aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/words-to-not-publish.json ~/.gu/typerighter/words-to-not-publish.json &&
+    printf "✅ 'Words to not publish' for local use downloaded\n"
+} || {
+    printf "❌ 'Words to not publish' download failed. Are your Composer credentials up to date?\n"
+}
+

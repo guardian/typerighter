@@ -6,16 +6,9 @@ import com.amazonaws.auth.{
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
 import com.amazonaws.regions.Regions
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
-import com.gu.contentapi.client.GuardianContentClient
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
-import controllers.{
-  ApiController,
-  AuditController,
-  CapiProxyController,
-  HomeController,
-  RulesController
-}
+import controllers.{ApiController, HomeController, RulesController}
 import play.api.ApplicationLoader.Context
 import play.api.BuiltInComponentsFromContext
 import play.api.http.{
@@ -30,7 +23,7 @@ import play.filters.HttpFiltersComponents
 import play.filters.cors.CORSComponents
 import router.Routes
 import services._
-import com.gu.typerighter.lib.{ContentClient, Loggable}
+import com.gu.typerighter.lib.Loggable
 import com.gu.typerighter.rules.BucketRuleResource
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
@@ -55,9 +48,6 @@ class AppComponents(
   val config = new CheckerConfig(configuration, region, identity, creds, wsClient)
 
   val languageToolFactory = new LanguageToolFactory(config.ngramPath, true)
-
-  val guardianContentClient = GuardianContentClient(config.capiApiKey)
-  val contentClient = new ContentClient(guardianContentClient)
 
   private val localStackBasicAWSCredentialsProviderV1: AWSCredentialsProvider =
     new AWSStaticCredentialsProvider(new BasicAWSCredentials("accessKey", "secretKey"))
@@ -133,9 +123,6 @@ class AppComponents(
     config
   )
   val homeController = new HomeController(controllerComponents, matcherPool, config)
-  val auditController = new AuditController(controllerComponents, config)
-  val capiProxyController =
-    new CapiProxyController(controllerComponents, contentClient, config)
 
   override lazy val httpErrorHandler = PreferredMediaTypeHttpErrorHandler(
     "application/json" -> new JsonHttpErrorHandler(environment, None),
@@ -147,9 +134,7 @@ class AppComponents(
     assets,
     homeController,
     rulesController,
-    auditController,
-    apiController,
-    capiProxyController
+    apiController
   )
 
   /** Set up matchers and add them to the matcher pool as the app starts.

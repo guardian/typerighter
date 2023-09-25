@@ -245,7 +245,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         }
       }
 
-      sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}"
+      sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}, ${rd.ruleType} ASC"
     } else sqls.empty
 
     val searchClause = maybeWord

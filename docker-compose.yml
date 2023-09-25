@@ -33,6 +33,7 @@ services:
         - "./.tmp:/var/lib/localstack"
         - "./localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh"
         - "~/.gu/typerighter/typerighter-dictionary.xml:/etc/gu/typerighter/typerighter-dictionary.xml"
+        - "~/.gu/typerighter/words-to-not-publish.json:/etc/gu/typerighter/words-to-not-publish.json"
         - "/var/run/docker.sock:/var/run/docker.sock"
 volumes:
     postgres-data:

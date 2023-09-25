@@ -100,16 +100,18 @@ mkdir /etc/gu
 cat > /etc/gu/tags << 'EOF'
 Stage=${this.stage}
 Stack=${this.stack}
-App=typerighter-checker
+App=${checkerAppName}
 EOF
 
-cat > /etc/gu/typerighter-checker.conf << 'EOF'
+cat > /etc/gu/${checkerAppName}.conf << 'EOF'
 include "application"
 typerighter.ngramPath="/opt/ngram-data"
 EOF
 
-aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-checker/typerighter-checker.deb /tmp/package.deb
-dpkg -i /tmp/package.deb`,
+aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/${checkerAppName}/${checkerAppName}.deb /tmp/package.deb
+dpkg -i /tmp/package.deb
+
+chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`,
       access: {
         scope: AccessScope.PUBLIC,
       },
