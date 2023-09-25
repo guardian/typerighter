@@ -197,6 +197,10 @@ export const Rules = () => {
 								fetchRules(pageIndex, queryStr, sortColumns);
 							}}
 							onUpdate={(id) => {
+								if (id === currentRuleId) {
+									return;
+								}
+
 								fetchRules(pageIndex, queryStr, sortColumns);
 								setCurrentRuleId(id);
 								if (formMode === 'create') {
