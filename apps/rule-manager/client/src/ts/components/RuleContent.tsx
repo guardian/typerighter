@@ -36,6 +36,9 @@ export const ruleTypeOptions: RuleTypeOption[] = [
 	{
 		id: 'languageToolXML',
 		label: 'LanguageTool',
+	},	{
+		id: 'dictionary',
+		label: 'Dictionary',
 	},
 ];
 
