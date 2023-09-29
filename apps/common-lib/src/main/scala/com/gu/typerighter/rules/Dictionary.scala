@@ -26,6 +26,6 @@ object Dictionary {
       lemmaOrInflList <- lemmaOrInfl.toList
       word <- lemmaOrInflListToText(lemmaOrInflList)
     } yield word
-    words.distinct.filterNot(_.filterNot(_.isWhitespace) == "")
+    words.distinct.filterNot(_.forall(_.isWhitespace))
   }
 }
