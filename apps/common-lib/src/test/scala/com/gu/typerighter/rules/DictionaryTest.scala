@@ -45,6 +45,19 @@ class DictionaryTest extends AnyFlatSpec with Matchers {
     expected should be(actual)
   }
 
+  "lemmaOrInflListToText" should "convert only accept infl nodes within an infl_list" in {
+    val inflList =
+      <infl_list>
+        <infl hyph="Type+righter">Typerighter</infl>
+        <some_other_tag>This should not show up</some_other_tag>
+      </infl_list>
+    val expected = List("Typerighter")
+
+    val actual = lemmaOrInflListToText(inflList)
+
+    expected should be(actual)
+  }
+
   "lemmaOrInflListToText" should "convert unrelated nodes into Nil" in {
     val unrelatedNode = <typey>Typerighter</typey>
     val expected = Nil
