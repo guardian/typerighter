@@ -19,6 +19,22 @@ class DictionaryTest extends AnyFlatSpec with Matchers {
     expected should be(actual)
   }
 
+  "dictionaryXmlToWordList" should "not include strings that only contain whitespace" in {
+    val node = <lemma_list language="english">
+      <entry id="00099801">
+        <lemma hyph="sto+ry">
+          <!-- This node contains whitespace -->
+        </lemma>
+      </entry>
+    </lemma_list>
+
+    val expected = Nil
+
+    val actual = dictionaryXmlToWordList(node)
+
+    expected should be(actual)
+  }
+
   "lemmaOrInflListToText" should "convert infl_list nodes into the text of their infl child nodes" in {
     val inflList =
       <infl_list><infl hyph="Type+righter">Typerighter</infl><infl hyph="type+writer">typewriter</infl></infl_list>

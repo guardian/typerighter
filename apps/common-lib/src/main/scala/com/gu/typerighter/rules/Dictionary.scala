@@ -5,9 +5,10 @@ import scala.xml.{Elem, Node}
 object Dictionary {
   def lemmaOrInflListToText(node: Node): List[String] = {
     node match {
-      case node if node.label == "lemma"     => List(node.text)
-      case node if node.label == "infl_list" => node.child.toList.map(infl => infl.text)
-      case _                                 => Nil
+      case node if node.label == "lemma" => List(node.text)
+      case node if node.label == "infl_list" =>
+        node.child.filter(_.label == "infl").map(_.text).toList
+      case _ => Nil
     }
   }
 
@@ -25,7 +26,6 @@ object Dictionary {
       lemmaOrInflList <- lemmaOrInfl.toList
       word <- lemmaOrInflListToText(lemmaOrInflList)
     } yield word
-    words.distinct.filterNot(_ == "")
+    words.distinct.filterNot(_.filterNot(_.isWhitespace) == "")
   }
-
 }
