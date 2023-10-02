@@ -3,10 +3,9 @@ package utils
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import xs4s.XMLStream
-
 import scala.xml.Elem
 
-class Dictionary extends AnyFlatSpec with Matchers {
+class DictionarySpec extends AnyFlatSpec with Matchers {
   val mockXml: Elem = <lemma_list language="english">
     <entry id="1"><lemma hyph="Type+righter">Typerighter</lemma></entry>
     <entry id="2"><lemma hyph="type+wri+ter">typewriter</lemma></entry>
@@ -14,7 +13,7 @@ class Dictionary extends AnyFlatSpec with Matchers {
   </lemma_list>
 
   "dictionaryXmlToWordList" should "find all unique words in a lemmatized dictionaryXml file" in {
-    val expected = List("Typerighter", "typewriter", "typewriters")
+    val expected = Set("Typerighter", "typewriter", "typewriters")
 
     val actual = Dictionary.lemmatisedListXmlToWordList(mockXml)
 
@@ -30,7 +29,7 @@ class Dictionary extends AnyFlatSpec with Matchers {
       </entry>
     </lemma_list>
 
-    val expected = Nil
+    val expected = Set.empty
 
     val actual = Dictionary.lemmatisedListXmlToWordList(node)
 
@@ -40,7 +39,7 @@ class Dictionary extends AnyFlatSpec with Matchers {
   "lemmaOrInflListToText" should "convert infl_list nodes into the text of their infl child nodes" in {
     val inflList =
       <infl_list><infl hyph="Type+righter">Typerighter</infl><infl hyph="type+writer">typewriter</infl></infl_list>
-    val expected = List("Typerighter", "typewriter")
+    val expected = Set("Typerighter", "typewriter")
 
     val actual = Dictionary.lemmaOrInflListToText(inflList)
 
@@ -53,23 +52,23 @@ class Dictionary extends AnyFlatSpec with Matchers {
         <infl hyph="Type+righter">Typerighter</infl>
         <some_other_tag>This should not show up</some_other_tag>
       </infl_list>
-    val expected = List("Typerighter")
+    val expected = Set("Typerighter")
 
     val actual = Dictionary.lemmaOrInflListToText(inflList)
 
     expected should be(actual)
   }
 
-  "lemmaOrInflListToText" should "convert unrelated nodes into Nil" in {
+  "lemmaOrInflListToText" should "convert unrelated nodes into empty sets" in {
     val unrelatedNode = <typey>Typerighter</typey>
-    val expected = Nil
+    val expected = Set.empty
 
     val actual = Dictionary.lemmaOrInflListToText(unrelatedNode)
 
     expected should be(actual)
   }
 
-  def getXml = XMLStream.fromFile(dictionaryTestStr)
+  def getXml = XMLStream.fromURL(getClass.getResource("/dictionary/collins-dictionary-subset.xml"))
 
   val entries = Dictionary.getDictionaryEntriesFromXml(getXml).toList
   val entriesMap = entries.map(entry => (entry.headword, entry)).toMap
