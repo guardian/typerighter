@@ -22,7 +22,7 @@ class DictionaryResource(s3: AmazonS3, bucketName: String, stage: String) {
       dictionaryInputStream.close()
 
       val lemmatisedListInputStream = s3.getObject(bucketName, LEMMATISED_LIST_KEY).getObjectContent
-      val lemmatisedListXml = SafeXMLParser.load(dictionaryInputStream)
+      val lemmatisedListXml = SafeXMLParser.load(lemmatisedListInputStream)
       val wordsFromLemmatisedList = Dictionary.lemmatisedListXmlToWordList(lemmatisedListXml)
       lemmatisedListInputStream.close()
 
