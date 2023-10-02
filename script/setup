@@ -9,7 +9,9 @@ printf "✅ Pre-commit hooks set up\n"
 
 printf "⚙️  Downloading dictionary for local use\n"
 {
-    aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/typerighter-dictionary.xml ~/.gu/typerighter/typerighter-dictionary.xml &&
+    aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/collins-dictionary.xml ~/.gu/typerighter/collins-dictionary.xml &&
+    aws s3 cp --profile composer --region eu-west-1 s3://typerighter-app-dev/dictionary/collins-lemmatised-list.xml ~/.gu/typerighter/collins-lemmatised-list.xml &&
+
     printf "✅ Dictionary downloaded\n"
 } || {
     printf "❌ Dictionary download failed. Are your Composer credentials up to date?\n"
