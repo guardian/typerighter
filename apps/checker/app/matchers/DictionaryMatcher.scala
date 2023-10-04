@@ -1,12 +1,12 @@
 package matchers
 
-import com.gu.typerighter.model.{Category, DictionaryRule}
+import com.gu.typerighter.model.{Category, DictionaryRule, RuleMatch}
 import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
 import services.collins.{CollinsEnglish, MorfologikCollinsSpellerRule, SpellDictionaryBuilder}
-import services.MatcherRequest
+import services.{EntityHelper, EntityInText, MatcherRequest}
 import utils.Matcher
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 class DictionaryMatcher(
@@ -33,18 +33,35 @@ class DictionaryMatcher(
 
   val matcher = new LanguageToolMatcher(instance)
 
+  def matchFallsWithinNamedEntityRange(
+      ruleMatch: RuleMatch,
+      entities: List[EntityInText]
+  ): Boolean = {
+    entities.exists(entity =>
+      entity.range.from == ruleMatch.fromPos && entity.range.to == ruleMatch.toPos
+    )
+  }
+
   override def check(
       request: MatcherRequest
-  )(implicit ec: ExecutionContext) = {
-    // groupKey is used to control how rules are grouped in the client when they produces matches.
-    // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
-    // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
+  )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
+    val entityHelper = new EntityHelper()
+    val namedEntities =
+      request.blocks.flatMap((block) => entityHelper.getAllEntitiesFromText(block.text))
+
     matcher
       .check(request)
       .map(ruleMatches =>
-        ruleMatches.map(ruleMatch =>
-          ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText))
-        )
+        ruleMatches
+          // Remove matches which correspond to named entities. This should reduce the number of false-positives
+          // caused by pronouns
+          .filter(ruleMatch => !matchFallsWithinNamedEntityRange(ruleMatch, namedEntities))
+          // groupKey is used to control how rules are grouped in the client when they produces matches.
+          // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
+          // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
+          .map(ruleMatch =>
+            ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText))
+          )
       )
   }
 
