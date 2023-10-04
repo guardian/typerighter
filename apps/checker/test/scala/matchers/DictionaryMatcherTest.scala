@@ -10,10 +10,13 @@ class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
     val exampleRule = DictionaryRule("123", "hello", Category("id", "desc"))
     val dictionaryValidator = new DictionaryMatcher(List(exampleRule))
 
-    val text = "text"
-
     val eventuallyMatches = dictionaryValidator.check(
-      MatcherRequest(List(TextBlock("text-block-id", text, 0, text.length)))
+      MatcherRequest(List(TextBlock(
+        id = "text-block-id",
+        text = "text",
+        from = 0,
+        to = 4
+      )))
     )
     eventuallyMatches.map { matches =>
       matches.map(_.groupKey) shouldBe List(Some("MORFOLOGIK_RULE_COLLINS-text"))
