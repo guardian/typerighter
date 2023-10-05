@@ -12,7 +12,6 @@ import com.gu.typerighter.model.{
   WordTag
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import com.gu.typerighter.rules.Dictionary.collinsSourceName
 import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tag, Tags}
 import db.DbRuleDraft.autoSession
 import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, RegexRuleForm}
@@ -147,7 +146,7 @@ object RuleManager extends Loggable {
         DictionaryForm.form
           .fillAndValidate(
             r.pattern.getOrElse(""),
-            collinsSourceName,
+            r.category.getOrElse(""),
             r.externalId.getOrElse("")
           )
           .fold(
