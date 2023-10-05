@@ -47,7 +47,7 @@ class DictionaryMatcher(
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     val entityHelper = new EntityHelper()
     val namedEntities =
-      request.blocks.flatMap((block) => entityHelper.getAllEntitiesFromText(block.text))
+      request.blocks.flatMap((block) => entityHelper.getEntitiesFromText(block.text))
 
     matcher
       .check(request)

@@ -6,7 +6,7 @@ import opennlp.tools.tokenize.SimpleTokenizer
 
 import java.io.InputStream
 
-case class EntityInText(word: String, range: TextRange, model: String)
+case class EntityInText(word: String, range: TextRange)
 
 class EntityHelper() {
   val personInputFile: InputStream =
@@ -24,40 +24,31 @@ class EntityHelper() {
   val locationModel = new TokenNameFinderModel(locationInputFile)
   val locationFinder = new NameFinderME(locationModel)
 
-  def getAllEntitiesFromText(text: String): List[EntityInText] = {
-    getEntitiesFromText(text, "person") ++
-      getEntitiesFromText(text, "organization") ++
-      getEntitiesFromText(text, "location")
-  }
+  val allFinders: List[NameFinderME] = List(personFinder, organizationFinder, locationFinder)
 
-  def getEntitiesFromText(text: String, model: String): List[EntityInText] = {
-    val finder = model match {
-      case "person"       => personFinder
-      case "organization" => organizationFinder
-      case "location"     => locationFinder
-      case _              => throw new Error("Model not found")
-    }
-
+  def getEntitiesFromText(text: String): List[EntityInText] = {
     val tokenSpans = SimpleTokenizer.INSTANCE.tokenizePos(text)
-    val entitySpans = finder.find(tokenSpans.map(_.getCoveredText(text).toString))
 
-    entitySpans
-      .flatMap(entitySpan =>
-        (entitySpan.getStart until entitySpan.getEnd).map(tokenIndex => {
-          val token = tokenSpans(tokenIndex)
-          val from = token.getStart
-          val to = token.getEnd
+    allFinders.foldLeft(List.empty[EntityInText])((entities, finder) => {
+      val entitySpans = finder.find(tokenSpans.map(_.getCoveredText(text).toString))
 
-          EntityInText(
-            word = text.slice(from, to),
-            range = TextRange(
-              from = from,
-              to = to
-            ),
-            model = model
-          )
-        })
-      )
-      .toList
+      entities ++ entitySpans
+        .flatMap(entitySpan =>
+          (entitySpan.getStart until entitySpan.getEnd).map(tokenIndex => {
+            val token = tokenSpans(tokenIndex)
+            val from = token.getStart
+            val to = token.getEnd
+
+            EntityInText(
+              word = text.slice(from, to),
+              range = TextRange(
+                from = from,
+                to = to
+              )
+            )
+          })
+        )
+        .toList
+    })
   }
 }
