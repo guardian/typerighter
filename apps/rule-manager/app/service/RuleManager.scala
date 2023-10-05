@@ -12,7 +12,8 @@ import com.gu.typerighter.model.{
   WordTag
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tags, Tag}
+import com.gu.typerighter.rules.Dictionary.collinsSourceName
+import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tag, Tags}
 import db.DbRuleDraft.autoSession
 import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, RegexRuleForm}
 import play.api.data.FormError
@@ -146,7 +147,7 @@ object RuleManager extends Loggable {
         DictionaryForm.form
           .fillAndValidate(
             r.pattern.getOrElse(""),
-            r.category.getOrElse(""),
+            collinsSourceName,
             r.externalId.getOrElse("")
           )
           .fold(

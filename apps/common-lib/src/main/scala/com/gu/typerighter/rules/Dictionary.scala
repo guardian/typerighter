@@ -3,6 +3,7 @@ package com.gu.typerighter.rules
 import scala.xml.{Elem, Node}
 
 object Dictionary {
+  val collinsSourceName = "Collins Dictionary"
   def lemmaOrInflListToText(node: Node): List[String] = {
     node match {
       case node if node.label == "lemma"     => List(node.text)
