@@ -26,7 +26,7 @@ class EntityHelper() {
 
   val allFinders: List[NameFinderME] = List(personFinder, organizationFinder, locationFinder)
 
-  def getEntitiesFromText(text: String): List[EntityInText] = {
+  def getEntitiesFromText(text: String, offset: Int = 0): List[EntityInText] = {
     val tokenSpans = SimpleTokenizer.INSTANCE.tokenizePos(text)
 
     allFinders.foldLeft(List.empty[EntityInText])((entities, finder) => {
@@ -42,8 +42,8 @@ class EntityHelper() {
             EntityInText(
               word = text.slice(from, to),
               range = TextRange(
-                from = from,
-                to = to
+                from = from + offset,
+                to = to + offset
               )
             )
           })
