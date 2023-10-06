@@ -57,7 +57,7 @@ export const RuleForm = ({
 }: {
 	ruleId: number | undefined;
 	onClose: () => void;
-	onUpdate: (id: number) => void;
+	onUpdate?: (id: number) => void;
 }) => {
 	const [showErrors, setShowErrors] = useState(false);
 	const {
@@ -123,7 +123,7 @@ export const RuleForm = ({
 	}, [debouncedFormData]);
 
 	useEffect(() => {
-		rule?.draft.id && onUpdate(rule.draft.id);
+		rule?.draft.id && onUpdate?.(rule.draft.id);
 	}, [rule?.draft.id]);
 
 	const maybePublishRuleHandler = () => {
@@ -143,7 +143,7 @@ export const RuleForm = ({
 		if (isReasonModalVisible) {
 			setIsReasonModalVisible(false);
 		}
-		onUpdate(ruleId);
+		onUpdate?.(ruleId);
 	};
 
 	const PublishTooltip: React.FC<{ children: ReactElement }> = ({
@@ -181,7 +181,7 @@ export const RuleForm = ({
 		}
 
 		await archiveRule(ruleId);
-		onUpdate(ruleId);
+		onUpdate?.(ruleId);
 	};
 
 	const unarchiveRuleHandler = async () => {
@@ -190,7 +190,7 @@ export const RuleForm = ({
 		}
 
 		await unarchiveRule(ruleId);
-		onUpdate(ruleId);
+		onUpdate?.(ruleId);
 	};
 
 	const unpublishRuleHandler = async () => {
@@ -199,7 +199,7 @@ export const RuleForm = ({
 		}
 
 		await unpublishRule(ruleId);
-		onUpdate(ruleId);
+		onUpdate?.(ruleId);
 	};
 
 	const showRuleRevertModal = () => {
@@ -215,7 +215,7 @@ export const RuleForm = ({
 		if (isRevertModalVisible) {
 			setIsRevertModalVisible(false);
 		}
-		onUpdate(ruleId);
+		onUpdate?.(ruleId);
 	};
 
 	const hasUnsavedChanges = ruleFormData !== rule?.draft;

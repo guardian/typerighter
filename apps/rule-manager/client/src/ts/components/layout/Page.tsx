@@ -15,6 +15,7 @@ import {
 	createBrowserRouter,
 	useMatch,
 	useMatches,
+	Params,
 } from 'react-router-dom';
 import createCache from '@emotion/cache';
 import { FeatureSwitchesProvider } from '../context/featureSwitches';
@@ -25,7 +26,7 @@ import { TagsTable } from '../TagsTable';
 import { Breadcrumbs } from './Breadcrumbs';
 import { Rules } from '../pages/Rules';
 import { FullHeightContentWithFixedHeader } from './FullHeightContentWithFixedHeader';
-import { RuleForm } from '../RuleForm';
+import { newRuleId, Rule } from '../pages/Rule';
 import { TagsProvider } from '../context/tags';
 
 // Necessary while SASS and Emotion styles coexist within EUI.
@@ -40,8 +41,28 @@ const PageContentContainer = styled.div`
 	padding: calc(${headerHeight} + 24px) 24px 24px 24px;
 `;
 
+export const getNameFromRouteMatch = (
+	match: ReturnType<typeof useMatches>[number],
+): string => {
+	const handle = match.handle as RouteHandle;
+	return typeof (handle as RouteHandle).name === 'function'
+		? (handle.name as RouteNameFn)(match.params)
+		: (handle as { name: string })?.name || '';
+};
+
+export type RouteNameFn = (params: Params) => string;
+export type RouteHandle = {
+	// The user-facing name of the route
+	name: string | RouteNameFn;
+	// Should we use this route as the page title? Defaults to `true`
+	useAsPageTitle?: boolean;
+};
+
 const PageContent: React.FC = () => {
-	const { name } = (useMatches()?.pop()?.handle || {}) as { name?: string };
+	const maybeMatch = useMatches()
+		.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
+		.pop();
+	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
 	return (
 		<EuiPageTemplate>
 			<Header />
@@ -77,6 +98,14 @@ const router = createBrowserRouter([
 					name: 'Rules',
 				},
 				element: <Rules />,
+			},
+			{
+				path: 'rule/:id',
+				handle: {
+					name: (params: Params) =>
+						params.id === newRuleId ? 'New rule' : `Rule ${params.id}`,
+				},
+				element: <Rule />,
 			},
 			{
 				path: 'tags',
