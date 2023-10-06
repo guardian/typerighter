@@ -48,6 +48,5 @@ export const existingCategories = [
 	'Typography',
 	'Dates',
 	'Style Guide',
-	'Collins',
-	'Collins Dictionary',
+	'Guardian dictionary addition',
 ];
