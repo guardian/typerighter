@@ -36,7 +36,8 @@ export const ruleTypeOptions: RuleTypeOption[] = [
 	{
 		id: 'languageToolXML',
 		label: 'LanguageTool',
-	},	{
+	},
+	{
 		id: 'dictionary',
 		label: 'Dictionary',
 	},
@@ -67,7 +68,7 @@ export const RuleContent = ({
 	};
 
 	const patternErrors = getErrorPropsForField('pattern', validationErrors);
-	const isDictionaryRule = ruleFormData.ruleType === 'dictionary'
+	const isDictionaryRule = ruleFormData.ruleType === 'dictionary';
 
 	return (
 		<RuleFormSection
@@ -135,8 +136,7 @@ export const RuleContent = ({
 							</EuiMarkdownFormat>
 						)}
 					</EuiFormRow>
-					)
-				}
+				)}
 				<EuiSpacer size="m" />
 				<EuiFormLabel>Rule type</EuiFormLabel>
 				<EuiRadioGroup
@@ -182,8 +182,7 @@ export const RuleContent = ({
 							fullWidth={true}
 						/>
 					</EuiFormRow>
-					)
-				}
+				)}
 			</EuiFlexItem>
 		</RuleFormSection>
 	);
