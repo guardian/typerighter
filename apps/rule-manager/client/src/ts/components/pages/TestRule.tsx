@@ -20,7 +20,7 @@ import {
 	EuiButtonEmpty,
 	EuiLink,
 } from '@elastic/eui';
-import { RuleForm, RuleFormContext } from '../RuleForm';
+import { RuleForm } from '../RuleForm';
 import { noop } from 'lodash';
 import { useDebouncedValue } from '../hooks/useDebounce';
 
@@ -41,9 +41,8 @@ const ResultActions = styled.div`
 
 const chunkedAdapter = new TyperighterChunkedAdapter();
 
-export const EditRule = () => {
+export const TestRule = ({ pattern }: { pattern?: string }) => {
 	const { id: ruleId } = useParams();
-	const { pattern } = useOutletContext() as RuleFormContext;
 	const [matches, setMatches] = useState<RuleMatch[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [result, setResult] = useState<PaginatedCheckRuleResult | undefined>(
