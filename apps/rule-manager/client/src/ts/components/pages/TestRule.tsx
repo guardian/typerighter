@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useOutletContext, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
 	TyperighterChunkedAdapter,
 	PaginatedCheckRuleResult,
@@ -12,17 +12,17 @@ import {
 	EuiFlexItem,
 	EuiLoadingSpinner,
 	EuiSpacer,
-	EuiTitle,
 	WithEuiThemeProps,
 	useEuiTheme,
 	withEuiTheme,
 	EuiText,
-	EuiButtonEmpty,
 	EuiLink,
+	EuiIconTip,
 } from '@elastic/eui';
-import { RuleForm } from '../RuleForm';
-import { noop } from 'lodash';
 import { useDebouncedValue } from '../hooks/useDebounce';
+import { Title } from '../form/Title';
+import { SectionHeader } from '../form/SectionHeader';
+import { LineBreak } from '../LineBreak';
 
 const MatchContainer = withEuiTheme(styled.div<WithEuiThemeProps>`
 	font-family: 'Guardian Egyptian Text';
@@ -81,39 +81,55 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 	}, [debouncedQueryStr, pattern]);
 
 	return (
-		<EuiFlexItem style={{ height: '100%' }}>
+		<EuiFlexItem style={{ height: '100%', paddingTop: '12px' }}>
+			<SectionHeader>
+				<Title>
+					TEST RULE&nbsp;
+					<EuiIconTip
+						content="Test a rule against Guardian content, showing any matches found."
+						position="right"
+						type="iInCircle"
+						size="s"
+					/>
+				</Title>
+			</SectionHeader>
+			<EuiSpacer size="m" />
 			<EuiFlexGroup style={{ height: '100%' }} direction="column">
 				<EuiFlexItem grow={0}>
-					<EuiFlexGroup direction={'column'} gutterSize="s">
-						<EuiFieldText
-							placeholder={
-								'Add a CAPI query to narrow down the content to check'
-							}
-							value={queryStr}
-							onChange={(e) => setQueryStr(e.target.value)}
-							fullWidth={true}
-						/>
-						{result ? (
-							<EuiFlexGroup>
-								<ResultText>
-									<span>
-										Page {result.currentPage} of {result.maxPages} checked (
-										{result.currentPage * result.pageSize} articles),{' '}
-										{matches.length} matches found&nbsp;&nbsp;
-									</span>
-									{isLoading && <EuiLoadingSpinner size="s" />}
-								</ResultText>
-								{isLoading && (
-									<ResultActions>
-										<EuiLink href="#" onClick={() => chunkedAdapter.abort()}>
-											Cancel
-										</EuiLink>
-									</ResultActions>
-								)}
-							</EuiFlexGroup>
-						) : (
-							''
-						)}
+					<EuiFlexGroup direction={'row'} gutterSize="s">
+						<EuiFlexItem>
+							<EuiFieldText
+								placeholder={
+									'Add a CAPI query to narrow down the content to check'
+								}
+								value={queryStr}
+								onChange={(e) => setQueryStr(e.target.value)}
+								fullWidth={true}
+							/>
+						</EuiFlexItem>
+						<EuiFlexItem>
+							{result ? (
+								<EuiFlexGroup>
+									<ResultText>
+										<span>
+											Page {result.currentPage} of {result.maxPages} checked (
+											{result.currentPage * result.pageSize} articles),{' '}
+											{matches.length} matches found&nbsp;&nbsp;
+										</span>
+										{isLoading && <EuiLoadingSpinner size="s" />}
+									</ResultText>
+									{isLoading && (
+										<ResultActions>
+											<EuiLink href="#" onClick={() => chunkedAdapter.abort()}>
+												Cancel
+											</EuiLink>
+										</ResultActions>
+									)}
+								</EuiFlexGroup>
+							) : (
+								''
+							)}
+						</EuiFlexItem>
 					</EuiFlexGroup>
 				</EuiFlexItem>
 				<EuiFlexItem style={{ overflowY: 'scroll', gap }}>
