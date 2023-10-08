@@ -12,7 +12,8 @@ class ContentClient(client: GuardianContentClient) {
       queryStr: String,
       tags: List[String] = List.empty,
       sections: List[String] = List.empty,
-      page: Int = 1
+      page: Int = 1,
+      pageSize: Int = 10
   )(implicit ec: ExecutionContext): Future[SearchResponse] = {
     val query = ContentApiClient.search
       .q(queryStr)
