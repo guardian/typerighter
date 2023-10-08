@@ -21,6 +21,7 @@ case class TestRuleCapiQuery(
 case class PaginatedCheckRuleResult(
     currentPage: Int,
     maxPages: Int,
+    pageSize: Int,
     result: CheckSingleRuleResult
 )
 
@@ -50,7 +51,8 @@ class RuleTesting(
       rule: DbRuleDraft,
       query: TestRuleCapiQuery,
       matchCount: Int = 10,
-      maxPageCount: Int = 100
+      maxPageCount: Int = 100,
+      pageSize: Int = 20
   )(implicit ec: ExecutionContext): Source[PaginatedCheckRuleResult, NotUsed] = {
     class PaginatedContentQuery(pageLimit: Int) {
       var currentPage = 1
@@ -64,7 +66,8 @@ class RuleTesting(
             query.queryStr,
             query.tags.getOrElse(List.empty),
             query.sections.getOrElse(List.empty),
-            pageToFetch
+            pageToFetch,
+            pageSize
           )
           .map { response =>
             log.info(s"Received content page $pageToFetch/$maxPageCount")
@@ -95,7 +98,7 @@ class RuleTesting(
         // The lazy source ensures that we only trigger `testRule` when there is demand
         Source
           .lazyFutureSource(() => testRule(rule, documents))
-          .map(source => PaginatedCheckRuleResult(page, maxPageCount, source))
+          .map(source => PaginatedCheckRuleResult(page, maxPageCount, pageSize, source))
       }
       // Maintain a count of the matches so we can stop once our limit is reached
       .scan((0, Option.empty[PaginatedCheckRuleResult])) { case ((count, _), result) =>

@@ -247,9 +247,7 @@ class RulesController(
             ruleTesting
               .testRule(rule, List(document))
               .map { stream =>
-                Ok.chunked(stream.map {
-                  Json.toJson(_)
-                })
+                Ok.chunked(stream.map(record => JsonHelpers.toJsonSeq(record)))
               }
               .recover { error =>
                 InternalServerError(error.getMessage())
@@ -266,9 +264,7 @@ class RulesController(
         DbRuleDraft.find(id) match {
           case Some(rule) =>
             val matchStream = ruleTesting.testRuleWithCapiQuery(rule, query)
-            Ok.chunked(matchStream.map {
-              Json.toJson(_)
-            })
+            Ok.chunked(matchStream.map(record => JsonHelpers.toJsonSeq(record)))
           case None => NotFound
         }
       case Left(error) => BadRequest(s"Invalid request: $error")

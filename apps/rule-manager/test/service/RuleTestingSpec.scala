@@ -47,7 +47,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
         val hmacClient = new HMACClient("TEST", secretKey = "🤫")
         val contentClient = mock[ContentClient]
         if (searchResponses.nonEmpty) {
-          when(contentClient.searchContent(any, any, any, any)(any)) thenAnswer (_ =>
+          when(contentClient.searchContent(any, any, any, any, any)(any)) thenAnswer (_ =>
             Future.successful(searchResponses.next())
           )
         }
@@ -128,11 +128,11 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       responses.hasNext shouldBe false
 
       result shouldBe Seq(
-        PaginatedCheckRuleResult(1, 5, CheckSingleRuleResult(List.empty, Some(100))),
-        PaginatedCheckRuleResult(2, 5, CheckSingleRuleResult(List.empty, Some(100))),
-        PaginatedCheckRuleResult(3, 5, CheckSingleRuleResult(List.empty, Some(100))),
-        PaginatedCheckRuleResult(4, 5, CheckSingleRuleResult(List.empty, Some(100))),
-        PaginatedCheckRuleResult(5, 5, CheckSingleRuleResult(List.empty, Some(100)))
+        PaginatedCheckRuleResult(1, 5, 20, CheckSingleRuleResult(List.empty, Some(100))),
+        PaginatedCheckRuleResult(2, 5, 20, CheckSingleRuleResult(List.empty, Some(100))),
+        PaginatedCheckRuleResult(3, 5, 20, CheckSingleRuleResult(List.empty, Some(100))),
+        PaginatedCheckRuleResult(4, 5, 20, CheckSingleRuleResult(List.empty, Some(100))),
+        PaginatedCheckRuleResult(5, 5, 20, CheckSingleRuleResult(List.empty, Some(100)))
       )
     }
   }
@@ -167,7 +167,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
       responses.hasNext shouldBe false
 
       val expectedResult = matches.take(2).flatten.zipWithIndex.map { case (result, index) =>
-        PaginatedCheckRuleResult(if (index < 3) 1 else 2, 6, result)
+        PaginatedCheckRuleResult(if (index < 3) 1 else 2, 6, 20, result)
       }
 
       result shouldBe expectedResult
