@@ -114,9 +114,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
         client
           .testRuleWithCapiQuery(
             rule = exampleRule,
-            query = exampleQuery,
-            matchCount = 5,
-            maxPageCount = desiredPageCount
+            query = exampleQuery.copy(maxMatches = Some(5), maxPages = Some(desiredPageCount))
           )
           .runWith(Sink.seq)
       val result = Await.result(eventualResult, 60 seconds)
@@ -153,9 +151,7 @@ class RuleTestingSpec extends AnyFlatSpec with Matchers with IdiomaticMockito {
         client
           .testRuleWithCapiQuery(
             rule = exampleRule,
-            query = exampleQuery,
-            matchCount = desiredMatchCount,
-            maxPageCount = 6
+            query = exampleQuery.copy(maxPages = Some(6), maxMatches = Some(desiredMatchCount))
           )
           .runWith(Sink.seq)
       val result = Await.result(eventualResult, 60 seconds)
