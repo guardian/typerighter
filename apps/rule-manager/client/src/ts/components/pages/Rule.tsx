@@ -11,6 +11,7 @@ export const Rule = () => {
 	const { id } = useParams() as { id: string };
 	const ruleId = id === newRuleId ? undefined : parseInt(id);
 	const ruleHooks = useRule(ruleId);
+	const rule = ruleHooks.rule?.draft;
 	const testPattern = ruleHooks.rule?.draft.pattern;
 	const navigate = useNavigate();
 	return (
@@ -23,7 +24,11 @@ export const Rule = () => {
 				/>
 			</EuiFlexItem>
 			<EuiFlexItem grow={2}>
-				<TestRule pattern={testPattern} />
+				{rule?.ruleType !== 'dictionary' ? (
+					<TestRule pattern={testPattern} />
+				) : (
+					<h2>You cannot yet test dictionary rules.</h2>
+				)}
 			</EuiFlexItem>
 		</EuiFlexGroup>
 	);

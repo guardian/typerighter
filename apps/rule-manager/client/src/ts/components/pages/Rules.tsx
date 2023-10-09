@@ -4,12 +4,11 @@ import {
 	EuiButton,
 	EuiFlexGroup,
 	EuiButtonIcon,
-	EuiFlexGrid,
 	EuiToolTip,
 	EuiSpacer,
 } from '@elastic/eui';
 import { SortColumns, useRules } from '../hooks/useRules';
-import { RuleForm, StandaloneRuleForm } from '../RuleForm';
+import { StandaloneRuleForm } from '../RuleForm';
 import { PageContext } from '../../utils/window';
 import { hasCreateEditPermissions } from '../helpers/hasCreateEditPermissions';
 import { FeatureSwitchesContext } from '../context/featureSwitches';

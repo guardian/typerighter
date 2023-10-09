@@ -25,6 +25,7 @@ import { ConciseRuleStatus } from '../rule/ConciseRuleStatus';
 import { TagsContext } from '../context/tags';
 import { EuiDataGridToolBarVisibilityOptions } from '@elastic/eui/src/components/datagrid/data_grid_types';
 import { useEuiFontSize } from '@elastic/eui/src/global_styling/mixins/_typography';
+import { useNavigate } from 'react-router-dom';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -76,7 +77,7 @@ const EditRule = ({
 		<EuiToolTip
 			content={
 				editIsEnabled
-					? ''
+					? 'Edit rule'
 					: 'You do not have the correct permissions to edit a rule. Please contact Central Production if you need to edit rules.'
 			}
 		>
@@ -85,6 +86,35 @@ const EditRule = ({
 				onClick={() => (editIsEnabled ? editRule(Number(rule.id)) : () => null)}
 			>
 				<EuiIcon type="pencil" />
+			</EditRuleButton>
+		</EuiToolTip>
+	);
+};
+
+const TestRule = ({
+	editIsEnabled,
+	rule,
+}: {
+	editIsEnabled: boolean;
+	rule: DraftRule;
+}) => {
+	const navigate = useNavigate();
+
+	return (
+		<EuiToolTip
+			content={
+				editIsEnabled
+					? 'Test rule'
+					: 'You do not have the correct permissions to test a rule. Please contact Central Production if you need to edit rules.'
+			}
+		>
+			<EditRuleButton
+				editIsEnabled={editIsEnabled}
+				onClick={() =>
+					editIsEnabled ? navigate(`/rule/${rule.id}`) : () => null
+				}
+			>
+				<EuiIcon type="wrench" />
 			</EditRuleButton>
 		</EuiToolTip>
 	);
@@ -272,22 +302,29 @@ export const PaginatedRulesTable = ({
 			},
 			{
 				id: 'actions',
-				width: 35,
+				width: 55,
 				headerCellRender: () => <></>,
 				rowCellRender: ({ rowIndex }) =>
 					isLoading ? (
 						<EuiSkeletonText />
 					) : (
-						<EditRule
-							editIsEnabled={canEditRule}
-							editRule={() =>
-								setRowSelection({
-									type: 'set',
-									id: getRuleAtRowIndex(rowIndex).id!,
-								})
-							}
-							rule={getRuleAtRowIndex(rowIndex)}
-						/>
+						<>
+							<EditRule
+								editIsEnabled={canEditRule}
+								editRule={() =>
+									setRowSelection({
+										type: 'set',
+										id: getRuleAtRowIndex(rowIndex).id!,
+									})
+								}
+								rule={getRuleAtRowIndex(rowIndex)}
+							/>
+							&nbsp; &nbsp;
+							<TestRule
+								editIsEnabled={canEditRule}
+								rule={getRuleAtRowIndex(rowIndex)}
+							/>
+						</>
 					),
 			},
 		],
