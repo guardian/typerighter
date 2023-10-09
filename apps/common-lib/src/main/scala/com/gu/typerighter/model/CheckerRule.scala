@@ -19,6 +19,7 @@ import scala.jdk.CollectionConverters._
 sealed trait CheckerRule {
   val id: String
   val category: Category
+  val priority: Int = 0
 }
 
 object CheckerRule {
@@ -67,7 +68,7 @@ case class RegexRule(
     replacement: Option[TextSuggestion] = None,
     regex: ComparableRegex
 ) extends CheckerRule {
-
+  override val priority = 2
   def toMatch(
       start: Int,
       end: Int,
@@ -202,10 +203,12 @@ object LTRule {
 }
 
 case class DictionaryRule(
-    id: String,
-    word: String,
-    category: Category
-) extends CheckerRule
+   id: String,
+   word: String,
+   category: Category,
+) extends CheckerRule {
+  override val priority = 1
+}
 
 object DictionaryRule {
   implicit val formats: OFormat[DictionaryRule] = Json.format[DictionaryRule]
