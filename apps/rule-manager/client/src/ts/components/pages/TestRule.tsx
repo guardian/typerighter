@@ -127,7 +127,9 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 						</EuiFlexItem>
 						<EuiFlexItem grow={2}>
 							<EuiFieldText
-								placeholder={'Narrow down the search with a CAPI query'}
+								placeholder={
+									'Narrow down the content to test with a CAPI query'
+								}
 								value={queryStr}
 								onChange={(e) => setQueryStr(e.target.value)}
 								fullWidth={true}
