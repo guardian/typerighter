@@ -203,9 +203,9 @@ object LTRule {
 }
 
 case class DictionaryRule(
-   id: String,
-   word: String,
-   category: Category,
+    id: String,
+    word: String,
+    category: Category
 ) extends CheckerRule {
   override val priority = 1
 }
