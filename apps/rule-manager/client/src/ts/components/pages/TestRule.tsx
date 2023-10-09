@@ -18,11 +18,11 @@ import {
 	EuiText,
 	EuiLink,
 	EuiIconTip,
+	EuiSelect,
 } from '@elastic/eui';
 import { useDebouncedValue } from '../hooks/useDebounce';
 import { Title } from '../form/Title';
 import { SectionHeader } from '../form/SectionHeader';
-import { LineBreak } from '../LineBreak';
 
 const MatchContainer = withEuiTheme(styled.div<WithEuiThemeProps>`
 	font-family: 'Guardian Egyptian Text';
@@ -41,9 +41,41 @@ const ResultActions = styled.div`
 
 const chunkedAdapter = new TyperighterChunkedAdapter();
 
+const maxMatchOptions = [
+	{
+		value: 10,
+		text: 'Search for max. 10 matches',
+	},
+	{
+		value: 20,
+		text: 'Search for max. 20 matches',
+	},
+	{
+		value: 50,
+		text: 'Search for max. 50 matches',
+	},
+];
+
+const maxPageOptions = [
+	{
+		value: 50,
+		text: 'Across 50 pages of content',
+	},
+	{
+		value: 100,
+		text: 'Across 100 pages of content',
+	},
+	{
+		value: 200,
+		text: 'Across 200 pages of content',
+	},
+];
+
 export const TestRule = ({ pattern }: { pattern?: string }) => {
 	const { id: ruleId } = useParams();
 	const [matches, setMatches] = useState<RuleMatch[]>([]);
+	const [maxMatches, setMaxMatches] = useState<number>(10);
+	const [maxPages, setMaxPages] = useState<number>(50);
 	const [isLoading, setIsLoading] = useState(false);
 	const [result, setResult] = useState<PaginatedCheckRuleResult | undefined>(
 		undefined,
@@ -64,6 +96,8 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 			chunkedAdapter.fetchMatches({
 				queryStr: debouncedQueryStr,
 				ruleId,
+        maxMatches,
+        maxPages,
 				onMatchesReceived: (result) => {
 					setMatches((cur) => cur.concat(result.result.matches));
 					setResult(result);
@@ -84,9 +118,9 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 		<EuiFlexItem style={{ height: '100%', paddingTop: '12px' }}>
 			<SectionHeader>
 				<Title>
-					TEST RULE&nbsp;
+					TEST RULE AGAINST GUARDIAN CONTENT&nbsp;
 					<EuiIconTip
-						content="Test a rule against Guardian content, showing any matches found."
+						content="Test this rule by running it against lots of Guardian content. Any matches found are shown below."
 						position="right"
 						type="iInCircle"
 						size="s"
@@ -98,40 +132,51 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 				<EuiFlexItem grow={0}>
 					<EuiFlexGroup direction={'row'} gutterSize="s">
 						<EuiFlexItem>
+							<EuiSelect
+								options={maxMatchOptions}
+								value={maxMatches}
+								onChange={(e) => setMaxMatches(parseInt(e.target.value))}
+							/>
+						</EuiFlexItem>
+						<EuiFlexItem>
+							<EuiSelect options={maxPageOptions}value={maxPages}
+								onChange={(e) => setMaxPages(parseInt(e.target.value))} />
+						</EuiFlexItem>
+						<EuiFlexItem grow={2}>
 							<EuiFieldText
-								placeholder={
-									'Add a CAPI query to narrow down the content to check'
-								}
+								placeholder={'Narrow down the search with a CAPI query'}
 								value={queryStr}
 								onChange={(e) => setQueryStr(e.target.value)}
 								fullWidth={true}
 							/>
 						</EuiFlexItem>
-						<EuiFlexItem>
-							{result ? (
-								<EuiFlexGroup>
-									<ResultText>
-										<span>
-											Page {result.currentPage} of {result.maxPages} checked (
-											{result.currentPage * result.pageSize} articles),{' '}
-											{matches.length} matches found&nbsp;&nbsp;
-										</span>
-										{isLoading && <EuiLoadingSpinner size="s" />}
-									</ResultText>
-									{isLoading && (
-										<ResultActions>
-											<EuiLink href="#" onClick={() => chunkedAdapter.abort()}>
-												Cancel
-											</EuiLink>
-										</ResultActions>
-									)}
-								</EuiFlexGroup>
-							) : (
-								''
-							)}
-						</EuiFlexItem>
 					</EuiFlexGroup>
+					<EuiSpacer size="s" />
+					<EuiFlexItem grow={2}>
+						{result ? (
+							<EuiFlexGroup>
+								<ResultText>
+									<span>
+										Page {result.currentPage}/{result.maxPages} checked (
+										{result.currentPage * result.pageSize} articles),{' '}
+										{matches.length}/{maxMatches} matches found&nbsp;&nbsp;
+									</span>
+									{isLoading && <EuiLoadingSpinner size="s" />}
+								</ResultText>
+								{isLoading && (
+									<ResultActions>
+										<EuiLink href="#" onClick={() => chunkedAdapter.abort()}>
+											Cancel
+										</EuiLink>
+									</ResultActions>
+								)}
+							</EuiFlexGroup>
+						) : (
+							''
+						)}
+					</EuiFlexItem>
 				</EuiFlexItem>
+
 				<EuiFlexItem style={{ overflowY: 'scroll', gap }}>
 					{!matches.length && (
 						<>

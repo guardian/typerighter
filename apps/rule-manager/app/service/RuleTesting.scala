@@ -15,7 +15,9 @@ import scala.concurrent.{ExecutionContext, Future}
 case class TestRuleCapiQuery(
     queryStr: String,
     tags: Option[List[String]] = None,
-    sections: Option[List[String]] = None
+    sections: Option[List[String]] = None,
+    maxMatches: Option[Int] = None,
+    maxPages: Option[Int] = None
 )
 
 case class PaginatedCheckRuleResult(

@@ -48,6 +48,8 @@ interface CAPICheck {
 	tags?: string[];
 	sections?: string[];
 	ruleId: string;
+  maxMatches: number,
+  maxPages: number,
 	onMatchesReceived: (result: PaginatedCheckRuleResult) => void;
 	onRequestError: (msg: string) => void;
 	onRequestComplete: () => void;
@@ -67,6 +69,8 @@ export class TyperighterChunkedAdapter {
 		tags,
 		sections,
 		ruleId,
+    maxMatches,
+    maxPages,
 		onMatchesReceived,
 		onRequestError,
 		onRequestComplete,
@@ -89,6 +93,8 @@ export class TyperighterChunkedAdapter {
 					queryStr,
 					tags,
 					sections,
+          maxMatches,
+          maxPages
 				}),
 				signal: this.abortController.signal,
 			});
