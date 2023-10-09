@@ -9,9 +9,9 @@ export const newRuleId = 'new-rule';
 
 export const Rule = () => {
 	const { id } = useParams() as { id: string };
-  const ruleId = id === newRuleId ? undefined : parseInt(id);
-  const ruleHooks = useRule(ruleId);
-  const testPattern = ruleHooks.rule?.draft.pattern;
+	const ruleId = id === newRuleId ? undefined : parseInt(id);
+	const ruleHooks = useRule(ruleId);
+	const testPattern = ruleHooks.rule?.draft.pattern;
 	const navigate = useNavigate();
 	return (
 		<EuiFlexGroup style={{ height: '100%' }}>
@@ -19,12 +19,12 @@ export const Rule = () => {
 				<RuleForm
 					ruleId={ruleId}
 					onClose={() => navigate('/')}
-          {...ruleHooks}
+					{...ruleHooks}
 				/>
 			</EuiFlexItem>
 			<EuiFlexItem grow={2}>
-         <TestRule pattern={testPattern} />
-      </EuiFlexItem>
+				<TestRule pattern={testPattern} />
+			</EuiFlexItem>
 		</EuiFlexGroup>
 	);
 };

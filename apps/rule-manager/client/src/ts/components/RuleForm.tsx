@@ -58,33 +58,40 @@ export const StandaloneRuleForm = ({
 	onClose: () => void;
 	onUpdate?: (id: number) => void;
 }) => {
-  const ruleHooks = useRule(ruleId);
+	const ruleHooks = useRule(ruleId);
 
-  return <RuleForm ruleId={ruleId} onClose={onClose} onUpdate={onUpdate} {...ruleHooks} />
-}
+	return (
+		<RuleForm
+			ruleId={ruleId}
+			onClose={onClose}
+			onUpdate={onUpdate}
+			{...ruleHooks}
+		/>
+	);
+};
 
 export const RuleForm = ({
-  ruleId,
+	ruleId,
 	onClose,
 	onUpdate,
-  updateRule,
-  createRule,
-  isLoading,
-  errors,
-  rule,
-  publishRule,
-  isPublishing,
-  validateRule,
-  publishValidationErrors,
-  resetPublishValidationErrors,
-  archiveRule,
-  unarchiveRule,
-  unpublishRule,
-  ruleStatus,
-  isDiscarding,
-  discardRuleChanges,
-}: ReturnType<typeof useRule> &  {
-  ruleId: number | undefined;
+	updateRule,
+	createRule,
+	isLoading,
+	errors,
+	rule,
+	publishRule,
+	isPublishing,
+	validateRule,
+	publishValidationErrors,
+	resetPublishValidationErrors,
+	archiveRule,
+	unarchiveRule,
+	unpublishRule,
+	ruleStatus,
+	isDiscarding,
+	discardRuleChanges,
+}: ReturnType<typeof useRule> & {
+	ruleId: number | undefined;
 	onClose: () => void;
 	onUpdate?: (id: number) => void;
 }) => {

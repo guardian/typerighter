@@ -41,35 +41,15 @@ const ResultActions = styled.div`
 
 const chunkedAdapter = new TyperighterChunkedAdapter();
 
-const maxMatchOptions = [
-	{
-		value: 10,
-		text: 'Search for max. 10 matches',
-	},
-	{
-		value: 20,
-		text: 'Search for max. 20 matches',
-	},
-	{
-		value: 50,
-		text: 'Search for max. 50 matches',
-	},
-];
+const maxMatchOptions = [10, 20, 50].map((value) => ({
+	value,
+	text: `Search for max. ${value} matches`,
+}));
 
-const maxPageOptions = [
-	{
-		value: 50,
-		text: 'Across 50 pages of content',
-	},
-	{
-		value: 100,
-		text: 'Across 100 pages of content',
-	},
-	{
-		value: 200,
-		text: 'Across 200 pages of content',
-	},
-];
+const maxPageOptions = [50, 100, 200].map((value) => ({
+	value,
+	text: `across ${value} pages of content`,
+}));
 
 export const TestRule = ({ pattern }: { pattern?: string }) => {
 	const { id: ruleId } = useParams();
@@ -96,8 +76,8 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 			chunkedAdapter.fetchMatches({
 				queryStr: debouncedQueryStr,
 				ruleId,
-        maxMatches,
-        maxPages,
+				maxMatches,
+				maxPages,
 				onMatchesReceived: (result) => {
 					setMatches((cur) => cur.concat(result.result.matches));
 					setResult(result);
@@ -106,13 +86,13 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 				onRequestComplete: () => setIsLoading(false),
 			});
 		},
-		[debouncedQueryStr, pattern, ruleId],
+		[debouncedQueryStr, pattern, ruleId, maxMatches, maxPages],
 	);
 
 	useEffect(() => {
 		fetchMatches();
 		return () => chunkedAdapter.abort();
-	}, [debouncedQueryStr, pattern]);
+	}, [debouncedQueryStr, pattern, maxMatches, maxPages]);
 
 	return (
 		<EuiFlexItem style={{ height: '100%', paddingTop: '12px' }}>
@@ -139,8 +119,11 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 							/>
 						</EuiFlexItem>
 						<EuiFlexItem>
-							<EuiSelect options={maxPageOptions}value={maxPages}
-								onChange={(e) => setMaxPages(parseInt(e.target.value))} />
+							<EuiSelect
+								options={maxPageOptions}
+								value={maxPages}
+								onChange={(e) => setMaxPages(parseInt(e.target.value))}
+							/>
 						</EuiFlexItem>
 						<EuiFlexItem grow={2}>
 							<EuiFieldText
@@ -176,7 +159,6 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 						)}
 					</EuiFlexItem>
 				</EuiFlexItem>
-
 				<EuiFlexItem style={{ overflowY: 'scroll', gap }}>
 					{!matches.length && (
 						<>
