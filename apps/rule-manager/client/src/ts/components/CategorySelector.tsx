@@ -64,6 +64,7 @@ export const CategorySelector = ({
 				isClearable={true}
 				isCaseSensitive
 				fullWidth={true}
+				isDisabled={isDictionaryRule}
 				{...categoryErrors}
 			/>
 		</EuiFormRow>
