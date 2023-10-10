@@ -44,6 +44,7 @@ export const CategorySelector = ({
 		if (currentCategory) {
 			return [{ label: currentCategory }];
 		} else if (isDictionaryRule) {
+			partiallyUpdateRuleData({ category: 'Guardian dictionary addition' });
 			return [{ label: 'Guardian dictionary addition' }];
 		} else {
 			return [];
