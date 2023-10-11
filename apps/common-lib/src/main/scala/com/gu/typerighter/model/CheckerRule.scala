@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters._
 sealed trait CheckerRule {
   val id: String
   val category: Category
-  val priority: Int
+  val priority: Int = 0
 }
 
 object CheckerRule {
@@ -32,7 +32,6 @@ case class LTRuleCore(
     languageToolRuleId: String
 ) extends CheckerRule {
   override val category: Category = Category("lt_core", "LanguageTool Core Rule")
-  override val priority: Int = 3
 }
 
 object LTRuleCore {
@@ -113,7 +112,6 @@ case class LTRuleXML(
 ) extends CheckerRule {
   val suggestions = List.empty
   val replacement: Option[TextSuggestion] = None
-  override val priority: Int = 3
 }
 
 object LTRuleXML {
@@ -134,9 +132,9 @@ case class LTRule(
     message: String,
     url: Option[String] = None,
     suggestions: List[TextSuggestion],
-    priority: Int = 0
 ) extends CheckerRule {
   val replacement: Option[TextSuggestion] = None
+  override val priority = if (id == "MORFOLOGIK_RULE_COLLINS") 0 else 3
 }
 
 object LTRule {
@@ -165,7 +163,7 @@ object LTRule {
       message = lt.getDescription,
       url = Option(if (lt.getUrl == null) null else lt.toString),
       suggestions = List.empty,
-      priority = if (lt.getId == "MORFOLOGIK_RULE_COLLINS") 0 else 3
+
     )
   }
 
@@ -210,9 +208,7 @@ case class DictionaryRule(
     id: String,
     word: String,
     category: Category
-) extends CheckerRule {
-  override val priority = 0
-}
+) extends CheckerRule
 
 object DictionaryRule {
   implicit val formats: OFormat[DictionaryRule] = Json.format[DictionaryRule]
