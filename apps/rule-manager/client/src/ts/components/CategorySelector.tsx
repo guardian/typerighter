@@ -41,15 +41,20 @@ export const CategorySelector = ({
 	const categoryErrors = getErrorPropsForField('category', validationErrors);
 
 	const preSelectedCategory = (currentCategory: string | undefined) => {
-		if (currentCategory) {
-			return [{ label: currentCategory }];
-		} else if (isDictionaryRule) {
+		if (
+			isDictionaryRule &&
+			currentCategory !== 'Collins Dictionary' &&
+			currentCategory !== 'Guardian dictionary addition'
+		) {
 			partiallyUpdateRuleData({ category: 'Guardian dictionary addition' });
 			return [{ label: 'Guardian dictionary addition' }];
+		} else if (currentCategory) {
+			return [{ label: currentCategory }];
 		} else {
 			return [];
 		}
 	};
+
 	return (
 		<EuiFormRow
 			label={<Label text="Source" required={true} />}
