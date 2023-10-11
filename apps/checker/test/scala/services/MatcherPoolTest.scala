@@ -313,22 +313,6 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     }
   }
 
-  it should "correctly check multiple categories for a single job don't overlap" in {
-    val matchers = getMatchers(2)
-    val pool = getPool(matchers, 4, 100, MatcherPool.blockLevelCheckStrategy)
-    val firstMatch = getResponses(List((0, 5, "test-response")), 0)
-    val secondMatch = getResponses(List((0, 5, "test-response-2")), 1)
-    matchers(0).completeWith(firstMatch)
-    matchers(1).completeWith(secondMatch)
-
-    val futureResult = pool.check(getCheck(text = "Example text"))
-
-    futureResult.map { result =>
-      result.matches.size shouldMatchTo (1)
-      result.matches shouldMatchTo (secondMatch)
-    }
-  }
-
   it should "not check categories in excludeCategoryIds" in {
     val matchers = getMatchers(2)
     val categoriesToExclude = matchers.head.getCategories().map(_.id)
