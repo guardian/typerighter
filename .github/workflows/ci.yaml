@@ -38,7 +38,7 @@ jobs:
       - name: cdk synth
         working-directory: ./cdk
         run: |
-          yarn
+          yarn install --frozen-lockfile
           yarn synth
       - name: test and build sbt
         run: |
