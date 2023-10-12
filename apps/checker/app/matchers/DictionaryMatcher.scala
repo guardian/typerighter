@@ -46,28 +46,33 @@ class DictionaryMatcher(
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val namedEntities =
-      request.blocks.flatMap((block) =>
-        entityHelper.getEntitiesFromText(
-          text = block.text,
-          offset = block.from
-        )
-      )
-
-    matcher
-      .check(request)
-      .map(ruleMatches =>
-        ruleMatches
-          // Remove matches which correspond to named entities. This should reduce the number of false-positives
-          // caused by pronouns
-          .filter(ruleMatch => !matchFallsWithinNamedEntityRange(ruleMatch, namedEntities))
-          // groupKey is used to control how rules are grouped in the client when they produces matches.
-          // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
-          // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
-          .map(ruleMatch =>
-            ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText))
+    val eventualNamedEntities =
+      Future {
+        request.blocks.flatMap((block) =>
+          entityHelper.getEntitiesFromText(
+            text = block.text,
+            offset = block.from
           )
-      )
+        )
+      }
+
+    val eventualMatches = matcher.check(request)
+
+    for {
+      namedEntities <- eventualNamedEntities
+      matches <- eventualMatches
+    } yield {
+      matches
+        // Remove matches which correspond to named entities. This should reduce the number of false-positives
+        // caused by pronouns
+        .filter(ruleMatch => !matchFallsWithinNamedEntityRange(ruleMatch, namedEntities))
+        // groupKey is used to control how rules are grouped in the client when they produces matches.
+        // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
+        // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
+        .map(ruleMatch =>
+          ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText))
+        )
+    }
   }
 
   def getCategories() = instance.getAllActiveRules.asScala.toList.map { rule =>
