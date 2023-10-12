@@ -64,7 +64,7 @@ class DictionaryMatcher(
     } yield {
       matches
         // Remove matches which correspond to named entities. This should reduce the number of false-positives
-        // caused by pronouns
+        // caused by proper nouns
         .filter(ruleMatch => !matchFallsWithinNamedEntityRange(ruleMatch, namedEntities))
         // groupKey is used to control how rules are grouped in the client when they produces matches.
         // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
