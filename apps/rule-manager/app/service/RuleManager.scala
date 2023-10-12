@@ -288,7 +288,7 @@ object RuleManager extends Loggable {
     DbRuleLive.destroyAll()
     incomingRules
       .grouped(100)
-      .foreach(group => DbRuleDraft.batchInsert(group))
+      .foreach(group => DbRuleDraft.batchInsert(group.toList))
 
     val draftRules = DbRuleDraft.findAll()
 
@@ -419,7 +419,7 @@ object RuleManager extends Loggable {
   }
 
   def destructivelyPublishDictionaryRules(
-      words: List[String],
+      words: Set[String],
       bucketRuleResource: BucketRuleResource,
       wordsToNotPublish: List[WordTag]
   ) = {
@@ -466,7 +466,7 @@ object RuleManager extends Loggable {
     groupedRules.zipWithIndex
       .foreach { case (group, index) =>
         log.info(s"Writing draft dictionary rules group ${index + 1}/${groupedRules.size}")
-        DbRuleDraft.batchInsert(group, true)
+        DbRuleDraft.batchInsert(group.toList, true)
         log.info(s"Draft dictionary rules group ${index + 1}/${groupedRules.size} written")
       }
 

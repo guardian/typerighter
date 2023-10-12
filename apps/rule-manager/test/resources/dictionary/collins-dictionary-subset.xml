@@ -1,0 +1,4855 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lexdataset>
+  <superentry>
+    <entry publevel="2" main="3G">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>3.5G</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Telecommunications" />
+            <xrefgrp>
+              <groupintro>same as</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c8723e1.-43ef" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c8723e1.-43ee">
+                  <xrhw publevel="2">high-speed downlink packet access</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>401(k) plan</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Business_and_Economics:Economics_Accounting_and_Finance:Banking_and_Finance" />
+            <defgrp>
+              <defunit>
+                <def>(in the US) a type of employer-sponsored pension plan in which the tax payable on contributions is deferred until retirement</def>
+              </defunit>
+            </defgrp>
+            <vargrp>
+              <groupintro>Often shortened to</groupintro>
+              <varunit>
+                <var>401(k)</var>
+              </varunit>
+            </vargrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>C20: named after the subsection of the Internal Revenue Code that established it</etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>4K</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Electronics" />
+            <defgrp>
+              <defunit>
+                <def>(of a television screen) having a resolution of approximately 4000 horizontal pixels</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>5G</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Telecommunications" />
+            <defgrp>
+              <defunit>
+                <def>fifth generation; a stage in mobile phone technology when data can be provided more quickly than previously and more devices can be supported in a smaller area </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-42df">
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <hw>A</hw>
+          </hwunit>
+          <prongrp>
+            <pronunit>
+              <pron>eɪ</pron>
+              <audio lang="en-gb" mainSoundFile="00003" type="human" />
+            </pronunit>
+          </prongrp>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <inflgrp>
+            <lbgram value="plural" />
+            <influnit>
+              <infl>a's</infl>
+            </influnit>
+            <influnit>
+              <infl>A's</infl>
+            </influnit>
+            <influnit form="alt">
+              <infl>As</infl>
+            </influnit>
+          </inflgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Linguistics" />
+            <defgrp>
+              <defunit>
+                <def>the first letter and first vowel of the modern English alphabet</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Linguistics:Phonetics_and_Phonology" />
+            <defgrp>
+              <defunit>
+                <def>
+                  any of several speech sounds represented by this letter, in English as in
+                  <i>take, bag, calm, shortage,</i>
+                  or
+                  <i>cobra</i>
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Social_Science_and_History:Social_Science:Education" />
+            <vargrp>
+              <groupintro>Also called</groupintro>
+              <varunit publevel="1">
+                <var>alpha</var>
+              </varunit>
+            </vargrp>
+            <defgrp>
+              <defunit>
+                <def>the first in a series, esp the highest grade or mark, as in an examination</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <idmgrp>
+              <idmunit>
+                <idm>from A to Z</idm>
+              </idmunit>
+            </idmgrp>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>from start to finish, thoroughly and in detail</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+    <entry homonym="1" publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-42a8">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ə</pron>
+                <audio lang="en-gb" mainSoundFile="64355" type="human" />
+              </pronunit>
+              <pronunit>
+                <lbgramdesc>stressed or emphatic</lbgramdesc>
+                <pron>eɪ</pron>
+                <audio lang="en-gb" mainSoundFile="00003" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="determiner" />
+            </pospunit>
+          </pospgrp>
+          <lbgramdesc>
+            indefinite article;
+            <r>used before an initial consonant</r>
+          </lbgramdesc>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>used preceding a singular countable noun, if the noun is not previously specified or known</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>a dog</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>a terrible disappointment</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>used preceding a proper noun to indicate that a person or thing has some of the qualities of the one named</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>a Romeo</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>used preceding a noun or determiner of quantity</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>a cupful</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>a dozen eggs</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>a great many</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>to read a lot</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>used preceding a noun indicating a concrete or abstract thing capable of being divided</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>half a loaf</exmpl>
+              </exmplunit>
+              <exmplunit publevel="2">
+                <exmpl>a quarter of a minute</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <patterngrp>
+              <groupintro>preceded by</groupintro>
+              <patternunit>
+                <pattern>
+                  once, twice, several times,
+                  <r>etc</r>
+                </pattern>
+              </patternunit>
+            </patterngrp>
+            <defgrp>
+              <defunit>
+                <def>each or every; per</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>once a day</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>two pounds fifty a pound</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>a certain; one</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>to change policy at a stroke</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>a Mr Khan called</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbgramdesc>
+              <r>preceded by</r>
+              not
+            </lbgramdesc>
+            <defgrp>
+              <defunit>
+                <def>any at all</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>not a hope</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+        <xrefgrp>
+          <groupintro>Compare</groupintro>
+          <xrefunit publevel="1">
+            <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.4484" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.4485">
+              <xrhw publevel="1">an</xrhw>
+              <xrhn publevel="a">1</xrhn>
+            </xref>
+          </xrefunit>
+        </xrefgrp>
+        <xrefgrp>
+          <groupintro>See</groupintro>
+          <xrefunit publevel="1">
+            <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c9258b6.2148" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c9258b6.2149">
+              <xrhw publevel="1">the</xrhw>
+              <xrhn publevel="a">1</xrhn>
+            </xref>
+          </xrefunit>
+        </xrefgrp>
+      </datablk>
+    </entry>
+    <entry homonym="2" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ə</pron>
+                <audio lang="en-gb" mainSoundFile="64355" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="verb" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <xrefgrp>
+              <groupintro>an informal or dialect word for</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c86b290.1414" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c86b290.1415">
+                  <xrhw publevel="1">have</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>they'd a said if they'd known</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+    <entry homonym="3" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ə</pron>
+                <audio lang="en-gb" mainSoundFile="64355" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="preposition" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <xrefgrp>
+              <groupintro>(usually linked to the preceding noun) an informal form of</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.60e0" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.60e1">
+                  <xrhw publevel="1">of</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>sorta sad</exmpl>
+              </exmplunit>
+              <exmplunit publevel="2">
+                <exmpl>a kinda waste</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+    <entry homonym="4" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="symbol" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Physics:General_Physics" />
+            <defgrp>
+              <defunit>
+                <def>acceleration</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Units" />
+            <defgrp>
+              <defunit>
+                <def>are(s) (metric measure of land)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Units" />
+            <defgrp>
+              <defunit>
+                <def>atto-</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Recreation_and_Sport:Group_Games:Chess_and_Draughts" />
+            <lbsubjfld value="Leisure:Chess" />
+            <xrefgrp>
+              <groupintro>See</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.-2901" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.-2900">
+                  <xrhw publevel="2">algebraic notation</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-41e0">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-41df">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="symbol" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Music:Classical_Music" />
+            <lbsubjfld value="Mus:Music" />
+            <sensecat publevel="1">
+              <defgrp>
+                <defunit>
+                  <def>
+                    a note having a frequency of 440 hertz (
+                    <b>A above middle C</b>
+                    ) or this value multiplied or divided by any power of 2; the sixth note of the scale of C major
+                  </def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>a key, string, or pipe producing this note</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="1">
+              <defgrp>
+                <defunit>
+                  <def>the major or minor key having this note as its tonic</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Biochemistry" />
+            <defgrp>
+              <defunit>
+                <def>a human blood type of the ABO group, containing the A antigen</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Engineering:Automotive_Engineering" />
+            <defgrp>
+              <defunit>
+                <def>(in Britain) a major arterial road</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>the A3 runs from London to Portsmouth</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Performing_Arts:Film" />
+            <lbmisc>formerly, in Britain</lbmisc>
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>a film certified for viewing by anyone, but which contains material that some parents may not wish their children to see</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>
+                    (
+                    <i>as modifier</i>
+                    )
+                  </def>
+                </defunit>
+              </defgrp>
+              <exmplgrp>
+                <exmplunit publevel="2">
+                  <exmpl>an A film</exmpl>
+                </exmplunit>
+              </exmplgrp>
+            </sensecat>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Physics:General_Physics" />
+            <defgrp>
+              <defunit>
+                <def>mass number</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Mathematics" />
+            <defgrp>
+              <defunit>
+                <def>the number 10 in hexadecimal notation</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Recreation_and_Sport:Group_Games:Card_Games" />
+            <lbsubjfld value="Leisure:Cards" />
+            <defgrp>
+              <defunit>
+                <def>ace</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Chemistry" />
+            <lbsubjfld value="Sci:Chemistry" />
+            <defgrp>
+              <defunit>
+                <def>
+                  argon (now superseded by
+                  <b>Ar</b>
+                  )
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Electronics" />
+            <defgrp>
+              <defunit>
+                <def>ampere(s)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Engineering:Electrical_Engineering" />
+            <vargrp>
+              <groupintro>Also</groupintro>
+              <varunit publevel="2">
+                <var>at</var>
+              </varunit>
+            </vargrp>
+            <defgrp>
+              <defunit>
+                <def>ampere-turn</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Physics:General_Physics" />
+            <defgrp>
+              <defunit>
+                <def>absolute (temperature)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Electronics" />
+            <defgrp>
+              <defunit>
+                <def>(in circuit diagrams) ammeter</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Mathematics" />
+            <defgrp>
+              <defunit>
+                <def>area</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Physics:General_Physics" />
+            <lbgramdesc>in combination</lbgramdesc>
+            <defgrp>
+              <defunit>
+                <def>atomic</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>an A-bomb</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>an A-plant</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Chemistry" />
+            <lbsubjfld value="Sci:Chemistry" />
+            <defgrp>
+              <defunit>
+                <def>affinity</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Biochemistry" />
+            <lbsubjfld value="Sci:Biochemistry" />
+            <defgrp>
+              <defunit>
+                <def>adenine</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Philosophy:Logic" />
+            <lbsubjfld value="Lang_and_Arts:Logic" />
+            <defgrp>
+              <defunit>
+                <def>
+                  a universal affirmative categorical proposition, such as
+                  <i>all men are mortal:</i>
+                  often symbolized as
+                  <b>SaP</b>
+                </def>
+              </defunit>
+            </defgrp>
+            <xrefgrp>
+              <groupintro>Compare</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c839d1b.4bdd" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c839d1b.4bde">
+                  <xrhw publevel="1">E</xrhw>
+                </xref>
+              </xrefunit>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c87956c.-34f2" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c87956c.-34d7">
+                  <xrhw publevel="1">I</xrhw>
+                  <xrhn publevel="a">2</xrhn>
+                </xref>
+              </xrefunit>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.25b7" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.25b8">
+                  <xrhw publevel="1">O</xrhw>
+                  <xrhn publevel="a">1</xrhn>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <sensecat publevel="1">
+              <defgrp>
+                <defunit>
+                  <def>a person whose job is in top management, or who holds a senior administrative or professional position</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="1">
+              <defgrp>
+                <defunit>
+                  <def>
+                    (
+                    <i>as modifier</i>
+                    )
+                  </def>
+                </defunit>
+              </defgrp>
+              <exmplgrp>
+                <exmplunit publevel="1">
+                  <exmpl>an A worker</exmpl>
+                </exmplunit>
+              </exmplgrp>
+              <xrefgrp>
+                <groupintro>See also</groupintro>
+                <xrefunit publevel="1">
+                  <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.47ec" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.47ed">
+                    <xrhw publevel="1">occupation groupings</xrhw>
+                  </xref>
+                </xrefunit>
+              </xrefgrp>
+            </sensecat>
+          </sensecat>
+        </gramcat>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Engineering:Automotive_Engineering" />
+            <defgrp>
+              <defunit>
+                <def>Austria (international car registration)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym publevel="2">
+        from Latin
+        <i>a</i>
+        (
+        <i>ffirmo</i>
+        ) I affirm
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2" main="A">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A game</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbmod value="mainly" />
+            <lbgeo value="US" />
+            <lbgeo value="Canada" />
+            <lbregister value="informal" />
+            <defgrp>
+              <defunit>
+                <def>
+                  one's best possible performance (esp in the phrase
+                  <b>bring</b>
+                  or
+                  <b>take one's A game</b>
+                  )
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" main="A" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A road</hw>
+            <prongrp>
+              <pronunit output="digital_only">
+                <pron>eɪ rəʊd</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Science_and_Technology:Engineering:Automotive_Engineering" />
+            <defgrp>
+              <defunit>
+                <def>(in Britain) a major road that is narrower than a motorway but wider and straighter than a B road</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit output="digital_only" status="underlying">
+                <exmpl>a busy A road</exmpl>
+              </exmplunit>
+              <exmplunit output="digital_only" status="underlying">
+                <exmpl>Rural A roads are far more dangerous than motorways.</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.49de">
+    <entry main="A" publevel="2" id="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.49df">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A-sample</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Recreation_and_Sport:General_Sports:General_Sporting_Terms" />
+            <defgrp>
+              <defunit>
+                <def>the primary urine or blood sample used in doping tests in professional sports; if the A-sample tests positive, the B-sample is tested to confirm or invalidate the results</def>
+              </defunit>
+            </defgrp>
+            <xrefgrp>
+              <groupintro>See also</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c801201.-57c" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c801201.-57b">
+                  <xrhw publevel="1">B-sample</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="A" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A-side</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Music:Music_other" />
+            <defgrp>
+              <defunit>
+                <def>the side of a gramophone record regarded as the more important one</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Å</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="symbol" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Physics:General_Physics" />
+            <defgrp>
+              <defunit>
+                <def>angstrom unit</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A.</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Units" />
+            <defgrp>
+              <defunit>
+                <def>acre(s) or acreage</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>America(n)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>answer</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-40b2">
+    <entry publevel="2" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-40b1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a'</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <hw>aa</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <hw>aw</hw>
+          </hwunit>
+          <prongrp>
+            <pronunit>
+              <pron>ɔː</pron>
+              <audio lang="en-gb" mainSoundFile="03290" type="human" />
+            </pronunit>
+          </prongrp>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="determiner" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbgeo value="Britain:Scotland" />
+            <xrefgrp>
+              <groupintro>variants of</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.-1af9" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.-1af8">
+                  <xrhw publevel="1">all</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry homonym="1" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a-</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <lbgramdesc>before a vowel</lbgramdesc>
+            <hw>an-</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="prefix" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>not; without; opposite to</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>atonal</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>asocial</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        from Greek
+        <i>a-, an-</i>
+        not, without
+      </etym>
+    </entry>
+    <entry homonym="2" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>a-</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="prefix" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>on; in; towards</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>afoot</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>abed</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>aground</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>aback</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbregister value="literary" />
+            <lbmod value="or" />
+            <lbregister value="archaic" />
+            <lbgramdesc>used before a present participle</lbgramdesc>
+            <defgrp>
+              <defunit>
+                <def>in the act or process of</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>come a-running</exmpl>
+              </exmplunit>
+              <exmplunit publevel="2">
+                <exmpl>go a-hunting</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>in the condition or state of</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>afloat</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>alive</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>asleep</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-4096">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-4095">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A1</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <hw>A-1</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <hw>A-one</hw>
+          </hwunit>
+          <prongrp>
+            <pronunit>
+              <pron>ˈeɪˈwʌn</pron>
+              <audio lang="en-gb" mainSoundFile="en_gb_a1" type="tts" />
+            </pronunit>
+          </prongrp>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Social_Science_and_History:Military" />
+            <defgrp>
+              <defunit>
+                <def>in good health; physically fit</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbregister value="informal" />
+            <defgrp>
+              <defunit>
+                <def>first-class; excellent</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Transport:Nautical_Terms" />
+            <defgrp>
+              <defunit>
+                <def>(of a vessel) with hull and equipment in first-class condition</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1" output="digital_only">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A2</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Social_Science_and_History:Social_Science:Education" />
+            <lbmisc>in British education</lbmisc>
+            <defgrp>
+              <defunit>
+                <def>an advanced level of a subject taken for the General Certificate of Education, forming the second part of an A level course, after the AS level</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A2 level</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <lbmisc>in British education</lbmisc>
+          <sensecat publevel="1">
+            <ulsubjfld value="Social_Science_and_History:Social_Science:Education" />
+            <sensecat publevel="1">
+              <defgrp>
+                <defunit>
+                  <def>the second part of an A-level course, taken after the AS level examination</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="1">
+              <defgrp>
+                <defunit>
+                  <def>the examination at the end of this</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry homonym="1" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A3</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Communication_Arts:Printing_Lithography_and_Bookbinding" />
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>a standard paper size, 297 × 420 mm</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>
+                    (
+                    <i>as adjective</i>
+                    )
+                  </def>
+                </defunit>
+              </defgrp>
+              <exmplgrp>
+                <exmplunit publevel="2">
+                  <exmpl>an A3 book</exmpl>
+                </exmplunit>
+              </exmplgrp>
+            </sensecat>
+            <xrefgrp>
+              <groupintro>See also</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.58f3" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.58f4">
+                  <xrhw publevel="2">A sizes</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+    <entry homonym="2" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A3</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Telecommunications" />
+            <lbsubjfld value="Lang_and_Arts:Text_Messaging" />
+            <defgrp>
+              <defunit>
+                <def>anytime, anywhere, anyplace</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A4</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Communication_Arts:Printing_Lithography_and_Bookbinding" />
+            <sensecat publevel="1">
+              <defgrp>
+                <defunit>
+                  <def>a standard paper size, 210 × 297 mm</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>
+                    (
+                    <i>as adjective</i>
+                    )
+                  </def>
+                </defunit>
+              </defgrp>
+              <exmplgrp>
+                <exmplunit publevel="2">
+                  <exmpl>an A4 book</exmpl>
+                </exmplunit>
+              </exmplgrp>
+            </sensecat>
+            <xrefgrp>
+              <groupintro>See also</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.58f3" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.58f4">
+                  <xrhw publevel="2">A sizes</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A5</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Communication_Arts:Printing_Lithography_and_Bookbinding" />
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>a standard paper size (half A4), 148 × 210 mm</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="2">
+              <defgrp>
+                <defunit>
+                  <def>
+                    (
+                    <i>as adjective</i>
+                    )
+                  </def>
+                </defunit>
+              </defgrp>
+              <exmplgrp>
+                <exmplunit publevel="2">
+                  <exmpl>A5 notepaper</exmpl>
+                </exmplunit>
+              </exmplgrp>
+            </sensecat>
+            <xrefgrp>
+              <groupintro>See also</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.58f3" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.58f4">
+                  <xrhw publevel="2">A sizes</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry homonym="1" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aa</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈɑːɑː</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aa" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Earth_Sciences:Geological_Science" />
+            <defgrp>
+              <defunit>
+                <def>a volcanic rock consisting of angular blocks of lava with a very rough surface</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>Hawaiian</etym>
+    </entry>
+    <entry homonym="2" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aa</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>
+                  ana
+                  <sup>1</sup>
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AA</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Miscellaneous_Technologies:Brewing" />
+            <defgrp>
+              <defunit>
+                <def>Alcoholics Anonymous</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Social_Science_and_History:Military" />
+            <defgrp>
+              <defunit>
+                <def>anti-aircraft</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Fine_Arts_and_Visual_Arts:Architecture" />
+            <defgrp>
+              <defunit>
+                <def>Architectural Association</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Engineering:Automotive_Engineering" />
+            <defgrp>
+              <defunit>
+                <def>(in Britain) Automobile Association</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Business_and_Economics:Business:Marketing" />
+            <defgrp>
+              <defunit>
+                <def>(in Britain) Advertising Association</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="symbol" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Performing_Arts:Film" />
+            <defgrp>
+              <defunit>
+                <def>(in Britain, formerly) a film that may not be shown publicly to a child under fourteen</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A/A</hw>
+            <lbsubjfld value="Law:Law" />
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Social_Science_and_History:Law" />
+            <defgrp>
+              <defunit>
+                <def>articles of association</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAA</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Recreation_and_Sport:Individual_Sports_and_Recreations:Athletics_Track_and_Field" />
+            <lbmisc>in Britain</lbmisc>
+            <defgrp>
+              <defunit>
+                <def>Amateur Athletic Association</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Social_Science_and_History:Military" />
+            <defgrp>
+              <defunit>
+                <def>anti-aircraft artillery</def>
+              </defunit>
+            </defgrp>
+            <xrefgrp>
+              <groupintro>See also</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c933cf7.-710d" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c933cf7.-710c">
+                  <xrhw publevel="1">triple A</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Engineering:Automotive_Engineering" />
+            <defgrp>
+              <defunit>
+                <def>Automobile Association of America</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Engineering:Automotive_Engineering" />
+            <defgrp>
+              <defunit>
+                <def>Automobile Association of Australia</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3f64">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3f63">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aachen</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈɑːkən</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aachen" type="tts" />
+              </pronunit>
+              <pronunit>
+                <lblang value="de" />
+                <pron>ˈaːxən</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a city and spa in W Germany, in North Rhine-Westphalia: the northern capital of Charlemagne's empire. Pop: 256 605 (2003 est)</def>
+              </defunit>
+            </defgrp>
+            <vargrp>
+              <groupintro>French name</groupintro>
+              <varunit publevel="1">
+                <var>Aix-la-Chapelle</var>
+              </varunit>
+            </vargrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aadhar</hw>
+          </hwunit>
+          <hwunit form="altspelling">
+            <hw>Aadhaar</hw>
+          </hwunit>
+          <prongrp>
+            <pronunit>
+              <pron>ɑːˈdɑː</pron>
+            </pronunit>
+          </prongrp>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>a unique 12-digit number linked to personal data, issued to residents of India</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>C21: from Hindi, literally: foundation</etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aah</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ɑː</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="verb" />
+            </pospunit>
+          </pospgrp>
+          <lbgramdesc>intr</lbgramdesc>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbregister value="informal" />
+            <defgrp>
+              <defunit>
+                <def>to exclaim in pleasure or surprise</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aal</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ɑːl</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Plants" />
+            <xrefgrp>
+              <groupintro>another name for</groupintro>
+              <xrefunit publevel="4">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c87956c.6fd5" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c87956c.6fd6">
+                  <xrhw publevel="2">Indian mulberry</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>Hindi</etym>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3f49">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3f48">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aalborg</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <hw>Ålborg</hw>
+          </hwunit>
+          <prongrp>
+            <pronunit>
+              <lblang value="da" />
+              <pron>ˈɔlbɔr</pron>
+            </pronunit>
+          </prongrp>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a city and port in Denmark, in N Jutland. Pop: 121 549 (2004 est)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aalesund</hw>
+            <prongrp>
+              <pronunit>
+                <lblang value="no" />
+                <pron>ˈoːləsun</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <xrefgrp>
+              <groupintro>a variant spelling of</groupintro>
+              <xrefunit publevel="1">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.-2fdf" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7dc266.-2fde">
+                  <xrhw publevel="1">Ålesund</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aalii</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ɑːˈliːiː</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aalii" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Plants" />
+            <defgrp>
+              <defunit>
+                <def>
+                  a bushy sapindaceous shrub,
+                  <i>Dodonaea viscosa,</i>
+                  of Australia, Hawaii, Africa, and tropical America, having small greenish flowers and sticky foliage
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>Hawaiian</etym>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3f07">
+    <entry publevel="2" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3f06">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aalst</hw>
+            <prongrp>
+              <pronunit>
+                <lblang value="nl_flemish" />
+                <pron>aːlst</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aalst" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a town in central Belgium, in East Flanders province. Pop: 76 852 (2004 est)</def>
+              </defunit>
+            </defgrp>
+            <vargrp>
+              <groupintro>French name</groupintro>
+              <varunit publevel="2">
+                <var>Alost</var>
+              </varunit>
+            </vargrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="3">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aalto</hw>
+            <prongrp>
+              <pronunit>
+                <lblang value="fi" />
+                <pron>ˈɑːltɔ</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Biographical_entry:Biographies:Biography" />
+            <biography>
+              <surname>Aalto</surname>
+              <givenname>
+                <b>Alvar</b>
+              </givenname>
+              <birth>1898</birth>
+              <death>1976</death>
+              <gender>M</gender>
+              <nationality>Finnish</nationality>
+              <nationalitybirth />
+              <occupation1>ARCHITECTURE: architect</occupation1>
+              <occupation2>ARTS AND CRAFTS: furniture designer</occupation2>
+              <occupation3 />
+              <occupation4 />
+            </biography>
+            <defgrp>
+              <defunit>
+                <def>
+                  <b>Alvar</b>
+                  (
+                  <pronunit>
+                    <pron>ˈalvar</pron>
+                  </pronunit>
+                  ). 1898–1976, Finnish architect and furniture designer, noted particularly for his public and industrial buildings. He invented bent plywood furniture (1932)
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAM</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Social_Science_and_History:Military" />
+            <defgrp>
+              <defunit>
+                <def>air-to-air missile</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Telecommunications" />
+            <lbsubjfld value="Lang_and_Arts:Text_Messaging" />
+            <defgrp>
+              <defunit>
+                <def>as a matter of fact</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A &amp; E</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Medicine" />
+            <defgrp>
+              <defunit>
+                <def>Accident and Emergency (department in hospitals)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A &amp; M</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Agriculture" />
+            <defgrp>
+              <defunit>
+                <def>Agricultural and Mechanical</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Christianity:Anglicanism" />
+            <defgrp>
+              <defunit>
+                <def>Ancient and Modern (hymn book)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" main="A &amp; M" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A &amp; M college</hw>
+            <prongrp>
+              <pronunit output="digital_only">
+                <pron>eɪ ənd ɛm ˈkɒlɪdʒ</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>a university originally specializing in Agriculture and Mechanical subjects</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A &amp; P</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <lbmisc>in New Zealand</lbmisc>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Agriculture" />
+            <defgrp>
+              <defunit>
+                <def>Agricultural and Pastoral (Association, Show, etc)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A &amp; R</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Music:Classical_Music" />
+            <defgrp>
+              <defunit>
+                <def>artists and repertoire</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAP</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Communication_Arts:Journalism_and_Publishing" />
+            <defgrp>
+              <defunit>
+                <def>Australian Associated Press</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Business_and_Economics:Business:Industrial_Relations_and_HR_Terms" />
+            <defgrp>
+              <defunit>
+                <def>(in the US) affirmative action program</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAPI</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Social_Science_and_History:Social_Science:Anthropology_and_Ethnology" />
+            <defgrp>
+              <defunit>
+                <def>Asian Americans and Pacific Islanders</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAR</hw>
+            <lbsubjfld value="Gov_and_Adm:Insurance" />
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Business_and_Economics:Business:Insurance" />
+            <defgrp>
+              <defunit>
+                <def>against all risks</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aarau</hw>
+            <prongrp>
+              <pronunit>
+                <lblang value="de" />
+                <pron>ˈaːrau</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a town in N Switzerland, capital of Aargau canton: capital of the Helvetic Republic from 1798 to 1803. Pop: 15 470 (2000)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e48">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e47">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aardvark</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈɑːdˌvɑːk</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aardvark" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Animals" />
+            <defgrp>
+              <defunit>
+                <def>
+                  a nocturnal mammal,
+                  <i>Orycteropus afer,</i>
+                  the sole member of its family (
+                  <i>Orycteropodidae</i>
+                  ) and order (
+                  <i>Tubulidentata</i>
+                  ). It inhabits the grasslands of Africa, has a long snout, and feeds on termites
+                </def>
+              </defunit>
+            </defgrp>
+            <vargrp>
+              <groupintro>Also called</groupintro>
+              <varunit publevel="1">
+                <var>ant bear</var>
+              </varunit>
+            </vargrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C19: from obsolete Afrikaans, from
+        <i>aarde</i>
+        earth +
+        <i>varken</i>
+        pig
+      </etym>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e2a">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e29">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aardwolf</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈɑːdˌwʊlf</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aardwolf" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <inflgrp>
+            <lbgram value="plural" />
+            <influnit>
+              <infl type="partial">-wolves</infl>
+            </influnit>
+          </inflgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Animals" />
+            <defgrp>
+              <defunit>
+                <def>
+                  a nocturnal mammal,
+                  <i>Proteles cristatus,</i>
+                  that inhabits the plains of southern Africa and feeds on termites and insect larvae: family
+                  <i>Hyaenidae</i>
+                  (hyenas), order
+                  <i>Carnivora</i>
+                  (carnivores)
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C19: from Afrikaans, from
+        <i>aarde</i>
+        earth +
+        <i>wolf</i>
+        wolf
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aardwolves</hw>
+            <prongrp>
+              <pronunit>
+                <pron />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun:plural" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Animals" />
+            <xrefgrp>
+              <groupintro>See</groupintro>
+              <xrefunit>
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e2a" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e29">
+                  <xrhw publevel="1">aardwolf</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e0c">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3e0b">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aargau</hw>
+            <prongrp>
+              <pronunit>
+                <lblang value="de" />
+                <pron>ˈaːrɡau</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a canton in N Switzerland. Capital: Aarau. Pop: 556 200 (2002 est). Area: 1404 sq km (542 sq miles)</def>
+              </defunit>
+            </defgrp>
+            <vargrp>
+              <groupintro>French name</groupintro>
+              <varunit publevel="1">
+                <var>Argovie</var>
+              </varunit>
+            </vargrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aargh</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ɑː</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="interjection" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbregister value="informal" />
+            <defgrp>
+              <defunit>
+                <def>a cry of pain</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.1c1f">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7e3c7e.1c20">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aarhus</hw>
+          </hwunit>
+          <hwunit form="altform">
+            <hw>Århus</hw>
+          </hwunit>
+          <prongrp>
+            <pronunit>
+              <lblang value="da" />
+              <pron>ˈʌhuːs</pron>
+            </pronunit>
+          </prongrp>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a city and port in Denmark, in E Jutland. Pop: 228 547 (2004 est)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AARNet</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Social_Science_and_History:Social_Science:Education" />
+            <defgrp>
+              <defunit>
+                <def>Australian Academic Research Network</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aaron</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈɛərən</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aaron" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Religion_and_Philosophy:Christian_Religious_Writings:Bible" />
+            <lbsubjfld value="Rel:Bible:Old_Testament" />
+            <defgrp>
+              <defunit>
+                <def>the first high priest of the Israelites, brother of Moses (Exodus 4:14)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="Aaron" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aaronic</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ɛəˈrɒnɪk</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aaronic" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Christian_Religious_Writings:Bible" />
+            <defgrp>
+              <defunit>
+                <def>of or relating to Aaron, his family, or the priestly dynasty initiated by him</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Christian_Religious_Writings:Bible" />
+            <defgrp>
+              <defunit>
+                <def>of or relating to the Israelite high priesthood</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Christianity:Ecclesiastical_Terms" />
+            <defgrp>
+              <defunit>
+                <def>of or relating to the priesthood in general</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Christianity:Ecclesiastical_Terms" />
+            <defgrp>
+              <defunit>
+                <def>denoting or relating to the second order of the priesthood in the Church of Jesus Christ of Latter-Day Saints (Mormon Church)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="Aaron" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aaron's beard</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Plants" />
+            <xrefgrp>
+              <groupintro>another name for</groupintro>
+              <xrefunit publevel="1">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c8f4af2.-23c7" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c8f4af2.-23bc">
+                  <xrhw publevel="1">rose of Sharon</xrhw>
+                  <xrsns publevel="a">1</xrsns>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3d81">
+    <entry main="Aaron" publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3d80">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Aaron's rod</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Christian_Religious_Writings:Bible" />
+            <defgrp>
+              <defunit>
+                <def>the rod used by Aaron in performing a variety of miracles in Egypt. It later blossomed and produced almonds (Numbers 17)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Plants" />
+            <defgrp>
+              <defunit>
+                <def>
+                  a widespread Eurasian scrophulariaceous plant,
+                  <i>Verbascum thapsus,</i>
+                  having woolly leaves and tall erect spikes of yellow flowers
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AARP</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbmisc>in the US</lbmisc>
+            <defgrp>
+              <defunit>
+                <def>an organization that supports citizens over the age of 50</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit output="digital_only" status="underlying">
+                <exmpl>Over the next 30 years rising life expectancy and falling birthrates will combine to produce what the AARP calls a 'demographic revolution'.</exmpl>
+              </exmplunit>
+            </exmplgrp>
+            <vargrp>
+              <groupintro>Former name</groupintro>
+              <varunit>
+                <var>American Association of Retired Persons </var>
+              </varunit>
+            </vargrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aarti</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈɑːtɪ</pron>
+                <audio lang="en-gb" mainSoundFile="02664" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Religion_and_Philosophy:Non-Christian_Religions:Hinduism" />
+            <defgrp>
+              <defunit>
+                <def>a Hindu ceremony in which lights with wicks soaked in ghee are lit and offered up to one or more deities</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>C21: Hindi</etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>A'asia</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>Australasia</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aasvogel</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈɑːsˌfəʊɡəl</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Animals" />
+            <lbregister value="archaic" />
+            <defgrp>
+              <defunit>
+                <def>a South African vulture</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAU</hw>
+            <lbgeo value="US" />
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <defgrp>
+              <defunit>
+                <def>Amateur Athletic Union</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAUP</hw>
+            <lbgeo value="US" />
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <defgrp>
+              <defunit>
+                <def>American Association of University Professors</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AAVE</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Linguistics:Languages" />
+            <defgrp>
+              <defunit>
+                <def>African-American Vernacular English</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Ab</hw>
+            <prongrp>
+              <pronunit>
+                <pron>æb</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_ab" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Religion_and_Philosophy:Non-Christian_Religions:Judaism" />
+            <xrefgrp>
+              <groupintro>a variant of</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7eb475.-3233" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7eb475.-3232">
+                  <xrhw publevel="2">Av</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>AB</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Transport:Nautical_Terms" />
+            <vargrp>
+              <groupintro>Also</groupintro>
+              <varunit publevel="1">
+                <var>a.b.</var>
+              </varunit>
+            </vargrp>
+            <defgrp>
+              <defunit>
+                <def>able-bodied seaman</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Social_Science_and_History:Social_Science:Education" />
+            <defgrp>
+              <defunit>
+                <def>(in the US) Bachelor of Arts</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>(esp in postal addresses) Alberta (Canada)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="symbol" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Biochemistry" />
+            <defgrp>
+              <defunit>
+                <def>a human blood type of the ABO group, containing both the A antigen and the B antigen</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry homonym="1" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>ab-</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="prefix" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>away from; off; outside of; opposite to</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>abnormal</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>abaxial</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>aboral</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        from Latin
+        <i>ab</i>
+        away from
+      </etym>
+    </entry>
+    <entry homonym="2" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>ab-</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="prefix" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Units" />
+            <defgrp>
+              <defunit>
+                <def>denoting a cgs unit of measurement in the electromagnetic system</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>abvolt</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        abstracted from
+        <sc>absolute</sc>
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aba</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈæbə</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_aba" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Clothing_Personal_Arts_and_Crafts:Textiles" />
+            <defgrp>
+              <defunit>
+                <def>a type of cloth from Syria, made of goat hair or camel hair</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Arts:Clothing_Personal_Arts_and_Crafts:Clothing_and_Fashion" />
+            <defgrp>
+              <defunit>
+                <def>a sleeveless outer garment of such cloth</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>from Arabic</etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>ABA</hw>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="abbreviation" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Recreation_and_Sport:Individual_Sports_and_Recreations:Boxing" />
+            <defgrp>
+              <defunit>
+                <def>(in Britain) Amateur Boxing Association</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Communication_Arts:Journalism_and_Publishing" />
+            <defgrp>
+              <defunit>
+                <def>American Booksellers Association</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Psychology_and_Psychiatry:Psychiatry" />
+            <defgrp>
+              <defunit>
+                <def>applied behaviour analysis</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abac</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈeɪbæk</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abac" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Mathematics" />
+            <xrefgrp>
+              <groupintro>another name for</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.-4632" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c8bbae6.-4631">
+                  <xrhw publevel="1">nomogram</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C20: from French, from Latin
+        <sc>abacus</sc>
+      </etym>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c82">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c81">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abaca</hw>
+          </hwunit>
+          <hwunit form="altspelling">
+            <hw>abaka</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈæbəkə</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abaca" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Plants" />
+            <defgrp>
+              <defunit>
+                <def>
+                  a Philippine plant,
+                  <i>Musa textilis,</i>
+                  related to the banana: family
+                  <i>Musaceae.</i>
+                  Its leafstalks are the source of Manila hemp
+                </def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Plants" />
+            <xrefgrp>
+              <groupintro>another name for</groupintro>
+              <xrefunit publevel="1">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c89d831.4f3a" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c89d831.4f3b">
+                  <xrhw publevel="1">Manila hemp</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        via Spanish from Tagalog
+        <i>abaká</i>
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abaci</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈæbəsaɪ</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun:plural" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <xrefgrp>
+              <groupintro>See</groupintro>
+              <xrefunit>
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c1d" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c1c">
+                  <xrhw publevel="1">abacus</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aback</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbæk</pron>
+                <audio lang="en-gb" mainSoundFile="00013" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="adverb" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <idmgrp>
+              <idmunit>
+                <idm>taken aback</idm>
+              </idmunit>
+            </idmgrp>
+            <sensecat publevel="1">
+              <ulsubjfld value="General:General_Language:General_Language_Term" />
+              <defgrp>
+                <defunit>
+                  <def>startled or disconcerted</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+            <sensecat publevel="1">
+              <ulsubjfld value="Science_and_Technology:Transport:Nautical_Terms" />
+              <lbsubjfld value="Transp:Nautical" />
+              <defgrp>
+                <defunit>
+                  <def>(of a vessel or sail) having the wind against the forward side so as to prevent forward motion</def>
+                </defunit>
+              </defgrp>
+            </sensecat>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbregister value="rare" />
+            <defgrp>
+              <defunit>
+                <def>towards the back; backwards</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        Old English
+        <i>on bæc</i>
+        to the back
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abacterial</hw>
+            <prongrp>
+              <pronunit>
+                <pron>eɪbækˈtɪərɪəl</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Biology" />
+            <defgrp>
+              <defunit>
+                <def>not caused by or characterized by the presence of bacteria</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abactinal</hw>
+            <prongrp>
+              <pronunit>
+                <pron>
+                  æbˈæktɪn
+                  <sup>ə</sup>
+                  l
+                </pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abactinal" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Zoology" />
+            <lbsubjfld value="Sci:Zoology" />
+            <defgrp>
+              <defunit>
+                <def>(of organisms showing radial symmetry) situated away from or opposite to the mouth; aboral</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <subentryblk type="drv">
+        <subentry publevel="2">
+          <hwblk>
+            <hwgrp>
+              <hwunit>
+                <hw>abˈactinally</hw>
+              </hwunit>
+            </hwgrp>
+          </hwblk>
+          <pospgrp>
+            <pospunit>
+              <posp value="adverb" />
+            </pospunit>
+          </pospgrp>
+        </subentry>
+      </subentryblk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abactor</hw>
+            <prongrp>
+              <pronunit>
+                <pron>æbˈæktə</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbsubjfld value="Law:Law" />
+            <defgrp>
+              <defunit>
+                <def>a cattle thief</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c1d">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c1c">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abacus</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈæbəkəs</pron>
+                <audio lang="en-gb" mainSoundFile="00014" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <inflgrp>
+            <lbgram value="plural" />
+            <influnit>
+              <infl type="partial">-ci</infl>
+              <prongrp>
+                <pronunit type="partial">
+                  <pron>-ˌsaɪ</pron>
+                </pronunit>
+              </prongrp>
+            </influnit>
+            <influnit form="alt">
+              <infl type="partial">-cuses</infl>
+            </influnit>
+          </inflgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Mathematics" />
+            <defgrp>
+              <defunit>
+                <def>a counting device that consists of a frame holding rods on which a specific number of beads are free to move. Each rod designates a given denomination, such as units, tens, hundreds, etc, in the decimal system, and each bead represents a digit or a specific number of digits</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="Arts:Fine_Arts_and_Visual_Arts:Architecture" />
+            <lbsubjfld value="Tech:Architecture" />
+            <defgrp>
+              <defunit>
+                <def>the flat upper part of the capital of a column</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C16: from Latin, from Greek
+        <i>abax</i>
+        board covered with sand for tracing calculations, from Hebrew
+        <i>ābhāq</i>
+        dust
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Abadan</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˌæbəˈdɑːn</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abadan" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a port in SW Iran, on an island in the Shatt al Arab delta. Pop: 307 000 (2005 est)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Abaddon</hw>
+            <prongrp>
+              <pronunit>
+                <pron>
+                  əˈbæd
+                  <sup>ə</sup>
+                  n
+                </pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abaddon" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Religion_and_Philosophy:Christian_Religious_Writings:Bible" />
+            <defgrp>
+              <defunit>
+                <def>the Devil (Revelation 9:11)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Religion_and_Philosophy:Christian_Religious_Writings:Bible" />
+            <defgrp>
+              <defunit>
+                <def>(in rabbinical literature) a part of Gehenna; Hell</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>Hebrew, literally: destruction</etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abaft</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbɑːft</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abaft" type="tts" />
+              </pronunit>
+            </prongrp>
+            <lbsubjfld value="Transp:Nautical" />
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="adverb" />
+            </pospunit>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <lbgramdesc>postpositive</lbgramdesc>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Transport:Nautical_Terms" />
+            <defgrp>
+              <defunit>
+                <def>closer to the stern than to another place on a vessel</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>with the wind abaft</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="preposition" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Transport:Nautical_Terms" />
+            <defgrp>
+              <defunit>
+                <def>behind; aft of</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>abaft the mast</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C13:
+        <i>on baft; baft</i>
+        from Old English
+        <i>beæftan,</i>
+        from
+        <i>be</i>
+        by +
+        <i>æftan</i>
+        behind
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="4" output="digital_only">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abaka</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˈæbəkə</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abaca" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <xrefgrp>
+              <groupintro>another name for</groupintro>
+              <xrefunit>
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c82" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3c81">
+                  <xrhw publevel="1">abaca</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>Abakan</hw>
+            <prongrp>
+              <pronunit>
+                <lblang value="ru" />
+                <pron>abaˈkan</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Geographical_entry:Placenames:Placename" />
+            <defgrp>
+              <defunit>
+                <def>a city in S central Russia, capital of the Khakass Republic, at the confluence of the Yenisey and Abakan Rivers. Pop: 167 000 (2005 est)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3b87">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3b86">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abalone</hw>
+            <prongrp>
+              <pronunit>
+                <pron>ˌæbəˈləʊnɪ</pron>
+                <audio lang="en-gb" mainSoundFile="65343" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Animals" />
+            <defgrp>
+              <defunit>
+                <def>
+                  any of various edible marine gastropod molluscs of the genus
+                  <i>Haliotis,</i>
+                  having an ear-shaped shell that is perforated with a row of respiratory holes. The shells are used for ornament or decoration
+                </def>
+              </defunit>
+            </defgrp>
+            <vargrp>
+              <groupintro>Also called</groupintro>
+              <varunit publevel="1">
+                <var>ear shell</var>
+              </varunit>
+              <varunit publevel="1">
+                <var>haliotis</var>
+              </varunit>
+            </vargrp>
+            <xrefgrp>
+              <groupintro>See also</groupintro>
+              <xrefunit publevel="2">
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c8c3440.-11da" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c8c3440.-11d9">
+                  <xrhw publevel="1">ormer</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C19: from American Spanish
+        <i>abulón;</i>
+        origin unknown
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry output="digital_only" main="abalone" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abalone shell</hw>
+            <prongrp>
+              <pronunit output="digital_only">
+                <pron>ˌæbəˈləʊnɪ ʃɛl</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Zoology" />
+            <defgrp>
+              <defunit>
+                <def>the shell of the abalone mollusc, used for ornament or decoration</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abampere</hw>
+            <prongrp>
+              <pronunit>
+                <pron>æbˈæmpɛə</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abampere" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Mathematics_and_Measurements:Units" />
+            <defgrp>
+              <defunit>
+                <def>the cgs unit of current in the electromagnetic system; the constant current that, when flowing through two parallel straight infinitely long conductors 1 centimetre apart, will produce a force between them of 2 dynes per centimetre: equivalent to 10 amperes</def>
+              </defunit>
+            </defgrp>
+            <vargrp>
+              <varunit publevel="2" type="abbr">
+                <var>abamp</var>
+              </varunit>
+            </vargrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>aband</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbænd</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="verb" />
+            </pospunit>
+          </pospgrp>
+          <lbgramdesc>tr</lbgramdesc>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <xrefgrp>
+              <groupintro>another word for</groupintro>
+              <xrefunit>
+                <xref superentryid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3b4f" xrefid="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3b4e">
+                  <xrhw publevel="1">abandon</xrhw>
+                </xref>
+              </xrefunit>
+            </xrefgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3b4f">
+    <entry publevel="1" id="uffcfaf76bd71c570.-6a6b9a69.1430c7d68b2.-3b4e">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abandon</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbændən</pron>
+                <audio lang="en-gb" mainSoundFile="00016" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="verb" />
+            </pospunit>
+          </pospgrp>
+          <lbgramdesc>tr</lbgramdesc>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>to forsake completely; desert; leave behind</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>to abandon a baby</exmpl>
+              </exmplunit>
+              <exmplunit publevel="2">
+                <exmpl>drivers had to abandon their cars</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <idmgrp>
+              <idmunit>
+                <idm>abandon ship</idm>
+              </idmunit>
+            </idmgrp>
+            <ulsubjfld value="Science_and_Technology:Transport:Nautical_Terms" />
+            <defgrp>
+              <defunit>
+                <def>the order given to the crew of a ship that is about to sink to take to the lifeboats</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>to give up completely</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>to abandon a habit</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>to abandon hope</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>to yield control of or concern in; relinquish</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>to abandon office</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>to give up (something begun) before completion</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>to abandon a job</exmpl>
+              </exmplunit>
+              <exmplunit publevel="1">
+                <exmpl>the game was abandoned</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>to surrender (oneself) to emotion without restraint</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="Business_and_Economics:Business:Insurance" />
+            <defgrp>
+              <defunit>
+                <def>to give (insured property that has suffered partial loss or damage) to the insurers in order that a claim for a total loss may be made</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>freedom from inhibitions, restraint, concern, or worry</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>she danced with abandon</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C14:
+        <i>abandounen</i>
+        (vb), from Old French, from
+        <i>a bandon</i>
+        under one's control, in one's power, from
+        <i>a</i>
+        at, to +
+        <i>bandon</i>
+        control, power
+      </etym>
+      <subentryblk type="drv">
+        <subentry publevel="1">
+          <hwblk>
+            <hwgrp>
+              <hwunit>
+                <hw>aˈbandonment</hw>
+              </hwunit>
+            </hwgrp>
+          </hwblk>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+        </subentry>
+      </subentryblk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abandon" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abandoned</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbændənd</pron>
+                <audio lang="en-gb" mainSoundFile="00017" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>deserted</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>an abandoned windmill</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>forsaken</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="1">
+                <exmpl>an abandoned child</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>unrestrained; uninhibited</def>
+              </defunit>
+            </defgrp>
+            <exmplgrp>
+              <exmplunit publevel="2">
+                <exmpl>wild, abandoned dancing</exmpl>
+              </exmplunit>
+            </exmplgrp>
+          </sensecat>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>depraved; profligate</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abandon" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abandonedly</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbændəndlɪ</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="adverb" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>in an unrestrained manner</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abandon" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abandonee</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˌbændəˈniː</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abandonee" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Social_Science_and_History:Law" />
+            <lbsubjfld value="Law:Law" />
+            <defgrp>
+              <defunit>
+                <def>a person to whom something is formally relinquished, esp an insurer having the right to salvage a wreck</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abandon" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abandoner</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbændənə</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>a person or thing that abandons</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abandon" publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abandonware</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbændənˌwɛə</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abandonware" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Electronics_and_Computer_Science:Computer_Science" />
+            <defgrp>
+              <defunit>
+                <def>computer software which is no longer sold or supported by its publisher</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C20: from
+        <sc>abandon</sc>
+        + (
+        <sc>soft</sc>
+        )
+        <sc>ware</sc>
+      </etym>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abapical</hw>
+            <prongrp>
+              <pronunit>
+                <pron>
+                  æbˈeɪpɪk
+                  <sup>ə</sup>
+                  l
+                </pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abapical" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="Science_and_Technology:Life_Sciences_and_Allied_Applications:Biology" />
+            <lbsubjfld value="Sci:Biology" />
+            <defgrp>
+              <defunit>
+                <def>away from or opposite the apex</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="2">
+      <hwblk>
+        <hwgrp>
+          <hwunit type="foreign">
+            <hw>à bas</hw>
+            <lblang value="fr" />
+            <prongrp>
+              <pronunit>
+                <pron>a bɑ</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="2">
+          <pospgrp>
+            <pospunit>
+              <posp value="interjection" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="2">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>down with!</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abase</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbeɪs</pron>
+                <audio lang="en-gb" mainSoundFile="EN-GB-A0000007" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="verb" />
+            </pospunit>
+          </pospgrp>
+          <lbgramdesc>tr</lbgramdesc>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>to humble or belittle (oneself, etc)</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>to lower or reduce, as in rank or estimation</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C15:
+        <i>abessen,</i>
+        from Old French
+        <i>abaissier</i>
+        to make low. See
+        <sc>base</sc>
+        <sup>2</sup>
+      </etym>
+      <subentryblk type="drv">
+        <subentry publevel="1">
+          <hwblk>
+            <hwgrp>
+              <hwunit>
+                <hw>aˈbasement</hw>
+              </hwunit>
+            </hwgrp>
+          </hwblk>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+        </subentry>
+      </subentryblk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abase" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abasedly</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbeɪsɪdlɪ</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="adverb" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>in an abased manner</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abase" publevel="4">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abaser</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbeɪsə</pron>
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+          <sensecat>
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>a person who abases</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abash</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbæʃ</pron>
+                <audio lang="en-gb" mainSoundFile="en_gb_abash" type="tts" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="verb" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <lbgramdesc>tr; usually passive</lbgramdesc>
+            <defgrp>
+              <defunit>
+                <def>to cause to feel ill at ease, embarrassed, or confused; make ashamed</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <etym>
+        C14: via Norman French from Old French
+        <i>esbair</i>
+        to be astonished, from
+        <i>es-</i>
+        out +
+        <i>bair</i>
+        to gape, yawn
+      </etym>
+      <subentryblk type="drv">
+        <subentry publevel="2">
+          <hwblk>
+            <hwgrp>
+              <hwunit>
+                <hw>aˈbashment</hw>
+              </hwunit>
+            </hwgrp>
+          </hwblk>
+          <pospgrp>
+            <pospunit>
+              <posp value="noun" />
+            </pospunit>
+          </pospgrp>
+        </subentry>
+      </subentryblk>
+    </entry>
+  </superentry>
+  <superentry>
+    <entry main="abash" publevel="1">
+      <hwblk>
+        <hwgrp>
+          <hwunit>
+            <hw>abashed</hw>
+            <prongrp>
+              <pronunit>
+                <pron>əˈbæʃt</pron>
+                <audio lang="en-gb" mainSoundFile="00021" type="human" />
+              </pronunit>
+            </prongrp>
+          </hwunit>
+        </hwgrp>
+      </hwblk>
+      <datablk>
+        <gramcat publevel="1">
+          <pospgrp>
+            <pospunit>
+              <posp value="adjective" />
+            </pospunit>
+          </pospgrp>
+          <sensecat publevel="1">
+            <ulsubjfld value="General:General_Language:General_Language_Term" />
+            <defgrp>
+              <defunit>
+                <def>ill at ease, embarrassed, or confused; ashamed</def>
+              </defunit>
+            </defgrp>
+          </sensecat>
+        </gramcat>
+      </datablk>
+      <subentryblk type="drv">
+        <subentry publevel="1">
+          <hwblk>
+            <hwgrp>
+              <hwunit>
+                <hw>aˈbashedly</hw>
+              </hwunit>
+            </hwgrp>
+          </hwblk>
+          <pospgrp>
+            <pospunit>
+              <posp value="adverb" />
+            </pospunit>
+          </pospgrp>
+        </subentry>
+      </subentryblk>
+    </entry>
+  </superentry>
+</lexdataset>
