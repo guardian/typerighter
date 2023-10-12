@@ -2,7 +2,11 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { EuiFormRow, EuiComboBox } from '@elastic/eui';
 import { FormError, PartiallyUpdateRuleData } from './RuleForm';
-import { existingCategories } from '../constants/constants';
+import {
+	collinsDictionarySource,
+	dictionaryAdditionSource,
+	existingCategories,
+} from '../constants/constants';
 import { getErrorPropsForField } from './helpers/errors';
 import { Label } from './Label';
 
@@ -43,11 +47,11 @@ export const CategorySelector = ({
 	const preSelectedCategory = (currentCategory: string | undefined) => {
 		if (
 			isDictionaryRule &&
-			currentCategory !== 'Collins Dictionary' &&
-			currentCategory !== 'Guardian dictionary addition'
+			currentCategory !== collinsDictionarySource &&
+			currentCategory !== dictionaryAdditionSource
 		) {
-			partiallyUpdateRuleData({ category: 'Guardian dictionary addition' });
-			return [{ label: 'Guardian dictionary addition' }];
+			partiallyUpdateRuleData({ category: dictionaryAdditionSource });
+			return [{ label: dictionaryAdditionSource }];
 		} else if (currentCategory) {
 			return [{ label: currentCategory }];
 		} else {
