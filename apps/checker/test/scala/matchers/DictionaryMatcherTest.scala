@@ -3,12 +3,12 @@ package matchers
 import com.gu.typerighter.model.{Category, DictionaryRule, TextBlock}
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import services.MatcherRequest
+import services.{EntityHelper, MatcherRequest}
 
 class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
   "check" should "include groupKey" in {
     val exampleRule = DictionaryRule("123", "hello", Category("id", "desc"))
-    val dictionaryValidator = new DictionaryMatcher(List(exampleRule))
+    val dictionaryValidator = new DictionaryMatcher(List(exampleRule), new EntityHelper())
 
     val eventuallyMatches = dictionaryValidator.check(
       MatcherRequest(
@@ -29,7 +29,7 @@ class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
 
   "check" should "exclude matches which correspond to named entities" in {
     val exampleRule = DictionaryRule("123", "hello", Category("id", "desc"))
-    val dictionaryValidator = new DictionaryMatcher(List(exampleRule))
+    val dictionaryValidator = new DictionaryMatcher(List(exampleRule), new EntityHelper())
 
     val eventuallyMatches = dictionaryValidator.check(
       MatcherRequest(

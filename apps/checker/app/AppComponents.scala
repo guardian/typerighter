@@ -98,11 +98,13 @@ class AppComponents(
   )(matcherPoolDispatcher, materializer)
 
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
+  val entityHelper = new EntityHelper()
   val matcherProvisionerService = new MatcherProvisionerService(
     bucketRuleResource,
     matcherPool,
     languageToolFactory,
-    cloudWatchClient
+    cloudWatchClient,
+    entityHelper
   )
 
   private val ruleManagerUrl = identity match {

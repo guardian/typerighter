@@ -10,7 +10,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 class DictionaryMatcher(
-    rules: List[DictionaryRule]
+    rules: List[DictionaryRule],
+    entityHelper: EntityHelper
 ) extends Matcher {
   val language: Language = new CollinsEnglish()
   val cache: ResultCache = new ResultCache(10000)
@@ -45,7 +46,6 @@ class DictionaryMatcher(
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val entityHelper = new EntityHelper()
     val namedEntities =
       request.blocks.flatMap((block) =>
         entityHelper.getEntitiesFromText(

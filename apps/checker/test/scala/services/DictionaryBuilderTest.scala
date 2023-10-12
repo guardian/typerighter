@@ -23,7 +23,7 @@ class DictionaryBuilderTest extends AsyncFlatSpec with Matchers {
     val exampleTextBlocks = List(TextBlock("456", "angry blue crab", 0, 15))
     val exampleMatcherRequest = MatcherRequest(exampleTextBlocks)
 
-    val matcher = new DictionaryMatcher(dictionaryRules)
+    val matcher = new DictionaryMatcher(dictionaryRules, new EntityHelper())
     matcher
       .check(exampleMatcherRequest)
       .map(matches => {
@@ -39,7 +39,7 @@ class DictionaryBuilderTest extends AsyncFlatSpec with Matchers {
     val exampleTextBlocks = List(TextBlock("456", "jolly red lobster", 0, 15))
     val exampleMatcherRequest = MatcherRequest(exampleTextBlocks)
 
-    val matcher = new DictionaryMatcher(dictionaryRules)
+    val matcher = new DictionaryMatcher(dictionaryRules, new EntityHelper())
     matcher
       .check(exampleMatcherRequest)
       .map(matches => {
