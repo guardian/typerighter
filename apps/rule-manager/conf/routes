@@ -54,8 +54,8 @@ POST    /api/tags/:id                   controllers.TagsController.update(id: In
 DELETE  /api/tags/:id                   controllers.TagsController.delete(id: Int)
 
 # Map static resources from the /public folder to the correct URL path
-GET     /build/*file                    controllers.Assets.versioned(path="/public/", file: Asset)
-GET     /static/*file                   controllers.Assets.versioned(path="/public/", file: Asset)
+GET     /build/*file                   controllers.Assets.versioned(path="/public/build", file: Asset)
+GET     /static/*file                  controllers.Assets.at(path="/public/static", file)
 
 # Pass all other top level paths to the client-side app
 GET     /*path                          controllers.HomeController.index(path)
