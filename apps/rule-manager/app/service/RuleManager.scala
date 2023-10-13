@@ -252,12 +252,16 @@ object RuleManager extends Loggable {
   def publishLiveRules(
       bucketRuleResource: BucketRuleResource
   ): Either[Seq[FormError], CheckerRuleResource] = {
+    log.info(s"Publishing live rules to rules artefact")
     for {
       ruleResource <- getRuleResourceFromLiveRules()
       _ <- bucketRuleResource.putRules(ruleResource).left.map { l =>
         Seq(FormError("write-artefact-to-bucket", l.toString))
       }
-    } yield ruleResource
+    } yield {
+      log.info(s"Published ${ruleResource.rules.length} live rules to rules artefact")
+      ruleResource
+    }
   }
 
   private def getRuleResourceFromLiveRules(
@@ -284,7 +288,7 @@ object RuleManager extends Loggable {
     DbRuleLive.destroyAll()
     incomingRules
       .grouped(100)
-      .foreach(group => DbRuleDraft.batchInsert(group))
+      .foreach(group => DbRuleDraft.batchInsert(group.toList))
 
     val draftRules = DbRuleDraft.findAll()
 
@@ -415,10 +419,11 @@ object RuleManager extends Loggable {
   }
 
   def destructivelyPublishDictionaryRules(
-      words: List[String],
+      words: Set[String],
       bucketRuleResource: BucketRuleResource,
       wordsToNotPublish: List[WordTag]
   ) = {
+    log.info(s"Destroying all dictionary rules")
     // Destroy existing draft dictionary rules
     DbRuleDraft.destroyDictionaryRules()
     // Destroy existing live dictionary rules
@@ -430,7 +435,7 @@ object RuleManager extends Loggable {
       .distinct
       .filter(tagName => !availableTags.exists(tag => tag.name == tagName))
       .map(name => Tag(None, name))
-    if (tagsToAdd.size > 0) {
+    if (tagsToAdd.nonEmpty) {
       Tags.batchInsert(tagsToAdd)
       availableTags = Tags.findAll()
     }
@@ -456,19 +461,29 @@ object RuleManager extends Loggable {
         )
       }
 
-    dictionaryRules
-      .grouped(100)
-      .foreach(group => DbRuleDraft.batchInsert(group, true))
+    val groupSize = 1000
+    val groupedRules = dictionaryRules.grouped(groupSize).toList
+    groupedRules.zipWithIndex
+      .foreach { case (group, index) =>
+        log.info(s"Writing draft dictionary rules group ${index + 1}/${groupedRules.size}")
+        DbRuleDraft.batchInsert(group.toList, true)
+        log.info(s"Draft dictionary rules group ${index + 1}/${groupedRules.size} written")
+      }
 
     val liveRules = DbRuleDraft
       .findAllDictionaryRules()
       .filter(rule => !wordsToNotPublish.exists(wordTag => wordTag.word == rule.pattern.get))
       .map(_.toLive("From Collins Dictionary", true))
 
-    liveRules
-      .grouped(100)
-      .foreach(DbRuleLive.batchInsert(_))
+    val groupedLiveRules = liveRules.grouped(groupSize).toList
+    groupedLiveRules.zipWithIndex
+      .foreach { case (group, index) =>
+        log.info(s"Writing live dictionary rules group ${index + 1}/${groupedRules.size}")
+        DbRuleLive.batchInsert(group)
+        log.info(s"Live dictionary rules group ${index + 1}/${groupedRules.size} written")
+      }
 
     publishLiveRules(bucketRuleResource)
   }
+
 }

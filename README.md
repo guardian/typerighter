@@ -83,6 +83,13 @@ Both the Checker and Rule Manager services are built in Scala with the Play fram
 
 Google credentials are fetched from SSM using AWS Credentials or Instance Role.
 
+It's worth noting that, at the moment, there are a fair few assumptions built into this repository that are Guardian-specific:
+ - We assume the use of AWS cloud services, and default to the `eu-west-1` region. This is configurable on a [per-project](https://github.com/guardian/typerighter/blob/main/apps/checker/conf/application.conf) basis with the [configuration parameter `aws.region`](https://github.com/guardian/typerighter/blob/fa90ef260cd71e0f4fa1b893d7bba9b87ff828ef/apps/common-lib/src/main/scala/com/gu/typerighter/lib/CommonConfig.scala#L16).
+ - Building and deployment is handled by riff-raff, [the Guardian's deployment platform](https://github.com/guardian/riff-raff).
+ - Configuration is handled by [simple-configuration](https://github.com/guardian/simple-configuration).
+
+We'd be delighted to participate in discussions, or consider PRs, that aimed to make Typerighter easier to use in a less institionally specific context.
+
 ## Integration
 
 The [prosemirror-typerighter](https://github.com/guardian/prosemirror-typerighter) plugin provides an integration for the [Prosemirror](https://prosemirror.net) rich text editor.

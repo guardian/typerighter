@@ -22,7 +22,8 @@ class MatcherProvisionerService(
     bucketRuleResource: BucketRuleResource,
     matcherPool: MatcherPool,
     languageToolFactory: LanguageToolFactory,
-    cloudWatchClient: CloudWatchClient
+    cloudWatchClient: CloudWatchClient,
+    entityHelper: EntityHelper
 )(implicit ec: ExecutionContext)
     extends Logging
     with Runnable {

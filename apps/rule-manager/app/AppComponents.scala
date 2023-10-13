@@ -9,13 +9,13 @@ import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
 import com.gu.contentapi.client.GuardianContentClient
-import com.gu.typerighter.lib.{HMACClient, ContentClient}
+import com.gu.typerighter.lib.{ContentClient, HMACClient}
 import com.gu.typerighter.rules.BucketRuleResource
 import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
-import service.{RuleTesting, SheetsRuleResource}
+import service.{DictionaryResource, RuleTesting, SheetsRuleResource}
 import utils.{LocalStack, RuleManagerConfig}
 
 class AppComponents(
@@ -55,6 +55,7 @@ class AppComponents(
   val hmacClient = new HMACClient(stage, secretKey = config.hmacSecrets.head)
   val sheetsRuleResource = new SheetsRuleResource(config.credentials, config.spreadsheetId)
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
+  val dictionaryResource = new DictionaryResource(s3Client, typerighterBucket, stage)
   val guardianContentClient = GuardianContentClient(config.capiApiKey)
   val contentClient = new ContentClient(guardianContentClient)
   val ruleTesting = new RuleTesting(wsClient, hmacClient, contentClient, config.checkerServiceUrl)
@@ -69,6 +70,7 @@ class AppComponents(
     controllerComponents,
     sheetsRuleResource,
     bucketRuleResource,
+    dictionaryResource,
     ruleTesting,
     config
   )

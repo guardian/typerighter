@@ -73,11 +73,13 @@ val commonSettings = Seq(
     "com.gu" %% "content-api-client-aws" % "0.7",
     "com.gu" %% "content-api-client-default" % capiClientVersion,
     "com.gu" %% "panda-hmac-play_2-8" % "2.2.0",
-    "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29"
-  ),
+    "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
+    "com.scalawilliam" %% "xs4s-core" % "0.9.1",
+),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
-  )
+  ),
+  libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
 
 val commonLib = (project in file(s"$appsFolder/common-lib"))
@@ -171,7 +173,8 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "editorial-permissions-client" % "2.14",
-    )
+    ),
+    libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
   )
 
 val root = (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
