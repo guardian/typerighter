@@ -43,7 +43,7 @@ class MatcherProvisionerService(
     // and anything that isn't in the dictionary will be marked as incorrect.
     val dictionaryRules = ruleResource.rules.collect { case r: DictionaryRule => r }
     if (dictionaryRules.nonEmpty) {
-      matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules))
+      matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules, entityHelper))
     }
 
     val addedRulesErrors =
