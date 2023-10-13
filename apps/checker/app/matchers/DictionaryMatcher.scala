@@ -47,7 +47,6 @@ class DictionaryMatcher(
 
   override def check(
       request: MatcherRequest
-<<<<<<< Updated upstream
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     val eventualNamedEntities =
       Future {
@@ -82,18 +81,6 @@ class DictionaryMatcher(
         // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
         .map(ruleMatch =>
           ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText), priority = 0)
-=======
-  )(implicit ec: ExecutionContext) = {
-    // groupKey is used to control how rules are grouped in the client when they produces matches.
-    // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
-    // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
-    matcher
-      .check(request)
-      .map(ruleMatches =>
-        ruleMatches.map(ruleMatch =>
-          ruleMatch
-            .copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText), priority = 0)
->>>>>>> Stashed changes
         )
     }
   }
