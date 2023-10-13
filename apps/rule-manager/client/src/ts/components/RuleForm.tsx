@@ -220,6 +220,7 @@ export const RuleForm = ({
 
 	const hasUnsavedChanges = ruleFormData !== rule?.draft;
 	const canEditRuleContent = ruleStatus === 'draft' || ruleStatus === 'live';
+	const isDictionaryRule = ruleFormData.ruleType === 'dictionary';
 
 	return (
 		<>
@@ -249,6 +250,7 @@ export const RuleForm = ({
 									currentCategory={ruleFormData.category}
 									partiallyUpdateRuleData={partiallyUpdateRuleData}
 									validationErrors={publishValidationErrors}
+									isDictionaryRule={isDictionaryRule}
 								/>
 								<TagsSelector
 									selectedTagIds={ruleFormData.tags}

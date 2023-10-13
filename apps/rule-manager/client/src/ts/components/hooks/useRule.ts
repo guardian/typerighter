@@ -4,7 +4,7 @@ import { errorToString } from '../../utils/error';
 import { FormError } from '../RuleForm';
 import { getRuleStatus, RuleStatus } from '../../utils/rule';
 
-export type RuleType = 'regex' | 'languageToolXML';
+export type RuleType = 'regex' | 'languageToolXML' | 'dictionary';
 
 export type BaseRule = {
 	ruleType: RuleType;

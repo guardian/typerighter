@@ -38,6 +38,14 @@ class MatcherProvisionerService(
     val coreRules = ruleResource.rules.collect { case r: LTRuleCore => r }
     val coreRulesErrors = addLTMatcherToPool(matcherPool, Nil, coreRules)
 
+    // Usually we'd have a matcher per category, but dictionary matchers must reflect all
+    // dictionary rules - the dictionary has to reflect the entire corpus of the language,
+    // and anything that isn't in the dictionary will be marked as incorrect.
+    val dictionaryRules = ruleResource.rules.collect { case r: DictionaryRule => r }
+    if (dictionaryRules.nonEmpty) {
+      matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules, entityHelper))
+    }
+
     val addedRulesErrors =
       ruleResource.rules.groupBy(_.category).toList.flatMap { case (_, rules) =>
         val regexRules = rules.collect { case r: RegexRule => r }
@@ -47,10 +55,7 @@ class MatcherProvisionerService(
           val regexMatcher = new RegexMatcher(regexRules)
           matcherPool.addMatcher(regexMatcher)
         }
-        val dictionaryRules = rules.collect { case r: DictionaryRule => r }
-        if (dictionaryRules.nonEmpty) {
-          matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules, entityHelper))
-        }
+
         if (ltRules.nonEmpty) addLTMatcherToPool(matcherPool, ltRules) else Nil
       }
 
