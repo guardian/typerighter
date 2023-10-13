@@ -7,8 +7,6 @@ import opennlp.tools.util.Span
 
 case class WordInSentence(sentence: String, word: String, range: TextRange)
 
-/** A service to extract proper names from documents.
-  */
 class SentenceHelpers() {
   val sentenceInputFile = getClass.getClassLoader.getResourceAsStream(
     "resources/opennlp/opennlp-en-ud-ewt-sentence-1.0-1.9.3.bin"
