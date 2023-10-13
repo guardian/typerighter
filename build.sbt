@@ -177,14 +177,4 @@ val ruleManager = playProject(
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
   )
 
-val root = (project in file(".")).aggregate(commonLib, checker, ruleManager).enablePlugins(RiffRaffArtifact)
-
-riffRaffArtifactResources := Seq(
-  (checker / Debian / packageBin).value  -> s"${(checker / packageName).value}/${(checker / packageName).value}.deb",
-  (ruleManager / Debian / packageBin).value  -> s"${(ruleManager / packageName).value}/${(ruleManager / packageName).value}.deb",
-  baseDirectory.value / "riff-raff.yaml" -> "riff-raff.yaml",
-  baseDirectory.value / "cdk/cdk.out/typerighter-CODE.template.json" -> "typerighter-cloudformation/typerighter-CODE.template.json",
-  baseDirectory.value / "cdk/cdk.out/typerighter-PROD.template.json" -> "typerighter-cloudformation/typerighter-PROD.template.json"
-)
-
-riffRaffManifestProjectName := s"Editorial Tools::Typerighter"
+val root = (project in file(".")).aggregate(commonLib, checker, ruleManager)

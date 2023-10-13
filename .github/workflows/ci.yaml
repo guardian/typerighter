@@ -53,7 +53,25 @@ jobs:
       - name: test and build sbt
         run: |
           set -e
-          # Ensure we don't overwrite existing (Teamcity) builds.
-          LAST_TEAMCITY_BUILD=1280
-          export GITHUB_RUN_NUMBER=$(( $GITHUB_RUN_NUMBER + $LAST_TEAMCITY_BUILD ))
-          sbt clean compile test scalafmtCheckAll riffRaffUpload
+          sbt clean compile test scalafmtCheckAll Debian/packageBin
+
+      - name: rename checker debian artifact
+        run: mv apps/checker/target/checker_1.0-SNAPSHOT_all.deb target/typerighter-checker.deb
+
+      - name: rename rule manager debian artifact
+        run: mv apps/rule-manager/target/rule-manager_1.0-SNAPSHOT_all.deb target/typerighter-rule-manager.deb
+
+      - name: upload to riff-raff
+        uses: guardian/actions-riff-raff@v2
+        with:
+          configPath: riff-raff.yaml
+          projectName: Editorial Tools::Typerighter
+          buildNumberOffset: 1280 # This is the last build number from TeamCity
+          contentDirectories: |
+            typerighter-checker:
+            - target/typerighter-checker.deb
+            typerighter-rule-manager:
+            - target/typerighter-rule-manager.deb
+            typerighter-cloudformation:
+            - cdk/cdk.out/typerighter-PROD.template.json
+            - cdk/cdk.out/typerighter-CODE.template.json
