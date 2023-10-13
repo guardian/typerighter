@@ -58,7 +58,8 @@ class RegexMatcherTest extends AsyncFlatSpec with Matchers {
     suggestions = rule.suggestions,
     replacement = replacement.map(TextSuggestion(_)),
     matchContext = Text.getMatchTextSnippet(before, text, after),
-    markAsCorrect = markAsCorrect
+    markAsCorrect = markAsCorrect,
+    priority = 1
   )
 
   def checkTextWithRegex(

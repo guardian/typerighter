@@ -71,7 +71,7 @@ case class RegexRule(
       start: Int,
       end: Int,
       block: TextBlock,
-      isStartOfSentence: Boolean = false,
+      isStartOfSentence: Boolean = false
   ): RuleMatch = {
     val matchedText = block.text.substring(start, end)
     val transformedReplacement = replacement.map { r =>
