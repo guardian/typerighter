@@ -55,7 +55,8 @@ case class RuleMatch(
     replacement: Option[Suggestion] = None,
     markAsCorrect: Boolean = false,
     matchContext: String,
-    groupKey: Option[String] = None
+    groupKey: Option[String] = None,
+    priority: Int = 0
 ) {
   val derivedGroupKey = groupKey.getOrElse(rule.id)
 

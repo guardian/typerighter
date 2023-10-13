@@ -19,9 +19,6 @@ import scala.jdk.CollectionConverters._
 sealed trait CheckerRule {
   val id: String
   val category: Category
-  // Rules with a larger priority will overrule those with a lower priority
-  // that match the same range of text
-  val priority: Int = 0
 }
 
 object CheckerRule {
@@ -70,12 +67,11 @@ case class RegexRule(
     replacement: Option[TextSuggestion] = None,
     regex: ComparableRegex
 ) extends CheckerRule {
-  override val priority = 1
   def toMatch(
       start: Int,
       end: Int,
       block: TextBlock,
-      isStartOfSentence: Boolean = false
+      isStartOfSentence: Boolean = false,
   ): RuleMatch = {
     val matchedText = block.text.substring(start, end)
     val transformedReplacement = replacement.map { r =>
@@ -98,7 +94,8 @@ case class RegexRule(
       replacement = transformedReplacement,
       markAsCorrect =
         transformedReplacement.map(_.text).getOrElse("") == block.text.substring(start, end),
-      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText)
+      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
+      priority = 1
     )
   }
 }
@@ -136,10 +133,6 @@ case class LTRule(
     suggestions: List[TextSuggestion]
 ) extends CheckerRule {
   val replacement: Option[TextSuggestion] = None
-  // As dictionary matches occur in a LanguageTool instance - they will appear as LTRule
-  // instances in RuleMatch instances, we want them to have a lower priority than
-  // other language tool rules
-  override val priority = if (id == "MORFOLOGIK_RULE_COLLINS") 0 else 2
 }
 
 object LTRule {

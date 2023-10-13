@@ -353,7 +353,7 @@ class MatcherPool(
   }
 
   private def removeOverlappingMatches(matches: List[RuleMatch]) = {
-    val matchesByPriority = matches.groupBy(_.rule.priority).toList
+    val matchesByPriority = matches.groupBy(_.priority).toList
 
     val sortedMatches = matchesByPriority.sortBy(_._1)
 

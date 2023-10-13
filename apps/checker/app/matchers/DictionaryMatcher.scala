@@ -43,7 +43,7 @@ class DictionaryMatcher(
       .check(request)
       .map(ruleMatches =>
         ruleMatches.map(ruleMatch =>
-          ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText))
+          ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText), priority = 0)
         )
       )
   }
