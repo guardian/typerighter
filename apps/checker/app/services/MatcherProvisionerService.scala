@@ -22,7 +22,8 @@ class MatcherProvisionerService(
     bucketRuleResource: BucketRuleResource,
     matcherPool: MatcherPool,
     languageToolFactory: LanguageToolFactory,
-    cloudWatchClient: CloudWatchClient
+    cloudWatchClient: CloudWatchClient,
+    entityHelper: EntityHelper
 )(implicit ec: ExecutionContext)
     extends Logging
     with Runnable {
@@ -48,7 +49,7 @@ class MatcherProvisionerService(
         }
         val dictionaryRules = rules.collect { case r: DictionaryRule => r }
         if (dictionaryRules.nonEmpty) {
-          matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules))
+          matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules, entityHelper))
         }
         if (ltRules.nonEmpty) addLTMatcherToPool(matcherPool, ltRules) else Nil
       }

@@ -5,11 +5,11 @@ import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.model.Document
 import com.gu.typerighter.rules.BucketRuleResource
 import play.api.libs.json.{JsValue, Json}
-import db.{DbRuleDraft}
+import db.DbRuleDraft
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
 import service.RuleManager.revertDraftRule
-import service.{RuleManager, RuleTesting, SheetsRuleResource, TestRuleCapiQuery}
+import service.{DictionaryResource, RuleManager, RuleTesting, SheetsRuleResource, TestRuleCapiQuery}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -21,6 +21,7 @@ class RulesController(
     controllerComponents: ControllerComponents,
     sheetsRuleResource: SheetsRuleResource,
     bucketRuleResource: BucketRuleResource,
+    dictionaryResource: DictionaryResource,
     ruleTesting: RuleTesting,
     val config: RuleManagerConfig
 )(implicit ec: ExecutionContext)
@@ -52,8 +53,8 @@ class RulesController(
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to refresh dictionary rules")
       case true =>
-        val wordsOrError = bucketRuleResource.getDictionaryWords()
-        val wordsToNotPublish = bucketRuleResource.getWordsToNotPublish()
+        val wordsOrError = dictionaryResource.getDictionaryWords()
+        val wordsToNotPublish = dictionaryResource.getWordsToNotPublish()
 
         val newRuleWords =
           wordsOrError.flatMap(words =>

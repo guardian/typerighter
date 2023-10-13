@@ -1,17 +1,20 @@
 package matchers
 
-import com.gu.typerighter.model.{Category, DictionaryRule}
+import com.gu.typerighter.model.{Category, DictionaryRule, RuleMatch}
 import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
+import play.api.Logging
 import services.collins.{CollinsEnglish, MorfologikCollinsSpellerRule, SpellDictionaryBuilder}
-import services.MatcherRequest
+import services.{EntityHelper, EntityInText, MatcherRequest}
 import utils.Matcher
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.ListHasAsScala
 
 class DictionaryMatcher(
-    rules: List[DictionaryRule]
-) extends Matcher {
+    rules: List[DictionaryRule],
+    entityHelper: EntityHelper
+) extends Matcher
+    with Logging {
   val language: Language = new CollinsEnglish()
   val cache: ResultCache = new ResultCache(10000)
   val userConfig: UserConfig = new UserConfig()
@@ -33,19 +36,53 @@ class DictionaryMatcher(
 
   val matcher = new LanguageToolMatcher(instance)
 
+  def matchFallsWithinNamedEntityRange(
+      ruleMatch: RuleMatch,
+      entities: List[EntityInText]
+  ): Boolean = {
+    entities.exists(entity =>
+      entity.range.from == ruleMatch.fromPos && entity.range.to == ruleMatch.toPos
+    )
+  }
+
   override def check(
       request: MatcherRequest
-  )(implicit ec: ExecutionContext) = {
-    // groupKey is used to control how rules are grouped in the client when they produces matches.
-    // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
-    // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
-    matcher
-      .check(request)
-      .map(ruleMatches =>
-        ruleMatches.map(ruleMatch =>
+  )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
+    val eventualNamedEntities =
+      Future {
+        request.blocks.flatMap((block) =>
+          entityHelper.getEntitiesFromText(
+            text = block.text,
+            offset = block.from
+          )
+        )
+      }
+
+    val eventualMatches = matcher.check(request)
+
+    for {
+      namedEntities <- eventualNamedEntities
+      matches <- eventualMatches
+    } yield {
+      matches
+        // Remove matches which correspond to named entities. This should reduce the number of false-positives
+        // caused by proper nouns
+        .filter(ruleMatch => {
+          val shouldIncludeMatch = !matchFallsWithinNamedEntityRange(ruleMatch, namedEntities)
+          if (!shouldIncludeMatch) {
+            logger.info(
+              s"Dropping match for ruleId: ${ruleMatch.rule.id} for text: ${ruleMatch.precedingText}[${ruleMatch.matchedText}]${ruleMatch.subsequentText}, as it's been tagged as an entity"
+            )
+          }
+          shouldIncludeMatch
+        })
+        // groupKey is used to control how rules are grouped in the client when they produces matches.
+        // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
+        // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
+        .map(ruleMatch =>
           ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText), priority = 0)
         )
-      )
+    }
   }
 
   def getCategories() = instance.getAllActiveRules.asScala.toList.map { rule =>
