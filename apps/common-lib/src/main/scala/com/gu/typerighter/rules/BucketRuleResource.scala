@@ -11,7 +11,7 @@ import java.io.{BufferedReader, InputStreamReader}
 import java.util.Date
 import scala.collection.mutable.ArrayBuffer
 
-class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging  {
+class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules-seq.json"
 
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
@@ -19,7 +19,6 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
     ruleResource.rules.foreach(rule => {
       ruleJsonBytes ++= JsonHelpers.toNewlineDeliniatedJson(rule).getBytes()
     })
-    logOnError(
     logOnError(
       s"writing rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleJsonBytes.hashCode}"
     ) {
@@ -33,12 +32,13 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   }
 
   def getRules(): Either[Exception, (List[CheckerRule], Date)] = {
-      val rules = s3.getObject(bucketName, RULES_KEY)
-      val lastModified = rules.getObjectMetadata.getLastModified
-      val rulesStream = rules.getObjectContent()
-      val rulesArray = ArrayBuffer[CheckerRule]()
-      val reader = new BufferedReader(new InputStreamReader(rulesStream))
-      val error = try {
+    val rules = s3.getObject(bucketName, RULES_KEY)
+    val lastModified = rules.getObjectMetadata.getLastModified
+    val rulesStream = rules.getObjectContent()
+    val rulesArray = ArrayBuffer[CheckerRule]()
+    val reader = new BufferedReader(new InputStreamReader(rulesStream))
+    val error =
+      try {
         reader.lines.forEach(line => {
           rulesArray += Json.parse(line).as[CheckerRule]
         })
@@ -49,11 +49,11 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
           Some(e)
       }
 
-      logger.info(s"Got rules from S3. JSON hash: ${rules.hashCode()}")
-      error match {
-        case None => Right((rulesArray.toList, lastModified))
-        case Some(error) => Left(error)
-      }
+    logger.info(s"Got rules from S3. JSON hash: ${rules.hashCode()}")
+    error match {
+      case None        => Right((rulesArray.toList, lastModified))
+      case Some(error) => Left(error)
+    }
   }
 
   def getRulesLastModified: Either[Exception, Date] = {
