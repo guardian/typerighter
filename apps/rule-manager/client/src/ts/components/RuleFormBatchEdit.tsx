@@ -102,6 +102,7 @@ export const RuleFormBatchEdit = ({
 						<CategorySelector
 							currentCategory={ruleFormData[0]?.category}
 							partiallyUpdateRuleData={partiallyUpdateRuleData}
+							isDictionaryRule={false}
 						/>
 						<TagsSelector
 							selectedTagIds={uniqueTagIds}

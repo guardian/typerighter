@@ -2,7 +2,11 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { EuiFormRow, EuiComboBox } from '@elastic/eui';
 import { FormError, PartiallyUpdateRuleData } from './RuleForm';
-import { existingCategories } from '../constants/constants';
+import {
+	collinsDictionarySource,
+	dictionaryAdditionSource,
+	existingCategories,
+} from '../constants/constants';
 import { getErrorPropsForField } from './helpers/errors';
 import { Label } from './Label';
 
@@ -12,10 +16,12 @@ export const CategorySelector = ({
 	currentCategory,
 	partiallyUpdateRuleData,
 	validationErrors,
+	isDictionaryRule,
 }: {
 	currentCategory: string | undefined;
 	partiallyUpdateRuleData: PartiallyUpdateRuleData;
 	validationErrors?: FormError[];
+	isDictionaryRule: boolean;
 }) => {
 	// This is an array in order to match the expected type for EuiComboBox, but
 	// it will never have more than one category selected
@@ -38,6 +44,21 @@ export const CategorySelector = ({
 
 	const categoryErrors = getErrorPropsForField('category', validationErrors);
 
+	const preSelectedCategory = (currentCategory: string | undefined) => {
+		if (
+			isDictionaryRule &&
+			currentCategory !== collinsDictionarySource &&
+			currentCategory !== dictionaryAdditionSource
+		) {
+			partiallyUpdateRuleData({ category: dictionaryAdditionSource });
+			return [{ label: dictionaryAdditionSource }];
+		} else if (currentCategory) {
+			return [{ label: currentCategory }];
+		} else {
+			return [];
+		}
+	};
+
 	return (
 		<EuiFormRow
 			label={<Label text="Source" required={true} />}
@@ -47,11 +68,12 @@ export const CategorySelector = ({
 			<EuiComboBox
 				options={categories}
 				singleSelection={singleSelectionOptions}
-				selectedOptions={currentCategory ? [{ label: currentCategory }] : []}
+				selectedOptions={preSelectedCategory(currentCategory)}
 				onChange={onChange}
 				isClearable={true}
 				isCaseSensitive
 				fullWidth={true}
+				isDisabled={isDictionaryRule}
 				{...categoryErrors}
 			/>
 		</EuiFormRow>

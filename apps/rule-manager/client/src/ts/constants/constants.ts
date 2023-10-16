@@ -3,6 +3,8 @@ export const colors = {
 	backgroundColorLight: '#DBDBDB',
 };
 
+export const collinsDictionarySource = 'Collins Dictionary';
+export const dictionaryAdditionSource = 'Guardian dictionary addition';
 export const existingTags = [
 	'SG',
 	'General',
@@ -48,5 +50,5 @@ export const existingCategories = [
 	'Typography',
 	'Dates',
 	'Style Guide',
-	'Collins',
+	dictionaryAdditionSource,
 ];

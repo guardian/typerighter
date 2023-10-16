@@ -37,6 +37,10 @@ export const ruleTypeOptions: RuleTypeOption[] = [
 		id: 'languageToolXML',
 		label: 'LanguageTool',
 	},
+	{
+		id: 'dictionary',
+		label: 'Dictionary',
+	},
 ];
 
 export const RuleContent = ({
@@ -64,6 +68,7 @@ export const RuleContent = ({
 	};
 
 	const patternErrors = getErrorPropsForField('pattern', validationErrors);
+	const isDictionaryRule = ruleFormData.ruleType === 'dictionary';
 
 	return (
 		<RuleFormSection
@@ -80,55 +85,58 @@ export const RuleContent = ({
 		>
 			<LineBreak />
 			<EuiFlexItem>
-				<EuiFormRow
-					label={
-						<div>
-							Description&nbsp;
-							<EuiIconTip
-								content="Supports Markdown syntax for making text bold or italic"
-								position="right"
-								type="iInCircle"
-								size="s"
-							/>
-						</div>
-					}
-					labelAppend={
-						<EuiText size="xs">
-							<EuiLink onClick={handleButtonClick}>
-								Preview&nbsp;
-								<EuiIcon
-									type={showMarkdownPreview ? 'eyeClosed' : 'eye'}
+				{!isDictionaryRule && (
+					<EuiFormRow
+						label={
+							<div>
+								Description&nbsp;
+								<EuiIconTip
+									content="Supports Markdown syntax for making text bold or italic"
+									position="right"
+									type="iInCircle"
 									size="s"
 								/>
-							</EuiLink>
-						</EuiText>
-					}
-					helpText="What will the users see in Composer?"
-					fullWidth={true}
-				>
-					{!showMarkdownPreview ? (
-						<EuiTextArea
-							value={ruleFormData.description || ''}
-							onChange={(_) =>
-								partiallyUpdateRuleData({ description: _.target.value })
-							}
-							fullWidth={true}
-							compressed={true}
-						/>
-					) : (
-						<EuiMarkdownFormat
-							textSize="relative"
-							color="default"
-							aria-label="Description editor"
-							css={css`
-								background-color: rgb(251 252 253 / 50%);
-								padding: 8px;
-							`}
-						>
-							{ruleFormData.description || ''}
-						</EuiMarkdownFormat>
-					)}
-				</EuiFormRow>
+							</div>
+						}
+						labelAppend={
+							<EuiText size="xs">
+								<EuiLink onClick={handleButtonClick}>
+									Preview&nbsp;
+									<EuiIcon
+										type={showMarkdownPreview ? 'eyeClosed' : 'eye'}
+										size="s"
+									/>
+								</EuiLink>
+							</EuiText>
+						}
+						helpText="What will the users see in Composer?"
+						fullWidth={true}
+						isDisabled={isDictionaryRule}
+					>
+						{!showMarkdownPreview ? (
+							<EuiTextArea
+								value={ruleFormData.description || ''}
+								onChange={(_) =>
+									partiallyUpdateRuleData({ description: _.target.value })
+								}
+								fullWidth={true}
+								compressed={true}
+							/>
+						) : (
+							<EuiMarkdownFormat
+								textSize="relative"
+								color="default"
+								aria-label="Description editor"
+								css={css`
+									background-color: rgb(251 252 253 / 50%);
+									padding: 8px;
+								`}
+							>
+								{ruleFormData.description || ''}
+							</EuiMarkdownFormat>
+						)}
+					</EuiFormRow>
+				)}
 				<EuiSpacer size="m" />
 				<EuiFormLabel>Rule type</EuiFormLabel>
 				<EuiRadioGroup
@@ -159,19 +167,22 @@ export const RuleContent = ({
 						{...patternErrors}
 					/>
 				</EuiFormRow>
-				<EuiFormRow
-					label="Replacement"
-					helpText="What is the ideal term as per the house style?"
-					fullWidth={true}
-				>
-					<EuiFieldText
-						value={ruleFormData.replacement || ''}
-						onChange={(_) =>
-							partiallyUpdateRuleData({ replacement: _.target.value })
-						}
+				{!isDictionaryRule && (
+					<EuiFormRow
+						label="Replacement"
+						helpText="What is the ideal term as per the house style?"
 						fullWidth={true}
-					/>
-				</EuiFormRow>
+						isDisabled={isDictionaryRule}
+					>
+						<EuiFieldText
+							value={ruleFormData.replacement || ''}
+							onChange={(_) =>
+								partiallyUpdateRuleData({ replacement: _.target.value })
+							}
+							fullWidth={true}
+						/>
+					</EuiFormRow>
+				)}
 			</EuiFlexItem>
 		</RuleFormSection>
 	);

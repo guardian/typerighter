@@ -12,7 +12,7 @@ import com.gu.typerighter.model.{
   WordTag
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tags, Tag}
+import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tag, Tags}
 import db.DbRuleDraft.autoSession
 import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, RegexRuleForm}
 import play.api.data.FormError
