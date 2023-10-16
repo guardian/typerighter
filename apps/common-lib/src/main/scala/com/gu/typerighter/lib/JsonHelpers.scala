@@ -14,6 +14,9 @@ object JsonHelpers {
   def toJsonSeq[T](serializable: T)(implicit tjs: Writes[T]) =
     Json.toJson(serializable).toString() + recordSeparatorChar
 
+  def toNewlineDeliniatedJson[T](serializable: T)(implicit tjs: Writes[T]) =
+    Json.toJson(serializable).toString() + "\n"
+
   val JsonSeqFraming: Flow[ByteString, ByteString, NotUsed] =
     Framing.delimiter(ByteString(recordSeparatorChar), Int.MaxValue, true)
 }
