@@ -60,7 +60,7 @@ class MatcherProvisionerService(
       }
 
     lastModified = date
-    cloudWatchClient.putMetric(Metrics.RulesIngested, matcherPool.getCurrentRules.size)
+    cloudWatchClient.putMetric(Metrics.RulesIngested, matcherPool.getCurrentRuleCount)
 
     coreRulesErrors ++ addedRulesErrors match {
       case Nil => Right(())

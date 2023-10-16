@@ -20,9 +20,9 @@ class HomeController(
 
   def healthcheck() = Action {
     {
-      val rules = matcherPool.getCurrentRules
+      val ruleCount = matcherPool.getCurrentRuleCount
 
-      if (rules.isEmpty) {
+      if (ruleCount == 0) {
         val errorMsg = "No rules found in S3"
         log.error(errorMsg)
         InternalServerError(
