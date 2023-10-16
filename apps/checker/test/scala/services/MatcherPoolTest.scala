@@ -551,7 +551,7 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   it should "remove the RuleMatch of lower priority when two RuleMatches overlap" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
-    val expectedToBeIgnored = getResponses(List((0, 5, "test-response")),1, 0)
+    val expectedToBeIgnored = getResponses(List((0, 5, "test-response")), 1, 0)
     val expectedResult = getResponses(List((1, 6, "test-response-2")), 1, 1)
     val overlappingResponses = List(
       expectedToBeIgnored,
@@ -566,7 +566,12 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   it should "not remove a RuleMatch when two RuleMatches cover distinct ranges" in {
     val matchers = getMatchers(1)
     val pool = getPool(matchers)
-    val distinctRangeResponses = getResponses(List((0, 5, "test-response"), (6, 10, "test-response")))
+    val ruleMatchOne = getResponses(List((0, 5, "test-response")), 1, 0)
+    val ruleMatchTwo = getResponses(List((6, 10, "test-response-2")), 1, 1)
+    val distinctRangeResponses = List(
+      ruleMatchOne,
+      ruleMatchTwo
+    ).flatten
 
     val result = pool.removeOverlappingMatches(distinctRangeResponses)
 
