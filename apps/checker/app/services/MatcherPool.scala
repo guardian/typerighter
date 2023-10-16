@@ -237,6 +237,10 @@ class MatcherPool(
     matchers.values.flatMap { matcher => matcher.getRules() }.toList
   }
 
+  def getCurrentRuleCount: Int = {
+    matchers.values.map { _.getRules().size }.sum
+  }
+
   private def createJobsFromPartialJobs(
       requestId: String,
       documentId: Option[String],

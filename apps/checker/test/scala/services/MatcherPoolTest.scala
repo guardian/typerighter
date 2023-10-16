@@ -6,7 +6,9 @@ import com.gu.typerighter.model.{
   Category,
   CheckSingleRule,
   CheckSingleRuleResult,
+  CheckerRule,
   ComparableRegex,
+  DictionaryRule,
   Document,
   RegexRule,
   RuleMatch,
@@ -38,7 +40,7 @@ class MockMatcher(id: Int) extends Matcher {
 
   def getType() = s"mock-matcher-$id"
   def getCategories() = Set(Category(s"mock-category-$id", "Mock category"))
-  def getRules() = List.empty
+  def getRules(): List[CheckerRule] = List.empty
 
   def check(request: MatcherRequest)(implicit ec: ExecutionContext) = {
     val promise = Promise[List[RuleMatch]]()
@@ -80,6 +82,12 @@ class MockMatcherThatThrows(e: Throwable) extends Matcher {
       throw e
     }
   }
+}
+
+class MockMatcherWithRules(id: Int, ruleCount: Int) extends MockMatcher(id) {
+  override def getRules() = (1 to ruleCount).map { ruleId =>
+    DictionaryRule(ruleId.toString, s"word-${ruleId}", Category("category", "category"))
+  }.toList
 }
 
 class MatcherPoolTest extends AsyncFlatSpec with Matchers {
@@ -190,6 +198,19 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
     val pool = getPool(matchers)
     pool.removeAllMatchers()
     pool.getCurrentCategories should be(Set.empty)
+  }
+
+  behavior of "getCurrentRuleCount"
+
+  it should "return the number of rules across all matches" in {
+    val matchers = getPool(
+      List(
+        new MockMatcherWithRules(1, 2),
+        new MockMatcherWithRules(1, 3)
+      )
+    )
+
+    matchers.getCurrentRuleCount shouldBe 5
   }
 
   behavior of "check"
