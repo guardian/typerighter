@@ -67,7 +67,6 @@ case class RegexRule(
     replacement: Option[TextSuggestion] = None,
     regex: ComparableRegex
 ) extends CheckerRule {
-
   def toMatch(
       start: Int,
       end: Int,
@@ -95,7 +94,8 @@ case class RegexRule(
       replacement = transformedReplacement,
       markAsCorrect =
         transformedReplacement.map(_.text).getOrElse("") == block.text.substring(start, end),
-      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText)
+      matchContext = Text.getMatchTextSnippet(precedingText, matchedText, subsequentText),
+      priority = 1
     )
   }
 }

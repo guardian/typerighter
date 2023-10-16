@@ -135,7 +135,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
   private def getResponses(
       ruleSpec: List[(Int, Int, String)],
-      categoryId: Int = 0
+      categoryId: Int = 0,
+      priority: Int = 0
   ): List[RuleMatch] = {
     ruleSpec.map { case (from, to, message) =>
       RuleMatch(
@@ -146,7 +147,8 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
         subsequentText = "",
         matchedText = "placeholder text",
         message = message,
-        matchContext = "[placeholder text]"
+        matchContext = "[placeholder text]",
+        priority = priority
       )
     }
   }
@@ -331,22 +333,6 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
 
     futureResult.map { result =>
       result.categoryIds shouldBe expectedCategories
-    }
-  }
-
-  it should "correctly check multiple categories for a single job don't overlap" in {
-    val matchers = getMatchers(2)
-    val pool = getPool(matchers, 4, 100, MatcherPool.blockLevelCheckStrategy)
-    val firstMatch = getResponses(List((0, 5, "test-response")), 0)
-    val secondMatch = getResponses(List((0, 5, "test-response-2")), 1)
-    matchers(0).completeWith(firstMatch)
-    matchers(1).completeWith(secondMatch)
-
-    val futureResult = pool.check(getCheck(text = "Example text"))
-
-    futureResult.map { result =>
-      result.matches.size shouldMatchTo (1)
-      result.matches shouldMatchTo (secondMatch)
     }
   }
 
@@ -579,5 +565,37 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
       result(0).percentageRequestComplete shouldBe Some(50)
       result(1).percentageRequestComplete shouldBe Some(100)
     }
+  }
+
+  behavior of "removeOverlappingMatches"
+
+  it should "remove the RuleMatch of lower priority when two RuleMatches overlap" in {
+    val matchers = getMatchers(1)
+    val pool = getPool(matchers)
+    val expectedToBeIgnored = getResponses(List((0, 5, "test-response")), 1, 0)
+    val expectedResult = getResponses(List((1, 6, "test-response-2")), 1, 1)
+    val overlappingResponses = List(
+      expectedToBeIgnored,
+      expectedResult
+    ).flatten
+
+    val result = pool.removeOverlappingMatches(overlappingResponses)
+
+    result shouldBe expectedResult
+  }
+
+  it should "not remove a RuleMatch when two RuleMatches cover distinct ranges" in {
+    val matchers = getMatchers(1)
+    val pool = getPool(matchers)
+    val ruleMatchOne = getResponses(List((0, 5, "test-response")), 1, 0)
+    val ruleMatchTwo = getResponses(List((6, 10, "test-response-2")), 1, 1)
+    val distinctRangeResponses = List(
+      ruleMatchOne,
+      ruleMatchTwo
+    ).flatten
+
+    val result = pool.removeOverlappingMatches(distinctRangeResponses)
+
+    result shouldBe distinctRangeResponses
   }
 }

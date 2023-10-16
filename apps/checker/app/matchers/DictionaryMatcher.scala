@@ -80,7 +80,8 @@ class DictionaryMatcher(
         // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)
         // groupKeys for dictionary matches have the format `MORFOLOGIK_RULE_COLLINS-{matchedText}`
         .map(ruleMatch =>
-          ruleMatch.copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText))
+          ruleMatch
+            .copy(groupKey = Some(ruleMatch.rule.id + '-' + ruleMatch.matchedText), priority = 0)
         )
     }
   }

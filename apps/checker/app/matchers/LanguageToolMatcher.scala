@@ -188,7 +188,8 @@ class LanguageToolMatcher(instance: JLanguageTool) extends Matcher {
         instance.check(block.text).asScala.map(RuleMatch.fromLT(_, block)).toList.map { ruleMatch =>
           ruleMatch.copy(
             fromPos = ruleMatch.fromPos + block.from,
-            toPos = ruleMatch.toPos + block.from
+            toPos = ruleMatch.toPos + block.from,
+            priority = 2
           )
         }
       }
