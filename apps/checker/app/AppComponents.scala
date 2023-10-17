@@ -98,7 +98,7 @@ class AppComponents(
   )(matcherPoolDispatcher, materializer)
 
   val bucketRuleResource = new BucketRuleResource(s3Client, typerighterBucket, stage)
-  val entityHelper = new EntityHelper()
+  val entityHelper = new EntityHelper(wsClient)
   val matcherProvisionerService = new MatcherProvisionerService(
     bucketRuleResource,
     matcherPool,

@@ -59,34 +59,34 @@ class DictionaryMatcher(
       entities: List[EntityInText]
   ): Boolean = {
     entities.exists(entity =>
-      entity.range.from == ruleMatch.fromPos && entity.range.to == ruleMatch.toPos
+      entity.range.from <= ruleMatch.fromPos && entity.range.to >= ruleMatch.toPos
+    )
+  }
+
+  def matchFallsWithinNamedEntity(
+      ruleMatch: RuleMatch,
+      entities: List[String]
+  ): Boolean = {
+    entities.exists(entity =>
+      entity contains ruleMatch.matchedText
     )
   }
 
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val eventualNamedEntities =
-      Future {
-        request.blocks.flatMap((block) =>
-          entityHelper.getEntitiesFromText(
-            text = block.text,
-            offset = block.from
-          )
-        )
-      }
-
-    val eventualMatches = matcher.check(request)
+    val wholeArticle = request.blocks.map(block => block.text).mkString("\n")
+    val eventualNamedEntities = entityHelper.getEntityResultFromNERService(text = wholeArticle)
 
     for {
       namedEntities <- eventualNamedEntities
-      matches <- eventualMatches
+      matches <- matcher.check(request)
     } yield {
       matches
         // Remove matches which correspond to named entities. This should reduce the number of false-positives
         // caused by proper nouns
         .filter(ruleMatch => {
-          val shouldIncludeMatch = !matchFallsWithinNamedEntityRange(ruleMatch, namedEntities)
+          val shouldIncludeMatch = !matchFallsWithinNamedEntity(ruleMatch, namedEntities)
           if (!shouldIncludeMatch) {
             logger.info(
               s"Dropping match for ruleId: ${ruleMatch.rule.id} for text: ${ruleMatch.precedingText}[${ruleMatch.matchedText}]${ruleMatch.subsequentText}, as it's been tagged as an entity"
