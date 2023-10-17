@@ -28,8 +28,9 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
       metaData.setContentLength(ruleJsonBytes.length)
       val putObjectRequest = new PutObjectRequest(bucketName, RULES_KEY, stream, metaData)
       val s3Object = s3.putObject(putObjectRequest)
-      logger.info(s"artefact created with entity tag: ${s3Object.getMetadata.getETag}")
-      logger.info(s"${ruleJsonBytes.length} bytes written to bucket")
+      logger.info(
+        s"Artefact created with entity tag: ${s3Object.getMetadata.getETag} - ${ruleJsonBytes.length} bytes written to bucket"
+      )
     }
   }
 
