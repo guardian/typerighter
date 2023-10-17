@@ -72,8 +72,17 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
 
   def getRulesLastModified: Either[Exception, Date] = {
     logOnError("getting the lastModified date from S3") {
-      val rulesMeta = s3.getObjectMetadata(bucketName, RULES_KEY)
-      rulesMeta.getLastModified
+      val lastModified =
+        try {
+          val rulesMeta = s3.getObjectMetadata(bucketName, RULES_KEY)
+          rulesMeta.getLastModified
+        } catch {
+          case _: Throwable =>
+            logger.info("Failed to find new artefact, trying legacy artefact")
+            val rulesMeta = s3.getObjectMetadata(bucketName, LEGACY_RULES_KEY)
+            rulesMeta.getLastModified
+        }
+      lastModified
     }
   }
 
