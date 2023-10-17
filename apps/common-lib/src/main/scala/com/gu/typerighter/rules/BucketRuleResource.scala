@@ -21,7 +21,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
       ruleJsonBytes ++= JsonHelpers.toNewlineDeliniatedJson(rule).getBytes()
     })
     logOnError(
-      s"writing rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleResource.rules.hashCode}"
+      s"writing ${ruleResource.rules.length} rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleResource.rules.hashCode}"
     ) {
       val stream: java.io.InputStream = new java.io.ByteArrayInputStream(ruleJsonBytes.toArray)
       val metaData = new ObjectMetadata()
@@ -44,7 +44,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
           rulesArray += Json.parse(line).as[CheckerRule]
         })
         val rulesList = rulesArray.toList
-        logger.info(s"Got rules from S3. JSON hash: ${rulesList.hashCode()}")
+        logger.info(s"Got ${rulesList.length} rules from S3. JSON hash: ${rulesList.hashCode()}")
         Right((rulesList, lastModified))
       } catch {
         case e: Exception => Left(e)
@@ -65,7 +65,9 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
       val lastModified = rules.getObjectMetadata.getLastModified
       rules.close()
       val rulesList = rulesJson.as[CheckerRuleResource].rules
-      logger.info(s"Got legacy rules from S3. JSON hash: ${rulesList.hashCode()}")
+      logger.info(
+        s"Got ${rulesList.length} legacy rules from S3. JSON hash: ${rulesList.hashCode()}"
+      )
       (rulesList, lastModified)
     }
   }
