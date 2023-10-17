@@ -15,7 +15,6 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   private val RULES_KEY = s"$stage/rules/typerighter-rules-seq.json"
   private val LEGACY_RULES_KEY = s"$stage/rules/typerighter-rules.json"
 
-
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
     val ruleJsonBytes = ArrayBuffer[Byte]();
     ruleResource.rules.foreach(rule => {
@@ -34,23 +33,24 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   }
 
   def getRules(): Either[Exception, (List[CheckerRule], Date)] = {
-    val maybeRules = try {
-      val rules = s3.getObject(bucketName, RULES_KEY)
-      val lastModified = rules.getObjectMetadata.getLastModified
-      val rulesStream = rules.getObjectContent()
-      val rulesArray = ArrayBuffer[CheckerRule]()
-      val reader = new BufferedReader(new InputStreamReader(rulesStream))
-      reader.lines.forEach(line => {
-        rulesArray += Json.parse(line).as[CheckerRule]
-      })
-      logger.info(s"Got rules from S3. JSON hash: ${rules.hashCode()}")
-      Right((rulesArray.toList, lastModified))
-    } catch {
-      case e: Exception => Left(e)
-    }
+    val maybeRules =
+      try {
+        val rules = s3.getObject(bucketName, RULES_KEY)
+        val lastModified = rules.getObjectMetadata.getLastModified
+        val rulesStream = rules.getObjectContent()
+        val rulesArray = ArrayBuffer[CheckerRule]()
+        val reader = new BufferedReader(new InputStreamReader(rulesStream))
+        reader.lines.forEach(line => {
+          rulesArray += Json.parse(line).as[CheckerRule]
+        })
+        logger.info(s"Got rules from S3. JSON hash: ${rules.hashCode()}")
+        Right((rulesArray.toList, lastModified))
+      } catch {
+        case e: Exception => Left(e)
+      }
     maybeRules match {
       case Right((rules, date)) => Right((rules, date))
-      case Left (e) => getLegacyRules(e)
+      case Left(e)              => getLegacyRules(e)
     }
   }
 
