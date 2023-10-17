@@ -21,7 +21,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
       ruleJsonBytes ++= JsonHelpers.toNewlineDeliniatedJson(rule).getBytes()
     })
     logOnError(
-      s"writing rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleJsonBytes.hashCode}"
+      s"writing rules to S3 at $bucketName/$RULES_KEY with JSON hash ${ruleResource.rules.hashCode}"
     ) {
       val stream: java.io.InputStream = new java.io.ByteArrayInputStream(ruleJsonBytes.toArray)
       val metaData = new ObjectMetadata()
@@ -43,8 +43,9 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
         reader.lines.forEach(line => {
           rulesArray += Json.parse(line).as[CheckerRule]
         })
-        logger.info(s"Got rules from S3. JSON hash: ${rules.hashCode()}")
-        Right((rulesArray.toList, lastModified))
+        val rulesList = rulesArray.toList
+        logger.info(s"Got rules from S3. JSON hash: ${rulesList.hashCode()}")
+        Right((rulesList, lastModified))
       } catch {
         case e: Exception => Left(e)
       }
@@ -57,15 +58,15 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   def getLegacyRules(e: Exception): Either[Exception, (List[CheckerRule], Date)] = {
     logger.info(e.getMessage)
     logger.info("Failed to retrieve and process rules. Looking for legacy artefact.")
-    logOnError(s"getting rules from S3 at $bucketName/$LEGACY_RULES_KEY") {
+    logOnError(s"getting legacy rules from S3 at $bucketName/$LEGACY_RULES_KEY") {
       val rules = s3.getObject(bucketName, LEGACY_RULES_KEY)
       val rulesStream = rules.getObjectContent()
       val rulesJson = Json.parse(rulesStream)
       val lastModified = rules.getObjectMetadata.getLastModified
       rules.close()
-
-      logger.info(s"Got rules from S3. JSON hash: ${rulesJson.hashCode()}")
-      (rulesJson.as[CheckerRuleResource].rules, lastModified)
+      val rulesList = rulesJson.as[CheckerRuleResource].rules
+      logger.info(s"Got legacy rules from S3. JSON hash: ${rulesList.hashCode()}")
+      (rulesList, lastModified)
     }
   }
 
