@@ -13,6 +13,8 @@ import scala.collection.mutable.ArrayBuffer
 
 class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules-seq.json"
+  private val LEGACY_RULES_KEY = s"$stage/rules/typerighter-rules.json"
+
 
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
     val ruleJsonBytes = ArrayBuffer[Byte]();
@@ -32,27 +34,38 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   }
 
   def getRules(): Either[Exception, (List[CheckerRule], Date)] = {
-    val rules = s3.getObject(bucketName, RULES_KEY)
-    val lastModified = rules.getObjectMetadata.getLastModified
-    val rulesStream = rules.getObjectContent()
-    val rulesArray = ArrayBuffer[CheckerRule]()
-    val reader = new BufferedReader(new InputStreamReader(rulesStream))
-    val error =
-      try {
-        reader.lines.forEach(line => {
-          rulesArray += Json.parse(line).as[CheckerRule]
-        })
-        None
-      } catch {
-        case e: Exception =>
-          logger.error(s"BucketRuleManager: error whilst reading rules - ${e.getMessage}", e)
-          Some(e)
-      }
+    val maybeRules = try {
+      val rules = s3.getObject(bucketName, RULES_KEY)
+      val lastModified = rules.getObjectMetadata.getLastModified
+      val rulesStream = rules.getObjectContent()
+      val rulesArray = ArrayBuffer[CheckerRule]()
+      val reader = new BufferedReader(new InputStreamReader(rulesStream))
+      reader.lines.forEach(line => {
+        rulesArray += Json.parse(line).as[CheckerRule]
+      })
+      logger.info(s"Got rules from S3. JSON hash: ${rules.hashCode()}")
+      Right((rulesArray.toList, lastModified))
+    } catch {
+      case e: Exception => Left(e)
+    }
+    maybeRules match {
+      case Right((rules, date)) => Right((rules, date))
+      case Left (e) => getLegacyRules(e)
+    }
+  }
 
-    logger.info(s"Got rules from S3. JSON hash: ${rules.hashCode()}")
-    error match {
-      case None        => Right((rulesArray.toList, lastModified))
-      case Some(error) => Left(error)
+  def getLegacyRules(e: Exception): Either[Exception, (List[CheckerRule], Date)] = {
+    logger.info(e.getMessage)
+    logger.info("Failed to retrieve and process rules. Looking for legacy artefact.")
+    logOnError(s"getting rules from S3 at $bucketName/$LEGACY_RULES_KEY") {
+      val rules = s3.getObject(bucketName, LEGACY_RULES_KEY)
+      val rulesStream = rules.getObjectContent()
+      val rulesJson = Json.parse(rulesStream)
+      val lastModified = rules.getObjectMetadata.getLastModified
+      rules.close()
+
+      logger.info(s"Got rules from S3. JSON hash: ${rulesJson.hashCode()}")
+      (rulesJson.as[CheckerRuleResource].rules, lastModified)
     }
   }
 
