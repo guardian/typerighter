@@ -2,14 +2,7 @@ package services
 
 import java.util.Date
 import akka.actor.Scheduler
-import com.gu.typerighter.model.{
-  CheckerRule,
-  CheckerRuleResource,
-  DictionaryRule,
-  LTRuleCore,
-  LTRuleXML,
-  RegexRule
-}
+import com.gu.typerighter.model.{CheckerRule, DictionaryRule, LTRuleCore, LTRuleXML, RegexRule}
 import com.gu.typerighter.rules.BucketRuleResource
 import matchers.{DictionaryMatcher, LanguageToolFactory, RegexMatcher}
 import play.api.Logging
@@ -32,22 +25,22 @@ class MatcherProvisionerService(
 
   /** Update the rules in our matcherPool, given a ruleResource.
     */
-  def updateRules(ruleResource: CheckerRuleResource, date: Date): Either[List[Throwable], Unit] = {
+  def updateRules(rules: List[CheckerRule], date: Date): Either[List[Throwable], Unit] = {
     matcherPool.removeAllMatchers()
 
-    val coreRules = ruleResource.rules.collect { case r: LTRuleCore => r }
+    val coreRules = rules.collect { case r: LTRuleCore => r }
     val coreRulesErrors = addLTMatcherToPool(matcherPool, Nil, coreRules)
 
     // Usually we'd have a matcher per category, but dictionary matchers must reflect all
     // dictionary rules - the dictionary has to reflect the entire corpus of the language,
     // and anything that isn't in the dictionary will be marked as incorrect.
-    val dictionaryRules = ruleResource.rules.collect { case r: DictionaryRule => r }
+    val dictionaryRules = rules.collect { case r: DictionaryRule => r }
     if (dictionaryRules.nonEmpty) {
       matcherPool.addMatcher(new DictionaryMatcher(dictionaryRules, entityHelper))
     }
 
     val addedRulesErrors =
-      ruleResource.rules.groupBy(_.category).toList.flatMap { case (_, rules) =>
+      rules.groupBy(_.category).toList.flatMap { case (_, rules) =>
         val regexRules = rules.collect { case r: RegexRule => r }
         val ltRules = rules.collect { case r: LTRuleXML => r }
 
