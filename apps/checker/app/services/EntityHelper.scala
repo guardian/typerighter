@@ -3,14 +3,13 @@ package services
 import com.gu.typerighter.model.TextRange
 import opennlp.tools.namefind.{NameFinderME, TokenNameFinderModel}
 import opennlp.tools.tokenize.SimpleTokenizer
-import play.api.libs.json.{JsError, JsSuccess}
+import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 
 import java.io.InputStream
 import play.api.libs.ws.WSClient
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.libs.json.{Json, Reads}
 
 case class EntityInText(word: String, range: TextRange)
 
@@ -41,8 +40,11 @@ class EntityHelper(wsClient: WSClient) {
   def getEntityResultFromNERService(text: String): Future[Either[Error, List[String]]] = {
     val url = "https://ner.gutools.co.uk/v1/process"
     val key = "abc"
+    val model = "en_core_web_trf"
+    val entityTypes = List("PERSON", "NORP", "FAC", "LOC", "GPE", "PRODUCT", "EVENT", "WORK_OF_ART")
     val body =
-      s"{\"articles\": [{\"text\": \"$text\"}],\"model\": \"en_core_web_trf\",\"entities\": [\"PERSON\", \"NORP\", \"FAC\",  \"LOC\", \"GPE\", \"PRODUCT\", \"EVENT\", \"WORK_OF_ART\"]}"
+      s"{\"articles\": [{\"text\": ${Json.toJson(text)}}],\"model\": \"$model\",\"entities\": ${Json
+          .toJson(entityTypes)}}"
 
     wsClient
       .url(url)
