@@ -5,11 +5,11 @@ import com.amazonaws.services.s3.model.{ObjectMetadata, PutObjectRequest}
 import com.gu.typerighter.lib.JsonHelpers
 import com.gu.typerighter.model.{CheckerRule, CheckerRuleResource}
 import play.api.Logging
-import play.api.libs.json.{Json}
+import play.api.libs.json.Json
 
-import java.io.{BufferedReader, InputStreamReader}
 import java.util.Date
 import scala.collection.mutable.ArrayBuffer
+import scala.io.Source
 
 class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extends Logging {
   private val RULES_KEY = s"$stage/rules/typerighter-rules-seq.json"
@@ -40,12 +40,13 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
         val rules = s3.getObject(bucketName, RULES_KEY)
         val lastModified = rules.getObjectMetadata.getLastModified
         val rulesStream = rules.getObjectContent()
-        val rulesArray = ArrayBuffer[CheckerRule]()
-        val reader = new BufferedReader(new InputStreamReader(rulesStream))
-        reader.lines.forEach(line => {
-          rulesArray += Json.parse(line).as[CheckerRule]
-        })
-        val rulesList = rulesArray.toList
+        val rulesList = Source
+          .fromInputStream(rulesStream)
+          .getLines()
+          .map(line => {
+            Json.parse(line).as[CheckerRule]
+          })
+          .toList
         logger.info(
           s"Got ${rulesList.length} rules from S3 with entity tag: ${rules.getObjectMetadata.getETag}"
         )
