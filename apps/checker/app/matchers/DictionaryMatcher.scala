@@ -67,9 +67,7 @@ class DictionaryMatcher(
       ruleMatch: RuleMatch,
       entities: List[String]
   ): Boolean = {
-    entities.exists(entity =>
-      entity contains ruleMatch.matchedText
-    )
+    entities.exists(entity => entity contains ruleMatch.matchedText)
   }
 
   override def check(
@@ -86,13 +84,20 @@ class DictionaryMatcher(
         // Remove matches which correspond to named entities. This should reduce the number of false-positives
         // caused by proper nouns
         .filter(ruleMatch => {
-          val shouldIncludeMatch = !matchFallsWithinNamedEntity(ruleMatch, namedEntities)
-          if (!shouldIncludeMatch) {
-            logger.info(
-              s"Dropping match for ruleId: ${ruleMatch.rule.id} for text: ${ruleMatch.precedingText}[${ruleMatch.matchedText}]${ruleMatch.subsequentText}, as it's been tagged as an entity"
-            )
+          namedEntities match {
+            case Left(error) =>
+              logger.error(s"NER check failed with message: ${error.getMessage}")
+              true
+            case Right(entities) =>
+              val shouldIncludeMatch = !matchFallsWithinNamedEntity(ruleMatch, entities)
+              if (!shouldIncludeMatch) {
+                logger.info(
+                  s"Dropping match for ruleId: ${ruleMatch.rule.id} for text: ${ruleMatch.precedingText}[${ruleMatch.matchedText}]${ruleMatch.subsequentText}, as it's been tagged as an entity"
+                )
+              }
+              shouldIncludeMatch
           }
-          shouldIncludeMatch
+
         })
         // groupKey is used to control how rules are grouped in the client when they produces matches.
         // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)

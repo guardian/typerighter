@@ -38,22 +38,34 @@ class EntityHelper(wsClient: WSClient) {
     implicit val reads: Reads[NERResult] = Json.reads[NERResult]
   }
 
-  def getEntityResultFromNERService(text: String): Future[List[String]] = {
+  def getEntityResultFromNERService(text: String): Future[Either[Error, List[String]]] = {
     val url = "https://ner.gutools.co.uk/v1/process"
     val key = "abc"
-    val body = s"{\"articles\": [{\"text\": \"$text\"}],\"model\": \"en_core_web_trf\",\"entities\": [\"PERSON\", \"NORP\", \"FAC\",  \"LOC\", \"GPE\", \"PRODUCT\", \"EVENT\", \"WORK_OF_ART\"]}"
+    val body =
+      s"{\"articles\": [{\"text\": \"$text\"}],\"model\": \"en_core_web_trf\",\"entities\": [\"PERSON\", \"NORP\", \"FAC\",  \"LOC\", \"GPE\", \"PRODUCT\", \"EVENT\", \"WORK_OF_ART\"]}"
 
-    wsClient.url(url)
-      .withHttpHeaders(("API-KEY", key), ("accept", "application/json"), ("Content-Type", "application/json"))
-      .post(body).map { response =>
-      val entitiesJson = response.json.result("result")(0)("ents")
-      entitiesJson.validate[List[NERResult]] match {
-        case JsSuccess(value, _) =>
-          value.map(_.text)
-        case JsError(error) =>
-          Nil
+    wsClient
+      .url(url)
+      .withHttpHeaders(
+        ("API-KEY", key),
+        ("accept", "application/json"),
+        ("Content-Type", "application/json")
+      )
+      .post(body)
+      .map { response =>
+        response.status match {
+          case 200 => {
+            val entitiesJson = response.json.result("result")(0)("ents")
+            entitiesJson.validate[List[NERResult]] match {
+              case JsSuccess(value, _) =>
+                Right(value.map(_.text))
+              case JsError(error) =>
+                Left(new Error(error.toString()))
+            }
+          }
+          case _ => Left(new Error(s"${response.status} ${response.statusText}"))
+        }
       }
-    }
   }
 
   def getEntitiesFromText(text: String, offset: Int = 0): List[EntityInText] = {
