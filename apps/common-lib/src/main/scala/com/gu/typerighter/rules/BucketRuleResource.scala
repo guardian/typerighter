@@ -18,7 +18,7 @@ class BucketRuleResource(s3: AmazonS3, bucketName: String, stage: String) extend
   def putRules(ruleResource: CheckerRuleResource): Either[Exception, Unit] = {
     val ruleJsonBytes = ArrayBuffer[Byte]();
     ruleResource.rules.foreach(rule => {
-      ruleJsonBytes ++= JsonHelpers.toNewlineDeliniatedJson(rule).getBytes()
+      ruleJsonBytes ++= JsonHelpers.toNewlineDelineatedJson(rule).getBytes()
     })
     logOnError(
       s"writing ${ruleResource.rules.length} rules to S3 at $bucketName/$RULES_KEY"
