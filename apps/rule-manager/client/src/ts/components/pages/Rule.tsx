@@ -27,7 +27,7 @@ export const Rule = () => {
 				{rule?.ruleType !== 'dictionary' ? (
 					<TestRule pattern={testPattern} />
 				) : (
-					<h2>You cannot yet test dictionary rules.</h2>
+					<h2>Testing is not currently supported for dictionary rules.</h2>
 				)}
 			</EuiFlexItem>
 		</EuiFlexGroup>
