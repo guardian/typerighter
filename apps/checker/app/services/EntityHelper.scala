@@ -7,13 +7,14 @@ import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 
 import java.io.InputStream
 import play.api.libs.ws.WSClient
+import utils.CheckerConfig
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class EntityInText(word: String, range: TextRange)
 
-class EntityHelper(wsClient: WSClient) {
+class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
   val personInputFile: InputStream =
     getClass.getClassLoader.getResourceAsStream("resources/opennlp/en-ner-person.bin")
   val personModel = new TokenNameFinderModel(personInputFile)
@@ -38,8 +39,8 @@ class EntityHelper(wsClient: WSClient) {
   }
 
   def getEntityResultFromNERService(text: String): Future[Either[Error, List[String]]] = {
-    val url = "https://ner.gutools.co.uk/v1/process"
-    val key = "abc"
+    val url = config.nerApiUrl
+    val key = config.nerApiKey
     val model = "en_core_web_trf"
     val entityTypes = List("PERSON", "NORP", "FAC", "LOC", "GPE", "PRODUCT", "EVENT", "WORK_OF_ART")
     val body =
