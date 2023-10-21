@@ -1,14 +1,22 @@
 package matchers
 
 import com.gu.typerighter.model.{Category, DictionaryRule, TextBlock}
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import services.{EntityHelper, MatcherRequest}
+import scala.concurrent.Future
 
 class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
   "check" should "include groupKey" in {
     val exampleRule = DictionaryRule("123", "hello", Category("id", "desc"))
-    val dictionaryValidator = new DictionaryMatcher(List(exampleRule), new EntityHelper())
+
+    // We don't want to make actual API requests so we mock entityHelper here
+    val entityHelper = mock[EntityHelper]
+    when(entityHelper.getEntityResultFromNERService("text")).thenReturn(Future { Right(List()) })
+
+    val dictionaryValidator = new DictionaryMatcher(List(exampleRule), entityHelper)
 
     val eventuallyMatches = dictionaryValidator.check(
       MatcherRequest(
@@ -29,7 +37,18 @@ class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
 
   "check" should "exclude matches which correspond to named entities" in {
     val exampleRule = DictionaryRule("123", "hello", Category("id", "desc"))
-    val dictionaryValidator = new DictionaryMatcher(List(exampleRule), new EntityHelper())
+
+    // We don't want to make actual API requests so we mock entityHelper here
+    val entityHelper = mock[EntityHelper]
+    when(
+      entityHelper.getEntityResultFromNERService(
+        "Guy Goma was interviewed by Karen Bowerman in London after staff confused him with Computer Life journalist Guy Kewney"
+      )
+    ).thenReturn(
+      Future { Right(List("Guy Goma", "Karen Bowerman", "London", "Computer Life", "Guy Kewney")) }
+    )
+
+    val dictionaryValidator = new DictionaryMatcher(List(exampleRule), entityHelper)
 
     val eventuallyMatches = dictionaryValidator.check(
       MatcherRequest(
