@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@guardian/cdk": "51.0.0",
-    "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
+    "@types/jest": "^29.5.6",
+    "@types/node": "20.8.7",
     "aws-cdk": "^2.100.0",
     "aws-cdk-lib": "^2.100.0",
     "constructs": "^10.3.0",
