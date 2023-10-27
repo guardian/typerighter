@@ -29,8 +29,10 @@
     "noEmit": true
   },
   "include": ["lib/**/*", "bin/**/*"],
-  "exclude": ["node_modules",
+  "exclude": [
+    "node_modules",
     "cdk.out",
     "lib/**/*.test.ts",
-    "lib/**/__snapshots__/**"]
+    "lib/**/__snapshots__/**"
+  ]
 }
