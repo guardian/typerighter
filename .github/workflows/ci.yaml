@@ -48,6 +48,7 @@ jobs:
         working-directory: ./cdk
         run: |
           yarn install --frozen-lockfile
+          yarn test
           yarn synth
 
       - name: test and build sbt
