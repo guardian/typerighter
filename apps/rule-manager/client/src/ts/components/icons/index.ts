@@ -38,7 +38,7 @@ import { icon as sortLeft } from '@elastic/eui/src/components/icon/assets/sortLe
 import { icon as sortRight } from '@elastic/eui/src/components/icon/assets/sortRight';
 import { icon as fullScreenExit } from '@elastic/eui/src/components/icon/assets/fullScreenExit';
 import { icon as tokenString } from '@elastic/eui/src/components/icon/assets/tokenString';
-import { icon as wrench } from '@elastic/eui/src/components/icon/assets/wrench';
+import { icon as beaker } from '@elastic/eui/src/components/icon/assets/beaker';
 
 const cachedIcons = {
 	apps,
@@ -80,7 +80,7 @@ const cachedIcons = {
 	sortRight,
 	expandMini,
 	tokenString,
-	wrench,
+	beaker,
 };
 
 appendIconComponentCache(cachedIcons);

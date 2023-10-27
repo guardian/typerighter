@@ -114,7 +114,7 @@ const TestRule = ({
 					editIsEnabled ? navigate(`/rule/${rule.id}`) : () => null
 				}
 			>
-				<EuiIcon type="wrench" />
+				<EuiIcon type="beaker" />
 			</EditRuleButton>
 		</EuiToolTip>
 	);
