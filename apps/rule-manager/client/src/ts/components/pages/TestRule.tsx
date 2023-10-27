@@ -100,10 +100,30 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 				<Title>
 					TEST RULE AGAINST GUARDIAN CONTENT&nbsp;
 					<EuiIconTip
-						content="Test this rule by running it against lots of Guardian content. Any matches found are shown below."
+						content={
+							<>
+								By default, this tool will test your rule against the latest
+								Guardian content from CAPI, our content API.
+								<br />
+								<br />
+								By adding a search query, you can test your rule against content
+								more likely to include your match.
+								<br />
+								<br />
+								For example, to search the following rule, which finds instances
+								of the word 'However' without a comma:
+								<br />
+								<br />
+								{`(?<=. )However(?!,)`}
+								<br />
+								<br />… you may want to search for your match only in articles
+								containing 'However', increasing your chances of finding
+								matches.
+							</>
+						}
 						position="right"
 						type="iInCircle"
-						size="s"
+						size="m"
 					/>
 				</Title>
 			</SectionHeader>
@@ -128,7 +148,7 @@ export const TestRule = ({ pattern }: { pattern?: string }) => {
 						<EuiFlexItem grow={2}>
 							<EuiFieldText
 								placeholder={
-									'Narrow down the content to test with a CAPI query'
+									'Narrow down the content to test with a search phrase for CAPI'
 								}
 								value={queryStr}
 								onChange={(e) => setQueryStr(e.target.value)}
