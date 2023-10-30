@@ -42,7 +42,8 @@ class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
     val url = config.nerApiUrl
     val key = config.nerApiKey
     val model = "en_core_web_trf"
-    val entityTypes = List("PERSON", "NORP", "FAC", "LOC", "GPE", "PRODUCT", "EVENT", "WORK_OF_ART")
+    val entityTypes =
+      List("PERSON", "NORP", "FAC", "LOC", "GPE", "PRODUCT", "EVENT", "WORK_OF_ART", "ORG")
     val body =
       s"{\"articles\": [{\"text\": ${Json.toJson(text)}}],\"model\": \"$model\",\"entities\": ${Json
           .toJson(entityTypes)}}"
