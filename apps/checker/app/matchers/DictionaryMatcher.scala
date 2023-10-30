@@ -73,8 +73,8 @@ class DictionaryMatcher(
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val wholeArticle = request.blocks.map(block => block.text).mkString("\n")
-    val eventualNamedEntities = entityHelper.getEntityResultFromNERService(text = wholeArticle)
+    val block = request.blocks.map(block => block.text).mkString("\n")
+    val eventualNamedEntities = entityHelper.getEntityResultFromNERService(text = block)
 
     for {
       namedEntities <- eventualNamedEntities
