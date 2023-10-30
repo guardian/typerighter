@@ -3,7 +3,6 @@ import {
 	EuiCallOut,
 	EuiFlexGroup,
 	EuiFlexItem,
-	EuiForm,
 	EuiSpacer,
 	EuiText,
 	EuiToolTip,
@@ -50,7 +49,7 @@ export const SpinnerContainer = styled.div`
 
 const formDebounceMs = 1000;
 
-export const RuleForm = ({
+export const StandaloneRuleForm = ({
 	ruleId,
 	onClose,
 	onUpdate,
@@ -59,25 +58,44 @@ export const RuleForm = ({
 	onClose: () => void;
 	onUpdate?: (id: number) => void;
 }) => {
+	const ruleHooks = useRule(ruleId);
+
+	return (
+		<RuleForm
+			ruleId={ruleId}
+			onClose={onClose}
+			onUpdate={onUpdate}
+			{...ruleHooks}
+		/>
+	);
+};
+
+export const RuleForm = ({
+	ruleId,
+	onClose,
+	onUpdate,
+	updateRule,
+	createRule,
+	isLoading,
+	errors,
+	rule,
+	publishRule,
+	isPublishing,
+	validateRule,
+	publishValidationErrors,
+	resetPublishValidationErrors,
+	archiveRule,
+	unarchiveRule,
+	unpublishRule,
+	ruleStatus,
+	isDiscarding,
+	discardRuleChanges,
+}: ReturnType<typeof useRule> & {
+	ruleId: number | undefined;
+	onClose: () => void;
+	onUpdate?: (id: number) => void;
+}) => {
 	const [showErrors, setShowErrors] = useState(false);
-	const {
-		isLoading,
-		errors,
-		rule,
-		isPublishing,
-		publishRule,
-		updateRule,
-		createRule,
-		validateRule,
-		publishValidationErrors,
-		resetPublishValidationErrors,
-		archiveRule,
-		unarchiveRule,
-		unpublishRule,
-		ruleStatus,
-		isDiscarding,
-		discardRuleChanges,
-	} = useRule(ruleId);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
 	const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
