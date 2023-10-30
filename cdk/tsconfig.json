@@ -25,11 +25,14 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "typeRoots": ["./node_modules/@types"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "noEmit": true
   },
   "include": ["lib/**/*", "bin/**/*"],
-  "exclude": ["node_modules",
+  "exclude": [
+    "node_modules",
     "cdk.out",
     "lib/**/*.test.ts",
-    "lib/**/__snapshots__/**"]
+    "lib/**/__snapshots__/**"
+  ]
 }
