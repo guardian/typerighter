@@ -4,6 +4,7 @@ import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.model.Document
 import com.gu.typerighter.rules.BucketRuleResource
+import com.gu.typerighter.lib.JsonHelpers
 import play.api.libs.json.{JsValue, Json}
 import db.DbRuleDraft
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
@@ -247,9 +248,8 @@ class RulesController(
             ruleTesting
               .testRule(rule, List(document))
               .map { stream =>
-                Ok.chunked(stream.map {
-                  Json.toJson(_)
-                })
+                Ok.chunked(stream.map(record => JsonHelpers.toJsonSeq(record)))
+                  .withHeaders("Content-Type" -> "application/json-seq")
               }
               .recover { error =>
                 InternalServerError(error.getMessage())
@@ -266,9 +266,8 @@ class RulesController(
         DbRuleDraft.find(id) match {
           case Some(rule) =>
             val matchStream = ruleTesting.testRuleWithCapiQuery(rule, query)
-            Ok.chunked(matchStream.map {
-              Json.toJson(_)
-            })
+            Ok.chunked(matchStream.map(record => JsonHelpers.toJsonSeq(record)))
+              .withHeaders("Content-Type" -> "application/json-seq")
           case None => NotFound
         }
       case Left(error) => BadRequest(s"Invalid request: $error")

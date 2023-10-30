@@ -4,12 +4,11 @@ import {
 	EuiButton,
 	EuiFlexGroup,
 	EuiButtonIcon,
-	EuiFlexGrid,
 	EuiToolTip,
 	EuiSpacer,
 } from '@elastic/eui';
 import { SortColumns, useRules } from '../hooks/useRules';
-import { RuleForm } from '../RuleForm';
+import { StandaloneRuleForm } from '../RuleForm';
 import { PageContext } from '../../utils/window';
 import { hasCreateEditPermissions } from '../helpers/hasCreateEditPermissions';
 import { FeatureSwitchesContext } from '../context/featureSwitches';
@@ -193,7 +192,7 @@ export const Rules = () => {
 							ruleIds={rowSelectionArray}
 						/>
 					) : (
-						<RuleForm
+						<StandaloneRuleForm
 							onClose={() => {
 								setFormMode('closed');
 								fetchRules(pageIndex, queryStr, sortColumns);

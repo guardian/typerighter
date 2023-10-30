@@ -1,18 +1,8 @@
 import { EuiFlexItem, EuiTextColor } from '@elastic/eui';
 import { css } from '@emotion/react';
-import styled from '@emotion/styled';
 import React from 'react';
-
-export const SectionHeader = styled.div`
-	display: flex;
-	justify-content: space-between;
-`;
-
-export const Title = styled.h2`
-	font-family: 'Guardian Agate Sans';
-	color: #1a1c21;
-	font-weight: 700;
-`;
+import { SectionHeader } from './form/SectionHeader';
+import { Title } from './form/Title';
 
 export const RuleFormSection = ({
 	title,

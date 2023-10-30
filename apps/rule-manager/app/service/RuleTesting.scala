@@ -15,12 +15,15 @@ import scala.concurrent.{ExecutionContext, Future}
 case class TestRuleCapiQuery(
     queryStr: String,
     tags: Option[List[String]] = None,
-    sections: Option[List[String]] = None
+    sections: Option[List[String]] = None,
+    maxMatches: Option[Int] = None,
+    maxPages: Option[Int] = None
 )
 
 case class PaginatedCheckRuleResult(
     currentPage: Int,
     maxPages: Int,
+    pageSize: Int,
     result: CheckSingleRuleResult
 )
 
@@ -49,14 +52,16 @@ class RuleTesting(
   def testRuleWithCapiQuery(
       rule: DbRuleDraft,
       query: TestRuleCapiQuery,
-      matchCount: Int = 10,
-      maxPageCount: Int = 100
+      pageSize: Int = 20
   )(implicit ec: ExecutionContext): Source[PaginatedCheckRuleResult, NotUsed] = {
+    val maxPages = query.maxPages.getOrElse(100)
+    val maxMatches = query.maxMatches.getOrElse(10)
+
     class PaginatedContentQuery(pageLimit: Int) {
       var currentPage = 1
       def hasNext = currentPage <= pageLimit
       def nextPage(): Future[(Int, List[Document])] = {
-        log.info(s"Fetching content page $currentPage/$maxPageCount")
+        log.info(s"Fetching content page $currentPage/${maxPages}")
         val pageToFetch = currentPage
         currentPage = currentPage + 1
         contentClient
@@ -64,16 +69,17 @@ class RuleTesting(
             query.queryStr,
             query.tags.getOrElse(List.empty),
             query.sections.getOrElse(List.empty),
-            pageToFetch
+            pageToFetch,
+            pageSize
           )
           .map { response =>
-            log.info(s"Received content page $pageToFetch/$maxPageCount")
+            log.info(s"Received content page $pageToFetch/${maxPages}")
             (pageToFetch, response.results.map(Document.fromCapiContent).toList)
           }
       }
     }
 
-    val createResource = () => Future.successful(new PaginatedContentQuery(maxPageCount))
+    val createResource = () => Future.successful(new PaginatedContentQuery(maxPages))
     val readFromResource = (paginatedQuery: PaginatedContentQuery) =>
       if (paginatedQuery.hasNext) {
         paginatedQuery.nextPage().map(Some.apply)
@@ -95,13 +101,13 @@ class RuleTesting(
         // The lazy source ensures that we only trigger `testRule` when there is demand
         Source
           .lazyFutureSource(() => testRule(rule, documents))
-          .map(source => PaginatedCheckRuleResult(page, maxPageCount, source))
+          .map(source => PaginatedCheckRuleResult(page, maxPages, pageSize, source))
       }
       // Maintain a count of the matches so we can stop once our limit is reached
       .scan((0, Option.empty[PaginatedCheckRuleResult])) { case ((count, _), result) =>
         (count + result.result.matches.size, Some(result))
       }
-      .takeWhile { case (count, _) => count <= matchCount }
+      .takeWhile { case (count, _) => count <= maxMatches }
       .mapConcat { case (_, result) => result }
       // Adding a buffer that accepts a single element ensures that we apply backpressure
       // to the resource that's fetching our CAPI documents when we're checking downstream.
