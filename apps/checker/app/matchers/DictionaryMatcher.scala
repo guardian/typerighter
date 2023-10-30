@@ -6,7 +6,7 @@ import morfologik.stemming.Dictionary
 import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
 import play.api.Logging
 import services.collins.{CollinsEnglish, MorfologikCollinsSpellerRule, SpellDictionaryBuilder}
-import services.{EntityHelper, EntityInText, MatcherRequest}
+import services.{EntityHelper, MatcherRequest}
 import utils.Matcher
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -53,15 +53,6 @@ class DictionaryMatcher(
     })
 
   val matcher = new LanguageToolMatcher(instance)
-
-  def matchFallsWithinNamedEntityRange(
-      ruleMatch: RuleMatch,
-      entities: List[EntityInText]
-  ): Boolean = {
-    entities.exists(entity =>
-      entity.range.from <= ruleMatch.fromPos && entity.range.to >= ruleMatch.toPos
-    )
-  }
 
   def matchFallsWithinNamedEntity(
       ruleMatch: RuleMatch,
