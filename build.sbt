@@ -75,6 +75,7 @@ val commonSettings = Seq(
     "com.gu" %% "panda-hmac-play_2-8" % "2.2.0",
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
+    "ch.qos.logback" % "logback-classic" % "1.4.4", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
 ),
   dependencyOverrides ++= Seq(
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
