@@ -6,7 +6,7 @@ import morfologik.stemming.Dictionary
 import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
 import play.api.Logging
 import services.collins.{CollinsEnglish, MorfologikCollinsSpellerRule, SpellDictionaryBuilder}
-import services.{EntityHelper, MatcherRequest}
+import services.{EntityHelper, EntityInText, MatcherRequest}
 import utils.Matcher
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,18 +54,22 @@ class DictionaryMatcher(
 
   val matcher = new LanguageToolMatcher(instance)
 
-  def matchFallsWithinNamedEntity(
+  def matchFallsWithinNamedEntityRange(
       ruleMatch: RuleMatch,
-      entities: List[String]
+      entities: List[EntityInText]
   ): Boolean = {
-    entities.exists(entity => entity contains ruleMatch.matchedText)
+    entities.exists(entity =>
+      entity.range.from <= ruleMatch.fromPos && entity.range.to >= ruleMatch.toPos
+    )
   }
 
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val block = request.blocks.map(block => block.text).mkString("\n")
-    val eventualNamedEntities = entityHelper.getEntityResultFromNERService(text = block)
+    // There is only ever one block
+    val block = request.blocks.head
+    val eventualNamedEntities =
+      entityHelper.getEntityResultFromNERService(text = block.text, offset = block.from)
 
     for {
       namedEntities <- eventualNamedEntities
@@ -80,7 +84,7 @@ class DictionaryMatcher(
               logger.error(s"NER check failed with message: ${error.getMessage}")
               true
             case Right(entities) =>
-              val shouldIncludeMatch = !matchFallsWithinNamedEntity(ruleMatch, entities)
+              val shouldIncludeMatch = !matchFallsWithinNamedEntityRange(ruleMatch, entities)
               if (!shouldIncludeMatch) {
                 logger.info(
                   s"Dropping match for ruleId: ${ruleMatch.rule.id} for text: ${ruleMatch.precedingText}[${ruleMatch.matchedText}]${ruleMatch.subsequentText}, as it's been tagged as an entity"

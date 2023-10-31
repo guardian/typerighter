@@ -1,11 +1,12 @@
 package matchers
 
-import com.gu.typerighter.model.{Category, DictionaryRule, TextBlock}
+import com.gu.typerighter.model.{Category, DictionaryRule, TextBlock, TextRange}
 import org.mockito.Mockito.when
 import org.mockito.MockitoSugar.mock
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import services.{EntityHelper, MatcherRequest}
+import services.{EntityHelper, EntityInText, MatcherRequest}
+
 import scala.concurrent.Future
 
 class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
@@ -45,7 +46,17 @@ class DictionaryMatcherTest extends AsyncFlatSpec with Matchers {
         "Guy Goma was interviewed by Karen Bowerman in London after staff confused him with Computer Life journalist Guy Kewney"
       )
     ).thenReturn(
-      Future { Right(List("Guy Goma", "Karen Bowerman", "London", "Computer Life", "Guy Kewney")) }
+      Future {
+        Right(
+          List(
+            EntityInText(word = "Guy Goma", range = TextRange(from = 0, to = 8)),
+            EntityInText(word = "Karen Bowerman", range = TextRange(from = 28, to = 42)),
+            EntityInText(word = "London", range = TextRange(from = 46, to = 52)),
+            EntityInText(word = "Computer Life", range = TextRange(from = 83, to = 96)),
+            EntityInText(word = "Guy Kewney", range = TextRange(from = 108, to = 118))
+          )
+        )
+      }
     )
 
     val dictionaryValidator = new DictionaryMatcher(List(exampleRule), entityHelper)

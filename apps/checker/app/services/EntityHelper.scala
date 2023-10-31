@@ -1,5 +1,6 @@
 package services
 
+import com.gu.typerighter.model.TextRange
 import play.api.Logger
 import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.libs.ws.WSClient
@@ -7,6 +8,8 @@ import utils.CheckerConfig
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+
+case class EntityInText(word: String, range: TextRange)
 
 class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
   case class NERResult(label: String, text: String, start: Int, end: Int)
@@ -17,7 +20,10 @@ class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
 
   val logger: Logger = Logger(getClass)
 
-  def getEntityResultFromNERService(text: String): Future[Either[Error, List[String]]] = {
+  def getEntityResultFromNERService(
+      text: String,
+      offset: Int = 0
+  ): Future[Either[Error, List[EntityInText]]] = {
     val url = config.nerApiUrl
     val key = config.nerApiKey
     val model = "en_core_web_trf"
@@ -46,7 +52,17 @@ class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
             val entitiesJson = response.json.result("result")(0)("ents")
             entitiesJson.validate[List[NERResult]] match {
               case JsSuccess(value, _) =>
-                Right(value.map(_.text))
+                Right(
+                  value.map(entity =>
+                    EntityInText(
+                      word = entity.text,
+                      range = TextRange(
+                        from = entity.start + offset,
+                        to = entity.end + offset
+                      )
+                    )
+                  )
+                )
               case JsError(error) =>
                 Left(new Error(error.toString()))
             }
