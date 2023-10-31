@@ -7,7 +7,7 @@ import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
 import play.api.Logging
 import services.collins.{CollinsEnglish, MorfologikCollinsSpellerRule, SpellDictionaryBuilder}
 import services.{EntityHelper, EntityInText, MatcherRequest}
-import utils.Matcher
+import utils.{Matcher, Timer}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -68,8 +68,10 @@ class DictionaryMatcher(
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
     // There is only ever one block
     val block = request.blocks.head
-    val eventualNamedEntities =
+
+    val eventualNamedEntities = Timer.timeAsync(taskName = "getEntityResultFromNERService") {
       entityHelper.getEntityResultFromNERService(text = block.text, offset = block.from)
+    }
 
     for {
       namedEntities <- eventualNamedEntities

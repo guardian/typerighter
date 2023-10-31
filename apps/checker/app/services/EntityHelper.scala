@@ -33,8 +33,6 @@ class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
       s"{\"articles\": [{\"text\": ${Json.toJson(text)}}],\"model\": \"$model\",\"entities\": ${Json
           .toJson(entityTypes)}}"
 
-    val before = System.currentTimeMillis
-
     wsClient
       .url(url)
       .withHttpHeaders(
@@ -44,11 +42,8 @@ class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
       )
       .post(body)
       .map { response =>
-        val after = System.currentTimeMillis
         response.status match {
           case 200 => {
-            logger.info(s"Request to ${config.nerApiUrl} succeeded in ${after - before}ms")
-
             val entitiesJson = response.json.result("result")(0)("ents")
             entitiesJson.validate[List[NERResult]] match {
               case JsSuccess(value, _) =>
@@ -68,8 +63,6 @@ class EntityHelper(wsClient: WSClient, config: CheckerConfig) {
             }
           }
           case _ => {
-            logger.info(s"Request to ${config.nerApiUrl} failed in ${after - before}ms")
-
             Left(new Error(s"${response.status} ${response.statusText}"))
           }
         }
