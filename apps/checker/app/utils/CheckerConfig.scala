@@ -19,4 +19,6 @@ class CheckerConfig(
     playConfig.getOptional[String]("typerighter.ngramPath").map(new File(_))
   val credentials = playConfig.get[String]("typerighter.google.credentials")
   val spreadsheetId = playConfig.get[String]("typerighter.sheetId")
+  val nerApiKey = playConfig.get[String]("typerighter.nerApiKey")
+  val nerApiUrl = playConfig.get[String]("typerighter.nerApiUrl")
 }
