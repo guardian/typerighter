@@ -42,6 +42,16 @@ def parseJavaVersionNumber(javaVersionString: String): String = {
   removeStartingOne(javaVersionString).split('.').head
 }
 
+val jackson = {
+  val version = "2.14.2"
+  Seq(
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % version,
+    "com.fasterxml.jackson.core" % "jackson-core" % version,
+    "com.fasterxml.jackson.core" % "jackson-databind" % version,
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % version
+  )
+}
+
 val commonSettings = Seq(
   Test / fork := false, // Enables attaching debugger in tests
   buildInfoPackage := "typerighter",
@@ -56,6 +66,8 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
+  //Necessary to override jackson-databind versions due to AWS and Play incompatibility
+  dependencyOverrides ++= jackson,
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
@@ -77,9 +89,6 @@ val commonSettings = Seq(
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
     "ch.qos.logback" % "logback-classic" % "1.4.4", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
 ),
-  dependencyOverrides ++= Seq(
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4",
-  ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
 
