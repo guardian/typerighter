@@ -66,7 +66,7 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
-  //Necessary to override jackson-databind versions due to AWS and Play incompatibility
+  //Necessary to override jackson versions due to AWS and Play incompatibility
   dependencyOverrides ++= jackson,
   //Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
