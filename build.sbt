@@ -68,6 +68,8 @@ val commonSettings = Seq(
   },
   //Necessary to override jackson-databind versions due to AWS and Play incompatibility
   dependencyOverrides ++= jackson,
+  //Necessary to override json to resolve vulnerabilities introduced by languagetool-core
+  dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
