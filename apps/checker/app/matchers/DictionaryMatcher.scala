@@ -7,7 +7,7 @@ import org.languagetool.{JLanguageTool, Language, ResultCache, UserConfig}
 import play.api.Logging
 import services.collins.{CollinsEnglish, MorfologikCollinsSpellerRule, SpellDictionaryBuilder}
 import services.{EntityHelper, EntityInText, MatcherRequest}
-import utils.Matcher
+import utils.{Matcher, Timer}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters.ListHasAsScala
@@ -59,40 +59,42 @@ class DictionaryMatcher(
       entities: List[EntityInText]
   ): Boolean = {
     entities.exists(entity =>
-      entity.range.from == ruleMatch.fromPos && entity.range.to == ruleMatch.toPos
+      entity.range.from <= ruleMatch.fromPos && entity.range.to >= ruleMatch.toPos
     )
   }
 
   override def check(
       request: MatcherRequest
   )(implicit ec: ExecutionContext): Future[List[RuleMatch]] = {
-    val eventualNamedEntities =
-      Future {
-        request.blocks.flatMap((block) =>
-          entityHelper.getEntitiesFromText(
-            text = block.text,
-            offset = block.from
-          )
-        )
-      }
+    // There is only ever one block
+    val block = request.blocks.head
 
-    val eventualMatches = matcher.check(request)
+    val eventualNamedEntities = Timer.timeAsync(taskName = "getEntityResultFromNERService") {
+      entityHelper.getEntityResultFromNERService(text = block.text, offset = block.from)
+    }
 
     for {
       namedEntities <- eventualNamedEntities
-      matches <- eventualMatches
+      matches <- matcher.check(request)
     } yield {
       matches
         // Remove matches which correspond to named entities. This should reduce the number of false-positives
         // caused by proper nouns
         .filter(ruleMatch => {
-          val shouldIncludeMatch = !matchFallsWithinNamedEntityRange(ruleMatch, namedEntities)
-          if (!shouldIncludeMatch) {
-            logger.info(
-              s"Dropping match for ruleId: ${ruleMatch.rule.id} for text: ${ruleMatch.precedingText}[${ruleMatch.matchedText}]${ruleMatch.subsequentText}, as it's been tagged as an entity"
-            )
+          namedEntities match {
+            case Left(error) =>
+              logger.error(s"NER check failed with message: ${error.getMessage}")
+              true
+            case Right(entities) =>
+              val shouldIncludeMatch = !matchFallsWithinNamedEntityRange(ruleMatch, entities)
+              if (!shouldIncludeMatch) {
+                logger.info(
+                  s"Dropping match for ruleId: ${ruleMatch.rule.id} for text: ${ruleMatch.precedingText}[${ruleMatch.matchedText}]${ruleMatch.subsequentText}, as it's been tagged as an entity"
+                )
+              }
+              shouldIncludeMatch
           }
-          shouldIncludeMatch
+
         })
         // groupKey is used to control how rules are grouped in the client when they produces matches.
         // This is needed for dictionary matches as they all share a common rule ID (MORFOLOGIK_RULE_COLLINS)

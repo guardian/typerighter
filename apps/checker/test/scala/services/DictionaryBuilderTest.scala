@@ -2,9 +2,12 @@ package services
 
 import com.gu.typerighter.model.{Category, DictionaryRule, TextBlock}
 import matchers.DictionaryMatcher
+import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.mock
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import services.collins.SpellDictionaryBuilder
+import scala.concurrent.Future
 
 class DictionaryBuilderTest extends AsyncFlatSpec with Matchers {
   it should "build a dictionary from a list of words" in {
@@ -23,7 +26,13 @@ class DictionaryBuilderTest extends AsyncFlatSpec with Matchers {
     val exampleTextBlocks = List(TextBlock("456", "angry blue crab", 0, 15))
     val exampleMatcherRequest = MatcherRequest(exampleTextBlocks)
 
-    val matcher = new DictionaryMatcher(dictionaryRules, new EntityHelper())
+    // We don't want to make actual API requests so we mock entityHelper here
+    val entityHelper = mock[EntityHelper]
+    when(entityHelper.getEntityResultFromNERService("angry blue crab")).thenReturn(Future {
+      Right(List())
+    })
+
+    val matcher = new DictionaryMatcher(dictionaryRules, entityHelper)
     matcher
       .check(exampleMatcherRequest)
       .map(matches => {
@@ -39,7 +48,13 @@ class DictionaryBuilderTest extends AsyncFlatSpec with Matchers {
     val exampleTextBlocks = List(TextBlock("456", "jolly red lobster", 0, 15))
     val exampleMatcherRequest = MatcherRequest(exampleTextBlocks)
 
-    val matcher = new DictionaryMatcher(dictionaryRules, new EntityHelper())
+    // We don't want to make actual API requests so we mock entityHelper here
+    val entityHelper = mock[EntityHelper]
+    when(entityHelper.getEntityResultFromNERService("jolly red lobster")).thenReturn(Future {
+      Right(List())
+    })
+
+    val matcher = new DictionaryMatcher(dictionaryRules, entityHelper)
     matcher
       .check(exampleMatcherRequest)
       .map(matches => {
