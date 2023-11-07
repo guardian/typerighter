@@ -20,7 +20,7 @@ ThisBuild / scalacOptions := Seq(
   "-Wconf:src=twirl/.*:s"
 )
 
-val languageToolVersion = "6.1"
+val languageToolVersion = "6.0"
 val awsSdkVersion = "1.12.576"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"

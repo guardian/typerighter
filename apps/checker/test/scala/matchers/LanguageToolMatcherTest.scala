@@ -218,7 +218,7 @@ class LanguageToolMatcherTest extends AsyncFlatSpec with Matchers {
     val eventuallyMatches = instance.check(request)
 
     val expectedMatchMessages =
-      List("Did you mean <suggestion>fewer</suggestion>? The noun \"tests\" is countable.")
+      List("Did you mean <suggestion>fewer</suggestion>? The noun tests is countable.")
     val expectedMatchCategoryIds = List("GRAMMAR")
     eventuallyMatches map { matches =>
       matches.map(_.message) shouldBe expectedMatchMessages
