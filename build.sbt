@@ -20,6 +20,10 @@ ThisBuild / scalacOptions := Seq(
   "-Wconf:src=twirl/.*:s"
 )
 
+// Prevent the output of dependencyTree being truncated to avoid misreporting dependencies.
+// See https://support.snyk.io/hc/en-us/articles/9590215676189-Deeply-nested-Scala-projects-have-dependencies-truncated
+ThisBuild / asciiGraphWidth := 999999999
+
 val languageToolVersion = "6.0"
 val awsSdkVersion = "1.12.576"
 val capiModelsVersion = "17.5.1"
