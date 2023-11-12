@@ -13,8 +13,8 @@ import com.gu.typerighter.model.{
   RegexRule,
   RuleMatch,
   TextBlock,
-  TextRange
 }
+
 import model._
 import org.scalatest.time.SpanSugar._
 import org.scalatest.flatspec.AsyncFlatSpec
@@ -159,13 +159,12 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
   private def getCheck(
       text: String,
       categoryIds: Option[Set[String]] = None,
-      skippedRanges: List[TextRange] = Nil,
       excludeCategoryIds: Option[Set[String]] = None
   ) = Check(
     Some("example-document"),
     setId,
     categoryIds,
-    List(TextBlock(blockId, text, 0, text.length, Some(skippedRanges))),
+    List(TextBlock(blockId, text, 0, text.length)),
     excludeCategoryIds
   )
 
@@ -374,54 +373,6 @@ class MatcherPoolTest extends AsyncFlatSpec with Matchers {
         e.getMessage should include("Timeout")
         e.getMessage should include("500 milliseconds")
       }
-    }
-  }
-
-  it should "pass text to matchers without the skipped ranges" in {
-    val matchers = getMatchers(1)
-    val matcher = matchers.head
-    matcher.completeWith(responses)
-
-    val pool = getPool(matchers)
-    val skippedRanges = List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
-    val check = getCheck(
-      text = "ABCDEF",
-      // We skip A, C and E, so the matcher just sees BDF
-      skippedRanges = skippedRanges
-    )
-    val futureResult = pool.check(check)
-
-    futureResult.map { _ =>
-      val expectedBlock = check.blocks.head.copy(
-        text = "BDF",
-        from = 0,
-        to = 3,
-        skipRanges = None
-      )
-      matcher.maybeRequest.get.blocks shouldBe List(expectedBlock)
-    }
-  }
-
-  it should "map matches that succeed skipped ranges through those ranges to ensure they're correct" in {
-    val matchers = getMatchers(1)
-    val matcher = matchers.head
-    val text = "ABCDEF"
-    val skippedRanges = List(TextRange(0, 0), TextRange(2, 2), TextRange(4, 4))
-    // The matcher sees "BDF"
-    val responses = getResponses(List((0, 0, "This matches B"), (2, 2, "This matches F")))
-    matcher.completeWith(responses)
-
-    val pool = getPool(matchers)
-    val check = getCheck(
-      text = text,
-      // We skip the text marked [noted], so the matcher just sees 'Example text with other text'
-      skippedRanges = skippedRanges
-    )
-    val futureResult = pool.check(check)
-
-    futureResult.map { result =>
-      val matchRanges = result.matches.map { matches => (matches.fromPos, matches.toPos) }
-      matchRanges shouldBe List((1, 1), (5, 5))
     }
   }
 

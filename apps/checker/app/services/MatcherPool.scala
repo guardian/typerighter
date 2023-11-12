@@ -330,11 +330,7 @@ class MatcherPool(
       blocks: List[TextBlock]
   ): Future[List[RuleMatch]] = {
     val eventuallyJobResults = matchers.map { matcher =>
-      val blocksWithSkippedRangesRemoved = blocks.map(_.removeSkippedRanges())
-
-      val eventuallyCheck = matcher
-        .check(MatcherRequest(blocksWithSkippedRangesRemoved))
-        .map { matches => matches.map(_.mapMatchThroughBlocks(blocks)) }
+      val eventuallyCheck = matcher.check(MatcherRequest(blocks))
 
       val taskName = s"MatcherPool.runMatchersForJob"
       val taskMarkers = Markers.appendEntries(
