@@ -3,6 +3,7 @@ import {
   Duration,
   RemovalPolicy,
   SecretValue,
+  Tags,
 } from "aws-cdk-lib";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
@@ -335,5 +336,6 @@ EOF
       storageType: StorageType.GP2,
       removalPolicy: RemovalPolicy.SNAPSHOT,
     });
+    Tags.of(ruleDB).add("devx-backup-enabled", "true");
   }
 }
