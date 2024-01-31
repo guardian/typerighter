@@ -1484,6 +1484,10 @@ exports[`The typerighter stack matches the snapshot 1`] = `
             "Value": "rule-manager-db",
           },
           {
+            "Key": "devx-backup-enabled",
+            "Value": "true",
+          },
+          {
             "Key": "gu:cdk:version",
             "Value": "TEST",
           },
