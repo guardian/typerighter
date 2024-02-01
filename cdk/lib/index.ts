@@ -307,7 +307,7 @@ EOF
       allocatedStorage: 50,
       allowMajorVersionUpgrade: false,
       autoMinorVersionUpgrade: true,
-      backupRetention: Duration.days(10),
+      deleteAutomatedBackups: false,
       engine: DatabaseInstanceEngine.postgres({
         version: PostgresEngineVersion.VER_13,
       }),
@@ -329,7 +329,6 @@ EOF
       ),
       multiAz: this.stage === "PROD",
       port: dbPort,
-      preferredBackupWindow: "02:00-02:30",
       preferredMaintenanceWindow: "Mon:06:30-Mon:07:00",
       securityGroups: [dbAccessSecurityGroup],
       storageEncrypted: true,
