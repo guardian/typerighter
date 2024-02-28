@@ -25,7 +25,7 @@ ThisBuild / scalacOptions := Seq(
 ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.0"
-val awsSdkVersion = "1.12.576"
+val awsSdkVersion = "1.12.668"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
 val circeVersion = "0.14.1"
@@ -70,9 +70,9 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
-  //Necessary to override jackson versions due to AWS and Play incompatibility
+  // Necessary to override jackson versions due to AWS and Play incompatibility
   dependencyOverrides ++= jackson,
-  //Necessary to override json to resolve vulnerabilities introduced by languagetool-core
+  // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
@@ -93,8 +93,8 @@ val commonSettings = Seq(
     "com.gu" %% "panda-hmac-play_2-8" % "2.2.0",
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
-    "ch.qos.logback" % "logback-classic" % "1.4.4", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
-),
+    "ch.qos.logback" % "logback-classic" % "1.4.4" // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
+  ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
 
@@ -105,16 +105,23 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     libraryDependencies ++= Seq(
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.8.19",
+      "com.typesafe.play" %% "play" % "2.8.19"
     )
   )
 
-def playProject(label: String, projectName: String, domainPrefix: String, devHttpPorts: Map[String, String]) =
+def playProject(
+    label: String,
+    projectName: String,
+    domainPrefix: String,
+    devHttpPorts: Map[String, String]
+) =
   Project(projectName, file(s"$appsFolder/$projectName"))
     .dependsOn(commonLib)
     .enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
     .settings(
-      PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) => s"play.server.$protocol.port" -> value }.toSeq,
+      PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) =>
+        s"play.server.$protocol.port" -> value
+      }.toSeq,
       PlayKeys.playRunHooks += new ViteBuildHook(label, domainPrefix),
       Universal / javaOptions ++= Seq(
         s"-Dpidfile.path=/dev/null",
@@ -134,7 +141,7 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
           expectedJavaVersion.equals(actualJavaVersion),
           s"Java $expectedJavaVersion is required for this project. You are using Java $actualJavaVersion."
         )
-      },
+      }
     )
 
 val checker = playProject(
@@ -160,7 +167,7 @@ val checker = playProject(
       "com.gu" %% "content-api-client-default" % capiClientVersion,
       "org.apache.opennlp" % "opennlp" % "2.1.0",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-      "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
+      "io.gatling" % "gatling-test-framework" % "3.7.2" % "test,it",
       "org.carrot2" % "morfologik-tools" % "2.1.7"
     ) ++ Seq(
       "io.circe" %% "circe-core",
@@ -188,7 +195,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
-      "com.gu" %% "editorial-permissions-client" % "2.14",
+      "com.gu" %% "editorial-permissions-client" % "2.14"
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
   )
