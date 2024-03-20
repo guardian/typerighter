@@ -28,6 +28,7 @@ val languageToolVersion = "6.0"
 val awsSdkVersion = "1.12.576"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
+val pandaVersion = "3.0.1"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
@@ -35,15 +36,6 @@ val appsFolder = "apps"
 
 def javaVersionNumber = {
   IO.read(new File(".java-version"))
-}
-
-def removeStartingOne(javaVersionString: String): String = {
-  val startsWithOne = "^1\\.".r
-  startsWithOne.replaceAllIn(javaVersionString, "")
-}
-
-def parseJavaVersionNumber(javaVersionString: String): String = {
-  removeStartingOne(javaVersionString).split('.').head
 }
 
 val jackson = {
@@ -77,11 +69,11 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.12",
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
     "com.gu" %% "simple-configuration-ssm" % "1.6.4",
-    "com.gu" %% "pan-domain-auth-play_2-8" % "1.2.1",
+    "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.0.1",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
@@ -90,7 +82,7 @@ val commonSettings = Seq(
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
     "com.gu" %% "content-api-client-aws" % "0.7",
     "com.gu" %% "content-api-client-default" % capiClientVersion,
-    "com.gu" %% "panda-hmac-play_2-8" % "2.2.0",
+    "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
     "ch.qos.logback" % "logback-classic" % "1.4.4", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
@@ -105,7 +97,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     libraryDependencies ++= Seq(
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.8.19",
+      "com.typesafe.play" %% "play" % "2.9.2",
     )
   )
 
@@ -126,15 +118,6 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
         s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
       ),
       commonSettings,
-      initialize := {
-        val _ = initialize.value
-        val expectedJavaVersion = parseJavaVersionNumber(javaVersionNumber)
-        val actualJavaVersion = removeStartingOne(sys.props("java.specification.version"))
-        assert(
-          expectedJavaVersion.equals(actualJavaVersion),
-          s"Java $expectedJavaVersion is required for this project. You are using Java $actualJavaVersion."
-        )
-      },
     )
 
 val checker = playProject(
