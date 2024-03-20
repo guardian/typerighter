@@ -7,6 +7,7 @@ import db.DB
 import utils.PermissionsHandler
 import com.gu.permissions.PermissionDefinition
 import com.gu.typerighter.controllers.PandaAuthController
+import typerighter.BuildInfo
 import utils.RuleManagerConfig
 
 class HomeController(
@@ -33,7 +34,7 @@ class HomeController(
   def healthcheck() = Action {
     try {
       db.connectionHealthy()
-      Ok(Json.obj("healthy" -> true))
+      Ok(Json.obj("healthy" -> true, "gitCommitId" -> BuildInfo.gitCommitId))
     } catch {
       case e: Throwable =>
         log.error("Healthcheck failed", e)
