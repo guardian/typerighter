@@ -1,6 +1,5 @@
 {
   "checkpoints": {
-    "Checker": { "url": "https://checker.typerighter.gutools.co.uk/healthcheck", "overdue": "15M" },
     "Rule Manager": { "url": "https://manager.typerighter.gutools.co.uk/healthcheck", "overdue": "15M" }
   }
 }
