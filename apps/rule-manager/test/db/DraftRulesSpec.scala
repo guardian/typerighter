@@ -121,6 +121,15 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     results.data shouldBe List(rule)
   }
 
+  it should "prioritise the exact match when ordering results" in { implicit session =>
+    val rule1 = insertRule(pattern = Some("Example"))
+    val rule2 = insertRule(pattern = Some("An example rule"))
+    val rule3 = insertRule(pattern = Some("Another example rule"))
+
+    val results = DbRuleDraft.searchRules(1, Some("Example"))
+    results.data.map(_.pattern) shouldBe List(rule1, rule2, rule3).map(_.pattern)
+  }
+
   it should "order rules given a sort column, ASC and DESC" in { implicit session =>
     DbRuleDraft
       .create(
