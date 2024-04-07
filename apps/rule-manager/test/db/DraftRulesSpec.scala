@@ -130,11 +130,11 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     results.data.map(_.pattern) shouldBe List(rule1, rule2, rule3).map(_.pattern)
   }
 
-  it should "filter by tag" in { implicit session =>
+  it should "search by tag" in { implicit session =>
     Tags.create("Tag 2")
     Tags.create("Tag 3")
 
-    val rule1 = insertRule(tags = List(1))
+    val rule1 = DbRuleDraft.find(1).get
     insertRule(tags = List(2))
     insertRule(tags = List(3))
 
@@ -142,13 +142,21 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     results.data.map(_.pattern) shouldBe List(rule1).map(_.pattern)
   }
 
-  it should "filter by type" in { implicit session =>
-    val rule1 = insertRule()
-    val rule2 = insertRule(ruleType = "dictionary")
-    val rule3 = insertRule(ruleType = "lt")
+  it should "search by type" in { implicit session =>
+    val rule1 = DbRuleDraft.find(1).get
+    insertRule(ruleType = "dictionary")
+    insertRule(ruleType = "dictionary")
 
     val results = DbRuleDraft.searchRules(1, ruleTypes = List("regex"))
-    results.data.map(_.pattern) shouldBe List(rule1, rule2, rule3).map(_.pattern)
+    results.data.map(_.pattern) shouldBe List(rule1).map(_.pattern)
+  }
+
+  it should "combine query string, tag, and type searches" in { implicit session =>
+    Tags.create("Tag 2")
+    val rule = insertRule(ruleType = "dictionary", pattern = Some("findme"), tags = List(2))
+
+    val results = DbRuleDraft.searchRules(1, ruleTypes = List("dictionary"), maybeWord = Some("findme"), tags = List(2))
+    results.data.map(_.pattern) shouldBe List(rule).map(_.pattern)
   }
 
   it should "order rules given a sort column, ASC and DESC" in { implicit session =>
