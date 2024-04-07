@@ -153,7 +153,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   }
 
   val rd = DbRuleDraft.syntax("rd")
-  val rdSubQuery = SubQuery.syntax("rd").include(rd)
   val rl = DbRuleLive.syntax("rl")
   val rt = RuleTagDraft.syntax("rt")
 
@@ -245,16 +244,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       """
 
     val subClauseSimilarityCol = "similarity"
-    val similarityCol = "rd.similarity"
-    val (searchClause, similaritySubClauseAlias, similarityClause) = maybeWord
+    val (searchClause, similaritySubClauseAlias) = maybeWord
       .map { word =>
         (
           sqls"WHERE $coalescedCols ILIKE ${s"%$word%"}",
           sqls", $coalescedCols <-> $word AS " + SQLSyntax.createUnsafely(subClauseSimilarityCol),
-          sqls", $similarityCol"
         )
       }
-      .getOrElse((sqls.empty, sqls.empty, sqls.empty))
+      .getOrElse((sqls.empty, sqls.empty))
 
     val orderByClause = (similarityColName: String) => {
       val maybeSimilarityOrder = maybeWord.map { _ => SQLSyntax.createUnsafely(similarityColName) }
@@ -269,27 +266,23 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}, ${rd.ruleType} ASC"
     }
 
-    val subclause = sqls"""
-          SELECT $draftRuleColumns $similaritySubClauseAlias
-            FROM ${DbRuleDraft.as(rd)}
-            $searchClause
-            ${orderByClause(subClauseSimilarityCol)}
-            LIMIT $pageSize
-            OFFSET ${(page - 1) * pageSize}
-        """
-
     val data = sql"""
-      SELECT $dbColumns $similarityClause
-        FROM ($subclause) as rd
-        LEFT JOIN ${DbRuleLive.as(rl)}
-            ON ${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true
-        LEFT JOIN ${RuleTagDraft.as(rt)}
-            ON ${rd.id} = ${rt.ruleId}
-        GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId} ${maybeWord
-        .map { _ => sqls"," + SQLSyntax.createUnsafely(similarityCol) }
-        .getOrElse(sqls.empty)}
-        ${orderByClause(similarityCol)}
-    """
+        SELECT $dbColumns $similaritySubClauseAlias
+          FROM ${DbRuleDraft.as(rd)}
+          LEFT JOIN ${DbRuleLive.as(rl)}
+              ON ${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true
+          LEFT JOIN ${RuleTagDraft.as(rt)}
+              ON ${rd.id} = ${rt.ruleId}
+          $searchClause
+          GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId} ${
+            maybeWord
+              .map { _ => sqls"," + SQLSyntax.createUnsafely(subClauseSimilarityCol) }
+              .getOrElse(sqls.empty)
+          }
+          ${orderByClause(subClauseSimilarityCol)}
+          LIMIT $pageSize
+          OFFSET ${(page - 1) * pageSize}
+      """
       .map(DbRuleDraft.fromRow)
       .list()
       .apply()
