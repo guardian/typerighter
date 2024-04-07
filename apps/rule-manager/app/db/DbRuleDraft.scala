@@ -223,7 +223,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
-  def searchRules(page: Int, maybeWord: Option[String], sortBy: List[String] = List.empty)(implicit
+  def searchRules(
+      page: Int,
+      maybeWord: Option[String] = None,
+      tags: List[Int] = List.empty,
+      ruleTypes: List[String] = List.empty,
+      sortBy: List[String] = List.empty
+  )(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] = {
     val pageSize = 200
@@ -274,11 +280,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           LEFT JOIN ${RuleTagDraft.as(rt)}
               ON ${rd.id} = ${rt.ruleId}
           $searchClause
-          GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId} ${
-            maybeWord
-              .map { _ => sqls"," + SQLSyntax.createUnsafely(subClauseSimilarityCol) }
-              .getOrElse(sqls.empty)
-          }
+          GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId} ${maybeWord
+        .map { _ => sqls"," + SQLSyntax.createUnsafely(subClauseSimilarityCol) }
+        .getOrElse(sqls.empty)}
           ${orderByClause(subClauseSimilarityCol)}
           LIMIT $pageSize
           OFFSET ${(page - 1) * pageSize}
