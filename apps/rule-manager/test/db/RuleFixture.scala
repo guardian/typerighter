@@ -37,11 +37,16 @@ trait RuleFixture extends FixtureAnyFlatSpec with AutoRollback {
       .apply()
   }
 
-  def insertRule(ruleType: String = "regex", pattern: Option[String] = None, description: Option[String] = None)(implicit session: DBSession = autoSession) = DbRuleDraft
+  def insertRule(
+      ruleType: String = "regex",
+      pattern: Option[String] = None,
+      description: Option[String] = None
+  )(implicit session: DBSession = autoSession) = DbRuleDraft
     .create(
       ruleType = ruleType,
       pattern = pattern,
-      description, description,
+      description,
+      description,
       user = "test.user",
       ignore = false
     )

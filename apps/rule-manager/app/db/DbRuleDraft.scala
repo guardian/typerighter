@@ -258,7 +258,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
     val orderByClause = (similarityColName: String) => {
       val maybeSimilarityOrder = maybeWord.map { _ => SQLSyntax.createUnsafely(similarityColName) }
-      val orderStmts =  maybeSimilarityOrder.toList ++ sortBy.map { sortByStr =>
+      val orderStmts = maybeSimilarityOrder.toList ++ sortBy.map { sortByStr =>
         val col = rd.column(sortByStr.slice(1, sortByStr.length))
         sortByStr.slice(0, 1) match {
           case "+" => sqls"$col ASC"
@@ -285,7 +285,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
             ON ${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true
         LEFT JOIN ${RuleTagDraft.as(rt)}
             ON ${rd.id} = ${rt.ruleId}
-        GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId} ${maybeWord.map { _ => sqls"," + SQLSyntax.createUnsafely(similarityCol) }.getOrElse(sqls.empty)}
+        GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId} ${maybeWord
+        .map { _ => sqls"," + SQLSyntax.createUnsafely(similarityCol) }
+        .getOrElse(sqls.empty)}
         ${orderByClause(similarityCol)}
     """
       .map(DbRuleDraft.fromRow)
