@@ -236,8 +236,29 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       tagColumn
     )
 
-    val orderByClause = if (sortBy.nonEmpty) {
-      val orderStmts = sortBy.map { sortByStr =>
+    val coalescedCols =
+      sqls"""
+        coalesce(${rd.column("pattern")}, '') ||
+        coalesce(${rd.column("description")}, '') ||
+        coalesce(${rd.column("replacement")}, '') ||
+        coalesce(${rd.column("category")}, '')
+      """
+
+    val subClauseSimilarityCol = "similarity"
+    val similarityCol = "rd.similarity"
+    val (searchClause, similaritySubClauseAlias, similarityClause) = maybeWord
+      .map { word =>
+        (
+          sqls"WHERE $coalescedCols ILIKE ${s"%$word%"}",
+          sqls", $coalescedCols <-> $word AS " + SQLSyntax.createUnsafely(subClauseSimilarityCol),
+          sqls", $similarityCol"
+        )
+      }
+      .getOrElse((sqls.empty, sqls.empty, sqls.empty))
+
+    val orderByClause = (similarityColName: String) => {
+      val maybeSimilarityOrder = maybeWord.map { _ => SQLSyntax.createUnsafely(similarityColName) }
+      val orderStmts = maybeSimilarityOrder.toList ++ sortBy.map { sortByStr =>
         val col = rd.column(sortByStr.slice(1, sortByStr.length))
         sortByStr.slice(0, 1) match {
           case "+" => sqls"$col ASC"
@@ -246,35 +267,28 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       }
 
       sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}, ${rd.ruleType} ASC"
-    } else sqls.empty
-
-    val searchClause = maybeWord
-      .map { word =>
-        sqls"""WHERE
-        coalesce(${rd.column("pattern")}, '') ||
-        coalesce(${rd.column("description")}, '') ||
-        coalesce(${rd.column("replacement")}, '') ||
-        coalesce(${rd.column("category")}, '') ILIKE ${s"%$word%"}"""
-      }
-      .getOrElse(sqls.empty)
+    }
 
     val subclause = sqls"""
-          SELECT $draftRuleColumns FROM ${DbRuleDraft.as(rd)}
+          SELECT $draftRuleColumns $similaritySubClauseAlias
+            FROM ${DbRuleDraft.as(rd)}
             $searchClause
-            $orderByClause
+            ${orderByClause(subClauseSimilarityCol)}
             LIMIT $pageSize
             OFFSET ${(page - 1) * pageSize}
         """
 
     val data = sql"""
-      SELECT $dbColumns
+      SELECT $dbColumns $similarityClause
         FROM ($subclause) as rd
         LEFT JOIN ${DbRuleLive.as(rl)}
             ON ${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true
         LEFT JOIN ${RuleTagDraft.as(rt)}
             ON ${rd.id} = ${rt.ruleId}
-        GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId}
-        $orderByClause
+        GROUP BY $draftRuleColumns, ${rl.externalId}, ${rl.revisionId} ${maybeWord
+        .map { _ => sqls"," + SQLSyntax.createUnsafely(similarityCol) }
+        .getOrElse(sqls.empty)}
+        ${orderByClause(similarityCol)}
     """
       .map(DbRuleDraft.fromRow)
       .list()

@@ -6,6 +6,8 @@ import scalikejdbc.DBSession
 import scalikejdbc.scalatest.AutoRollback
 
 trait RuleFixture extends FixtureAnyFlatSpec with AutoRollback {
+  val autoSession = AutoSession
+
   override def fixture(implicit session: DBSession) = {
     val initialRevisionId = 0
     val initialExternalId = "googleSheetId"
@@ -34,4 +36,19 @@ trait RuleFixture extends FixtureAnyFlatSpec with AutoRollback {
       .update()
       .apply()
   }
+
+  def insertRule(
+      ruleType: String = "regex",
+      pattern: Option[String] = None,
+      description: Option[String] = None
+  )(implicit session: DBSession = autoSession) = DbRuleDraft
+    .create(
+      ruleType = ruleType,
+      pattern = pattern,
+      description,
+      description,
+      user = "test.user",
+      ignore = false
+    )
+    .get
 }
