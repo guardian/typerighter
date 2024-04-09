@@ -291,7 +291,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         }
       }
 
-      sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}${if (orderStmts.nonEmpty) sqls", " else sqls.empty}${rd.ruleType} ASC"
+      sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}${if (orderStmts.nonEmpty) sqls", "
+        else sqls.empty}${rd.ruleType} ASC"
     }
 
     val data = sql"""

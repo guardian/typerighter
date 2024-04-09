@@ -155,7 +155,12 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     Tags.create("Tag 2")
     val rule = insertRule(ruleType = "dictionary", pattern = Some("findme"), tags = List(2))
 
-    val results = DbRuleDraft.searchRules(1, ruleTypes = List("dictionary"), maybeWord = Some("findme"), tags = List(2))
+    val results = DbRuleDraft.searchRules(
+      1,
+      ruleTypes = List("dictionary"),
+      maybeWord = Some("findme"),
+      tags = List(2)
+    )
     results.data.map(_.pattern) shouldBe List(rule).map(_.pattern)
   }
 
