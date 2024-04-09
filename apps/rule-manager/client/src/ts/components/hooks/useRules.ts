@@ -31,6 +31,8 @@ export function useRules() {
 		pageIndex: number = 0,
 		queryStr: string = '',
 		sortColumns: SortColumns = [],
+		tags: number[] = [],
+		ruleTypes: string[] = [],
 	): Promise<void> => {
 		setIsLoading(true);
 		try {
@@ -39,6 +41,12 @@ export function useRules() {
 				page: page.toString(),
 				...(queryStr ? { queryStr } : {}),
 			});
+
+			tags.forEach((tag) => queryParams.append('tags', tag.toString()));
+			ruleTypes.forEach((ruleType) =>
+				queryParams.append('ruleTypes', ruleType),
+			);
+
 			sortColumns.forEach((colAndDir) =>
 				queryParams.append(
 					'sortBy',
