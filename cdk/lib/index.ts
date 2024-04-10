@@ -214,14 +214,16 @@ EOF
       parameters.CheckerCertificate.valueAsString
     );
 
+    const checkerOrigin = new LoadBalancerV2Origin(checkerApp.loadBalancer, {
+      protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+    });
+
     const checkerCloudFrontDistro = new Distribution(
       this,
       "typerighter-cloudfront",
       {
         defaultBehavior: {
-          origin: new LoadBalancerV2Origin(checkerApp.loadBalancer, {
-            protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
-          }),
+          origin: checkerOrigin,
           allowedMethods: AllowedMethods.ALLOW_ALL,
           cachePolicy: new CachePolicy(
             this,
@@ -247,6 +249,8 @@ EOF
         certificate: checkerCertificate,
       }
     );
+
+    checkerCloudFrontDistro.addBehavior("/healthcheck", checkerOrigin, { cachePolicy: CachePolicy.CACHING_DISABLED });
 
     const checkerDnsRecord = new GuDnsRecordSet(this, "checker-dns-records", {
       name: checkerDomain,
