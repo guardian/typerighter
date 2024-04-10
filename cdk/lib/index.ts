@@ -225,33 +225,14 @@ EOF
         defaultBehavior: {
           origin: checkerOrigin,
           allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: new CachePolicy(
-            this,
-            "checker-cloudfront-cache-policy",
-            {
-              cachePolicyName: `checker-cloudfront-cache-policy-${this.stage}`,
-              cookieBehavior: CacheCookieBehavior.all(),
-              headerBehavior: CacheHeaderBehavior.allowList(
-                "Host",
-                "Origin",
-                "Access-Control-Request-Headers",
-                "Access-Control-Request-Method",
-                "X-Gu-Tools-HMAC-Token",
-                "X-Gu-Tools-HMAC-Date",
-                "X-Gu-Tools-Service-Name"
-              ),
-              queryStringBehavior: CacheQueryStringBehavior.all(),
-            }
-          ),
+          cachePolicy: CachePolicy.CACHING_DISABLED
         },
         domainNames: [checkerDomain],
         logBucket: cloudfrontBucket,
         certificate: checkerCertificate,
       }
     );
-
-    checkerCloudFrontDistro.addBehavior("/healthcheck", checkerOrigin, { cachePolicy: CachePolicy.CACHING_DISABLED });
-
+    
     const checkerDnsRecord = new GuDnsRecordSet(this, "checker-dns-records", {
       name: checkerDomain,
       recordType: RecordType.CNAME,
