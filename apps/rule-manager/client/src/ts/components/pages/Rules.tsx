@@ -165,30 +165,26 @@ export const Rules = () => {
 								onChange={(e) => setQueryStr(e.target.value)}
 							/>
 						</EuiFlexItem>
-						<EuiFlexItem>
-							<EuiComboBox<string>
-								fullWidth
-								placeholder="Filter by rule type"
-								options={ruleTypeOptionsWithId}
-								selectedOptions={selectedRuleTypeOptions}
-								onChange={(ids) =>
-									setSelectedRuleTypeOptions(
-										ids as { label: string; value: string }[],
-									)
-								}
-							/>
-						</EuiFlexItem>
-						<EuiFlexItem>
-							<EuiComboBox<number>
-								fullWidth
-								placeholder="Filter by tag"
-								options={tagOptions}
-								selectedOptions={selectedTags}
-								onChange={(ids) =>
-									setSelectedTags(ids as { label: string; value: number }[])
-								}
-							/>
-						</EuiFlexItem>
+						<EuiComboBox<string>
+							style={{ maxWidth: '200px' }}
+							placeholder="Filter by rule type"
+							options={ruleTypeOptionsWithId}
+							selectedOptions={selectedRuleTypeOptions}
+							onChange={(ids) =>
+								setSelectedRuleTypeOptions(
+									ids as { label: string; value: string }[],
+								)
+							}
+						/>
+						<EuiComboBox<number>
+							style={{ maxWidth: '200px' }}
+							placeholder="Filter by tag"
+							options={tagOptions}
+							selectedOptions={selectedTags}
+							onChange={(ids) =>
+								setSelectedTags(ids as { label: string; value: number }[])
+							}
+						/>
 					</EuiFlexGroup>
 				</EuiFlexItem>
 				<EuiFlexItem grow={0}>
