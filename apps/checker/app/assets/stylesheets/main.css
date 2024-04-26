@@ -1,0 +1,39 @@
+@import "/assets/lib/bootstrap/css/bootstrap.css";
+
+@font-face {
+  font-family: GHGuardianHeadline;
+  src: url('/assets/fonts/GHGuardianHeadline-Medium.ttf') format('woff2'),
+  url('/assets/fonts/GHGuardianHeadline-Medium.woff') format('woff'),
+  url('/assets/fonts/GHGuardianHeadline-Medium.woff') format('truetype');
+  font-weight: bold;
+  font-weight: 700;
+}
+
+:root {
+  --headline-font: GHGuardianHeadline, "Times New Roman", Serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: var(--headline-font);
+}
+
+.typerighter-logotype {
+  font-family: var(--headline-font);
+}
+
+@media (min-width: 1400px) {
+  .container {
+      max-width: 1400px;
+  }
+}
