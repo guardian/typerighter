@@ -40,7 +40,7 @@ class RulesController(
             .map(toFormError("refresh-sheet"))
           _ <- RuleManager.destructivelyPublishRules(dbRules, bucketRuleResource)
         } yield {
-          RuleManager.searchDraftRules(1, None, List.empty)
+          RuleManager.searchDraftRules(1)
         }
 
         maybeWrittenRules match {
@@ -72,9 +72,15 @@ class RulesController(
     }
   }
 
-  def list(page: Int = 1, word: Option[String] = None, sortBy: List[String] = List.empty) =
+  def list(
+      page: Int = 1,
+      word: Option[String] = None,
+      tags: List[Int] = List.empty,
+      ruleTypes: List[String] = List.empty,
+      sortBy: List[String] = List.empty
+  ) =
     APIAuthAction {
-      Ok(Json.toJson(RuleManager.searchDraftRules(page, word, sortBy)))
+      Ok(Json.toJson(RuleManager.searchDraftRules(page, word, tags, ruleTypes, sortBy)))
     }
 
   def get(id: Int) = APIAuthAction {

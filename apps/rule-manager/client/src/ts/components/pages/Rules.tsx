@@ -6,6 +6,7 @@ import {
 	EuiButtonIcon,
 	EuiToolTip,
 	EuiSpacer,
+	EuiComboBox,
 } from '@elastic/eui';
 import { SortColumns, useRules } from '../hooks/useRules';
 import { StandaloneRuleForm } from '../RuleForm';
@@ -17,6 +18,8 @@ import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 import { PaginatedRulesTable } from '../table/PaginatedRulesTable';
 import { useDebouncedValue } from '../hooks/useDebounce';
 import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWithFixedHeader';
+import { Tag, TagsContext } from '../context/tags';
+import { ruleTypeOptions } from '../RuleContent';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -24,8 +27,25 @@ export const useCreateEditPermissions = () => {
 	return useMemo(() => hasCreateEditPermissions(permissions), [permissions]);
 };
 
+const ruleTypeOptionsWithId = ruleTypeOptions.map((opt) => ({
+	label: opt.label,
+	value: opt.id,
+}));
+
 export const Rules = () => {
 	const [queryStr, setQueryStr] = useState<string>('');
+	const [selectedRuleTypeOptions, setSelectedRuleTypeOptions] = useState<
+		{ label: string; value: string }[]
+	>([]);
+	const [selectedTags, setSelectedTags] = useState<
+		{ label: string; value: number }[]
+	>([]);
+	const { tags } = useContext(TagsContext);
+	const tagOptions = useMemo(
+		() =>
+			Object.values(tags).map((tag) => ({ label: tag.name, value: tag.id })),
+		[tags],
+	);
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
 	const {
 		ruleData,
@@ -58,8 +78,20 @@ export const Rules = () => {
 	};
 
 	useEffect(() => {
-		fetchRules(pageIndex, debouncedQueryStr, sortColumns);
-	}, [pageIndex, debouncedQueryStr, sortColumns]);
+		fetchRules(
+			pageIndex,
+			debouncedQueryStr,
+			sortColumns,
+			selectedTags.map((_) => _.value),
+			selectedRuleTypeOptions.map((_) => _.value),
+		);
+	}, [
+		pageIndex,
+		debouncedQueryStr,
+		sortColumns,
+		selectedTags,
+		selectedRuleTypeOptions,
+	]);
 
 	useEffect(() => {
 		if (rowSelection.size === 0) {
@@ -124,11 +156,36 @@ export const Rules = () => {
 			) : null}
 			<EuiFlexGroup>
 				<EuiFlexItem>
-					<EuiFieldSearch
-						fullWidth
-						value={queryStr}
-						onChange={(e) => setQueryStr(e.target.value)}
-					/>
+					<EuiFlexGroup gutterSize="s">
+						<EuiFlexItem grow={3}>
+							<EuiFieldSearch
+								placeholder="Search tag description, pattern, or replacement"
+								fullWidth
+								value={queryStr}
+								onChange={(e) => setQueryStr(e.target.value)}
+							/>
+						</EuiFlexItem>
+						<EuiComboBox<string>
+							style={{ maxWidth: '200px' }}
+							placeholder="Filter by rule type"
+							options={ruleTypeOptionsWithId}
+							selectedOptions={selectedRuleTypeOptions}
+							onChange={(ids) =>
+								setSelectedRuleTypeOptions(
+									ids as { label: string; value: string }[],
+								)
+							}
+						/>
+						<EuiComboBox<number>
+							style={{ maxWidth: '200px' }}
+							placeholder="Filter by tag"
+							options={tagOptions}
+							selectedOptions={selectedTags}
+							onChange={(ids) =>
+								setSelectedTags(ids as { label: string; value: number }[])
+							}
+						/>
+					</EuiFlexGroup>
 				</EuiFlexItem>
 				<EuiFlexItem grow={0}>
 					<EuiToolTip
