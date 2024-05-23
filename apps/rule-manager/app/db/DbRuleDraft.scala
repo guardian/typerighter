@@ -165,7 +165,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     sqls"(${rl.revisionId} IS NOT NULL AND ${rl.revisionId} < ${rd.revisionId}) AS has_unpublished_changes"
 
   val countColumn = sqls"COUNT(*) AS rule_count"
-  val getPageCountColumn = (pageSize: Int) => sqls"CEILING(COUNT(*) / $pageSize) as page_count"
+  val getPageCountColumn = (pageSize: Int) =>
+    sqls"CEILING(COUNT(*) / $pageSize::float ) as page_count"
 
   val draftRuleColumns = SQLSyntax.createUnsafely(
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
@@ -325,6 +326,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
          LEFT JOIN ${RuleTagDraft.as(rt)}
             ON ${rd.id} = ${rt.ruleId}
          $condition
+         GROUP BY
+           $draftRuleColumns,
+           ${rl.externalId},
+           ${rl.revisionId}
+           ${maybeWord
+          .map { _ => sqls"," + SQLSyntax.createUnsafely(similarityCol) }
+          .getOrElse(sqls.empty)}
       """
         .map(rs => (rs.int("page_count"), rs.int("rule_count")))
         .single()
