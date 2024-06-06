@@ -9,7 +9,7 @@ import play.api.mvc.Results.NotFound
 
 import java.time.OffsetDateTime
 
-class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
+class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
 
   def assertDatesAreWithinRangeMs(date1: OffsetDateTime, date2: OffsetDateTime, range: Int) = {
     date1.toInstant().toEpochMilli should be(date2.toInstant().toEpochMilli +- range)
@@ -63,6 +63,60 @@ class DraftRulesSpec extends RuleFixture with Matchers with DBTest {
     unpublished.isPublished should be(false)
     published should be(DbRuleDraft.find(2).get)
     published.isPublished should be(true)
+  }
+
+  it should "return pagination results when searching" in { implicit session =>
+    val totalNoOfRules = 25
+    val pageSize = 10
+    (1 to totalNoOfRules).foreach { ruleNo =>
+      DbRuleDraft
+        .create(
+          ruleType = "regex",
+          pattern = Some(s"Rule $ruleNo"),
+          user = "test.user",
+          ignore = false
+        )
+        .get
+    }
+
+    val results = DbRuleDraft.searchRules(
+      page = 1,
+      maybeWord = Some("Rule"),
+      sortBy = List("+pattern"),
+      pageSize = pageSize
+    )
+    results.data.size shouldBe pageSize
+    results.data.flatMap(_.pattern) shouldBe (1 to 10).map(n => s"Rule $n").toList
+    results.total shouldBe totalNoOfRules
+    results.page shouldBe 1
+    results.pageSize shouldBe pageSize
+  }
+
+  it should "return subsequent pages correctly" in { implicit session =>
+    val totalNoOfRules = 25
+    val pageSize = 10
+    (1 to totalNoOfRules).foreach { ruleNo =>
+      DbRuleDraft
+        .create(
+          ruleType = "regex",
+          pattern = Some(s"Rule $ruleNo"),
+          user = "test.user",
+          ignore = false
+        )
+        .get
+    }
+
+    val results = DbRuleDraft.searchRules(
+      page = 2,
+      maybeWord = Some("Rule"),
+      sortBy = List("+pattern"),
+      pageSize = pageSize
+    )
+    results.data.size shouldBe pageSize
+    results.data.flatMap(_.pattern) shouldBe (11 to 20).map(n => s"Rule $n")
+    results.total shouldBe totalNoOfRules
+    results.page shouldBe 2
+    results.pageSize shouldBe pageSize
   }
 
   it should "search rules using a partial search phrase – pattern" in { implicit session =>
