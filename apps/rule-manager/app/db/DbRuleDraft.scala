@@ -164,9 +164,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val hasUnpublishedChangesColumn =
     sqls"(${rl.revisionId} IS NOT NULL AND ${rl.revisionId} < ${rd.revisionId}) AS has_unpublished_changes"
 
-  val countColumn = sqls"COUNT(*) AS rule_count"
-  val getPageCountColumn = (pageSize: Int) => sqls"CEILING(COUNT(*) / $pageSize) as page_count"
-
   val draftRuleColumns = SQLSyntax.createUnsafely(
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
   )
@@ -223,6 +220,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
+  val searchDbColumns = List(
+    draftRuleColumns,
+    isPublishedColumn,
+    hasUnpublishedChangesColumn,
+    tagColumn
+  )
+
   /** Search for rules.
     *
     * `sortBy` expects a list of columns prepended by + or - to signify direction, e.g.
@@ -233,19 +237,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       maybeWord: Option[String] = None,
       tags: List[Int] = List.empty,
       ruleTypes: List[String] = List.empty,
-      sortBy: List[String] = List.empty
+      sortBy: List[String] = List.empty,
+      pageSize: Int = 200
   )(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] = {
-    val pageSize = 200
-
-    val dbColumns = List(
-      draftRuleColumns,
-      isPublishedColumn,
-      hasUnpublishedChangesColumn,
-      tagColumn
-    )
-
     val coalescedCols =
       sqls"""
         coalesce(${rd.column("pattern")}, '') ||
@@ -296,7 +292,11 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     }
 
     val data = sql"""
-        SELECT $dbColumns $similarityAlias
+        SELECT
+            $searchDbColumns
+            $similarityAlias,
+            COUNT(${rd.id}) OVER () AS rule_count,
+            CEIL(cast (COUNT(${rd.id}) OVER () as decimal) / $pageSize) as page_count
           FROM ${DbRuleDraft.as(rd)}
           LEFT JOIN ${DbRuleLive.as(rl)}
             ON ${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true
@@ -314,24 +314,19 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           LIMIT $pageSize
           OFFSET ${(page - 1) * pageSize}
       """
-      .map(DbRuleDraft.fromRow)
+      .map(rs => (DbRuleDraft.fromRow(rs), rs.int("page_count"), rs.int("rule_count")))
       .list()
       .apply()
 
-    val (maxPages, total) =
-      sql"""
-         SELECT $countColumn, ${getPageCountColumn(pageSize)}
-         FROM ${DbRuleDraft.as(rd)}
-         LEFT JOIN ${RuleTagDraft.as(rt)}
-            ON ${rd.id} = ${rt.ruleId}
-         $condition
-      """
-        .map(rs => (rs.int("page_count"), rs.int("rule_count")))
-        .single()
-        .apply()
-        .getOrElse((1, 0))
+    val (maxPages, total) = data.headOption
+      .map { case (_, pageCount, ruleCount) =>
+        (pageCount, ruleCount)
+      }
+      .getOrElse((1, 0))
 
-    PaginatedResponse(data, pageSize, page, maxPages, total)
+    val rules = data.map(_._1)
+
+    PaginatedResponse(rules, pageSize, page, maxPages, total)
   }
 
   def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
