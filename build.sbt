@@ -25,10 +25,10 @@ ThisBuild / scalacOptions := Seq(
 ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.0"
-val awsSdkVersion = "1.12.576"
+val awsSdkVersion = "1.12.749"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
-val pandaVersion = "3.0.1"
+val pandaVersion = "3.1.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
@@ -85,7 +85,7 @@ val commonSettings = Seq(
     "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
-    "ch.qos.logback" % "logback-classic" % "1.4.4", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
+    "ch.qos.logback" % "logback-classic" % "1.4.14", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
 ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
@@ -97,7 +97,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     libraryDependencies ++= Seq(
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.9.2",
+      "com.typesafe.play" %% "play" % "2.9.4",
     )
   )
 
@@ -136,7 +136,7 @@ val checker = playProject(
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
-      "org.webjars" % "bootstrap" % "4.3.1",
+      "org.webjars" % "bootstrap" % "4.6.2",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
