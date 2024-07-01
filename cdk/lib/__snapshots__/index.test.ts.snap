@@ -15,6 +15,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       "GuPlayApp",
       "GuCertificate",
       "GuInstanceRole",
+      "GuSsmSshPolicy",
       "GuDescribeEC2Policy",
       "GuLoggingStreamNameParameter",
       "GuLogShippingPolicy",
@@ -149,6 +150,15 @@ exports[`The typerighter stack matches the snapshot 1`] = `
           },
         },
         "MaxSize": "2",
+        "MetricsCollection": [
+          {
+            "Granularity": "1Minute",
+            "Metrics": [
+              "GroupTotalInstances",
+              "GroupInServiceInstances",
+            ],
+          },
+        ],
         "MinSize": "1",
         "Tags": [
           {
@@ -216,6 +226,15 @@ exports[`The typerighter stack matches the snapshot 1`] = `
           },
         },
         "MaxSize": "2",
+        "MetricsCollection": [
+          {
+            "Granularity": "1Minute",
+            "Metrics": [
+              "GroupTotalInstances",
+              "GroupInServiceInstances",
+            ],
+          },
+        ],
         "MinSize": "1",
         "Tags": [
           {
@@ -825,20 +844,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
           ],
           "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/AmazonSSMManagedInstanceCore",
-              ],
-            ],
-          },
-        ],
         "Path": "/",
         "Tags": [
           {
@@ -879,20 +884,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
           ],
           "Version": "2012-10-17",
         },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/AmazonSSMManagedInstanceCore",
-              ],
-            ],
-          },
-        ],
         "Path": "/",
         "Tags": [
           {
@@ -1004,6 +995,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         },
         "Port": 443,
         "Protocol": "HTTPS",
+        "SslPolicy": "ELBSecurityPolicy-TLS13-1-2-2021-06",
       },
       "Type": "AWS::ElasticLoadBalancingV2::Listener",
     },
@@ -1029,6 +1021,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         },
         "Port": 443,
         "Protocol": "HTTPS",
+        "SslPolicy": "ELBSecurityPolicy-TLS13-1-2-2021-06",
       },
       "Type": "AWS::ElasticLoadBalancingV2::Listener",
     },
@@ -1037,6 +1030,14 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "LoadBalancerAttributes": [
           {
             "Key": "deletion_protection.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "routing.http.x_amzn_tls_version_and_cipher_suite.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "routing.http.drop_invalid_header_fields.enabled",
             "Value": "true",
           },
         ],
@@ -1165,6 +1166,14 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "LoadBalancerAttributes": [
           {
             "Key": "deletion_protection.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "routing.http.x_amzn_tls_version_and_cipher_suite.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "routing.http.drop_invalid_header_fields.enabled",
             "Value": "true",
           },
         ],
@@ -1515,6 +1524,45 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       "Type": "AWS::RDS::DBInstance",
       "UpdateReplacePolicy": "Snapshot",
     },
+    "SsmSshPolicy4CFC977E": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ec2messages:AcknowledgeMessage",
+                "ec2messages:DeleteMessage",
+                "ec2messages:FailMessage",
+                "ec2messages:GetEndpoint",
+                "ec2messages:GetMessages",
+                "ec2messages:SendReply",
+                "ssm:UpdateInstanceInformation",
+                "ssm:ListInstanceAssociations",
+                "ssm:DescribeInstanceProperties",
+                "ssm:DescribeDocumentParameters",
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel",
+              ],
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "ssm-ssh-policy",
+        "Roles": [
+          {
+            "Ref": "InstanceRoleTyperightercheckerEA6224AC",
+          },
+          {
+            "Ref": "InstanceRoleTyperighterrulemanagerC4CF9347",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "TargetGroupTyperighterchecker7E7859CF": {
       "Properties": {
         "HealthCheckIntervalSeconds": 10,
@@ -1853,6 +1901,10 @@ exports[`The typerighter stack matches the snapshot 1`] = `
               "ResourceType": "instance",
               "Tags": [
                 {
+                  "Key": "App",
+                  "Value": "typerighter-checker",
+                },
+                {
                   "Key": "gu:cdk:version",
                   "Value": "TEST",
                 },
@@ -1877,6 +1929,10 @@ exports[`The typerighter stack matches the snapshot 1`] = `
             {
               "ResourceType": "volume",
               "Tags": [
+                {
+                  "Key": "App",
+                  "Value": "typerighter-checker",
+                },
                 {
                   "Key": "gu:cdk:version",
                   "Value": "TEST",
@@ -1936,6 +1992,10 @@ chown typerighter-checker /usr/share/typerighter-checker/conf/resources/dictiona
           {
             "ResourceType": "launch-template",
             "Tags": [
+              {
+                "Key": "App",
+                "Value": "typerighter-checker",
+              },
               {
                 "Key": "gu:cdk:version",
                 "Value": "TEST",
@@ -2013,6 +2073,10 @@ chown typerighter-checker /usr/share/typerighter-checker/conf/resources/dictiona
               "ResourceType": "instance",
               "Tags": [
                 {
+                  "Key": "App",
+                  "Value": "typerighter-rule-manager",
+                },
+                {
                   "Key": "gu:cdk:version",
                   "Value": "TEST",
                 },
@@ -2037,6 +2101,10 @@ chown typerighter-checker /usr/share/typerighter-checker/conf/resources/dictiona
             {
               "ResourceType": "volume",
               "Tags": [
+                {
+                  "Key": "App",
+                  "Value": "typerighter-rule-manager",
+                },
                 {
                   "Key": "gu:cdk:version",
                   "Value": "TEST",
@@ -2087,6 +2155,10 @@ EOF
           {
             "ResourceType": "launch-template",
             "Tags": [
+              {
+                "Key": "App",
+                "Value": "typerighter-rule-manager",
+              },
               {
                 "Key": "gu:cdk:version",
                 "Value": "TEST",
@@ -2178,6 +2250,24 @@ EOF
         "Namespace": "Typerighter",
         "Period": 3600,
         "Statistic": "Sum",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
         "Threshold": 0,
         "TreatMissingData": "notBreaching",
       },

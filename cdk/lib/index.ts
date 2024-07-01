@@ -46,7 +46,7 @@ import {
 } from "aws-cdk-lib/aws-rds";
 import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
 import { AccessScope } from "@guardian/cdk/lib/constants/access";
-import {Secret} from "aws-cdk-lib/aws-secretsmanager";
+import { Secret } from "aws-cdk-lib/aws-secretsmanager";
 
 export interface TyperighterStackProps extends GuStackProps {
   domainSuffix: string;
@@ -334,7 +334,7 @@ EOF
       storageEncrypted: true,
       storageType: StorageType.GP2,
       removalPolicy: RemovalPolicy.SNAPSHOT,
+      devXBackups: { enabled: true }
     });
-    Tags.of(ruleDB).add("devx-backup-enabled", "true");
   }
 }
