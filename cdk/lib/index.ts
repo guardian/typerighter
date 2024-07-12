@@ -303,7 +303,7 @@ EOF
     const ruleDB = new GuDatabaseInstance(this, "RuleManagerRDS", {
       app: dbAppName,
       vpc: ruleManagerApp.vpc,
-      vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_NAT },
+      vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
       allocatedStorage: 50,
       allowMajorVersionUpgrade: false,
       autoMinorVersionUpgrade: true,
