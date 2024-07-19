@@ -1,3 +1,4 @@
+import { GuLambdaFunction } from "@guardian/cdk/lib/constructs/lambda";
 import {
   App,
   Duration,
@@ -37,6 +38,7 @@ import {
   TreatMissingData,
 } from "aws-cdk-lib/aws-cloudwatch";
 import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
+import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
 import {
   Credentials,
   DatabaseInstanceEngine,
@@ -335,6 +337,14 @@ EOF
       storageType: StorageType.GP2,
       removalPolicy: RemovalPolicy.SNAPSHOT,
       devXBackups: { enabled: true }
+    });
+
+    new GuLambdaFunction(this, 'TyperighterLiveContentLambda', {
+      app: 'typerighter-live-content-lambda',
+      fileName: 'typerighter-live-content-lambda.zip',
+      handler: 'index.main',
+      runtime: Runtime.NODEJS_20_X,
+      architecture: Architecture.ARM_64,
     });
   }
 }
