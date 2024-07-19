@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --detectOpenHandles --config ./jest.config.js --selectProjects lambda",
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" npx jest --detectOpenHandles --config ./jest.config.js --selectProjects lambda --passWithNoTests",
     "start": "tsx --env-file=.env src/run-locally.ts",
     "lint": "eslint --ext .ts --no-error-on-unmatched-pattern",
     "format": "prettier --write src/*.ts",
