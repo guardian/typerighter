@@ -108,6 +108,10 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       "Description": "A list of private subnets",
       "Type": "AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>",
     },
+    "SsmParameterValueTESTtyperightertyperighterlivecontentlambdafirehoseARNC96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/TEST/typerighter/typerighter-live-content-lambda/firehose-ARN",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
     "VpcId": {
       "Default": "/account/vpc/primary/id",
       "Description": "Virtual Private Cloud to run EC2 instances within. Should NOT be the account default VPC.",
@@ -1722,6 +1726,19 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Lambda::Function",
     },
+    "TyperighterLiveContentLambdaKinesisEventSourcetyperighterContentApiFirehose12B21953B7975807": {
+      "Properties": {
+        "BatchSize": 100,
+        "EventSourceArn": {
+          "Ref": "SsmParameterValueTESTtyperightertyperighterlivecontentlambdafirehoseARNC96584B6F00A464EAD1953AFF4B05118Parameter",
+        },
+        "FunctionName": {
+          "Ref": "TyperighterLiveContentLambdaF35D688E",
+        },
+        "StartingPosition": "LATEST",
+      },
+      "Type": "AWS::Lambda::EventSourceMapping",
+    },
     "TyperighterLiveContentLambdaServiceRole47E0FE94": {
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -1746,6 +1763,18 @@ exports[`The typerighter stack matches the snapshot 1`] = `
                   "Ref": "AWS::Partition",
                 },
                 ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaKinesisExecutionRole",
               ],
             ],
           },
@@ -1861,6 +1890,29 @@ exports[`The typerighter stack matches the snapshot 1`] = `
                     ":parameter/TEST/flexible/typerighter-live-content-lambda/*",
                   ],
                 ],
+              },
+            },
+            {
+              "Action": [
+                "kinesis:DescribeStreamSummary",
+                "kinesis:GetRecords",
+                "kinesis:GetShardIterator",
+                "kinesis:ListShards",
+                "kinesis:SubscribeToShard",
+                "kinesis:DescribeStream",
+                "kinesis:ListStreams",
+                "kinesis:DescribeStreamConsumer",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "SsmParameterValueTESTtyperightertyperighterlivecontentlambdafirehoseARNC96584B6F00A464EAD1953AFF4B05118Parameter",
+              },
+            },
+            {
+              "Action": "kinesis:DescribeStream",
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "SsmParameterValueTESTtyperightertyperighterlivecontentlambdafirehoseARNC96584B6F00A464EAD1953AFF4B05118Parameter",
               },
             },
           ],

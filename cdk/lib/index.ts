@@ -4,7 +4,6 @@ import {
   Duration,
   RemovalPolicy,
   SecretValue,
-  Tags,
 } from "aws-cdk-lib";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
@@ -38,7 +37,10 @@ import {
   TreatMissingData,
 } from "aws-cdk-lib/aws-cloudwatch";
 import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
-import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
+import { ManagedPolicy, Role } from "aws-cdk-lib/aws-iam";
+import { Stream } from "aws-cdk-lib/aws-kinesis";
+import { Architecture, Runtime, StartingPosition } from "aws-cdk-lib/aws-lambda";
+import { KinesisEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import {
   Credentials,
   DatabaseInstanceEngine,
@@ -49,6 +51,7 @@ import {
 import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
 import { AccessScope } from "@guardian/cdk/lib/constants/access";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 export interface TyperighterStackProps extends GuStackProps {
   domainSuffix: string;
@@ -339,12 +342,27 @@ EOF
       devXBackups: { enabled: true }
     });
 
-    new GuLambdaFunction(this, 'TyperighterLiveContentLambda', {
+    const liveContentLambda = new GuLambdaFunction(this, 'TyperighterLiveContentLambda', {
       app: 'typerighter-live-content-lambda',
       fileName: 'typerighter-live-content-lambda.zip',
       handler: 'index.main',
       runtime: Runtime.NODEJS_20_X,
-      architecture: Architecture.ARM_64,
+      architecture: Architecture.ARM_64
     });
+
+    liveContentLambda.role?.addManagedPolicy(
+      ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaKinesisExecutionRole")
+    );
+
+    const streamARN = StringParameter.valueForStringParameter(this,
+      // This has been manually created in the console for now
+      `/${this.stage}/typerighter/typerighter-live-content-lambda/firehose-ARN`
+    );
+
+    const stream = Stream.fromStreamArn(this, 'ContentApiFirehose', streamARN);
+
+    liveContentLambda.addEventSource(new KinesisEventSource(stream, {
+      startingPosition: StartingPosition.LATEST,
+    }));
   }
 }
