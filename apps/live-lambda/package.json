@@ -9,7 +9,7 @@
     "format": "prettier --write src/*.ts",
     "prebuild": "rm -rf dist",
     "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --outdir=dist",
-    "postbuild": "cd dist && zip -r example-typescript-lambda.zip ."
+    "postbuild": "cd dist && zip -r typerighter-live-content-lambda.zip ."
   },
   "devDependencies": {
     "esbuild": "0.23.0",

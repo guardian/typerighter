@@ -62,6 +62,20 @@ jobs:
       - name: rename rule manager debian artifact
         run: mv apps/rule-manager/target/rule-manager_1.0-SNAPSHOT_all.deb target/typerighter-rule-manager.deb
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.15.1
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: build live-content-lambda
+        working-directory: ./apps/live-lambda
+        run: |
+          npm ci
+          npm run lint
+          npm run test
+          npm run build
+
       - name: upload to riff-raff
         uses: guardian/actions-riff-raff@v2
         with:
@@ -73,6 +87,8 @@ jobs:
             - target/typerighter-checker.deb
             typerighter-rule-manager:
             - target/typerighter-rule-manager.deb
+            typerighter-live-content-lambda:
+            - dist/typerighter-live-content-lambda.zip
             typerighter-cloudformation:
             - cdk/cdk.out/typerighter-PROD.template.json
             - cdk/cdk.out/typerighter-CODE.template.json
