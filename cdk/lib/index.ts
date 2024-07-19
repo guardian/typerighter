@@ -354,15 +354,15 @@ EOF
       ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaKinesisExecutionRole")
     );
 
-    const streamARN = StringParameter.valueForStringParameter(this,
-      // This has been manually created in the console for now
-      `/${this.stage}/typerighter/typerighter-live-content-lambda/firehose-ARN`
-    );
-
-    const stream = Stream.fromStreamArn(this, 'ContentApiFirehose', streamARN);
-
-    liveContentLambda.addEventSource(new KinesisEventSource(stream, {
-      startingPosition: StartingPosition.LATEST,
-    }));
+    // const streamARN = StringParameter.valueForStringParameter(this,
+    //   // This has been manually created in the console for now
+    //   `/${this.stage}/typerighter/typerighter-live-content-lambda/firehose-ARN`
+    // );
+    //
+    // const stream = Stream.fromStreamArn(this, 'ContentApiFirehose', streamARN);
+    //
+    // liveContentLambda.addEventSource(new KinesisEventSource(stream, {
+    //   startingPosition: StartingPosition.LATEST,
+    // }));
   }
 }
