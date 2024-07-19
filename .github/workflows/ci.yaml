@@ -88,7 +88,7 @@ jobs:
             typerighter-rule-manager:
             - target/typerighter-rule-manager.deb
             typerighter-live-content-lambda:
-            - dist/typerighter-live-content-lambda.zip
+            - apps/live-lambda/dist/typerighter-live-content-lambda.zip
             typerighter-cloudformation:
             - cdk/cdk.out/typerighter-PROD.template.json
             - cdk/cdk.out/typerighter-CODE.template.json
