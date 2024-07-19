@@ -11,6 +11,18 @@ deployments:
     type: autoscaling
     dependencies:
     - typerighter-cloudformation
+  typerighter-live-content-lambda:
+    type: aws-lambda
+    app: typerighter-live-content-lambda
+    contentDirectory: typerighter-live-content-lambda
+    parameters:
+      bucketSsmLookup: true
+      lookupByTags: true
+      fileName: typerighter-live-content-lambda.zip
+    actions:
+      - uploadLambda
+    dependencies:
+    - typerighter-cloudformation
   typerighter-cloudformation:
     type: cloud-formation
     parameters:
