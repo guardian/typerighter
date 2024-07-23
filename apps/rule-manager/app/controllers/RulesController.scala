@@ -279,4 +279,24 @@ class RulesController(
       case Left(error) => BadRequest(s"Invalid request: $error")
     }
   }
+
+  def csvImport() = Action { implicit request =>
+    val rules = for {
+      formData <- request.body.asMultipartFormData.toRight("No form data found in request")
+      file <- formData.file("file").toRight("No file found in request")
+      tag = formData.dataParts.get("tag") match {
+        case Some(tag) => tag.head
+        case None      => ""
+      }
+    } yield RuleManager.csvImport(
+      file.ref.path.toFile,
+      tag,
+      bucketRuleResource
+    )
+
+    rules match {
+      case Right(int)    => Ok(Json.toJson(int))
+      case Left(message) => BadRequest(message)
+    }
+  }
 }

@@ -18,6 +18,8 @@ import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, 
 import play.api.data.FormError
 import play.api.libs.json.{Json, OWrites}
 import scalikejdbc.DBSession
+import com.github.tototoshi.csv.CSVReader
+import java.io.File
 
 object AllRuleData {
   implicit val writes: OWrites[AllRuleData] = Json.writes[AllRuleData]
@@ -32,6 +34,49 @@ case class AllRuleData(
 )
 
 object RuleManager extends Loggable {
+  def csvImport(toFile: File, tagName: String, bucketRuleResource: BucketRuleResource) = {
+    val reader = CSVReader.open(toFile)
+    val rules = reader.all()
+
+    val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
+
+    val draftRules = rules.zipWithIndex.map { case (rule, index) =>
+      val pattern = rule(0)
+      val replacement = rule(1)
+      val description = rule(2)
+
+      DbRuleDraft.withUser(
+        id = None,
+        ruleType = RuleType.regex,
+        pattern = Some(pattern),
+        category = Some("Imported from CSV"),
+        description = Some(description),
+        ignore = false,
+        replacement = Some(replacement),
+        user = "CSV Import",
+        ruleOrder = initialRuleOrder + index
+      )
+    }
+    val ruleIds = DbRuleDraft.batchInsert(draftRules, true)
+
+    // Apply tag
+    val allTags = Tags.findAll()
+    allTags.find(tag => tag.name == tagName).map(_.id) match {
+      case Some(tagId) =>
+        RuleTagDraft.batchInsert(ruleIds.map(id => RuleTagDraft(id, tagId.getOrElse(-1))))
+      case None => log.error(s"Tag $tagName not found")
+    }
+
+    val rulesWithIds = DbRuleDraft.findRules(ruleIds)
+    val liveRulesWithIds = rulesWithIds.map(_.toLive("Imported from CSV", true))
+
+    DbRuleLive.batchInsert(liveRulesWithIds)
+
+    publishLiveRules(bucketRuleResource)
+
+    liveRulesWithIds.size
+  }
+
   object RuleType {
     val regex = "regex"
     val languageToolXML = "languageToolXML"

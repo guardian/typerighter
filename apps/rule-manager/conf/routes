@@ -21,6 +21,8 @@ GET     /api/rules/batch/:ids           controllers.RulesController.getRules(ids
 +nocsrf
 POST    /api/rules/batch                controllers.RulesController.batchUpdate()
 +nocsrf
+POST    /api/rules/csv-import           controllers.RulesController.csvImport()
++nocsrf
 GET     /api/rules/:id                  controllers.RulesController.get(id: Int)
 +nocsrf
 POST    /api/rules/:id                  controllers.RulesController.update(id: Int)
