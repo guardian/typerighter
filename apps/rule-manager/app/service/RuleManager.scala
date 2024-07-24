@@ -34,7 +34,12 @@ case class AllRuleData(
 )
 
 object RuleManager extends Loggable {
-  def csvImport(toFile: File, tagName: String, bucketRuleResource: BucketRuleResource) = {
+  def csvImport(
+      toFile: File,
+      tagName: String,
+      category: String,
+      bucketRuleResource: BucketRuleResource
+  ) = {
     val reader = CSVReader.open(toFile)
     val rules = reader.all()
 
@@ -49,7 +54,7 @@ object RuleManager extends Loggable {
         id = None,
         ruleType = RuleType.regex,
         pattern = Some(pattern),
-        category = Some("Imported from CSV"),
+        category = Some(category),
         description = Some(description),
         ignore = false,
         replacement = Some(replacement),

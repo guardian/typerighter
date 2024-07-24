@@ -288,9 +288,14 @@ class RulesController(
         case Some(tag) => tag.head
         case None      => ""
       }
+      category = formData.dataParts.get("category") match {
+        case Some(category) => category.head
+        case None           => ""
+      }
     } yield RuleManager.csvImport(
       file.ref.path.toFile,
       tag,
+      category,
       bucketRuleResource
     )
 
