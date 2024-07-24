@@ -42,6 +42,7 @@ object RuleManager extends Loggable {
   ) = {
     val reader = CSVReader.open(toFile)
     val rules = reader.all()
+    reader.close()
 
     val initialRuleOrder = DbRuleDraft.getLatestRuleOrder() + 1
 
