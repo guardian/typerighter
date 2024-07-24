@@ -285,12 +285,12 @@ class RulesController(
       formData <- request.body.asMultipartFormData.toRight("No form data found in request")
       file <- formData.file("file").toRight("No file found in request")
       tag = formData.dataParts.get("tag") match {
-        case Some(tag) => tag.head
-        case None      => ""
+        case Some(tag) => Some(tag.head)
+        case None      => None
       }
       category = formData.dataParts.get("category") match {
-        case Some(category) => category.head
-        case None           => ""
+        case Some(category) => Some(category.head)
+        case None           => None
       }
     } yield RuleManager.csvImport(
       file.ref.path.toFile,

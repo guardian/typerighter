@@ -36,8 +36,8 @@ case class AllRuleData(
 object RuleManager extends Loggable {
   def csvImport(
       toFile: File,
-      tagName: String,
-      category: String,
+      maybeTagName: Option[String],
+      category: Option[String],
       bucketRuleResource: BucketRuleResource
   ) = {
     val reader = CSVReader.open(toFile)
@@ -55,7 +55,7 @@ object RuleManager extends Loggable {
         id = None,
         ruleType = RuleType.regex,
         pattern = Some(pattern),
-        category = Some(category),
+        category = category,
         description = Some(description),
         ignore = false,
         replacement = Some(replacement),
@@ -65,12 +65,19 @@ object RuleManager extends Loggable {
     }
     val ruleIds = DbRuleDraft.batchInsert(draftRules, true)
 
-    // Apply tag
-    val allTags = Tags.findAll()
-    allTags.find(tag => tag.name == tagName).map(_.id) match {
-      case Some(tagId) =>
-        RuleTagDraft.batchInsert(ruleIds.map(id => RuleTagDraft(id, tagId.getOrElse(-1))))
-      case None => log.error(s"Tag $tagName not found")
+    maybeTagName match {
+      case Some(tagName) =>
+        val allTags = Tags.findAll()
+        allTags.find(tag => tag.name == tagName).map(_.id) match {
+          case Some(maybeTagId) =>
+            maybeTagId match {
+              case Some(tagId) =>
+                RuleTagDraft.batchInsert(ruleIds.map(id => RuleTagDraft(id, tagId)))
+              case None => log.error(s"Tag ${tagName} has no ID")
+            }
+          case None => log.error(s"Tag ${tagName} not found")
+        }
+      case None => // No tag specified. Do nothing
     }
 
     val rulesWithIds = DbRuleDraft.findRules(ruleIds)
