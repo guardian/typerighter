@@ -65,19 +65,18 @@ object RuleManager extends Loggable {
     }
     val ruleIds = DbRuleDraft.batchInsert(draftRules, true)
 
-    maybeTagName match {
-      case Some(tagName) =>
-        val allTags = Tags.findAll()
-        allTags.find(tag => tag.name == tagName).map(_.id) match {
-          case Some(maybeTagId) =>
-            maybeTagId match {
-              case Some(tagId) =>
-                RuleTagDraft.batchInsert(ruleIds.map(id => RuleTagDraft(id, tagId)))
-              case None => log.error(s"Tag ${tagName} has no ID")
-            }
-          case None => log.error(s"Tag ${tagName} not found")
-        }
-      case None => // No tag specified. Do nothing
+    for {
+      tagName <- maybeTagName
+      tag <- Tags.findAll().find(_.name == tagName).orElse {
+        log.error(s"Tag $tagName not found")
+        None
+      }
+      tagId <- tag.id.orElse {
+        log.error(s"Tag $tagName has no ID")
+        None
+      }
+    } yield {
+      RuleTagDraft.batchInsert(ruleIds.map(RuleTagDraft(_, tagId)))
     }
 
     val rulesWithIds = DbRuleDraft.findRules(ruleIds)
