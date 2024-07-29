@@ -11,7 +11,7 @@ import com.gu.typerighter.model.{
   TextSuggestion
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DBTest, DbRuleDraft, DbRuleLive}
+import db.{DBTest, DbRuleDraft, DbRuleLive, Tags}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
@@ -20,6 +20,8 @@ import com.softwaremill.diffx.scalatest.DiffShouldMatcher._
 import fixtures.RuleFixtures
 import play.api.data.FormError
 import utils.LocalStack
+
+import java.io.File
 import java.time.OffsetDateTime
 
 class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
@@ -557,5 +559,45 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
           allRuleData.draft.copy(updatedAt = mockUpdatedAt) shouldBe publishedRule.draft
             .copy(updatedAt = mockUpdatedAt)
       }
+  }
+
+  "csvImport" should "create draft and live rules based on the contents of the csv file passed in, ensuring the appropriate tag and category are set" in {
+    () =>
+      val tagToApply = Tags.create(name = "testTag")
+
+      val file = new File(getClass.getResource("/csv/mps.csv").toURI)
+
+      RuleManager.csvImport(
+        file,
+        Some("testTag"),
+        Some("Style guide and names"),
+        bucketRuleResource
+      )
+
+      val draftRules = DbRuleDraft.findAll()
+
+      draftRules.length shouldBe 3
+
+      val draftRule1 = draftRules(0)
+      draftRule1.pattern shouldBe Some("Dami(e|a)n Egan")
+      draftRule1.replacement shouldBe Some("Damien Egan")
+      draftRule1.description shouldBe Some("MP last elected in 2024: Labour, Bristol North East")
+      draftRule1.category shouldBe Some("Style guide and names")
+
+      draftRule1.tags.length shouldBe 1
+      draftRule1.tags(0) shouldBe tagToApply.get.id.get
+
+      val liveRules = DbRuleLive.findAll()
+
+      liveRules.length shouldBe 3
+
+      val liveRule1 = liveRules(0)
+      liveRule1.pattern shouldBe Some("Dami(e|a)n Egan")
+      liveRule1.replacement shouldBe Some("Damien Egan")
+      liveRule1.description shouldBe Some("MP last elected in 2024: Labour, Bristol North East")
+      liveRule1.category shouldBe Some("Style guide and names")
+
+      liveRule1.tags.length shouldBe 1
+      liveRule1.tags(0) shouldBe tagToApply.get.id.get
   }
 }
