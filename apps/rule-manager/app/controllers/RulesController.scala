@@ -294,8 +294,8 @@ class RulesController(
     )
 
     rules match {
-      case Right(int)    => Ok(Json.toJson(int))
-      case Left(message) => BadRequest(message)
+      case Right(noOfRulesAdded) => Ok(Json.toJson(noOfRulesAdded))
+      case Left(message)         => BadRequest(message)
     }
   }
 }
