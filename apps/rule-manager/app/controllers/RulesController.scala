@@ -284,14 +284,8 @@ class RulesController(
     val rules = for {
       formData <- request.body.asMultipartFormData.toRight("No form data found in request")
       file <- formData.file("file").toRight("No file found in request")
-      tag = formData.dataParts.get("tag") match {
-        case Some(tag) => Some(tag.head)
-        case None      => None
-      }
-      category = formData.dataParts.get("category") match {
-        case Some(category) => Some(category.head)
-        case None           => None
-      }
+      tag = formData.dataParts.get("tag").flatMap(_.headOption)
+      category = formData.dataParts.get("category").flatMap(_.headOption)
     } yield RuleManager.csvImport(
       file.ref.path.toFile,
       tag,
