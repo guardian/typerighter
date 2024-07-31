@@ -280,7 +280,7 @@ class RulesController(
     }
   }
 
-  def csvImport() = Action { implicit request =>
+  def csvImport() = APIAuthAction { implicit request =>
     val rules = for {
       formData <- request.body.asMultipartFormData.toRight("No form data found in request")
       file <- formData.file("file").toRight("No file found in request")
