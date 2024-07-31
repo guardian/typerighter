@@ -279,4 +279,23 @@ class RulesController(
       case Left(error) => BadRequest(s"Invalid request: $error")
     }
   }
+
+  def csvImport() = APIAuthAction { implicit request =>
+    val rules = for {
+      formData <- request.body.asMultipartFormData.toRight("No form data found in request")
+      file <- formData.file("file").toRight("No file found in request")
+      tag = formData.dataParts.get("tag").flatMap(_.headOption)
+      category = formData.dataParts.get("category").flatMap(_.headOption)
+    } yield RuleManager.csvImport(
+      file.ref.path.toFile,
+      tag,
+      category,
+      bucketRuleResource
+    )
+
+    rules match {
+      case Right(noOfRulesAdded) => Ok(Json.toJson(noOfRulesAdded))
+      case Left(message)         => BadRequest(message)
+    }
+  }
 }

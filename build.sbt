@@ -172,6 +172,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "editorial-permissions-client" % "2.14",
+      "com.github.tototoshi" %% "scala-csv" % "2.0.0",
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
   )
