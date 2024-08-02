@@ -38,6 +38,7 @@ object RuleManager extends Loggable {
       toFile: File,
       maybeTagName: Option[String],
       category: Option[String],
+      user: String,
       bucketRuleResource: BucketRuleResource
   ) = {
     val reader = CSVReader.open(toFile)
@@ -59,7 +60,7 @@ object RuleManager extends Loggable {
         description = Some(description),
         ignore = false,
         replacement = Some(replacement),
-        user = "CSV Import",
+        user = user,
         ruleOrder = initialRuleOrder + index
       )
     }
