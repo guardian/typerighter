@@ -90,6 +90,33 @@ object RuleManager extends Loggable {
     liveRulesWithIds.size
   }
 
+  def archiveRulesByTag(
+      maybeTagName: Option[String],
+      user: String,
+      bucketRuleResource: BucketRuleResource
+  ) = {
+    for {
+      tagName <- maybeTagName
+      tag <- Tags.findAll().find(_.name == tagName).orElse {
+        log.error(s"Tag $tagName not found")
+        None
+      }
+      tagId <- tag.id.orElse {
+        log.error(s"Tag $tagName has no ID")
+        None
+      }
+    } yield {
+      val ruleIds = RuleTagDraft.findRulesByTag(tagId)
+
+      ruleIds.foreach { id =>
+        unpublishRule(id, user, bucketRuleResource)
+        archiveRule(id, user)
+      }
+
+      ruleIds.size
+    }
+  }
+
   object RuleType {
     val regex = "regex"
     val languageToolXML = "languageToolXML"

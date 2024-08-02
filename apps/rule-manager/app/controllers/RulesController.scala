@@ -299,7 +299,27 @@ class RulesController(
 
         rules match {
           case Right(noOfRulesAdded) => Ok(Json.toJson(noOfRulesAdded))
-          case Left(message) => BadRequest(message)
+          case Left(message)         => BadRequest(message)
+        }
+    }
+  }
+
+  def archiveRulesByTag() = APIAuthAction { implicit request =>
+    hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
+      case false => Unauthorized("You don't have permission to edit rules")
+      case true =>
+        val rules = for {
+          formData <- request.body.asMultipartFormData.toRight("No form data found in request")
+          tag = formData.dataParts.get("tag").flatMap(_.headOption)
+        } yield RuleManager.archiveRulesByTag(
+          tag,
+          request.user.email,
+          bucketRuleResource
+        )
+
+        rules match {
+          case Right(noOfRulesArchived) => Ok(Json.toJson(noOfRulesArchived))
+          case Left(message)            => BadRequest(message)
         }
     }
   }
