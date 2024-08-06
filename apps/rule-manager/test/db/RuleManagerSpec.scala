@@ -11,7 +11,7 @@ import com.gu.typerighter.model.{
   TextSuggestion
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DBTest, DbRuleDraft, DbRuleLive, Tags}
+import db.{DBTest, DbRuleDraft, DbRuleLive, RuleTagDraft, Tags}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
@@ -571,6 +571,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
         file,
         Some("testTag"),
         Some("Style guide and names"),
+        "test@example.com",
         bucketRuleResource
       )
 
@@ -583,6 +584,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       draftRule1.replacement shouldBe Some("Damien Egan")
       draftRule1.description shouldBe Some("MP last elected in 2024: Labour, Bristol North East")
       draftRule1.category shouldBe Some("Style guide and names")
+      draftRule1.createdBy shouldBe "test@example.com"
 
       draftRule1.tags.length shouldBe 1
       draftRule1.tags(0) shouldBe tagToApply.get.id.get
@@ -596,8 +598,33 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       liveRule1.replacement shouldBe Some("Damien Egan")
       liveRule1.description shouldBe Some("MP last elected in 2024: Labour, Bristol North East")
       liveRule1.category shouldBe Some("Style guide and names")
+      liveRule1.createdBy shouldBe "test@example.com"
 
       liveRule1.tags.length shouldBe 1
       liveRule1.tags(0) shouldBe tagToApply.get.id.get
+  }
+
+  "archiveRulesByTag" should "archive all draft and live rules with a given tag" in { () =>
+    val tag = Tags.create(name = "testTag")
+
+    val draftRule = createPublishableRule
+    val liveRule = createPublishableRule
+    // create third rule to verify that only rules with the tag are archived
+    createPublishableRule
+
+    RuleTagDraft.batchInsert(
+      List(
+        RuleTagDraft(draftRule.id.get, tag.get.id.get),
+        RuleTagDraft(liveRule.id.get, tag.get.id.get)
+      )
+    )
+
+    liveRule.toLive("test")
+
+    RuleManager.archiveRulesByTag(Option("testTag"), "test@example.com", bucketRuleResource)
+
+    val archivedRules = DbRuleDraft.findAll().filter(_.isArchived)
+    archivedRules.length shouldBe 2
+    archivedRules(0).updatedBy shouldBe "test@example.com"
   }
 }

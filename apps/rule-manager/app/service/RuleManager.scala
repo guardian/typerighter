@@ -38,6 +38,7 @@ object RuleManager extends Loggable {
       toFile: File,
       maybeTagName: Option[String],
       category: Option[String],
+      user: String,
       bucketRuleResource: BucketRuleResource
   ) = {
     val reader = CSVReader.open(toFile)
@@ -59,7 +60,7 @@ object RuleManager extends Loggable {
         description = Some(description),
         ignore = false,
         replacement = Some(replacement),
-        user = "CSV Import",
+        user = user,
         ruleOrder = initialRuleOrder + index
       )
     }
@@ -87,6 +88,33 @@ object RuleManager extends Loggable {
     publishLiveRules(bucketRuleResource)
 
     liveRulesWithIds.size
+  }
+
+  def archiveRulesByTag(
+      maybeTagName: Option[String],
+      user: String,
+      bucketRuleResource: BucketRuleResource
+  ) = {
+    for {
+      tagName <- maybeTagName
+      tag <- Tags.findAll().find(_.name == tagName).orElse {
+        log.error(s"Tag $tagName not found")
+        None
+      }
+      tagId <- tag.id.orElse {
+        log.error(s"Tag $tagName has no ID")
+        None
+      }
+    } yield {
+      val ruleIds = RuleTagDraft.findRulesByTag(tagId)
+
+      ruleIds.foreach { id =>
+        unpublishRule(id, user, bucketRuleResource)
+        archiveRule(id, user)
+      }
+
+      ruleIds.size
+    }
   }
 
   object RuleType {
