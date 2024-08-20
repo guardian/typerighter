@@ -18,6 +18,8 @@ import play.api.db.{DBComponents, HikariCPComponents}
 import service.{DictionaryResource, RuleTesting, SheetsRuleResource}
 import utils.{LocalStack, RuleManagerConfig}
 
+import scala.concurrent.Future
+
 class AppComponents(
     context: Context,
     region: String,
@@ -32,6 +34,11 @@ class AppComponents(
     with AhcWSComponents {
   val config = new RuleManagerConfig(configuration, region, identity, creds, wsClient)
   val db = new DB(config.dbUrl, config.dbUsername, config.dbPassword)
+  context.lifecycle.addStopHook(() =>
+    Future {
+      db.closeAll
+    }
+  )
 
   applicationEvolutions
 
