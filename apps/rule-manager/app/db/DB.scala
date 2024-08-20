@@ -2,9 +2,9 @@ package db
 
 import scalikejdbc._
 
-class DB(url: String, user: String, password: String) {
+class DB(url: String, user: String, password: String, settings: ConnectionPoolSettings = ConnectionPoolSettings()) {
   Class.forName("org.postgresql.Driver")
-  ConnectionPool.singleton(url, user, password)
+  ConnectionPool.singleton(url, user, password, settings)
 
   def connectionHealthy(): Boolean = {
     val dbString = DB localTx { implicit session =>

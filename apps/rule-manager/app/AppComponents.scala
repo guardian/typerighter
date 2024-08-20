@@ -15,6 +15,7 @@ import router.Routes
 import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
+import scalikejdbc.ConnectionPoolSettings
 import service.{DictionaryResource, RuleTesting, SheetsRuleResource}
 import utils.{LocalStack, RuleManagerConfig}
 
@@ -33,7 +34,11 @@ class AppComponents(
     with EvolutionsComponents
     with AhcWSComponents {
   val config = new RuleManagerConfig(configuration, region, identity, creds, wsClient)
-  val db = new DB(config.dbUrl, config.dbUsername, config.dbPassword)
+  val db = new DB(config.dbUrl, config.dbUsername, config.dbPassword, ConnectionPoolSettings(
+    initialSize = config.connectionPoolInitialSize,
+    maxSize = config.connectionPoolMaxSize,
+    connectionTimeoutMillis = config.connectionPoolTimeoutInMillis
+  ))
   context.lifecycle.addStopHook(() =>
     Future {
       db.closeAll
