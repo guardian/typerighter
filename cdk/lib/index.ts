@@ -214,40 +214,25 @@ EOF
       parameters.CheckerCertificate.valueAsString
     );
 
+    const checkerOrigin = new LoadBalancerV2Origin(checkerApp.loadBalancer, {
+      protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+    });
+
     const checkerCloudFrontDistro = new Distribution(
       this,
       "typerighter-cloudfront",
       {
         defaultBehavior: {
-          origin: new LoadBalancerV2Origin(checkerApp.loadBalancer, {
-            protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
-          }),
+          origin: checkerOrigin,
           allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: new CachePolicy(
-            this,
-            "checker-cloudfront-cache-policy",
-            {
-              cachePolicyName: `checker-cloudfront-cache-policy-${this.stage}`,
-              cookieBehavior: CacheCookieBehavior.all(),
-              headerBehavior: CacheHeaderBehavior.allowList(
-                "Host",
-                "Origin",
-                "Access-Control-Request-Headers",
-                "Access-Control-Request-Method",
-                "X-Gu-Tools-HMAC-Token",
-                "X-Gu-Tools-HMAC-Date",
-                "X-Gu-Tools-Service-Name"
-              ),
-              queryStringBehavior: CacheQueryStringBehavior.all(),
-            }
-          ),
+          cachePolicy: CachePolicy.CACHING_DISABLED
         },
         domainNames: [checkerDomain],
         logBucket: cloudfrontBucket,
         certificate: checkerCertificate,
       }
     );
-
+    
     const checkerDnsRecord = new GuDnsRecordSet(this, "checker-dns-records", {
       name: checkerDomain,
       recordType: RecordType.CNAME,
