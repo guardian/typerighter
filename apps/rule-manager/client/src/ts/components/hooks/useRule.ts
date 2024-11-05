@@ -26,6 +26,7 @@ export type BaseRule = {
 	updatedBy: string;
 	updatedAt: string;
 	id?: number;
+	externalId?: string;
 	isArchived: boolean;
 	isPublished: boolean;
 	hasUnpublishedChanges: boolean;

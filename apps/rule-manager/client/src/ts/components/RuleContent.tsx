@@ -34,12 +34,16 @@ export const ruleTypeOptions: RuleTypeOption[] = [
 		label: 'Regex',
 	},
 	{
+		id: 'dictionary',
+		label: 'Dictionary',
+	},
+	{
 		id: 'languageToolXML',
 		label: 'LanguageTool',
 	},
 	{
-		id: 'dictionary',
-		label: 'Dictionary',
+		id: 'languageToolCore',
+		label: 'LT built-in',
 	},
 ];
 
