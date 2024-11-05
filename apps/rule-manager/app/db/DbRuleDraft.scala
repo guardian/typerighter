@@ -10,6 +10,8 @@ import scalikejdbc._
 
 import java.time.OffsetDateTime
 import scala.util.{Failure, Success, Try}
+import utils.StringHelpers
+import service.RuleManager.RuleType
 
 case class DbRuleDraft(
     id: Option[Int],
@@ -280,7 +282,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     val orderByClause = {
       val maybeSimilarityCol = maybeWord.map { _ => SQLSyntax.createUnsafely(similarityCol) }
       val orderStmts = maybeSimilarityCol.toList ++ sortBy.map { sortByStr =>
-        val col = rd.column(sortByStr.slice(1, sortByStr.length))
+        val colName = StringHelpers.camelToSnakeCase(sortByStr.slice(1, sortByStr.length))
+        val col = rd.column(colName)
         sortByStr.slice(0, 1) match {
           case "+" => sqls"$col ASC"
           case "-" => sqls"$col DESC"

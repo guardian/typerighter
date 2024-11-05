@@ -8,6 +8,7 @@ import scalikejdbc._
 import play.api.mvc.Results.NotFound
 
 import java.time.OffsetDateTime
+import service.RuleManager.RuleType
 
 class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
 
