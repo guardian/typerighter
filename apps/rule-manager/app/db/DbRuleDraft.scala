@@ -380,29 +380,44 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       notes: Option[String] = None,
       forceRedRule: Option[Boolean] = None,
       advisoryRule: Option[Boolean] = None,
+      externalId: Option[String] = None,
       user: String,
       isArchived: Boolean = false,
       tags: List[Int] = List.empty
   )(implicit session: DBSession = autoSession): Try[DbRuleDraft] = {
     val latestRuleOrder = getLatestRuleOrder()
 
+    val externalIdCol = externalId
+      .orElse {
+        ruleType match {
+          case RuleType.languageToolCore => Some("CHANGE_ME")
+          case _                         => None
+        }
+      }
+      .map((column.externalId -> _))
+      .toList
+
+    val columnUpdates = List(
+      column.ruleType -> ruleType,
+      column.pattern -> pattern,
+      column.replacement -> replacement,
+      column.category -> category,
+      column.description -> description,
+      column.ignore -> ignore,
+      column.notes -> notes,
+      column.forceRedRule -> forceRedRule,
+      column.advisoryRule -> advisoryRule,
+      column.createdBy -> user,
+      column.updatedBy -> user,
+      column.isArchived -> isArchived,
+      column.ruleOrder -> (latestRuleOrder + 1)
+    ) ++ externalIdCol
+
     val id = withSQL {
       insert
         .into(DbRuleDraft)
         .namedValues(
-          column.ruleType -> ruleType,
-          column.pattern -> pattern,
-          column.replacement -> replacement,
-          column.category -> category,
-          column.description -> description,
-          column.ignore -> ignore,
-          column.notes -> notes,
-          column.forceRedRule -> forceRedRule,
-          column.advisoryRule -> advisoryRule,
-          column.createdBy -> user,
-          column.updatedBy -> user,
-          column.isArchived -> isArchived,
-          column.ruleOrder -> (latestRuleOrder + 1)
+          columnUpdates: _*
         )
     }.updateAndReturnGeneratedKey().apply().toInt
 
@@ -432,6 +447,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       description = formRule.description,
       ignore = formRule.ignore,
       notes = formRule.notes,
+      externalId = formRule.externalId,
       forceRedRule = formRule.forceRedRule,
       advisoryRule = formRule.advisoryRule,
       user = user
@@ -454,7 +470,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           category = formRule.category,
           tags = formRule.tags,
           description = formRule.description,
-          advisoryRule = formRule.advisoryRule
+          advisoryRule = formRule.advisoryRule,
+          externalId = formRule.externalId.orElse(existingRule.externalId)
         )
       )
     updatedRule match {

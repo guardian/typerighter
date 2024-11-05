@@ -47,6 +47,13 @@ export const ruleTypeOptions: RuleTypeOption[] = [
 	},
 ];
 
+const formDisplayRules = (ruleType: RuleType) => ({
+	displayDescription: ruleType !== 'dictionary',
+	displayDattern: ruleType !== 'dictionary' && ruleType !== 'languageToolCore',
+	displayDeplacement:
+		ruleType !== 'dictionary' && ruleType !== 'languageToolCore',
+});
+
 export const RuleContent = ({
 	ruleData,
 	ruleFormData,
@@ -72,7 +79,14 @@ export const RuleContent = ({
 	};
 
 	const patternErrors = getErrorPropsForField('pattern', validationErrors);
-	const isDictionaryRule = ruleFormData.ruleType === 'dictionary';
+	const idErrors = getErrorPropsForField('externalId', validationErrors);
+	const { ruleType } = ruleFormData;
+	const displayDescription = ruleType !== 'dictionary';
+	const displayPattern =
+		ruleType !== 'dictionary' && ruleType !== 'languageToolCore';
+	const displayReplacement =
+		ruleType !== 'dictionary' && ruleType !== 'languageToolCore';
+	const displayExternalId = ruleType === 'languageToolCore';
 
 	return (
 		<RuleFormSection
@@ -89,7 +103,7 @@ export const RuleContent = ({
 		>
 			<LineBreak />
 			<EuiFlexItem>
-				{!isDictionaryRule && (
+				{displayDescription && (
 					<EuiFormRow
 						label={
 							<div>
@@ -115,7 +129,6 @@ export const RuleContent = ({
 						}
 						helpText="What will the users see in Composer?"
 						fullWidth={true}
-						isDisabled={isDictionaryRule}
 					>
 						{!showMarkdownPreview ? (
 							<EuiTextArea
@@ -153,30 +166,50 @@ export const RuleContent = ({
 						display: flex;
 						gap: 1rem;
 						align-items: flex-end;
+						white-space: nowrap;
 					`}
 				/>
 				<EuiSpacer size="s" />
-				<EuiFormRow
-					label={<Label text="Pattern" required={true} />}
-					fullWidth={true}
-					{...patternErrors}
-				>
-					<TextField
-						value={ruleFormData.pattern || ''}
-						onChange={(_) =>
-							partiallyUpdateRuleData({ pattern: _.target.value })
-						}
-						required={true}
+				{displayExternalId && (
+					<EuiFormRow
+						label={<Label text="LanguageTool ID" required={true} />}
+						helpText="The ID of the built-in LanguageTool rule"
+						fullWidth={true}
+						{...idErrors}
+					>
+						<TextField
+							value={ruleFormData.externalId || ''}
+							onChange={(_) =>
+								partiallyUpdateRuleData({ externalId: _.target.value })
+							}
+							required={true}
+							fullWidth={true}
+							{...patternErrors}
+						/>
+					</EuiFormRow>
+				)}
+				{displayPattern && (
+					<EuiFormRow
+						label={<Label text="Pattern" required={true} />}
 						fullWidth={true}
 						{...patternErrors}
-					/>
-				</EuiFormRow>
-				{!isDictionaryRule && (
+					>
+						<TextField
+							value={ruleFormData.pattern || ''}
+							onChange={(_) =>
+								partiallyUpdateRuleData({ pattern: _.target.value })
+							}
+							required={true}
+							fullWidth={true}
+							{...patternErrors}
+						/>
+					</EuiFormRow>
+				)}
+				{displayReplacement && (
 					<EuiFormRow
 						label="Replacement"
 						helpText="What is the ideal term as per the house style?"
 						fullWidth={true}
-						isDisabled={isDictionaryRule}
 					>
 						<EuiFieldText
 							value={ruleFormData.replacement || ''}
