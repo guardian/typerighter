@@ -47,13 +47,6 @@ export const ruleTypeOptions: RuleTypeOption[] = [
 	},
 ];
 
-const formDisplayRules = (ruleType: RuleType) => ({
-	displayDescription: ruleType !== 'dictionary',
-	displayDattern: ruleType !== 'dictionary' && ruleType !== 'languageToolCore',
-	displayDeplacement:
-		ruleType !== 'dictionary' && ruleType !== 'languageToolCore',
-});
-
 export const RuleContent = ({
 	ruleData,
 	ruleFormData,
