@@ -26,6 +26,7 @@ import { TagsContext } from '../context/tags';
 import { EuiDataGridToolBarVisibilityOptions } from '@elastic/eui/src/components/datagrid/data_grid_types';
 import { useEuiFontSize } from '@elastic/eui/src/global_styling/mixins/_typography';
 import { useNavigate } from 'react-router-dom';
+import { ruleTypeOptions } from '../RuleContent';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
@@ -121,6 +122,12 @@ const TestRule = ({
 };
 
 const columns: EuiDataGridColumn[] = [
+	{
+		id: 'ruleType',
+		display: 'Rule type',
+		isSortable: true,
+		initialWidth: 120,
+	},
 	{
 		id: 'description',
 		display: 'Description',
@@ -338,7 +345,15 @@ export const PaginatedRulesTable = ({
 				if (!rule || isLoading) {
 					return <EuiSkeletonText />;
 				}
-				return getRuleAtRowIndex(rowIndex)[columnId as keyof BaseRule] || '';
+
+				const value =
+					getRuleAtRowIndex(rowIndex)[columnId as keyof BaseRule] || '';
+
+				if (columnId === 'ruleType') {
+					return ruleTypeOptions.find(({ id }) => id === value)?.label ?? '';
+				}
+
+				return value;
 			},
 		[ruleData, isLoading],
 	);

@@ -37,7 +37,8 @@ object CreateRuleForm {
       "ignore" -> boolean,
       "notes" -> optional(text()),
       "forceRedRule" -> optional(boolean),
-      "advisoryRule" -> optional(boolean)
+      "advisoryRule" -> optional(boolean),
+      "externalId" -> optional(text())
     )(CreateRuleForm.apply)(CreateRuleForm.unapply)
   )
 }
@@ -52,5 +53,6 @@ case class CreateRuleForm(
     ignore: Boolean,
     notes: Option[String] = None,
     forceRedRule: Option[Boolean] = None,
-    advisoryRule: Option[Boolean] = None
+    advisoryRule: Option[Boolean] = None,
+    externalId: Option[String] = None
 )

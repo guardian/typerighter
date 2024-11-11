@@ -8,6 +8,7 @@ import scalikejdbc._
 import play.api.mvc.Results.NotFound
 
 import java.time.OffsetDateTime
+import service.RuleManager.RuleType
 
 class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
 
@@ -322,6 +323,44 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
     dbRule should not be (null)
   }
 
+  it should s"store external IDs when creating rules of type ${RuleType.languageToolCore}" in {
+    implicit session =>
+      val formRule = CreateRuleForm(
+        ruleType = "languageToolCore",
+        pattern = None,
+        replacement = None,
+        category = None,
+        tags = None,
+        description = None,
+        ignore = false,
+        notes = None,
+        forceRedRule = None,
+        advisoryRule = None,
+        externalId = Some("EXTERNAL_ID")
+      )
+      val dbRule = DbRuleDraft.createFromFormRule(formRule, user = "test.user")
+      dbRule.toOption.get.externalId shouldBe Some("EXTERNAL_ID")
+  }
+
+  it should s"generate a friendly placeholder for external ID when creating rules of type ${RuleType.languageToolCore}" in {
+    implicit session =>
+      val formRule = CreateRuleForm(
+        ruleType = "languageToolCore",
+        pattern = None,
+        replacement = None,
+        category = None,
+        tags = None,
+        description = None,
+        ignore = false,
+        notes = None,
+        forceRedRule = None,
+        advisoryRule = None,
+        externalId = None
+      )
+      val dbRule = DbRuleDraft.createFromFormRule(formRule, user = "test.user")
+      dbRule.toOption.get.externalId shouldBe Some("CHANGE_ME")
+  }
+
   it should "edit an existing record using a form rule, updating the user and updated datetime" in {
     implicit session =>
       val existingRule = DbRuleDraft
@@ -339,6 +378,32 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
 
       dbRule.id should be(Some(existingId))
       dbRule.pattern should be(Some("NewString"))
+      dbRule.updatedBy should be("another.user")
+      dbRule.updatedAt.toInstant.toEpochMilli should be >= existingRule.updatedAt.toInstant.toEpochMilli
+  }
+
+  it should s"update external IDs for rules of type ${RuleType.languageToolCore}" in {
+    implicit session =>
+      val existingRule = DbRuleDraft
+        .create(
+          ruleType = "languageToolCore",
+          externalId = Some("EXTERNAL_ID"),
+          user = "test.user",
+          ignore = false
+        )
+        .get
+      val existingId = existingRule.id.get
+      val formRule = UpdateRuleForm(
+        ruleType = Some("languageToolCore"),
+        externalId = Some("EXTERNAL_ID_UPDATE"),
+        tags = List.empty
+      )
+
+      val dbRule =
+        DbRuleDraft.updateFromFormRule(formRule, existingId, "another.user").getOrElse(null)
+
+      dbRule.id should be(Some(existingId))
+      dbRule.externalId should be(Some("EXTERNAL_ID_UPDATE"))
       dbRule.updatedBy should be("another.user")
       dbRule.updatedAt.toInstant.toEpochMilli should be >= existingRule.updatedAt.toInstant.toEpochMilli
   }

@@ -35,7 +35,8 @@ object UpdateRuleForm {
       "category" -> optional(text()),
       "tags" -> list(number()),
       "description" -> optional(text()),
-      "advisoryRule" -> optional(boolean)
+      "advisoryRule" -> optional(boolean),
+      "externalId" -> optional(text())
     )(UpdateRuleForm.apply)(UpdateRuleForm.unapply)
   )
 }
@@ -47,5 +48,6 @@ case class UpdateRuleForm(
     category: Option[String] = None,
     tags: List[Int],
     description: Option[String] = None,
-    advisoryRule: Option[Boolean] = None
+    advisoryRule: Option[Boolean] = None,
+    externalId: Option[String] = None
 )
