@@ -1767,39 +1767,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
     },
-    "checkercloudfrontcachepolicyC5791389": {
-      "Properties": {
-        "CachePolicyConfig": {
-          "DefaultTTL": 86400,
-          "MaxTTL": 31536000,
-          "MinTTL": 0,
-          "Name": "checker-cloudfront-cache-policy-TEST",
-          "ParametersInCacheKeyAndForwardedToOrigin": {
-            "CookiesConfig": {
-              "CookieBehavior": "all",
-            },
-            "EnableAcceptEncodingBrotli": false,
-            "EnableAcceptEncodingGzip": false,
-            "HeadersConfig": {
-              "HeaderBehavior": "whitelist",
-              "Headers": [
-                "Host",
-                "Origin",
-                "Access-Control-Request-Headers",
-                "Access-Control-Request-Method",
-                "X-Gu-Tools-HMAC-Token",
-                "X-Gu-Tools-HMAC-Date",
-                "X-Gu-Tools-Service-Name",
-              ],
-            },
-            "QueryStringsConfig": {
-              "QueryStringBehavior": "all",
-            },
-          },
-        },
-      },
-      "Type": "AWS::CloudFront::CachePolicy",
-    },
     "checkerdnsrecords": {
       "Properties": {
         "Name": "checker.test.dev-gutools.co.uk",
@@ -2325,9 +2292,7 @@ EOF
               "POST",
               "DELETE",
             ],
-            "CachePolicyId": {
-              "Ref": "checkercloudfrontcachepolicyC5791389",
-            },
+            "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
             "Compress": true,
             "TargetOriginId": "typerightertyperightercloudfrontOrigin1DFFB56FA",
             "ViewerProtocolPolicy": "allow-all",
