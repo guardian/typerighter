@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "strict": true,
+      "noImplicitAny": true,
+      "strictFunctionTypes": true,
+      "strictPropertyInitialization": true,
+      "strictBindCallApply": true,
+      "noImplicitThis": true,
+      "noImplicitReturns": true,
+      "alwaysStrict": true,
+      "esModuleInterop": true,
+      "checkJs": true,
+      "allowJs": true,
+      "declaration": true,
+      "target": "ES2016",
+      "module": "ESNext",
+      "moduleResolution": "node"
+    },
+    "verbose": true
+}

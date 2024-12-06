@@ -47,8 +47,8 @@
  *         </rule>
  */
 
-const fs = require("fs");
-const libxmljs = require("libxmljs");
+import * as fs from 'fs';
+import { XmlDocument } from 'libxml2-wasm';
 
 const [_, __, filePath1, filePath2, ruleFilePath] = process.argv;
 
@@ -60,37 +60,46 @@ if (!filePath1 || !filePath2 || !ruleFilePath) {
   process.exit(1);
 }
 
+/**
+ * @param {string} filePath
+ */
 const getRuleIds = (filePath) => {
   try {
     return fs.readFileSync(filePath, "utf-8").split("\n");
-  } catch (e) {
+  } catch (/** @type {any}*/e) {
     console.error(`Error reading ${filePath}: ${e.message}`);
     process.exit(1);
   }
 };
 
+/**
+ * @param {string} filePath
+ * @returns {[string, string]}
+ */
 const getFileStrFromPath = (filePath) => {
   try {
     return [filePath, fs.readFileSync(filePath, "utf-8")];
-  } catch (e) {
+  } catch (/** @type {any}*/e) {
     console.error(`Error reading ${filePath}: ${e.message}`);
     process.exit(1);
   }
 };
 
 /**
- * @returns {[string, libxmljs.Document]}
+ * @param {[string, string]} filePath
+ * @returns {[string, XmlDocument]}
  */
 const getXMLFromFile = ([filePath, str]) => {
   try {
-    return [filePath, libxmljs.parseXml(str)];
-  } catch (e) {}
-  console.log(`Error parsing ${filePath}: ${e.message}`);
-  process.exit(1);
+    return [filePath, XmlDocument.fromString(str)];
+  } catch (/** @type {any}*/e) {
+    console.log(`Error parsing ${filePath}: ${e.message}`);
+    process.exit(1);
+  }
 };
 
 /**
- * @param {libxmljs.Document} doc
+ * @param {XmlDocument} doc
  * @param {string} ruleId
  */
 const getRuleNodeFromDoc = (doc, ruleId) => {
@@ -125,7 +134,7 @@ ruleIds.map((ruleId) => {
   if (!rulesIn2.rule && !rulesIn1.rule) {
     return console.log(`${ruleId} not found in either file`);
   }
-  if (rulesIn2.rule.toString() !== rulesIn1.rule.toString()) {
+  if (rulesIn1 !== undefined && rulesIn1.rule !== undefined && rulesIn2 !== undefined && rulesIn2.rule !== undefined && rulesIn2.rule.toString() !== rulesIn1.rule.toString()) {
     return console.log(
       `${ruleId} has changed: \n${rulesIn1.path}:\n${rulesIn1.rule.toString()}\n${
         rulesIn2.path
