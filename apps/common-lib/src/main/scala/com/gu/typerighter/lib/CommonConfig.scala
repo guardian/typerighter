@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest
 import com.gu.pandomainauth.PanDomainAuthSettingsRefresher
+import com.gu.pandomainauth.S3BucketLoader
 import play.api.libs.ws.WSClient
 
 import scala.util.Try
@@ -52,12 +53,10 @@ abstract class CommonConfig(
     .withRegion(awsRegion)
     .build()
 
-  val panDomainSettings = new PanDomainAuthSettingsRefresher(
+  val panDomainSettings = PanDomainAuthSettingsRefresher(
     domain = stageDomain,
     system = appName,
-    bucketName = "pan-domain-auth-settings",
-    settingsFileKey = s"$stageDomain.settings",
-    s3Client = pandaS3Client
+    s3BucketLoader = S3BucketLoader.forAwsSdkV1(pandaS3Client, "pan-domain-auth-settings")
   )
 
   private val secretsManagerClient = AWSSecretsManagerClientBuilder
