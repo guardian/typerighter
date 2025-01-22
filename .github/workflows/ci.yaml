@@ -20,11 +20,7 @@ jobs:
           role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           aws-region: eu-west-1
 
-      - uses: actions/setup-java@v3
-        with:
-          java-version: "11"
-          distribution: "corretto"
-          cache: "sbt"
+      - uses: guardian/setup-scala@v1
 
       - name: Build the stack
         run: |
