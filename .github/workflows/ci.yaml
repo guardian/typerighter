@@ -20,7 +20,8 @@ jobs:
           role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
           aws-region: eu-west-1
 
-      - uses: guardian/setup-scala@v1
+      - name: Setup Scala
+        uses: guardian/setup-scala@v1
 
       - name: Build the stack
         run: |
