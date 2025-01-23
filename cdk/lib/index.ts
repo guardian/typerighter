@@ -3,7 +3,6 @@ import {
   Duration,
   RemovalPolicy,
   SecretValue,
-  Tags,
 } from "aws-cdk-lib";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
@@ -22,12 +21,10 @@ import { InstanceType, Port, SubnetType } from "aws-cdk-lib/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
-  CacheCookieBehavior,
-  CacheHeaderBehavior,
   CachePolicy,
-  CacheQueryStringBehavior,
   Distribution,
   OriginProtocolPolicy,
+  OriginRequestPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
@@ -225,7 +222,8 @@ EOF
         defaultBehavior: {
           origin: checkerOrigin,
           allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: CachePolicy.CACHING_DISABLED
+          cachePolicy: CachePolicy.CACHING_DISABLED,
+          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
         },
         domainNames: [checkerDomain],
         logBucket: cloudfrontBucket,
