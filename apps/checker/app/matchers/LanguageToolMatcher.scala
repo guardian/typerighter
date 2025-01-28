@@ -1,8 +1,10 @@
 package matchers
 
 import com.gu.typerighter.model.{Category, LTRule, LTRuleXML, RuleMatch}
+
 import java.io.File
 import org.languagetool._
+import org.languagetool.language.{BritishEnglish}
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 import org.languagetool.rules.{Rule => LanguageToolRule}
 import play.api.Logging
@@ -13,7 +15,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import org.languagetool.rules.patterns.PatternRuleLoader
 import org.languagetool.rules.patterns.AbstractPatternRule
 import utils.{Matcher, MatcherCompanion}
-import scala.xml.{XML, Attribute, Null, Text}
+
+import scala.xml.{Attribute, Null, Text, XML}
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
@@ -111,7 +114,12 @@ class LanguageToolFactory(
         val loader = new PatternRuleLoader()
         getXMLStreamFromLTRules(rules) flatMap { xmlStream =>
           {
-            Try(loader.getRules(xmlStream, "languagetool-generated-xml").asScala.toList)
+            Try(
+              loader
+                .getRules(xmlStream, "languagetool-generated-xml", new BritishEnglish())
+                .asScala
+                .toList
+            )
           }
         }
       }
