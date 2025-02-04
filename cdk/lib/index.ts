@@ -3,7 +3,6 @@ import {
   Duration,
   RemovalPolicy,
   SecretValue,
-  Tags,
 } from "aws-cdk-lib";
 import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
 import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
@@ -22,12 +21,10 @@ import { InstanceType, Port, SubnetType } from "aws-cdk-lib/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
-  CacheCookieBehavior,
-  CacheHeaderBehavior,
   CachePolicy,
-  CacheQueryStringBehavior,
   Distribution,
   OriginProtocolPolicy,
+  OriginRequestPolicy,
 } from "aws-cdk-lib/aws-cloudfront";
 import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import {
@@ -214,40 +211,26 @@ EOF
       parameters.CheckerCertificate.valueAsString
     );
 
+    const checkerOrigin = new LoadBalancerV2Origin(checkerApp.loadBalancer, {
+      protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+    });
+
     const checkerCloudFrontDistro = new Distribution(
       this,
       "typerighter-cloudfront",
       {
         defaultBehavior: {
-          origin: new LoadBalancerV2Origin(checkerApp.loadBalancer, {
-            protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
-          }),
+          origin: checkerOrigin,
           allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: new CachePolicy(
-            this,
-            "checker-cloudfront-cache-policy",
-            {
-              cachePolicyName: `checker-cloudfront-cache-policy-${this.stage}`,
-              cookieBehavior: CacheCookieBehavior.all(),
-              headerBehavior: CacheHeaderBehavior.allowList(
-                "Host",
-                "Origin",
-                "Access-Control-Request-Headers",
-                "Access-Control-Request-Method",
-                "X-Gu-Tools-HMAC-Token",
-                "X-Gu-Tools-HMAC-Date",
-                "X-Gu-Tools-Service-Name"
-              ),
-              queryStringBehavior: CacheQueryStringBehavior.all(),
-            }
-          ),
+          cachePolicy: CachePolicy.CACHING_DISABLED,
+          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
         },
         domainNames: [checkerDomain],
         logBucket: cloudfrontBucket,
         certificate: checkerCertificate,
       }
     );
-
+    
     const checkerDnsRecord = new GuDnsRecordSet(this, "checker-dns-records", {
       name: checkerDomain,
       recordType: RecordType.CNAME,
