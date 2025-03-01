@@ -11,6 +11,10 @@ deployments:
     type: autoscaling
     dependencies:
     - typerighter-cloudformation
+  typerighter-user-feedback:
+    type: lambda
+    dependencies:
+    - typerighter-cloudformation
   typerighter-cloudformation:
     type: cloud-formation
     parameters:
