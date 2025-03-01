@@ -1,4 +1,4 @@
-package scala.model
+package model
 
 import com.gu.typerighter.model.{TextBlock, TextRange}
 import org.scalatest.flatspec.AsyncFlatSpec

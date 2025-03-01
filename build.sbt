@@ -26,6 +26,7 @@ ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.4"
 val awsSdkVersion = "1.12.749"
+val awsSdkV2Version = "2.30.31"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
 val pandaVersion = "7.0.0"
@@ -175,6 +176,29 @@ val ruleManager = playProject(
       "com.github.tototoshi" %% "scala-csv" % "2.0.0",
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+  )
+
+val userFeedbackLambda = Project("user-feedback-lambda", file(s"$appsFolder/user-feedback"))
+  .enablePlugins(BuildInfoPlugin, JDebPackaging, SystemdPlugin)
+  .settings(
+    Universal / javaOptions ++= Seq(
+      s"-Dpidfile.path=/dev/null",
+      "-J-XX:MaxRAMFraction=2",
+      "-J-XX:InitialRAMFraction=2",
+      "-J-XX:MaxMetaspaceSize=300m",
+      "-J-XX:+PrintGCDetails",
+      s"-J-Dlogs.home=/var/log/${packageName.value}",
+      s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
+    ),
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "com.amazonaws" % "aws-lambda-java-core" % "1.0.0",
+      "com.amazonaws" % "aws-lambda-java-events" % "3.14.0",
+      "org.playframework" %% "play-json" % "3.0.4",
+      "org.scalatest" %% "scalatest" % "3.2.19" % "test",
+      "software.amazon.awssdk" % "sns" % awsSdkV2Version,
+      "com.gu" %% "pan-domain-auth-verification" % pandaVersion
+    )
   )
 
 val root = (project in file(".")).aggregate(commonLib, checker, ruleManager)
