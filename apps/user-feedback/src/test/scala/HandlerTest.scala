@@ -1,15 +1,30 @@
-import com.amazonaws.services.lambda.runtime.Context
+import com.amazonaws.services.lambda.runtime.{Context, LambdaLogger}
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent
+import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, User}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
+import services.{LambdaAuth, SNSEventSender}
+import utils.UserFeedbackConfig
+
+import scala.jdk.CollectionConverters._
 
 class HandlerTest extends AnyFlatSpec with Matchers with MockitoSugar {
   "EventProcessor" should "successfully process a valid event" in {
     // Arrange
-    val processor = new Handler()
+
+    val snsEventSender = mock[SNSEventSender]
+    val config = mock[UserFeedbackConfig]
+    val lambdaAuth = mock[LambdaAuth]
+    when(lambdaAuth.authenticateCookie(any, any, any)).thenReturn(Authenticated(AuthenticatedUser(
+      User("a", "user", "a.user@guardian.co.uk", None), "authenticating-system", Set(), 1L, true)))
+    val processor = new Handler(config, lambdaAuth, snsEventSender)
     val context = mock[Context]
+    val logger = mock[LambdaLogger]
+    when(context.getLogger).thenReturn(logger)
 
     val validJson =
       """{
@@ -30,6 +45,7 @@ class HandlerTest extends AnyFlatSpec with Matchers with MockitoSugar {
 
     val request = new APIGatewayProxyRequestEvent()
     request.setBody(validJson)
+    request.setHeaders(Map("Cookie" -> "auth").asJava)
 
     // Act
     val response = processor.handleRequest(request, context)

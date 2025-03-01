@@ -1,24 +1,23 @@
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import com.amazonaws.services.lambda.runtime.events.{APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent}
 import com.gu.pandomainauth.model.{Authenticated, AuthenticationStatus, Expired, GracePeriod, InvalidCookie, NotAuthenticated, NotAuthorized}
-import com.gu.pandomainauth.PanDomain
 import models.{CookiesNotFoundError, JsonParseError, JsonValidateError, PanDomainAuthStatusError, SendingError, UserFeedback}
 import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json._
-import services.SNSEventSender
+import services.{LambdaAuth, SNSEventSender}
 import utils.UserFeedbackConfig
 
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
-class Handler extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent] {
-  val config = new UserFeedbackConfig()
+class Handler(
+    config: UserFeedbackConfig = new UserFeedbackConfig,
+    auth: LambdaAuth = new LambdaAuth,
+    snsEventSender: SNSEventSender = new SNSEventSender
+) extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent] {
 
   override def handleRequest(input: APIGatewayProxyRequestEvent, context: Context): APIGatewayProxyResponseEvent = {
     val logger = context.getLogger
-
-    val snsEventSender = new SNSEventSender(config.snsClient, logger)
-
     logger.log(s"Received event: ${input.getBody}")
 
     val result = for {
@@ -31,7 +30,7 @@ class Handler extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProx
         case jsError@JsError(_) => Left(JsonValidateError(jsError))
       }
       authenticatedUserFeedback = userFeedback.withUser(user)
-      _ <- Try(snsEventSender.sendEvent(authenticatedUserFeedback.toString, config.userFeedbackSnsTopic)) match {
+      _ <- Try(snsEventSender.sendEvent(config.snsClient, config.userFeedbackSnsTopic, authenticatedUserFeedback.toString)) match {
         case Success(_ ) => Right(authenticatedUserFeedback)
         case Failure(e) => Left(SendingError(e))
       }
@@ -67,7 +66,7 @@ class Handler extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProx
             500 -> getErrorResponse("Unexpected error authenticating")
         }
       case Left(JsonParseError(message: String)) =>
-        (400 -> getErrorResponse(s"Error parsing JSON: $message"))
+        400 -> getErrorResponse(s"Error parsing JSON: $message")
       case Left(JsonValidateError(jsError: JsError)) =>
         val errorDetail = jsError.errors.map {
           case (path, errors) =>
@@ -84,15 +83,7 @@ class Handler extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProx
 
   private def getErrorResponse(message: String) = Json.obj("error" -> message)
 
-  private def authenticateRequest(cookie: String) = PanDomain.authStatus(
-    cookieData = cookie,
-    verification = config.publicSettings.settings.signingAndVerification,
-    validateUser = PanDomain.guardianValidation,
-    apiGracePeriod = 1000 * 60 * 60,
-    system = config.appName,
-    cacheValidation = true,
-    forceExpiry = true
-  ) match {
+  private def authenticateRequest(cookie: String) = auth.authenticateCookie(cookie, config.appName, config.publicSettingsVerification) match {
     case Authenticated(authedUser) => Right(authedUser.user)
     case GracePeriod(authedUser) => Right(authedUser.user)
     case authStatus@Expired(_) => Left(PanDomainAuthStatusError(authStatus))

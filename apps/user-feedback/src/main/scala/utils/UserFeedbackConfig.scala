@@ -49,9 +49,9 @@ class UserFeedbackConfig {
     .withCredentials(credsV1)
     .build()
 
-  val publicSettings = PanDomainAuthSettingsRefresher(
+  val publicSettingsVerification = PanDomainAuthSettingsRefresher(
     domain = stageDomain,
     system = appName,
     s3BucketLoader = S3BucketLoader.forAwsSdkV1(s3Client, "pan-domain-auth-settings")
-  )
+  ).settings.signingAndVerification
 }
