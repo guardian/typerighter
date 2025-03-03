@@ -4,23 +4,24 @@ import com.gu.pandomainauth.model.{Authenticated, AuthenticatedUser, Authenticat
 import models.UserFeedback
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.mockito.MockitoSugar.verify
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import services.{LambdaAuth, SNSEventSender}
-import utils.UserFeedbackConfig
+import utils.{UserFeedbackConfig, UserFeedbackDependencies}
 
 import scala.jdk.CollectionConverters._
 
 class HandlerTest extends AnyFlatSpec with Matchers with MockitoSugar {
-  val exampleUser = User(
+  private val exampleUser = User(
     firstName = "a",
     lastName = "user",
     email = "a.user@guardian.co.uk",
     avatarUrl = None
   )
-  val authenticatedResponse = Authenticated(
+  private val authenticatedResponse = Authenticated(
     AuthenticatedUser(
       user = exampleUser,
       authenticatingSystem = "authenticating-system",
@@ -30,7 +31,7 @@ class HandlerTest extends AnyFlatSpec with Matchers with MockitoSugar {
     )
   )
 
-  "EventProcessor" should "successfully process a valid event" in {
+  "EventProcessor" should "successfully process a valid event, adding user information and sending it to SNS" in {
     val validFeedback = UserFeedback(
       app = "app",
       stage = "TEST",
@@ -38,40 +39,19 @@ class HandlerTest extends AnyFlatSpec with Matchers with MockitoSugar {
       feedbackMessage = "A feedback message"
     )
 
-    val response = getLambdaResponse(body = Json.toJson(validFeedback).toString)
+    val (response, handler) = getLambdaResponse(body = Json.toJson(validFeedback).toString)
     response.getStatusCode shouldBe 200
 
     val responseBody = Json.parse(response.getBody)
     (responseBody \ "status").as[String] shouldBe "success"
-  }
 
-  private def getLambdaResponse(
-      body: String,
-      authenticationStatus: AuthenticationStatus = authenticatedResponse
-  ) = {
-    val snsEventSender = mock[SNSEventSender]
-    val config = mock[UserFeedbackConfig]
-
-    val lambdaAuth = mock[LambdaAuth]
-    when(lambdaAuth.authenticateCookie(any, any, any)).thenReturn(authenticationStatus)
-
-    val context = mock[Context]
-    val processor = new Handler(config, lambdaAuth, snsEventSender)
-
-    val logger = mock[LambdaLogger]
-    when(context.getLogger).thenReturn(logger)
-
-    val request = new APIGatewayProxyRequestEvent()
-    request.setBody(body)
-    request.setHeaders(Map("Cookie" -> "auth").asJava)
-
-    processor.handleRequest(request, context)
+    verify(handler.snsEventSender).sendEvent(null, validFeedback.withUser(exampleUser).toString)
   }
 
   it should "return a 400 response for invalid JSON" in {
     val invalidJson = "{invalid: json"
 
-    val response = getLambdaResponse(invalidJson)
+    val (response, _) = getLambdaResponse(invalidJson)
 
     response.getStatusCode shouldBe 400
     val responseBody = Json.parse(response.getBody)
@@ -87,12 +67,38 @@ class HandlerTest extends AnyFlatSpec with Matchers with MockitoSugar {
         |  "stage": "production"
         |}""".stripMargin
 
-    val response = getLambdaResponse(incompleteJson)
+    val (response, _) = getLambdaResponse(incompleteJson)
 
     response.getStatusCode shouldBe 400
     val responseBody = Json.parse(response.getBody)
 
     (responseBody \ "status").as[String] shouldBe "error"
     (responseBody \ "message").as[String] should include("error.path.missing")
+  }
+
+  trait TestUserFeedbackDependencies extends UserFeedbackDependencies {
+    override lazy val snsEventSender: SNSEventSender = mock[SNSEventSender]
+    override lazy val config: UserFeedbackConfig = mock[UserFeedbackConfig]
+    override lazy val auth: LambdaAuth = mock[LambdaAuth]
+  }
+
+  class TestHandler extends Handler with TestUserFeedbackDependencies
+
+  private def getLambdaResponse(
+      body: String,
+      authenticationStatus: AuthenticationStatus = authenticatedResponse
+  ) = {
+    val handler = new TestHandler()
+    when(handler.auth.authenticateCookie(any, any, any)).thenReturn(authenticationStatus)
+
+    val context = mock[Context]
+    val logger = mock[LambdaLogger]
+    when(context.getLogger).thenReturn(logger)
+
+    val request = new APIGatewayProxyRequestEvent()
+    request.setBody(body)
+    request.setHeaders(Map("Cookie" -> "auth").asJava)
+
+    (handler.handleRequest(request, context), handler)
   }
 }

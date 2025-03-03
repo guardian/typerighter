@@ -22,17 +22,15 @@ import models.{
 }
 import play.api.libs.json.Format.GenericFormat
 import play.api.libs.json._
-import services.{LambdaAuth, SNSEventSender}
-import utils.UserFeedbackConfig
+import utils.UserFeedbackDependencies
 
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
-class Handler(
-    config: UserFeedbackConfig = new UserFeedbackConfig,
-    auth: LambdaAuth = new LambdaAuth,
-    snsEventSender: SNSEventSender = new SNSEventSender
-) extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent] {
+class Handler
+    extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent]
+    with UserFeedbackDependencies {
+
   override def handleRequest(
       input: APIGatewayProxyRequestEvent,
       context: Context
@@ -54,7 +52,6 @@ class Handler(
       authenticatedUserFeedback = userFeedback.withUser(user)
       _ <- Try(
         snsEventSender.sendEvent(
-          config.snsClient,
           config.userFeedbackSnsTopic,
           authenticatedUserFeedback.toString
         )
