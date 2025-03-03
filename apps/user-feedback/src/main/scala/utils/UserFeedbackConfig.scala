@@ -5,7 +5,10 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
-import software.amazon.awssdk.auth.credentials.{AwsCredentialsProviderChain => AwsCredentialsProviderChainV2, DefaultCredentialsProvider => DefaultCredentialsProviderV2}
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProviderChain => AwsCredentialsProviderChainV2,
+  DefaultCredentialsProvider => DefaultCredentialsProviderV2
+}
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sns.SnsClient
 
@@ -18,7 +21,8 @@ class UserFeedbackConfig {
       DefaultCredentialsProviderV2.create()
     )
     .build()
-  private val identity = AppIdentity.whoAmI(defaultAppName = "typerighter-user-feedback", credsV2).get
+  private val identity =
+    AppIdentity.whoAmI(defaultAppName = "typerighter-user-feedback", credsV2).get
   private val config = ConfigurationLoader.load(identity, credsV2) {
     case identity: AwsIdentity => SSMConfigurationLocation.default(identity)
     case development: DevIdentity =>
@@ -38,7 +42,8 @@ class UserFeedbackConfig {
 
   val userFeedbackSnsTopic = config.getString("userFeedback.snsTopicArn")
 
-  val snsClient = SnsClient.builder()
+  val snsClient = SnsClient
+    .builder()
     .region(Region.EU_WEST_1)
     .credentialsProvider(credsV2)
     .build();

@@ -3,9 +3,8 @@ package models
 import com.gu.pandomainauth.model.AuthenticationStatus
 import play.api.libs.json.JsError
 
-/**
- * Encapsulates all of the unhappy paths for the lambda handler.
- */
+/** Encapsulates all of the unhappy paths for the lambda handler.
+  */
 sealed trait HandlerError
 
 case class CookiesNotFoundError() extends HandlerError

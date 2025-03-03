@@ -4,11 +4,14 @@ import com.gu.pandomainauth.PanDomain
 import com.gu.pandomainauth.model.AuthenticationStatus
 import com.gu.pandomainauth.service.CryptoConf.Verification
 
-/**
- * A thin layer over pan-domain-authentication to facilitate macking for tests.
- */
+/** A thin layer over pan-domain-authentication to facilitate macking for tests.
+  */
 class LambdaAuth {
-  def authenticateCookie(cookie: String, appName: String, verification: Verification): AuthenticationStatus =
+  def authenticateCookie(
+      cookie: String,
+      appName: String,
+      verification: Verification
+  ): AuthenticationStatus =
     PanDomain.authStatus(
       cookieData = cookie,
       verification = verification,
