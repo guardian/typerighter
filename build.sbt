@@ -63,6 +63,17 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
+  libraryDependencies ++= Seq(
+    "com.gu" %% "simple-configuration-ssm" % "1.6.4",
+    "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
+    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
+  ),
+  libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+)
+
+val commonPlaySettings = commonSettings ++ Seq(
   //Necessary to override jackson versions due to AWS and Play incompatibility
   dependencyOverrides ++= jackson,
   //Necessary to override json to resolve vulnerabilities introduced by languagetool-core
@@ -70,11 +81,6 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
-    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
-    "com.gu" %% "simple-configuration-ssm" % "1.6.4",
-    "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.0.1",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
@@ -87,14 +93,13 @@ val commonSettings = Seq(
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
     "ch.qos.logback" % "logback-classic" % "1.4.14", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
-),
-  libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+  )
 )
 
 val commonLib = (project in file(s"$appsFolder/common-lib"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
-    commonSettings,
+    commonPlaySettings,
     libraryDependencies ++= Seq(
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
@@ -118,7 +123,7 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
         s"-J-Dlogs.home=/var/log/${packageName.value}",
         s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
       ),
-      commonSettings,
+      commonPlaySettings,
     )
 
 val checker = playProject(
@@ -178,9 +183,10 @@ val ruleManager = playProject(
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
   )
 
-val userFeedbackLambda = Project("user-feedback-lambda", file(s"$appsFolder/user-feedback"))
+val userFeedback = Project("user-feedback", file(s"$appsFolder/user-feedback"))
   .enablePlugins(BuildInfoPlugin, JDebPackaging, SystemdPlugin)
   .settings(
+    commonSettings,
     Universal / javaOptions ++= Seq(
       s"-Dpidfile.path=/dev/null",
       "-J-XX:MaxRAMFraction=2",
@@ -190,7 +196,6 @@ val userFeedbackLambda = Project("user-feedback-lambda", file(s"$appsFolder/user
       s"-J-Dlogs.home=/var/log/${packageName.value}",
       s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
     ),
-    commonSettings,
     libraryDependencies ++= Seq(
       "com.amazonaws" % "aws-lambda-java-core" % "1.0.0",
       "com.amazonaws" % "aws-lambda-java-events" % "3.14.0",
@@ -198,7 +203,13 @@ val userFeedbackLambda = Project("user-feedback-lambda", file(s"$appsFolder/user
       "org.scalatest" %% "scalatest" % "3.2.19" % "test",
       "software.amazon.awssdk" % "sns" % awsSdkV2Version,
       "com.gu" %% "pan-domain-auth-verification" % pandaVersion
-    )
+    ),
+    assembly / assemblyJarName := "user-feedback.jar",
+    assembly / mainClass := Some("Handler"),
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", _*) => MergeStrategy.discard
+      case _ => MergeStrategy.first
+    }
   )
 
-val root = (project in file(".")).aggregate(commonLib, checker, ruleManager)
+val root = (project in file(".")).aggregate(commonLib, checker, ruleManager, userFeedback)

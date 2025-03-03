@@ -33,7 +33,6 @@ class Handler(
     auth: LambdaAuth = new LambdaAuth,
     snsEventSender: SNSEventSender = new SNSEventSender
 ) extends RequestHandler[APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent] {
-
   override def handleRequest(
       input: APIGatewayProxyRequestEvent,
       context: Context
