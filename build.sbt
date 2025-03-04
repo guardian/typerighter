@@ -64,7 +64,8 @@ val commonSettings = Seq(
     )
   },
   libraryDependencies ++= Seq(
-    "com.gu" %% "simple-configuration-ssm" % "1.6.4",
+    "com.gu" %% "simple-configuration-ssm" % "2.0.0",
+    "software.amazon.awssdk" % "ssm" % awsSdkV2Version,
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
@@ -207,7 +208,7 @@ val userFeedback = Project("user-feedback", file(s"$appsFolder/user-feedback"))
     assembly / assemblyJarName := "user-feedback.jar",
     assembly / mainClass := Some("Handler"),
     assembly / assemblyMergeStrategy := {
-      case PathList("META-INF", _*) => MergeStrategy.discard
+      case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
       case _ => MergeStrategy.first
     }
   )

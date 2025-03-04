@@ -40,16 +40,23 @@ class Handler
 
     val result = for {
       cookie <- input.getHeaders.asScala.get("Cookie").toRight(CookiesNotFoundError())
+      _ = logger.log("Got cookie, authenticating")
       user <- authenticateRequest(cookie)
+      _ = logger.log(s"Authenticated with user $user")
       userFeedbackJson <- Try(Json.parse(input.getBody)).toEither.left.map(e =>
         JsonParseError(e.getMessage)
       )
+      _ = logger.log(s"Parsed JSON for user feedback: ${userFeedbackJson.toString}")
       userFeedback <- userFeedbackJson.validate[UserFeedback] match {
         case JsSuccess(userFeedback, _) =>
           Right(userFeedback)
         case jsError @ JsError(_) => Left(JsonValidateError(jsError))
       }
+      _ = logger.log(s"Validated user feedback: ${userFeedback.toString}")
       authenticatedUserFeedback = userFeedback.withUser(user)
+      _ = logger.log(
+        s"Sending user feedback with additional user information: ${authenticatedUserFeedback.toString}"
+      )
       _ <- Try(
         snsEventSender.sendEvent(
           config.userFeedbackSnsTopic,
@@ -59,7 +66,10 @@ class Handler
         case Success(_) => Right(authenticatedUserFeedback)
         case Failure(e) => Left(SendingError(e))
       }
-    } yield authenticatedUserFeedback
+    } yield {
+      logger.log(s"Successfully sent user feedback $authenticatedUserFeedback")
+      authenticatedUserFeedback
+    }
 
     val response = new APIGatewayProxyResponseEvent()
 
