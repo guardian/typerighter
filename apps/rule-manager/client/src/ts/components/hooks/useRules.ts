@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { errorToString } from '../../utils/error';
-import { BaseRule, DraftRule } from './useRule';
+import { DraftRule } from './useRule';
 
 export type PaginatedResponse<Data> = {
 	data: Data[];
@@ -27,6 +27,7 @@ export function useRules() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [abortController, setAbortController] = useState<AbortController>();
 	const fetchRules = async (
 		pageIndex: number = 0,
 		queryStr: string = '',
@@ -35,6 +36,11 @@ export function useRules() {
 		ruleTypes: string[] = [],
 	): Promise<void> => {
 		setIsLoading(true);
+
+		abortController?.abort();
+		const newAbortController = new AbortController();
+		setAbortController(newAbortController);
+
 		try {
 			const page = pageIndex + 1;
 			const queryParams = new URLSearchParams({
@@ -55,6 +61,7 @@ export function useRules() {
 			);
 			const response = await fetch(
 				`${location.origin}/api/rules?${queryParams}`,
+				{ signal: newAbortController.signal }
 			);
 			if (!response.ok) {
 				throw new Error(
@@ -71,9 +78,15 @@ export function useRules() {
 				total: incomingRuleData?.total ?? 0,
 			});
 		} catch (error) {
-			setError(errorToString(error));
+			// Do not expose aborts to the user
+			if (!newAbortController.signal.aborted) {
+				setError(errorToString(error));
+			}
 		}
-		setIsLoading(false);
+		// If the request has been aborted, it has been superceded — do not reset the loading state
+		if (!newAbortController.signal.aborted) {
+			setIsLoading(false);
+		}
 	};
 
 	const refreshRules = async (): Promise<void> => {
