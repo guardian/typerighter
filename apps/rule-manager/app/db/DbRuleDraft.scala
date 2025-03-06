@@ -275,8 +275,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         val colName = StringHelpers.camelToSnakeCase(sortByStr.slice(1, sortByStr.length))
         val col = rd.column(colName)
         sortByStr.slice(0, 1) match {
-          case "+" => sqls"$col ASC"
-          case "-" => sqls"$col DESC"
+          // Indexes for sort order should reflect the `left()` expression.
+          case "+" => sqls"left($col, 20) ASC"
+          case "-" => sqls"left($col, 20) DESC"
         }
       } ++ searchOrderClause
 
