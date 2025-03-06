@@ -233,7 +233,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       tags: List[Int] = List.empty,
       ruleTypes: List[String] = List.empty,
       sortBy: List[String] = List.empty,
-      pageSize: Int = 200
+      pageSize: Int = 50
   )(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] = {

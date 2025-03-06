@@ -61,7 +61,7 @@ export function useRules() {
 			);
 			const response = await fetch(
 				`${location.origin}/api/rules?${queryParams}`,
-				{ signal: newAbortController.signal }
+				{ signal: newAbortController.signal },
 			);
 			if (!response.ok) {
 				throw new Error(
