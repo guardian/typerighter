@@ -23,12 +23,12 @@ makeChecks() {
 }
 
 setupDependencies() {
-  docker-compose up -d
+  docker compose up -d
   (cd $APP_FOLDER/rule-manager/client && npm i && npm run start &)
 }
 
 teardownDependencies() {
-  docker-compose down
+  docker compose down
   pids="$(lsof -ti:9100)"
   if [[ -n "$pids" ]]; then
     # terminates the rule manager app

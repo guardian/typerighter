@@ -32,11 +32,11 @@ setupTestDeps() {
   nvm install
   nvm use
 
-  docker-compose up -d
+  docker compose up -d
   # Ensure containers are up
   for ATTEMPT in $(seq 1 $MAX_DB_ATTEMPTS)
   do
-    HEALTH_STATUS=$(docker inspect --format "{{json .State.Health }}" $(docker-compose ps -q) | jq .Status | tr -d '\n')
+    HEALTH_STATUS=$(docker inspect --format "{{json .State.Health }}" $(docker compose ps -q) | jq .Status | tr -d '\n')
     echo "Start"
     echo $HEALTH_STATUS
     echo "End"
@@ -56,7 +56,7 @@ setupTestDeps() {
 }
 
 teardownTestDeps() {
-  docker-compose down
+  docker compose down
 }
 
 buildCDK() {
