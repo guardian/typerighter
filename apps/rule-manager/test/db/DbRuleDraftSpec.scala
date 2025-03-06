@@ -66,6 +66,23 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
     published.isPublished should be(true)
   }
 
+  it should "sort by updated_at if no sort order is specified" in { implicit session =>
+    val rule1 = DbRuleDraft.find(1).get
+    val rule2 = insertRule(ruleType = "dictionary")
+    val rule3 = insertRule(ruleType = "dictionary")
+
+    val formRule = UpdateRuleForm(
+      pattern = Some("New pattern"),
+      tags = List.empty
+    )
+
+    val rule3After =
+      DbRuleDraft.updateFromFormRule(formRule, rule3.id.get, "another.user").getOrElse(null)
+
+    val results = DbRuleDraft.searchRules(1)
+    results.data.map(_.pattern) shouldBe List(rule3After, rule2, rule1).map(_.pattern)
+  }
+
   it should "return pagination results when searching" in { implicit session =>
     val totalNoOfRules = 26
     val pageSize = 10

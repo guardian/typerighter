@@ -271,6 +271,9 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       }
 
     val orderByClause = {
+      val defaultPatternOrder = if (maybeWord.isEmpty && sortBy.isEmpty) {
+        List(sqls"${rd.updatedAt} DESC")
+      } else List.empty
       val orderStmts = sortBy.map { sortByStr =>
         val colName = StringHelpers.camelToSnakeCase(sortByStr.slice(1, sortByStr.length))
         val col = rd.column(colName)
@@ -279,7 +282,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           case "+" => sqls"left($col, 20) ASC"
           case "-" => sqls"left($col, 20) DESC"
         }
-      } ++ searchOrderClause
+      } ++ searchOrderClause ++ defaultPatternOrder
 
       if (orderStmts.nonEmpty)
         sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}"
@@ -297,7 +300,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           """
     }
 
-    val searchStatement = sql"""
+    val searchStmt = sql"""
         SELECT
           $draftRuleColumns,
           $isPublishedColumn,
@@ -332,7 +335,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       """
 
     val data =
-      searchStatement
+      searchStmt
         .map(rs => (DbRuleDraft.fromRow(rs), rs.int("page_count"), rs.int("rule_count")))
         .list()
         .apply()
