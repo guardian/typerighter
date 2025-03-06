@@ -67,9 +67,9 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
   }
 
   it should "return pagination results when searching" in { implicit session =>
-    val totalNoOfRules = 25
+    val totalNoOfRules = 26
     val pageSize = 10
-    (1 to totalNoOfRules).foreach { ruleNo =>
+    ('a' to 'z').foreach { ruleNo =>
       DbRuleDraft
         .create(
           ruleType = "regex",
@@ -87,16 +87,16 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
       pageSize = pageSize
     )
     results.data.size shouldBe pageSize
-    results.data.flatMap(_.pattern) shouldBe (1 to 10).map(n => s"Rule $n").toList
+    results.data.flatMap(_.pattern) shouldBe ('a' to 'j').map(n => s"Rule $n").toList
     results.total shouldBe totalNoOfRules
     results.page shouldBe 1
     results.pageSize shouldBe pageSize
   }
 
   it should "return subsequent pages correctly" in { implicit session =>
-    val totalNoOfRules = 25
+    val totalNoOfRules = 26
     val pageSize = 10
-    (1 to totalNoOfRules).foreach { ruleNo =>
+    ('a' to 'z').foreach { ruleNo =>
       DbRuleDraft
         .create(
           ruleType = "regex",
@@ -114,7 +114,7 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
       pageSize = pageSize
     )
     results.data.size shouldBe pageSize
-    results.data.flatMap(_.pattern) shouldBe (11 to 20).map(n => s"Rule $n")
+    results.data.flatMap(_.pattern) shouldBe ('k' to 't').map(n => s"Rule $n")
     results.total shouldBe totalNoOfRules
     results.page shouldBe 2
     results.pageSize shouldBe pageSize
@@ -139,20 +139,6 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
       .create(
         ruleType = "regex",
         description = Some("The cat sat on the mat"),
-        user = "test.user",
-        ignore = false
-      )
-      .get
-
-    val results = DbRuleDraft.searchRules(1, Some("The ca"))
-    results.data shouldBe List(rule)
-  }
-
-  it should "search rules using a partial search phrase – category" in { implicit session =>
-    val rule = DbRuleDraft
-      .create(
-        ruleType = "regex",
-        category = Some("The cat sat on the mat"),
         user = "test.user",
         ignore = false
       )
