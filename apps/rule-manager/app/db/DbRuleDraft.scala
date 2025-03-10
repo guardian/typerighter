@@ -297,6 +297,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     val countStmt = if (isFilteringByAnyCondition) {
       sqls"COUNT(*) OVER () AS rule_count"
     } else {
+      // If we're not filtering, use the table statistics to count rows rather
+      // than count(*), which is slow when we're counting the entire table.
       sqls"""
         (SELECT n_live_tup
           FROM pg_stat_all_tables
