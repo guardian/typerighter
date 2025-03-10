@@ -39,6 +39,9 @@ export default defineConfig({
 		origin: 'http://localhost:5173',
 		// We depend upon this port number in a few places, so fail fast if we cannot allocate it.
 		strictPort: true,
+		cors: {
+			origin: 'https://manager.typerighter.local.dev-gutools.co.uk',
+		},
 		fs: {
 			allow: ['../public/fonts', './'],
 		},
