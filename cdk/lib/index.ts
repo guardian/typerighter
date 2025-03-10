@@ -11,7 +11,7 @@ import {
   RecordType,
 } from "@guardian/cdk/lib/constructs/dns/dns-records";
 import { GuStack } from "@guardian/cdk/lib/constructs/core/stack";
-import { GuPlayApp } from "@guardian/cdk";
+import {GuApiLambda, GuPlayApp} from "@guardian/cdk";
 import {
   GuGetS3ObjectsPolicy,
   GuPutCloudwatchMetricsPolicy,
@@ -44,6 +44,9 @@ import {
 import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
 import { AccessScope } from "@guardian/cdk/lib/constants/access";
 import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+import {GuLambdaFunction} from "@guardian/cdk/lib/constructs/lambda";
+import {Alias, Runtime} from "aws-cdk-lib/aws-lambda";
+import {GuFunctionProps} from "@guardian/cdk/lib/constructs/lambda/lambda";
 
 export interface TyperighterStackProps extends GuStackProps {
   domainSuffix: string;
@@ -319,5 +322,28 @@ EOF
       removalPolicy: RemovalPolicy.SNAPSHOT,
       devXBackups: { enabled: true }
     });
+
+    // User feedback lambda
+
+    const lambda = new GuApiLambda(
+        this,
+        "typerighter-user-feedback-lambda",
+        {
+          description: 'The front door for user feedback',
+          functionName: `typerighter-user-feedback-${this.stage}`,
+          handler: 'Handler',
+          fileName: 'typerighter-user-feedback.jar',
+          runtime: Runtime.JAVA_11,
+          app: 'typerighter-user-feedback',
+          api: {
+            id: "typerighter-user-feedback-api",
+          },
+          monitoringConfiguration: {
+            noMonitoring: true
+          }
+        },
+    )
+
+    const userFeedbackDomain = `feedback.${props.domainSuffix}`
   }
 }

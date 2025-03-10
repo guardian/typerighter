@@ -49,6 +49,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       "GuSecurityGroup",
       "GuSubnetListParameter",
       "GuDatabaseInstance",
+      "GuApiLambda",
     ],
     "gu:cdk:version": "TEST",
   },
@@ -68,6 +69,32 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "Fn::GetAtt": [
           "LoadBalancerTyperighterrulemanager088CCBBF",
           "DNSName",
+        ],
+      },
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiEndpoint5D1F2A62": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region",
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix",
+            },
+            "/",
+            {
+              "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapiDeploymentStageprod397C05AA",
+            },
+            "/",
+          ],
         ],
       },
     },
@@ -2354,6 +2381,622 @@ EOF
         ],
       },
       "Type": "AWS::CloudFront::Distribution",
+    },
+    "typerighteruserfeedbacklambdaFEAAE469": {
+      "DependsOn": [
+        "typerighteruserfeedbacklambdaServiceRoleDefaultPolicy65A32517",
+        "typerighteruserfeedbacklambdaServiceRoleA475B322",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "DistributionBucketName",
+          },
+          "S3Key": "flexible/TEST/typerighter-user-feedback/typerighter-user-feedback/typerighter-user-feedback.jar",
+        },
+        "Description": "The front door for user feedback",
+        "Environment": {
+          "Variables": {
+            "APP": "typerighter-user-feedback",
+            "STACK": "flexible",
+            "STAGE": "TEST",
+          },
+        },
+        "FunctionName": "typerighter-user-feedback-TEST",
+        "Handler": "Handler",
+        "LoggingConfig": {
+          "LogFormat": "JSON",
+        },
+        "MemorySize": 1024,
+        "Role": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdaServiceRoleA475B322",
+            "Arn",
+          ],
+        },
+        "Runtime": "java11",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "typerighter-user-feedback",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+        "Timeout": 30,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "typerighteruserfeedbacklambdaServiceRoleA475B322": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "typerighter-user-feedback",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "typerighteruserfeedbacklambdaServiceRoleDefaultPolicy65A32517": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Ref": "DistributionBucketName",
+                      },
+                      "/flexible/TEST/typerighter-user-feedback/typerighter-user-feedback/typerighter-user-feedback.jar",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": "ssm:GetParametersByPath",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/flexible/typerighter-user-feedback",
+                  ],
+                ],
+              },
+            },
+            {
+              "Action": [
+                "ssm:GetParameters",
+                "ssm:GetParameter",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:ssm:",
+                    {
+                      "Ref": "AWS::Region",
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId",
+                    },
+                    ":parameter/TEST/flexible/typerighter-user-feedback/*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "typerighteruserfeedbacklambdaServiceRoleDefaultPolicy65A32517",
+        "Roles": [
+          {
+            "Ref": "typerighteruserfeedbacklambdaServiceRoleA475B322",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03": {
+      "Properties": {
+        "Name": "flexible-TEST-typerighter-user-feedback-api",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "typerighter-user-feedback",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::RestApi",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiANY20EA5B9F": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "typerighteruserfeedbacklambdaFEAAE469",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+            "RootResourceId",
+          ],
+        },
+        "RestApiId": {
+          "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiANYApiPermissionTesttyperightertyperighteruserfeedbacklambdatyperighteruserfeedbackapiA33CFE45ANY9F50A242": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdaFEAAE469",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+              },
+              "/test-invoke-stage/*/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiANYApiPermissiontyperightertyperighteruserfeedbacklambdatyperighteruserfeedbackapiA33CFE45ANY4C414FF7": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdaFEAAE469",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+              },
+              "/",
+              {
+                "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapiDeploymentStageprod397C05AA",
+              },
+              "/*/",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiAccount05FF64C5": {
+      "DeletionPolicy": "Retain",
+      "DependsOn": [
+        "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+      ],
+      "Properties": {
+        "CloudWatchRoleArn": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdatyperighteruserfeedbackapiCloudWatchRole92D2BA4D",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ApiGateway::Account",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiCloudWatchRole92D2BA4D": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "apigateway.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "typerighter-user-feedback",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiDeploymentB4B2CEAD34349149518f0edda527a70483cb8f7b": {
+      "DependsOn": [
+        "typerighteruserfeedbacklambdatyperighteruserfeedbackapiproxyANYC1ED9C55",
+        "typerighteruserfeedbacklambdatyperighteruserfeedbackapiproxyFC9587DD",
+        "typerighteruserfeedbacklambdatyperighteruserfeedbackapiANY20EA5B9F",
+      ],
+      "Properties": {
+        "Description": "Automatically created by the RestApi construct",
+        "RestApiId": {
+          "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+        },
+      },
+      "Type": "AWS::ApiGateway::Deployment",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiDeploymentStageprod397C05AA": {
+      "DependsOn": [
+        "typerighteruserfeedbacklambdatyperighteruserfeedbackapiAccount05FF64C5",
+      ],
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapiDeploymentB4B2CEAD34349149518f0edda527a70483cb8f7b",
+        },
+        "RestApiId": {
+          "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+        },
+        "StageName": "prod",
+        "Tags": [
+          {
+            "Key": "App",
+            "Value": "typerighter-user-feedback",
+          },
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/typerighter",
+          },
+          {
+            "Key": "Stack",
+            "Value": "flexible",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::ApiGateway::Stage",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiproxyANYApiPermissionTesttyperightertyperighteruserfeedbacklambdatyperighteruserfeedbackapiA33CFE45ANYproxyAAEFE402": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdaFEAAE469",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+              },
+              "/test-invoke-stage/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiproxyANYApiPermissiontyperightertyperighteruserfeedbacklambdatyperighteruserfeedbackapiA33CFE45ANYproxyE132827A": {
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdaFEAAE469",
+            "Arn",
+          ],
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition",
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":",
+              {
+                "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+              },
+              "/",
+              {
+                "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapiDeploymentStageprod397C05AA",
+              },
+              "/*/*",
+            ],
+          ],
+        },
+      },
+      "Type": "AWS::Lambda::Permission",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiproxyANYC1ED9C55": {
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "ANY",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region",
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "typerighteruserfeedbacklambdaFEAAE469",
+                    "Arn",
+                  ],
+                },
+                "/invocations",
+              ],
+            ],
+          },
+        },
+        "ResourceId": {
+          "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapiproxyFC9587DD",
+        },
+        "RestApiId": {
+          "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+        },
+      },
+      "Type": "AWS::ApiGateway::Method",
+    },
+    "typerighteruserfeedbacklambdatyperighteruserfeedbackapiproxyFC9587DD": {
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+            "RootResourceId",
+          ],
+        },
+        "PathPart": "{proxy+}",
+        "RestApiId": {
+          "Ref": "typerighteruserfeedbacklambdatyperighteruserfeedbackapi2D58AA03",
+        },
+      },
+      "Type": "AWS::ApiGateway::Resource",
     },
   },
 }

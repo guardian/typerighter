@@ -12,9 +12,14 @@ deployments:
     dependencies:
     - typerighter-cloudformation
   typerighter-user-feedback:
-    type: lambda
+    type: aws-lambda
     dependencies:
     - typerighter-cloudformation
+    parameters:
+      prefixStack: false
+      fileName: typerighter-user-feedback.jar
+      functionNames:
+        - "typerighter-user-feedback-"
   typerighter-cloudformation:
     type: cloud-formation
     parameters:
