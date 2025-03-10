@@ -17,5 +17,6 @@ CREATE INDEX rules_draft_pattern_idx_desc ON rules_draft(left(pattern, 20) DESC)
 -- !Downs
 
 DROP INDEX rules_draft_free_text_search_idx;
+DROP INDEX rules_draft_updated_at;
 DROP INDEX rules_draft_pattern_idx_asc;
 DROP INDEX rules_draft_pattern_idx_desc;
