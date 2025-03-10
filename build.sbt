@@ -69,7 +69,7 @@ val commonSettings = Seq(
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.30" % Test,
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
@@ -201,9 +201,9 @@ val userFeedback = Project("user-feedback", file(s"$appsFolder/user-feedback"))
       "com.amazonaws" % "aws-lambda-java-core" % "1.0.0",
       "com.amazonaws" % "aws-lambda-java-events" % "3.14.0",
       "org.playframework" %% "play-json" % "3.0.4",
-      "org.scalatest" %% "scalatest" % "3.2.19" % "test",
       "software.amazon.awssdk" % "sns" % awsSdkV2Version,
-      "com.gu" %% "pan-domain-auth-verification" % pandaVersion
+      "com.gu" %% "pan-domain-auth-verification" % pandaVersion,
+      "org.scalatest" %% "scalatest" % "3.2.19" % Test
     ),
     assembly / assemblyJarName := "user-feedback.jar",
     assembly / mainClass := Some("Handler"),

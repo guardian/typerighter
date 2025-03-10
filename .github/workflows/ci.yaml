@@ -51,7 +51,7 @@ jobs:
       - name: test and build sbt
         run: |
           set -e
-          sbt clean compile test scalafmtCheckAll Debian/packageBin
+          sbt clean compile test scalafmtCheckAll Debian/packageBin user-feedback/assembly
 
       - name: rename checker debian artifact
         run: mv apps/checker/target/checker_1.0-SNAPSHOT_all.deb target/typerighter-checker.deb
@@ -59,8 +59,8 @@ jobs:
       - name: rename rule manager debian artifact
         run: mv apps/rule-manager/target/rule-manager_1.0-SNAPSHOT_all.deb target/typerighter-rule-manager.deb
 
-      - name: rename user feedback debian artifact
-        run: mv apps/user-feedback/target/user-feedback_1.0-SNAPSHOT_all.deb target/typerighter-user-feedback.deb
+      - name: rename user feedback artifact
+        run: mv apps/user-feedback/target/scala-2.13/user-feedback.jar target/typerighter-user-feedback.jar
 
       - name: upload to riff-raff
         uses: guardian/actions-riff-raff@v2
@@ -74,7 +74,7 @@ jobs:
             typerighter-rule-manager:
             - target/typerighter-rule-manager.deb
             typerighter-user-feedback:
-            - target/typerighter-user-feedback.deb
+            - target/typerighter-user-feedback.jar
             typerighter-cloudformation:
             - cdk/cdk.out/typerighter-PROD.template.json
             - cdk/cdk.out/typerighter-CODE.template.json
