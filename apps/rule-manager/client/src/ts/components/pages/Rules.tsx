@@ -62,9 +62,7 @@ export const Rules = () => {
 		'closed',
 	);
 	const [pageIndex, setPageIndex] = useState(0);
-	const [sortColumns, setSortColumns] = useState<SortColumns>([
-		{ id: 'pattern', direction: 'asc' },
-	]);
+	const [sortColumns, setSortColumns] = useState<SortColumns>([]);
 	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
 		undefined,
 	);
