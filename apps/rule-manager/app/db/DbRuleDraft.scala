@@ -243,8 +243,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
     val coalescedCols =
       sqls"""
-        coalesce(${rd.column("pattern")}, '') ||
-        coalesce(${rd.column("description")}, '') ||
+        coalesce(${rd.column("pattern")}, '') || ' ' ||
+        coalesce(${rd.column("description")}, '') || ' ' ||
         coalesce(${rd.column("replacement")}, '')
       """
 

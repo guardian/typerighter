@@ -2,8 +2,8 @@
 
 CREATE INDEX rules_draft_free_text_search_idx
     ON public.rules_draft
-        USING gin ((coalesce(rules_draft.pattern, '') ||
-                    coalesce(rules_draft.description, '') ||
+        USING gin ((coalesce(rules_draft.pattern, '') ||  ' ' ||
+                    coalesce(rules_draft.description, '') || ' ' ||
                     coalesce(rules_draft.replacement, '')) gin_trgm_ops);
 
 -- We order by updated_at by default - this index speeds up the initial call to display rules
