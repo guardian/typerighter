@@ -110,6 +110,59 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
     results.pageSize shouldBe pageSize
   }
 
+  it should "return correct pagination results when filtering by ruleType" in { implicit session =>
+    val totalNoOfRules = 26
+    val pageSize = 10
+    ('a' to 'z').map { ruleNo =>
+      DbRuleDraft
+        .create(
+          ruleType = if (ruleNo % 2 == 0) "regex" else "dictionary",
+          pattern = Some(s"Rule $ruleNo"),
+          user = "test.user",
+          ignore = false
+        )
+        .get
+    }
+
+    val results = DbRuleDraft.searchRules(
+      page = 1,
+      ruleTypes = List("dictionary"),
+      pageSize = pageSize
+    )
+
+    results.data.size shouldBe pageSize
+    results.total shouldBe totalNoOfRules / 2
+    results.page shouldBe 1
+    results.pageSize shouldBe pageSize
+  }
+
+  it should "return correct pagination results when filtering by tag" in { implicit session =>
+    val totalNoOfRules = 26
+    val pageSize = 10
+    ('a' to 'z').map { ruleNo =>
+      DbRuleDraft
+        .create(
+          tags = if (ruleNo % 2 == 0) List(1) else List.empty,
+          ruleType = "regex",
+          pattern = Some(s"Rule $ruleNo"),
+          user = "test.user",
+          ignore = false
+        )
+        .get
+    }
+
+    val results = DbRuleDraft.searchRules(
+      page = 1,
+      tags = List(1),
+      pageSize = pageSize
+    )
+
+    results.data.size shouldBe pageSize
+    results.total shouldBe (totalNoOfRules / 2) + 1 // Plus initial rule fixture, which has a tag
+    results.page shouldBe 1
+    results.pageSize shouldBe pageSize
+  }
+
   it should "return subsequent pages correctly" in { implicit session =>
     val totalNoOfRules = 26
     val pageSize = 10

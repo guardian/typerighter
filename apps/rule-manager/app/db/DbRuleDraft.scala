@@ -237,6 +237,10 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   )(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] = {
+    val isFilteringByAnyCondition = maybeWord.nonEmpty ||
+      tags.nonEmpty ||
+      ruleTypes.nonEmpty
+
     val coalescedCols =
       sqls"""
         coalesce(${rd.column("pattern")}, '') ||
@@ -271,7 +275,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       }
 
     val orderByClause = {
-      val defaultPatternOrder = if (maybeWord.isEmpty && sortBy.isEmpty) {
+      val defaultPatternOrder = if (!isFilteringByAnyCondition && sortBy.isEmpty) {
         List(sqls"${rd.updatedAt} DESC")
       } else List.empty
       val orderStmts = sortBy.map { sortByStr =>
@@ -290,8 +294,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         sqls.empty
     }
 
-    val countStmt = if (searchClause.nonEmpty) {
-      sqls"COUNT(${rd.id}) OVER () AS rule_count"
+    val countStmt = if (isFilteringByAnyCondition) {
+      sqls"COUNT(*) OVER () AS rule_count"
     } else {
       sqls"""
         (SELECT n_live_tup
