@@ -16,7 +16,8 @@ class AppLoader extends ApplicationLoader {
       ),
       appSetup.region,
       appSetup.identity,
-      appSetup.creds
+      appSetup.creds,
+      appSetup.credsV2
     ).application
   }
 }

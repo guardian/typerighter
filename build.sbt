@@ -173,6 +173,7 @@ val ruleManager = playProject(
       jdbc,
       evolutions,
       "org.postgresql" % "postgresql" % "42.5.5",
+      "software.amazon.awssdk" % "sqs" % awsSdkV2Version,
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,

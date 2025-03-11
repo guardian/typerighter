@@ -16,13 +16,15 @@ import db.DB
 import play.api.db.evolutions.EvolutionsComponents
 import play.api.db.{DBComponents, HikariCPComponents}
 import service.{DictionaryResource, RuleTesting, SheetsRuleResource}
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import utils.{LocalStack, RuleManagerConfig}
 
 class AppComponents(
     context: Context,
     region: String,
     identity: AppIdentity,
-    creds: AWSCredentialsProvider
+    creds: AWSCredentialsProvider,
+    credsV2: AwsCredentialsProvider
 ) extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
     with AssetsComponents
@@ -30,7 +32,7 @@ class AppComponents(
     with HikariCPComponents
     with EvolutionsComponents
     with AhcWSComponents {
-  val config = new RuleManagerConfig(configuration, region, identity, creds, wsClient)
+  val config = new RuleManagerConfig(configuration, region, identity, creds, credsV2, wsClient)
   val db = new DB(config.dbUrl, config.dbUsername, config.dbPassword)
 
   applicationEvolutions

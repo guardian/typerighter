@@ -55,7 +55,7 @@ class UserFeedbackConfig {
     .builder()
     .region(Region.EU_WEST_1)
     .credentialsProvider(credsV2)
-    .build();
+    .build()
 
   val s3Client = AmazonS3ClientBuilder
     .standard()
