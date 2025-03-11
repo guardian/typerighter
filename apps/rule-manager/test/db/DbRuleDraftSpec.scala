@@ -66,10 +66,27 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
     published.isPublished should be(true)
   }
 
+  it should "sort by updated_at if no sort order is specified" in { implicit session =>
+    val rule1 = DbRuleDraft.find(1).get
+    val rule2 = insertRule(ruleType = "dictionary")
+    val rule3 = insertRule(ruleType = "dictionary")
+
+    val formRule = UpdateRuleForm(
+      pattern = Some("New pattern"),
+      tags = List.empty
+    )
+
+    val rule3After =
+      DbRuleDraft.updateFromFormRule(formRule, rule3.id.get, "another.user").getOrElse(null)
+
+    val results = DbRuleDraft.searchRules(1)
+    results.data.map(_.pattern) shouldBe List(rule3After, rule2, rule1).map(_.pattern)
+  }
+
   it should "return pagination results when searching" in { implicit session =>
-    val totalNoOfRules = 25
+    val totalNoOfRules = 26
     val pageSize = 10
-    (1 to totalNoOfRules).foreach { ruleNo =>
+    ('a' to 'z').foreach { ruleNo =>
       DbRuleDraft
         .create(
           ruleType = "regex",
@@ -87,16 +104,69 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
       pageSize = pageSize
     )
     results.data.size shouldBe pageSize
-    results.data.flatMap(_.pattern) shouldBe (1 to 10).map(n => s"Rule $n").toList
+    results.data.flatMap(_.pattern) shouldBe ('a' to 'j').map(n => s"Rule $n").toList
     results.total shouldBe totalNoOfRules
     results.page shouldBe 1
     results.pageSize shouldBe pageSize
   }
 
-  it should "return subsequent pages correctly" in { implicit session =>
-    val totalNoOfRules = 25
+  it should "return correct pagination results when filtering by ruleType" in { implicit session =>
+    val totalNoOfRules = 26
     val pageSize = 10
-    (1 to totalNoOfRules).foreach { ruleNo =>
+    ('a' to 'z').map { ruleNo =>
+      DbRuleDraft
+        .create(
+          ruleType = if (ruleNo % 2 == 0) "regex" else "dictionary",
+          pattern = Some(s"Rule $ruleNo"),
+          user = "test.user",
+          ignore = false
+        )
+        .get
+    }
+
+    val results = DbRuleDraft.searchRules(
+      page = 1,
+      ruleTypes = List("dictionary"),
+      pageSize = pageSize
+    )
+
+    results.data.size shouldBe pageSize
+    results.total shouldBe totalNoOfRules / 2
+    results.page shouldBe 1
+    results.pageSize shouldBe pageSize
+  }
+
+  it should "return correct pagination results when filtering by tag" in { implicit session =>
+    val totalNoOfRules = 26
+    val pageSize = 10
+    ('a' to 'z').map { ruleNo =>
+      DbRuleDraft
+        .create(
+          tags = if (ruleNo % 2 == 0) List(1) else List.empty,
+          ruleType = "regex",
+          pattern = Some(s"Rule $ruleNo"),
+          user = "test.user",
+          ignore = false
+        )
+        .get
+    }
+
+    val results = DbRuleDraft.searchRules(
+      page = 1,
+      tags = List(1),
+      pageSize = pageSize
+    )
+
+    results.data.size shouldBe pageSize
+    results.total shouldBe (totalNoOfRules / 2) + 1 // Plus initial rule fixture, which has a tag
+    results.page shouldBe 1
+    results.pageSize shouldBe pageSize
+  }
+
+  it should "return subsequent pages correctly" in { implicit session =>
+    val totalNoOfRules = 26
+    val pageSize = 10
+    ('a' to 'z').foreach { ruleNo =>
       DbRuleDraft
         .create(
           ruleType = "regex",
@@ -114,7 +184,7 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
       pageSize = pageSize
     )
     results.data.size shouldBe pageSize
-    results.data.flatMap(_.pattern) shouldBe (11 to 20).map(n => s"Rule $n")
+    results.data.flatMap(_.pattern) shouldBe ('k' to 't').map(n => s"Rule $n")
     results.total shouldBe totalNoOfRules
     results.page shouldBe 2
     results.pageSize shouldBe pageSize
@@ -139,20 +209,6 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
       .create(
         ruleType = "regex",
         description = Some("The cat sat on the mat"),
-        user = "test.user",
-        ignore = false
-      )
-      .get
-
-    val results = DbRuleDraft.searchRules(1, Some("The ca"))
-    results.data shouldBe List(rule)
-  }
-
-  it should "search rules using a partial search phrase – category" in { implicit session =>
-    val rule = DbRuleDraft
-      .create(
-        ruleType = "regex",
-        category = Some("The cat sat on the mat"),
         user = "test.user",
         ignore = false
       )

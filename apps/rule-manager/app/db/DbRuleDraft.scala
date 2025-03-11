@@ -222,13 +222,6 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
-  val searchDbColumns = List(
-    draftRuleColumns,
-    isPublishedColumn,
-    hasUnpublishedChangesColumn,
-    tagColumn
-  )
-
   /** Search for rules.
     *
     * `sortBy` expects a list of columns prepended by + or - to signify direction, e.g.
@@ -240,27 +233,29 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       tags: List[Int] = List.empty,
       ruleTypes: List[String] = List.empty,
       sortBy: List[String] = List.empty,
-      pageSize: Int = 200
+      pageSize: Int = 50
   )(implicit
       session: DBSession = autoSession
   ): PaginatedResponse[DbRuleDraft] = {
+    val isFilteringByAnyCondition = maybeWord.nonEmpty ||
+      tags.nonEmpty ||
+      ruleTypes.nonEmpty
+
     val coalescedCols =
       sqls"""
-        coalesce(${rd.column("pattern")}, '') ||
-        coalesce(${rd.column("description")}, '') ||
-        coalesce(${rd.column("replacement")}, '') ||
-        coalesce(${rd.column("category")}, '')
+        coalesce(${rd.column("pattern")}, '') || ' ' ||
+        coalesce(${rd.column("description")}, '') || ' ' ||
+        coalesce(${rd.column("replacement")}, '')
       """
 
-    val similarityCol = "similarity"
-    val (searchClause, similarityAlias) = maybeWord
+    val (searchClause, searchOrderClause) = maybeWord
       .map { word =>
         (
           Some(sqls"$coalescedCols ILIKE ${s"%$word%"}"),
-          sqls", $coalescedCols <-> $word AS " + SQLSyntax.createUnsafely(similarityCol),
+          Some(sqls"similarity($coalescedCols, $word) DESC"),
         )
       }
-      .getOrElse((None, sqls.empty))
+      .getOrElse((None, None))
 
     val tagFilterClause = tags match {
       case Nil  => None
@@ -280,49 +275,79 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       }
 
     val orderByClause = {
-      val maybeSimilarityCol = maybeWord.map { _ => SQLSyntax.createUnsafely(similarityCol) }
-      val orderStmts = maybeSimilarityCol.toList ++ sortBy.map { sortByStr =>
+      val defaultPatternOrder = if (!isFilteringByAnyCondition && sortBy.isEmpty) {
+        List(sqls"${rd.updatedAt} DESC")
+      } else List.empty
+      val orderStmts = sortBy.map { sortByStr =>
         val colName = StringHelpers.camelToSnakeCase(sortByStr.slice(1, sortByStr.length))
         val col = rd.column(colName)
         sortByStr.slice(0, 1) match {
-          case "+" => sqls"$col ASC"
-          case "-" => sqls"$col DESC"
+          // Indexes for sort order should reflect the `left()` expression.
+          case "+" => sqls"left($col, 20) ASC"
+          case "-" => sqls"left($col, 20) DESC"
         }
-      }
+      } ++ searchOrderClause ++ defaultPatternOrder
 
-      sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}${if (orderStmts.nonEmpty) sqls", "
-        else sqls.empty}${rd.ruleType} ASC"
+      if (orderStmts.nonEmpty)
+        sqls"ORDER BY ${sqls.join(orderStmts, sqls",")}"
+      else
+        sqls.empty
     }
 
-    val data = sql"""
+    val countStmt = if (isFilteringByAnyCondition) {
+      sqls"COUNT(*) OVER () AS rule_count"
+    } else {
+      // If we're not filtering, use the table statistics to count rows rather
+      // than count(*), which is slow when we're counting the entire table.
+      sqls"""
+        (SELECT n_live_tup
+          FROM pg_stat_all_tables
+        WHERE relname = ${DbRuleDraft.tableName}) as rule_count
+          """
+    }
+
+    val searchStmt = sql"""
         SELECT
-            $searchDbColumns
-            $similarityAlias,
-            COUNT(${rd.id}) OVER () AS rule_count,
-            CEIL(cast (COUNT(${rd.id}) OVER () as decimal) / $pageSize) as page_count
+          $draftRuleColumns,
+          $isPublishedColumn,
+          $hasUnpublishedChangesColumn,
+          rule_count,
+          CEIL(rule_count / $pageSize) as page_count,
+          $tagColumn
+        FROM (
+        SELECT
+            $draftRuleColumns,
+            $countStmt
           FROM ${DbRuleDraft.as(rd)}
+          ${if (tags.isEmpty) sqls.empty else sqls"""
+             LEFT JOIN ${RuleTagDraft.as(rt)} ON ${rd.id} = ${rt.ruleId}
+          """}
+          $condition
+          $orderByClause
+          LIMIT $pageSize
+          OFFSET ${(page - 1) * pageSize}
+        ) as ${SQLSyntax.createUnsafely(rd.tableAliasName)}
           LEFT JOIN ${DbRuleLive.as(rl)}
             ON ${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true
           LEFT JOIN ${RuleTagDraft.as(rt)}
             ON ${rd.id} = ${rt.ruleId}
-          $condition
           GROUP BY
             $draftRuleColumns,
             ${rl.externalId},
-            ${rl.revisionId}
-            ${maybeWord
-        .map { _ => sqls"," + SQLSyntax.createUnsafely(similarityCol) }
-        .getOrElse(sqls.empty)}
+            ${rl.revisionId},
+            rule_count,
+            page_count
           $orderByClause
-          LIMIT $pageSize
-          OFFSET ${(page - 1) * pageSize}
       """
-      .map(rs => (DbRuleDraft.fromRow(rs), rs.int("page_count"), rs.int("rule_count")))
-      .list()
-      .apply()
+
+    val data =
+      searchStmt
+        .map(rs => (DbRuleDraft.fromRow(rs), rs.int("page_count"), rs.int("rule_count")))
+        .list()
+        .apply()
 
     val (maxPages, total) = data.headOption
-      .map { case (_, pageCount, ruleCount) =>
+      .map { case (r, pageCount, ruleCount) =>
         (pageCount, ruleCount)
       }
       .getOrElse((1, 0))
