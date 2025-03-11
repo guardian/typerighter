@@ -1,24 +1,33 @@
 package utils
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.amazonaws.auth.{AWSCredentialsProviderChain, EnvironmentVariableCredentialsProvider}
+import com.amazonaws.auth.profile.{ProfileCredentialsProvider => ProfileCredentialsProviderV2}
+import software.amazon.awssdk.auth.credentials.{
+  EnvironmentVariableCredentialsProvider => EnvironmentVariableCredentialsProviderV2,
+  ProfileCredentialsProvider
+}
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import com.gu.conf.{ConfigurationLoader, SSMConfigurationLocation}
 import com.gu.pandomainauth.{PanDomainAuthSettingsRefresher, S3BucketLoader}
 import software.amazon.awssdk.auth.credentials.{
-  AwsCredentialsProviderChain => AwsCredentialsProviderChainV2,
-  DefaultCredentialsProvider => DefaultCredentialsProviderV2
+  AwsCredentialsProviderChain => AwsCredentialsProviderChainV2
 }
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.sns.SnsClient
 
 class UserFeedbackConfig {
   private val region = Region.EU_WEST_1
-  val credsV1 = DefaultAWSCredentialsProviderChain.getInstance
+  private val accountName = "composer"
+  val credsV1 = new AWSCredentialsProviderChain(
+    new EnvironmentVariableCredentialsProvider(),
+    new ProfileCredentialsProviderV2(accountName)
+  )
   val credsV2 = AwsCredentialsProviderChainV2
     .builder()
     .credentialsProviders(
-      DefaultCredentialsProviderV2.create()
+      EnvironmentVariableCredentialsProviderV2.create(),
+      ProfileCredentialsProvider.create(accountName)
     )
     .build()
   private val identity =

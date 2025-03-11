@@ -2392,7 +2392,7 @@ EOF
           "S3Bucket": {
             "Ref": "DistributionBucketName",
           },
-          "S3Key": "flexible/TEST/typerighter-user-feedback/typerighter-user-feedback/typerighter-user-feedback.jar",
+          "S3Key": "flexible/TEST/typerighter-user-feedback/typerighter-user-feedback.jar",
         },
         "Description": "The front door for user feedback",
         "Environment": {
@@ -2533,7 +2533,7 @@ EOF
                       {
                         "Ref": "DistributionBucketName",
                       },
-                      "/flexible/TEST/typerighter-user-feedback/typerighter-user-feedback/typerighter-user-feedback.jar",
+                      "/flexible/TEST/typerighter-user-feedback/typerighter-user-feedback.jar",
                     ],
                   ],
                 },
