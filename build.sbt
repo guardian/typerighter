@@ -75,7 +75,7 @@ val commonSettings = Seq(
     "com.gu" %% "simple-configuration-ssm" % "5.0.2",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.7.2",
-    "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
+    "com.google.apis" % "google-api-services-sheets" % "v4-rev20250211-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
