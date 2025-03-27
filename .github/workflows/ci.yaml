@@ -2,7 +2,10 @@ name: Typerighter CI
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
+  push: # Do not rely on `push` for PR CI - see https://github.com/guardian/mobile-apps-api/pull/2741#issuecomment-1777653733
+    branches:
+      - main # Optimal for GHA workflow caching - see https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#restrictions-for-accessing-a-cache
 
 jobs:
   CI:
