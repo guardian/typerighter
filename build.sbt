@@ -39,7 +39,7 @@ def javaVersionNumber = {
 }
 
 val jackson = {
-  val version = "2.14.2"
+  val version = "2.14.3"
   Seq(
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % version,
     "com.fasterxml.jackson.core" % "jackson-core" % version,
