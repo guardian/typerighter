@@ -54,10 +54,6 @@ val commonSettings = Seq(
   buildInfoKeys := {
     lazy val buildInfo = BuildInfo(baseDirectory.value)
     Seq[BuildInfoKey](
-      // so this next one is constant to avoid it always recompiling on dev machines.
-      // we only really care about build time on teamcity, when a constant based on when
-      // it was loaded is just fine
-      "buildTime" -> System.currentTimeMillis,
       "gitCommitId" -> buildInfo.revision
     )
   },
