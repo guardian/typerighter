@@ -29,7 +29,8 @@ class HomeController(
         InternalServerError(
           Json.obj(
             "healthy" -> false,
-            "error" -> errorMsg
+            "error" -> errorMsg,
+            "gitCommitId" -> BuildInfo.gitCommitId
           )
         )
       } else {
