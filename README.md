@@ -88,7 +88,7 @@ It's worth noting that, at the moment, there are a fair few assumptions built in
  - Building and deployment is handled by riff-raff, [the Guardian's deployment platform](https://github.com/guardian/riff-raff).
  - Configuration is handled by [simple-configuration](https://github.com/guardian/simple-configuration).
 
-We'd be delighted to participate in discussions, or consider PRs, that aimed to make Typerighter easier to use in a less institionally specific context.
+We'd be delighted to participate in discussions, or consider PRs, that aimed to make Typerighter easier to use in a less institutionally specific context.
 
 ## Integration
 
