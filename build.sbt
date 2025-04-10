@@ -24,7 +24,7 @@ ThisBuild / scalacOptions := Seq(
 // See https://support.snyk.io/hc/en-us/articles/9590215676189-Deeply-nested-Scala-projects-have-dependencies-truncated
 ThisBuild / asciiGraphWidth := 999999999
 
-val languageToolVersion = "6.4"
+val languageToolVersion = "6.5"
 val awsSdkVersion = "1.12.782"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
