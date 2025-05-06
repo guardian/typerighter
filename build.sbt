@@ -39,7 +39,7 @@ def javaVersionNumber = {
 }
 
 val jackson = {
-  val version = "2.14.2"
+  val version = "2.14.3"
   Seq(
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % version,
     "com.fasterxml.jackson.core" % "jackson-core" % version,
@@ -54,17 +54,12 @@ val commonSettings = Seq(
   buildInfoKeys := {
     lazy val buildInfo = BuildInfo(baseDirectory.value)
     Seq[BuildInfoKey](
-      BuildInfoKey.constant("buildNumber", buildInfo.buildIdentifier),
-      // so this next one is constant to avoid it always recompiling on dev machines.
-      // we only really care about build time on teamcity, when a constant based on when
-      // it was loaded is just fine
-      BuildInfoKey.constant("buildTime", System.currentTimeMillis),
-      BuildInfoKey.constant("gitCommitId", buildInfo.revision)
+      "gitCommitId" -> buildInfo.revision
     )
   },
-  //Necessary to override jackson versions due to AWS and Play incompatibility
+  // Necessary to override jackson versions due to AWS and Play incompatibility
   dependencyOverrides ++= jackson,
-  //Necessary to override json to resolve vulnerabilities introduced by languagetool-core
+  // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
@@ -85,8 +80,8 @@ val commonSettings = Seq(
     "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
-    "ch.qos.logback" % "logback-classic" % "1.4.14", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
-),
+    "ch.qos.logback" % "logback-classic" % "1.5.18" // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
+  ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
 
@@ -97,16 +92,23 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     libraryDependencies ++= Seq(
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.9.4",
+      "com.typesafe.play" %% "play" % "2.9.4"
     )
   )
 
-def playProject(label: String, projectName: String, domainPrefix: String, devHttpPorts: Map[String, String]) =
+def playProject(
+    label: String,
+    projectName: String,
+    domainPrefix: String,
+    devHttpPorts: Map[String, String]
+) =
   Project(projectName, file(s"$appsFolder/$projectName"))
     .dependsOn(commonLib)
     .enablePlugins(PlayScala, BuildInfoPlugin, JDebPackaging, SystemdPlugin)
     .settings(
-      PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) => s"play.server.$protocol.port" -> value }.toSeq,
+      PlayKeys.devSettings ++= devHttpPorts.map { case (protocol, value) =>
+        s"play.server.$protocol.port" -> value
+      }.toSeq,
       PlayKeys.playRunHooks += new ViteBuildHook(label, domainPrefix),
       Universal / javaOptions ++= Seq(
         s"-Dpidfile.path=/dev/null",
@@ -117,7 +119,7 @@ def playProject(label: String, projectName: String, domainPrefix: String, devHtt
         s"-J-Dlogs.home=/var/log/${packageName.value}",
         s"-J-Xloggc:/var/log/${packageName.value}/gc.log"
       ),
-      commonSettings,
+      commonSettings
     )
 
 val checker = playProject(
@@ -143,7 +145,7 @@ val checker = playProject(
       "com.gu" %% "content-api-client-default" % capiClientVersion,
       "org.apache.opennlp" % "opennlp" % "2.1.0",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-      "io.gatling"            % "gatling-test-framework"    % "3.7.2" % "test,it",
+      "io.gatling" % "gatling-test-framework" % "3.7.2" % "test,it",
       "org.carrot2" % "morfologik-tools" % "2.1.7"
     ) ++ Seq(
       "io.circe" %% "circe-core",
@@ -172,7 +174,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "editorial-permissions-client" % "2.14",
-      "com.github.tototoshi" %% "scala-csv" % "2.0.0",
+      "com.github.tototoshi" %% "scala-csv" % "2.0.0"
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
   )
