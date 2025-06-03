@@ -74,7 +74,7 @@ val commonSettings = Seq(
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
     "com.gu" %% "simple-configuration-ssm" % "5.0.2",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
-    "com.google.api-client" % "google-api-client" % "2.0.1",
+    "com.google.api-client" % "google-api-client" % "2.8.0",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
