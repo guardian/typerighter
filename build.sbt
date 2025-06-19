@@ -66,6 +66,7 @@ val commonSettings = Seq(
   dependencyOverrides ++= jackson,
   // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
+  dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.1-jre"),
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
