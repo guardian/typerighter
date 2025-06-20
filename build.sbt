@@ -24,7 +24,7 @@ ThisBuild / scalacOptions := Seq(
 // See https://support.snyk.io/hc/en-us/articles/9590215676189-Deeply-nested-Scala-projects-have-dependencies-truncated
 ThisBuild / asciiGraphWidth := 999999999
 
-val languageToolVersion = "6.4"
+val languageToolVersion = "6.5"
 val awsSdkVersion = "1.12.782"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
@@ -66,6 +66,7 @@ val commonSettings = Seq(
   dependencyOverrides ++= jackson,
   // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
+  dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.1-jre"),
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
