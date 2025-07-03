@@ -38,16 +38,6 @@ def javaVersionNumber = {
   IO.read(new File(".java-version"))
 }
 
-val jackson = {
-  val version = "2.14.2"
-  Seq(
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % version,
-    "com.fasterxml.jackson.core" % "jackson-core" % version,
-    "com.fasterxml.jackson.core" % "jackson-databind" % version,
-    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % version
-  )
-}
-
 val commonSettings = Seq(
   Test / fork := false, // Enables attaching debugger in tests
   buildInfoPackage := "typerighter",
@@ -62,8 +52,6 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
-  // Necessary to override jackson versions due to AWS and Play incompatibility
-  dependencyOverrides ++= jackson,
   // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
   dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.1-jre"),
