@@ -91,7 +91,7 @@ val commonSettings = Seq(
       .toSet
     if (jacksonVersions.size > 1) {
       sys.error(
-        s"""Found conflicting jackson-databind and jackson-module scala versions, which will break at runtime:
+        s"""Found conflicting jackson-databind and jackson-module-scala versions, which will break at runtime:
 
       |${jacksonModules.map(m => s"- ${m.name}: ${m.revision}").mkString("\n")}
       """.stripMargin
