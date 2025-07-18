@@ -90,7 +90,12 @@ val commonSettings = Seq(
       .map(_.revision.split('.').take(2).mkString("."))
       .toSet
     if (jacksonVersions.size > 1) {
-      sys.error("Found conflicting jackson-databind and jackson-module scala versions!")
+      sys.error(
+        s"""Found conflicting jackson-databind and jackson-module scala versions, which will break at runtime:
+
+      |${jacksonModules.map(m => s"- ${m.name}: ${m.revision}").mkString("\n")}
+      """.stripMargin
+      )
     }
     jacksonModules
   }
