@@ -38,16 +38,6 @@ def javaVersionNumber = {
   IO.read(new File(".java-version"))
 }
 
-val jackson = {
-  val version = "2.14.2"
-  Seq(
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % version,
-    "com.fasterxml.jackson.core" % "jackson-core" % version,
-    "com.fasterxml.jackson.core" % "jackson-databind" % version,
-    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % version
-  )
-}
-
 val commonSettings = Seq(
   Test / fork := false, // Enables attaching debugger in tests
   buildInfoPackage := "typerighter",
@@ -62,8 +52,6 @@ val commonSettings = Seq(
       BuildInfoKey.constant("gitCommitId", buildInfo.revision)
     )
   },
-  // Necessary to override jackson versions due to AWS and Play incompatibility
-  dependencyOverrides ++= jackson,
   // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
   dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.1-jre"),
@@ -86,7 +74,11 @@ val commonSettings = Seq(
     "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
-    "ch.qos.logback" % "logback-classic" % "1.4.14" // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
+    "ch.qos.logback" % "logback-classic" % "1.4.14", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
+    // The jackson-module-scala version below must be kept in sync with the
+    // transitive dependency on jackson-databind introduced by our AWS
+    // dependencies.
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
