@@ -38,6 +38,8 @@ def javaVersionNumber = {
   IO.read(new File(".java-version"))
 }
 
+val checkJackson = taskKey[Vector[ModuleID]]("Checks jackson versions")
+
 val commonSettings = Seq(
   Test / fork := false, // Enables attaching debugger in tests
   buildInfoPackage := "typerighter",
@@ -80,7 +82,18 @@ val commonSettings = Seq(
     // dependencies.
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2"
   ),
-  libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+  libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
+  checkJackson := {
+    val jacksonModules = update.value.allModules
+      .filter(m => m.name == "jackson-databind" || m.name.startsWith("jackson-module-scala"))
+    val jacksonVersions = jacksonModules
+      .map(_.revision.split('.').take(2).mkString("."))
+      .toSet
+    if (jacksonVersions.size > 1) {
+      sys.error("Found conflicting jackson-databind and jackson-module scala versions!")
+    }
+    jacksonModules
+  }
 )
 
 val commonLib = (project in file(s"$appsFolder/common-lib"))
