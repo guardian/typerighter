@@ -8,10 +8,10 @@ let
   # guardianDev = import "${guardianNix.outPath}/guardian-dev.nix" pkgs;
   guardianDev =
     import /Users/emily_bourke/code/guardian-nix/guardian-dev.nix pkgs;
-  yarnWithNode18 = pkgs.yarn.override { nodejs = pkgs.nodejs_18; };
+  yarnWithNode20 = pkgs.yarn.override { nodejs = pkgs.nodejs_20; };
 
 in guardianDev.devEnv {
   name = "typerighter";
   commands = [ ];
-  extraInputs = [ pkgs.nodejs_18 yarnWithNode18 pkgs.sbt ];
+  extraInputs = [ pkgs.nodejs_20 yarnWithNode20 pkgs.sbt pkgs.metals ];
 }
