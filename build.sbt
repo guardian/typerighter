@@ -24,14 +24,14 @@ ThisBuild / scalacOptions := Seq(
 // See https://support.snyk.io/hc/en-us/articles/9590215676189-Deeply-nested-Scala-projects-have-dependencies-truncated
 ThisBuild / asciiGraphWidth := 999999999
 
-val languageToolVersion = "6.5"
+val languageToolVersion = "6.6"
 val awsSdkVersion = "1.12.782"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
 val pandaVersion = "7.0.0"
-val circeVersion = "0.14.1"
+val circeVersion = "0.14.14"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
-val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
+val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-4.0"
 val appsFolder = "apps"
 
 def javaVersionNumber = {
@@ -53,18 +53,18 @@ val commonSettings = Seq(
     )
   },
   // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
-  dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
-  dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.1-jre"),
+  dependencyOverrides ++= Seq("org.json" % "json" % "20250517"),
+  dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.3-jre"),
   libraryDependencies ++= Seq(
     "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
-    "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
-    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
+    "net.logstash.logback" % "logstash-logback-encoder" % "7.4",
+    "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.2" % Test,
+    "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.3" % Test,
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.45",
     "com.gu" %% "simple-configuration-ssm" % "5.0.2",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
-    "com.google.api-client" % "google-api-client" % "2.0.1",
-    "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
+    "com.google.api-client" % "google-api-client" % "2.8.0",
+    "com.google.apis" % "google-api-services-sheets" % "v4-rev20250616-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
@@ -74,11 +74,11 @@ val commonSettings = Seq(
     "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
-    "ch.qos.logback" % "logback-classic" % "1.4.14", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
+    "ch.qos.logback" % "logback-classic" % "1.5.18", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
     // The jackson-module-scala version below must be kept in sync with the
     // transitive dependency on jackson-databind introduced by our AWS
     // dependencies.
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2"
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.3"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
@@ -90,7 +90,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     libraryDependencies ++= Seq(
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.9.4"
+      "com.typesafe.play" %% "play" % "2.9.8"
     )
   )
 
@@ -135,16 +135,16 @@ val checker = playProject(
       "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
       "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
-      "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
-      "org.webjars" % "bootstrap" % "4.6.2",
+      "net.logstash.logback" % "logstash-logback-encoder" % "6.6",
+      "org.webjars" % "bootstrap" % "5.3.7",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "org.apache.opennlp" % "opennlp" % "2.1.0",
-      "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
-      "io.gatling" % "gatling-test-framework" % "3.7.2" % "test,it",
-      "org.carrot2" % "morfologik-tools" % "2.1.7"
+      "org.apache.opennlp" % "opennlp" % "2.1.1",
+      "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.6" % "test,it",
+      "io.gatling" % "gatling-test-framework" % "3.7.6" % "test,it",
+      "org.carrot2" % "morfologik-tools" % "2.1.9"
     ) ++ Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
@@ -165,7 +165,7 @@ val ruleManager = playProject(
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.5.5",
+      "org.postgresql" % "postgresql" % "42.5.6",
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
