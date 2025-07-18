@@ -78,7 +78,7 @@ val commonSettings = Seq(
     // The jackson-module-scala version below must be kept in sync with the
     // transitive dependency on jackson-databind introduced by our AWS
     // dependencies.
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2"
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.3"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 )
