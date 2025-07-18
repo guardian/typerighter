@@ -98,9 +98,9 @@ val commonSettings = Seq(
       )
     }
     jacksonModules
-  }
+  },
+  (Compile / compile) := ((Compile / compile) dependsOn checkJackson).value
 )
-
 val commonLib = (project in file(s"$appsFolder/common-lib"))
   .enablePlugins(BuildInfoPlugin)
   .settings(
