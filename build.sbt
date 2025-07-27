@@ -26,9 +26,9 @@ ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.5"
 val awsSdkVersion = "1.12.782"
-val capiModelsVersion = "17.5.1"
-val capiClientVersion = "19.2.1"
-val pandaVersion = "7.0.0"
+val capiModelsVersion = "17.5.2"
+val capiClientVersion = "19.2.3"
+val pandaVersion = "9.0.2"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
@@ -63,7 +63,7 @@ val commonSettings = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
-    "com.gu" %% "simple-configuration-ssm" % "5.0.2",
+    "com.gu" %% "simple-configuration-ssm" % "5.1.1",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.0.1",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
@@ -71,7 +71,7 @@ val commonSettings = Seq(
     "org.languagetool" % "language-en" % languageToolVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
-    "com.gu" %% "content-api-client-aws" % "0.7",
+    "com.gu" %% "content-api-client-aws" % "0.7.6",
     "com.gu" %% "content-api-client-default" % capiClientVersion,
     "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
@@ -157,7 +157,7 @@ val checker = playProject(
       "org.webjars" % "bootstrap" % "4.6.2",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
-      "com.gu" %% "content-api-client-aws" % "0.7",
+      "com.gu" %% "content-api-client-aws" % "0.7.6",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
       "org.apache.opennlp" % "opennlp" % "2.1.0",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
@@ -189,7 +189,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
-      "com.gu" %% "editorial-permissions-client" % "2.14",
+      "com.gu" %% "editorial-permissions-client" % "2.16.0",
       "com.github.tototoshi" %% "scala-csv" % "2.0.0"
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
