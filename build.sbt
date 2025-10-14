@@ -80,7 +80,6 @@ val commonSettings = Seq(
     "org.languagetool" % "language-en" % languageToolVersion,
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
     "com.gu" %% "content-api-models-json" % capiModelsVersion,
-    "com.gu" %% "content-api-client-aws" % "0.7",
     "com.gu" %% "content-api-client-default" % capiClientVersion,
     "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
