@@ -138,7 +138,6 @@ val checker = playProject(
       "org.webjars" % "bootstrap" % "4.6.2",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
-      "com.gu" %% "content-api-client-aws" % "0.7",
       "com.gu" %% "content-api-client-default" % capiClientVersion,
       "org.apache.opennlp" % "opennlp" % "2.1.0",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.2" % "test,it",
