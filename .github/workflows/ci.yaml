@@ -2,7 +2,10 @@ name: Typerighter CI
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
+  push: # Do not rely on `push` for PR CI - see https://github.com/guardian/mobile-apps-api/pull/2741#issuecomment-1777653733
+    branches:
+      - main # Optimal for GHA workflow caching - see https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#restrictions-for-accessing-a-cache
 
 jobs:
   CI:
@@ -11,14 +14,10 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
-          aws-region: eu-west-1
 
       - name: Setup Scala
         uses: guardian/setup-scala@v1
@@ -60,11 +59,13 @@ jobs:
         run: mv apps/rule-manager/target/rule-manager_1.0-SNAPSHOT_all.deb target/typerighter-rule-manager.deb
 
       - name: upload to riff-raff
-        uses: guardian/actions-riff-raff@v2
+        uses: guardian/actions-riff-raff@v4
         with:
           configPath: riff-raff.yaml
           projectName: Editorial Tools::Typerighter
           buildNumberOffset: 1280 # This is the last build number from TeamCity
+          roleArn: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
           contentDirectories: |
             typerighter-checker:
             - target/typerighter-checker.deb

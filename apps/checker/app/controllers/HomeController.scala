@@ -5,6 +5,7 @@ import com.gu.typerighter.controllers.PandaAuthController
 import com.gu.typerighter.lib.CommonConfig
 import play.api.libs.json.Json
 import services._
+import typerighter.BuildInfo
 
 /** The controller for the index pages.
   */
@@ -28,11 +29,12 @@ class HomeController(
         InternalServerError(
           Json.obj(
             "healthy" -> false,
-            "error" -> errorMsg
+            "error" -> errorMsg,
+            "gitCommitId" -> BuildInfo.gitCommitId
           )
         )
       } else {
-        Ok(Json.obj("healthy" -> true))
+        Ok(Json.obj("healthy" -> true, "gitCommitId" -> BuildInfo.gitCommitId))
       }
     }
   }

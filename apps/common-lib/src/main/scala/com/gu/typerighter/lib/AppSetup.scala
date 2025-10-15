@@ -34,7 +34,7 @@ object AppSetup {
           DevIdentity("typerighter-checker")
         )
       case _ =>
-        val credsV2 = DefaultCredentialsProviderV2.create()
+        val credsV2 = DefaultCredentialsProviderV2.builder().build()
         (
           DefaultAWSCredentialsProviderChain.getInstance,
           credsV2,
