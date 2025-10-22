@@ -20,7 +20,7 @@ services:
           retries: 5
     localstack:
       container_name: "${LOCALSTACK_DOCKER_NAME-localstack_main}"
-      image: localstack/localstack:1.4.0
+      image: localstack/localstack:4.9.2
       ports:
         - "4566-4599:4566-4599"
         - "${PORT_WEB_UI-8080}:${PORT_WEB_UI-8080}"
