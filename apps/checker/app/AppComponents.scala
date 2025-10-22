@@ -1,12 +1,10 @@
-import com.amazonaws.auth.{
-  AWSCredentialsProvider,
-  AWSStaticCredentialsProvider,
-  BasicAWSCredentials
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider,
+  StaticCredentialsProvider,
+  AwsBasicCredentials
 }
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration
-import com.amazonaws.regions.Regions
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
 import com.gu.{AppIdentity, AwsIdentity, DevIdentity}
 import controllers.{ApiController, HomeController, RulesController}
 import play.api.ApplicationLoader.Context
@@ -28,13 +26,13 @@ import com.gu.typerighter.rules.BucketRuleResource
 import matchers.LanguageToolFactory
 import utils.CloudWatchClient
 import utils.CheckerConfig
+import java.net.URI
 
 class AppComponents(
     context: Context,
     region: String,
     identity: AppIdentity,
-    creds: AWSCredentialsProvider,
-    credsV2: AwsCredentialsProvider
+    creds: AwsCredentialsProvider
 ) extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
     with CORSComponents
@@ -49,26 +47,25 @@ class AppComponents(
 
   val languageToolFactory = new LanguageToolFactory(config.ngramPath, true)
 
-  private val localStackBasicAWSCredentialsProviderV1: AWSCredentialsProvider =
-    new AWSStaticCredentialsProvider(new BasicAWSCredentials("accessKey", "secretKey"))
+  private val localStackBasicAWSCredentialsProvider: AwsCredentialsProvider =
+    StaticCredentialsProvider.create(AwsBasicCredentials.create("accessKey", "secretKey"))
 
-  private val standardS3Client = AmazonS3ClientBuilder
-    .standard()
-    .withCredentials(creds)
-    .withRegion(region)
+  private val standardS3Client = S3Client
+    .builder()
+    .credentialsProvider(creds)
+    .region(Region.of(region))
     .build()
 
   private val s3Client = identity match {
     case _: AwsIdentity => standardS3Client
     case _: DevIdentity =>
-      AmazonS3ClientBuilder
-        .standard()
-        .withCredentials(localStackBasicAWSCredentialsProviderV1)
-        .withEndpointConfiguration(
-          new EndpointConfiguration("http://localhost:4566", Regions.EU_WEST_1.getName)
-        )
+      S3Client
+        .builder()
+        .credentialsProvider(localStackBasicAWSCredentialsProvider)
+        .region(Region.of(region))
+        .endpointOverride(URI.create("http://localhost:4566"))
         // This is needed for localstack
-        .enablePathStyleAccess()
+        .forcePathStyle(true)
         .build()
   }
 

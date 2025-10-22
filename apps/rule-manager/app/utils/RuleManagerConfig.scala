@@ -3,14 +3,14 @@ package utils
 import play.api.Configuration
 import com.gu.typerighter.lib.CommonConfig
 import com.gu.AppIdentity
-import com.amazonaws.auth.AWSCredentialsProvider
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import play.api.libs.ws.WSClient
 
 class RuleManagerConfig(
     playConfig: Configuration,
     region: String,
     identity: AppIdentity,
-    creds: AWSCredentialsProvider,
+    creds: AwsCredentialsProvider,
     ws: WSClient
 ) extends CommonConfig(playConfig, region, identity, creds, ws) {
   val serviceName = "manager"

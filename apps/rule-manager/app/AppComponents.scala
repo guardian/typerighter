@@ -3,8 +3,9 @@ import play.filters.HttpFiltersComponents
 import play.api.BuiltInComponentsFromContext
 import play.api.libs.ws.ahc.AhcWSComponents
 import controllers.{AssetsComponents, HomeController, RulesController, TagsController}
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
-import com.amazonaws.auth.AWSCredentialsProvider
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
 import com.gu.AwsIdentity
 import com.gu.AppIdentity
 import com.gu.DevIdentity
@@ -22,7 +23,7 @@ class AppComponents(
     context: Context,
     region: String,
     identity: AppIdentity,
-    creds: AWSCredentialsProvider
+    creds: AwsCredentialsProvider
 ) extends BuiltInComponentsFromContext(context)
     with HttpFiltersComponents
     with AssetsComponents
@@ -35,10 +36,10 @@ class AppComponents(
 
   applicationEvolutions
 
-  private val standardS3Client = AmazonS3ClientBuilder
-    .standard()
-    .withCredentials(creds)
-    .withRegion(region)
+  private val standardS3Client = S3Client
+    .builder()
+    .credentialsProvider(creds)
+    .region(Region.of(region))
     .build()
 
   private val s3Client = identity match {

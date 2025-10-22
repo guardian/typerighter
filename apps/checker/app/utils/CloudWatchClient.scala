@@ -1,10 +1,10 @@
 package utils
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchClientBuilder
-import com.amazonaws.services.cloudwatch.model.Dimension
-import com.amazonaws.services.cloudwatch.model.MetricDatum
-import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest
-import com.amazonaws.services.cloudwatch.model.StandardUnit
+import software.amazon.awssdk.services.cloudwatch.{CloudWatchClient => AwsCloudWatchClient}
+import software.amazon.awssdk.services.cloudwatch.model.Dimension
+import software.amazon.awssdk.services.cloudwatch.model.MetricDatum
+import software.amazon.awssdk.services.cloudwatch.model.PutMetricDataRequest
+import software.amazon.awssdk.services.cloudwatch.model.StandardUnit
 
 import com.gu.typerighter.lib.Loggable
 
@@ -17,19 +17,29 @@ object Metrics {
 class CloudWatchClient(stage: String, dryRun: Boolean) extends Loggable {
 
   private val cloudWatchClient =
-    if (dryRun) None else Some(AmazonCloudWatchClientBuilder.defaultClient())
+    if (dryRun) None else Some(AwsCloudWatchClient.builder().build())
 
   def putMetric(metric: String, value: Int = 1): Unit = {
 
-    val dimension = new Dimension().withName("Stage").withValue(stage.toUpperCase())
+    val dimension = Dimension
+      .builder()
+      .name("Stage")
+      .value(stage.toUpperCase())
+      .build()
 
-    val datum = new MetricDatum()
-      .withMetricName(metric)
-      .withUnit(StandardUnit.Count)
-      .withValue(value)
-      .withDimensions(dimension)
+    val datum = MetricDatum
+      .builder()
+      .metricName(metric)
+      .unit(StandardUnit.COUNT)
+      .value(value)
+      .dimensions(dimension)
+      .build()
 
-    val request = new PutMetricDataRequest().withNamespace("Typerighter").withMetricData(datum)
+    val request = PutMetricDataRequest
+      .builder()
+      .namespace("Typerighter")
+      .metricData(datum)
+      .build()
 
     try {
       cloudWatchClient.map(_.putMetricData(request))
