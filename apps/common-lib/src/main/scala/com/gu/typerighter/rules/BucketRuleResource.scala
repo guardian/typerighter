@@ -4,7 +4,7 @@ import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.{
   PutObjectRequest,
   GetObjectRequest,
-  GetObjectAttributesRequest
+  HeadObjectRequest
 }
 import software.amazon.awssdk.core.sync.RequestBody
 import com.gu.typerighter.lib.JsonHelpers
@@ -96,23 +96,14 @@ class BucketRuleResource(s3: S3Client, bucketName: String, stage: String) extend
     logOnError("getting the lastModified date from S3") {
       val lastModified =
         try {
-          val rulesMeta = s3.getObjectAttributes(
-            GetObjectAttributesRequest
-              .builder()
-              .bucket(bucketName)
-              .key(RULES_KEY)
-              .build()
-          )
+          val rulesMeta =
+            s3.headObject(HeadObjectRequest.builder().bucket(bucketName).key(RULES_KEY).build())
           Date.from(rulesMeta.lastModified())
         } catch {
           case _: Throwable =>
             logger.info("Failed to find new artefact, trying legacy artefact")
-            val rulesMeta = s3.getObjectAttributes(
-              GetObjectAttributesRequest
-                .builder()
-                .bucket(bucketName)
-                .key(LEGACY_RULES_KEY)
-                .build()
+            val rulesMeta = s3.headObject(
+              HeadObjectRequest.builder().bucket(bucketName).key(LEGACY_RULES_KEY).build()
             )
             Date.from(rulesMeta.lastModified())
         }
