@@ -25,10 +25,10 @@ ThisBuild / scalacOptions := Seq(
 ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.5"
-val awsSdkVersion = "1.12.782"
+val awsSdkVersion = "2.35.10"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
-val pandaVersion = "7.0.0"
+val pandaVersion = "13.0.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
@@ -58,7 +58,7 @@ val commonSettings = Seq(
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
   dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.1-jre"),
   libraryDependencies ++= Seq(
-    "com.amazonaws" % "aws-java-sdk-secretsmanager" % awsSdkVersion,
+    "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
@@ -148,10 +148,10 @@ val checker = playProject(
     Universal / javaOptions += s"-Dconfig.file=/etc/gu/${packageName.value}.conf",
     packageName := "typerighter-checker",
     libraryDependencies ++= Seq(
-      "com.amazonaws" % "aws-java-sdk-ec2" % awsSdkVersion,
-      "com.amazonaws" % "aws-java-sdk-s3" % awsSdkVersion,
-      "com.amazonaws" % "aws-java-sdk-ssm" % awsSdkVersion,
-      "com.amazonaws" % "aws-java-sdk-cloudwatch" % awsSdkVersion,
+      "software.amazon.awssdk" % "ec2" % awsSdkVersion,
+      "software.amazon.awssdk" % "s3" % awsSdkVersion,
+      "software.amazon.awssdk" % "ssm" % awsSdkVersion,
+      "software.amazon.awssdk" % "cloudwatch" % awsSdkVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
       "org.webjars" % "bootstrap" % "4.6.2",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
@@ -187,7 +187,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
-      "com.gu" %% "editorial-permissions-client" % "2.14",
+      "com.gu" %% "editorial-permissions-client" % "5.0.0",
       "com.github.tototoshi" %% "scala-csv" % "2.0.0"
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
