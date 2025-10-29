@@ -8,7 +8,7 @@ ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
   "-encoding",
   "UTF-8",
-  "-release:11",
+  "-release:17",
   "-deprecation",
   "-Xfatal-warnings",
   "-Xlint:unused",
@@ -24,8 +24,8 @@ ThisBuild / scalacOptions := Seq(
 // See https://support.snyk.io/hc/en-us/articles/9590215676189-Deeply-nested-Scala-projects-have-dependencies-truncated
 ThisBuild / asciiGraphWidth := 999999999
 
-val languageToolVersion = "6.5"
-val awsSdkVersion = "2.35.10"
+val languageToolVersion = "6.7"
+val awsSdkVersion = "2.36.3"
 val capiModelsVersion = "17.5.1"
 val capiClientVersion = "19.2.1"
 val pandaVersion = "13.0.0"
@@ -79,7 +79,7 @@ val commonSettings = Seq(
     // The jackson-module-scala version below must be kept in sync with the
     // transitive dependency on jackson-databind introduced by our AWS
     // dependencies.
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.2"
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
   checkJackson := {
