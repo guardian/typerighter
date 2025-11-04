@@ -73,19 +73,34 @@ export const StandaloneRuleForm = ({
 };
 
 const fetchStyleguideEntries = async () => {
-	const queryParams = new URLSearchParams({
-		page: '1',
-		sortBy: '+description',
-	});
-	const url = `${location.origin}/api/rules?${queryParams}`;
-	const tagsRequest = fetch(url);
-	const tagsResponse = await tagsRequest;
-	return (await tagsResponse.json()) as PaginatedResponse<DraftRule>;
+	let finishedFetching = false;
+	let entries: DraftRule[] = [];
+	let currentPage = 1;
+
+	while (!finishedFetching) {
+		const queryParams = new URLSearchParams({
+			page: currentPage.toString(),
+			sortBy: '+description',
+		});
+		const url = `${location.origin}/api/rules?${queryParams}`;
+		const request = fetch(url);
+		const response = await request;
+		const result = (await response.json()) as PaginatedResponse<DraftRule>;
+		entries = [...entries, ...result.data];
+
+		if (result.page === result.pages) {
+			finishedFetching = true;
+		}
+
+		currentPage++;
+	}
+
+	return entries;
 };
 
 const updateStyleguide = async (rule: RuleData) => {
 	const styleGuideEntries = await fetchStyleguideEntries();
-	const formattedEntries = styleGuideEntries.data
+	const formattedEntries = styleGuideEntries
 		.map((tagData) => {
 			const title = tagData.id;
 			const description = tagData.description?.replaceAll('\n', '<br>');
