@@ -22,6 +22,7 @@ import { TagsSelector } from './TagsSelector';
 import { RuleFormSection } from './RuleFormSection';
 import { RevertModal } from './modals/Revert';
 import type { RuleData } from './hooks/useRule';
+import type { PaginatedResponse } from './hooks/useRules';
 
 export type PartiallyUpdateRuleData = (
 	partialReplacement: Partial<DraftRule>,
@@ -71,7 +72,26 @@ export const StandaloneRuleForm = ({
 	);
 };
 
-const updateStyleguide = (rule: RuleData) => {
+const fetchStyleguideEntries = async () => {
+	const queryParams = new URLSearchParams({
+		page: '1',
+		sortBy: '+description',
+	});
+	const url = `${location.origin}/api/rules?${queryParams}`;
+	const tagsRequest = fetch(url);
+	const tagsResponse = await tagsRequest;
+	return (await tagsResponse.json()) as PaginatedResponse<DraftRule>;
+};
+
+const updateStyleguide = async (rule: RuleData) => {
+	const styleGuideEntries = await fetchStyleguideEntries();
+	const formattedEntries = styleGuideEntries.data
+		.map((tagData) => {
+			const title = tagData.id;
+			const description = tagData.description?.replaceAll('\n', '<br>');
+			return `<p><strong>${title}</strong><br>${description}</p>`;
+		})
+		.join('');
 	const CONTENT_ID = '690a2201480e27654fbe9f17';
 	const BLOCK_ID = '690a2203480e27654fbe9f18';
 	['preview', 'live'].forEach(async (facet) => {
@@ -81,12 +101,10 @@ const updateStyleguide = (rule: RuleData) => {
 		const {
 			data: { block: currentBlock },
 		} = await currentBlockResponse.json();
-		const title = rule.draft.id;
-		const description = rule.draft.description?.replaceAll('\n', '<br>');
 		const newElement = {
 			elementType: 'text',
 			fields: {
-				text: `<p><strong>${title}</strong><br>${description}</p>`,
+				text: formattedEntries,
 			},
 			assets: [],
 		};
