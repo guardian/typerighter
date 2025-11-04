@@ -21,6 +21,7 @@ import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
 import { RuleFormSection } from './RuleFormSection';
 import { RevertModal } from './modals/Revert';
+import type { RuleData } from './hooks/useRule';
 
 export type PartiallyUpdateRuleData = (
 	partialReplacement: Partial<DraftRule>,
@@ -68,6 +69,37 @@ export const StandaloneRuleForm = ({
 			{...ruleHooks}
 		/>
 	);
+};
+
+const updateStyleguide = async (rule: RuleData) => {
+	const CONTENT_ID = '690a2201480e27654fbe9f17';
+	const BLOCK_ID = '690a2203480e27654fbe9f18';
+	const url = `https://composer.local.dev-gutools.co.uk/api/content/${CONTENT_ID}/preview/blocks/${BLOCK_ID}`;
+	const currentBlockRequest = fetch(url, { credentials: 'include' });
+	const currentBlockResponse = await currentBlockRequest;
+	const {
+		data: { block: currentBlock },
+	} = await currentBlockResponse.json();
+	const newElement = {
+		elementType: 'text',
+		fields: {
+			text: `<p><strong>${rule.draft.id}</strong><br>${rule.draft.description}</p>`,
+		},
+		assets: [],
+	};
+	const newBlock = {
+		...currentBlock,
+		elements: [...currentBlock.elements.slice(0, -1), newElement],
+	};
+
+	fetch(url, {
+		method: 'POST',
+		body: JSON.stringify(newBlock),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		credentials: 'include',
+	});
 };
 
 export const RuleForm = ({
@@ -162,6 +194,9 @@ export const RuleForm = ({
 			setIsReasonModalVisible(false);
 		}
 		onUpdate?.(ruleId);
+		if (rule) {
+			updateStyleguide(rule);
+		}
 	};
 
 	const PublishTooltip: React.FC<{ children: ReactElement }> = ({
