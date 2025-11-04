@@ -71,34 +71,38 @@ export const StandaloneRuleForm = ({
 	);
 };
 
-const updateStyleguide = async (rule: RuleData) => {
+const updateStyleguide = (rule: RuleData) => {
 	const CONTENT_ID = '690a2201480e27654fbe9f17';
 	const BLOCK_ID = '690a2203480e27654fbe9f18';
-	const url = `https://composer.local.dev-gutools.co.uk/api/content/${CONTENT_ID}/preview/blocks/${BLOCK_ID}`;
-	const currentBlockRequest = fetch(url, { credentials: 'include' });
-	const currentBlockResponse = await currentBlockRequest;
-	const {
-		data: { block: currentBlock },
-	} = await currentBlockResponse.json();
-	const newElement = {
-		elementType: 'text',
-		fields: {
-			text: `<p><strong>${rule.draft.id}</strong><br>${rule.draft.description}</p>`,
-		},
-		assets: [],
-	};
-	const newBlock = {
-		...currentBlock,
-		elements: [...currentBlock.elements.slice(0, -1), newElement],
-	};
+	['preview', 'live'].forEach(async (facet) => {
+		const url = `https://composer.local.dev-gutools.co.uk/api/content/${CONTENT_ID}/${facet}/blocks/${BLOCK_ID}`;
+		const currentBlockRequest = fetch(url, { credentials: 'include' });
+		const currentBlockResponse = await currentBlockRequest;
+		const {
+			data: { block: currentBlock },
+		} = await currentBlockResponse.json();
+		const title = rule.draft.id;
+		const description = rule.draft.description?.replaceAll('\n', '<br>');
+		const newElement = {
+			elementType: 'text',
+			fields: {
+				text: `<p><strong>${title}</strong><br>${description}</p>`,
+			},
+			assets: [],
+		};
+		const newBlock = {
+			...currentBlock,
+			elements: [...currentBlock.elements.slice(0, -1), newElement],
+		};
 
-	fetch(url, {
-		method: 'POST',
-		body: JSON.stringify(newBlock),
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		credentials: 'include',
+		fetch(url, {
+			method: 'POST',
+			body: JSON.stringify(newBlock),
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			credentials: 'include',
+		});
 	});
 };
 
