@@ -74,13 +74,14 @@ class RulesController(
 
   def list(
       page: Int = 1,
+      pageSize: Option[Int] = None,
       word: Option[String] = None,
       tags: List[Int] = List.empty,
       ruleTypes: List[String] = List.empty,
       sortBy: List[String] = List.empty
   ) =
     APIAuthAction {
-      Ok(Json.toJson(RuleManager.searchDraftRules(page, word, tags, ruleTypes, sortBy)))
+      Ok(Json.toJson(RuleManager.searchDraftRules(page, word, tags, ruleTypes, sortBy, pageSize)))
     }
 
   def get(id: Int) = APIAuthAction {

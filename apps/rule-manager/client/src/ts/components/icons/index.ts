@@ -9,6 +9,7 @@ import { icon as cross } from '@elastic/eui/src/components/icon/assets/cross';
 import { icon as empty } from '@elastic/eui/src/components/icon/assets/empty';
 import { icon as search } from './search';
 import { icon as error } from '@elastic/eui/src/components/icon/assets/error';
+import { icon as info } from '@elastic/eui/src/components/icon/assets/iInCircle';
 import { icon as exit } from '@elastic/eui/src/components/icon/assets/exit';
 import { icon as starEmptySpace } from '@elastic/eui/src/components/icon/assets/star_empty';
 import { icon as starFilled } from '@elastic/eui/src/components/icon/assets/star_filled';
@@ -81,6 +82,7 @@ const cachedIcons = {
 	expandMini,
 	tokenString,
 	beaker,
+	info,
 };
 
 appendIconComponentCache(cachedIcons);

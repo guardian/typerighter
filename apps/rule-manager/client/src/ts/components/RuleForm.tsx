@@ -5,6 +5,7 @@ import {
 	EuiFlexItem,
 	EuiSpacer,
 	EuiText,
+	EuiToast,
 	EuiToolTip,
 } from '@elastic/eui';
 import React, { ReactElement, useEffect, useState } from 'react';
@@ -21,6 +22,9 @@ import { CategorySelector } from './CategorySelector';
 import { TagsSelector } from './TagsSelector';
 import { RuleFormSection } from './RuleFormSection';
 import { RevertModal } from './modals/Revert';
+import type { RuleData } from './hooks/useRule';
+import type { PaginatedResponse } from './hooks/useRules';
+import { css } from '@emotion/react';
 
 export type PartiallyUpdateRuleData = (
 	partialReplacement: Partial<DraftRule>,
@@ -70,6 +74,139 @@ export const StandaloneRuleForm = ({
 	);
 };
 
+const fetchStyleguideEntries = async (letter: string) => {
+	let finishedFetching = false;
+	let entries: DraftRule[] = [];
+	let currentPage = 1;
+
+	while (!finishedFetching) {
+		const queryParams = new URLSearchParams({
+			page: currentPage.toString(),
+			sortBy: '+title',
+			tags: '26',
+			pageSize: '1000',
+		});
+
+		const url = `${location.origin}/api/rules?${queryParams}`;
+		const request = fetch(url);
+		const response = await request;
+		const result = (await response.json()) as PaginatedResponse<DraftRule>;
+		entries = [...entries, ...result.data];
+
+		if (result.page >= result.pages) {
+			finishedFetching = true;
+		}
+
+		currentPage++;
+	}
+
+	return entries.filter((entry) =>
+		entry.title?.toLowerCase().startsWith(letter),
+	);
+};
+
+const ARTICLE_MAP: Record<string, string> = {
+	a: '56a80f21e4b04953535dac29',
+	b: '56a80f21e4b085519d007385',
+	c: '56a80f21e4b051fc42d8bfbc',
+	d: '56a7ce55e4b04953535da55c',
+	e: '56a7ce55e4b05514c2d82949',
+	f: '56a7ce55e4b051fc42d8b904',
+	g: '56a7acb2e4b051fc42d8b57e',
+	h: '56a7ce55e4b05514c2d8294a',
+	i: '56a7ce55e4b05514c2d82948',
+	j: '56a7ce55e4b05514c2d8294b',
+	k: '56a7ce55e4b0a855b746d334',
+	l: '56a7ce55e4b05514c2d8294c',
+	m: '56a7c93fe4b04953535da4c8',
+	n: '56a7c93fe4b0f55cdcb9cf02',
+	o: '56a7c93fe4b0f55cdcb9cf03',
+	p: '56a7c93fe4b05514c2d828a8',
+	q: '56a7c93fe4b0f55cdcb9cf01',
+	r: '56a7c940e4b051fc42d8b87b',
+	s: '56a7c93fe4b0f55cdcb9cf04',
+	t: '56a7c940e4b05514c2d828a9',
+	u: '56a7c93fe4b04953535da4c9',
+	v: '56a7c940e4b04953535da4cc',
+	w: '56a7c940e4b051fc42d8b87c',
+	x: '56a7c940e4b0a855b746d299',
+	y: '56a7c940e4b05514c2d828aa',
+	z: '56a7c940e4b085519d006bea',
+};
+
+/**
+ * Update the relevant style guide page in Composer with the new rule data. Returns a link to the preview page.
+ */
+const updateStyleguide = async (rule: RuleData): Promise<string> => {
+	const titleStartsWithLetter = rule.draft.title?.charAt(0).toLowerCase();
+
+	if (!titleStartsWithLetter) {
+		throw new Error(`No letter for title ${rule.draft.title}`);
+	}
+
+	const contentId = ARTICLE_MAP[titleStartsWithLetter];
+
+	if (!contentId) {
+		throw new Error(
+			`No content ID found in map for the letter ${titleStartsWithLetter} in title ${rule.draft.title}`,
+		);
+	}
+
+	const previewResponse = await fetch(
+		`https://composer.code.dev-gutools.co.uk/api/content/${contentId}/preview`,
+		{ credentials: 'include' },
+	);
+	const previewData = await previewResponse.json();
+	const blockId = previewData.data.blocks.data[0]?.data.id;
+
+	if (!blockId) {
+		console.log(previewData);
+		throw new Error(`No block ID found for preview payload, logged above`);
+	}
+
+	const styleGuideEntries = await fetchStyleguideEntries(titleStartsWithLetter);
+	const formattedEntries = styleGuideEntries
+		.map((rule) => {
+			const title = rule.title;
+			const description = rule.description?.replaceAll('\n', '<br>');
+			return `<p><strong>${title}</strong><br>${description}</p>`;
+		})
+		.join('');
+
+	await Promise.all(
+		['preview', 'live'].map(async (facet) => {
+			const url = `https://composer.code.dev-gutools.co.uk/api/content/${contentId}/${facet}/blocks/${blockId}`;
+			const currentBlockRequest = fetch(url, { credentials: 'include' });
+			const currentBlockResponse = await currentBlockRequest;
+			const {
+				data: { block: currentBlock },
+			} = await currentBlockResponse.json();
+			const newElement = {
+				elementType: 'text',
+				fields: {
+					text: formattedEntries,
+				},
+				assets: [],
+			};
+			const newBlock = {
+				...currentBlock,
+				elements: [...currentBlock.elements.slice(0, -1), newElement],
+			};
+
+			fetch(url, {
+				method: 'POST',
+				body: JSON.stringify(newBlock),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+		}),
+	);
+
+	return `https://viewer.code.dev-gutools.co.uk/proxy/preview/guardian-observer-style-guide-${titleStartsWithLetter}#noads`;
+};
+
 export const RuleForm = ({
 	ruleId,
 	onClose,
@@ -96,6 +233,9 @@ export const RuleForm = ({
 	onUpdate?: (id: number) => void;
 }) => {
 	const [showErrors, setShowErrors] = useState(false);
+	const [styleGuideToastUrl, setStyleGuideToastUrl] = useState<
+		string | undefined
+	>(undefined);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
 	const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
@@ -162,6 +302,10 @@ export const RuleForm = ({
 			setIsReasonModalVisible(false);
 		}
 		onUpdate?.(ruleId);
+		if (rule) {
+			const pageUrl = await updateStyleguide(rule);
+			setStyleGuideToastUrl(pageUrl);
+		}
 	};
 
 	const PublishTooltip: React.FC<{ children: ReactElement }> = ({
@@ -380,6 +524,31 @@ export const RuleForm = ({
 					isLoading={isDiscarding}
 					rule={rule}
 				/>
+			)}
+			{styleGuideToastUrl && (
+				<EuiToast
+					title="Style guide updated"
+					color="primary"
+					iconType="iInCircle"
+					onClose={() => setStyleGuideToastUrl(undefined)}
+					css={css`
+						position: absolute;
+						bottom: 20px;
+						right: 20px;
+						background-color: white;
+						padding: 20px;
+						z-index: 100;
+						box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+					`}
+				>
+					<p>
+						The{' '}
+						<a target="_blank" href={styleGuideToastUrl}>
+							style guide entry
+						</a>{' '}
+						for this rule has been updated.
+					</p>
+				</EuiToast>
 			)}
 		</>
 	);
