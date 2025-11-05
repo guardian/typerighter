@@ -94,9 +94,11 @@ const fetchStyleguideEntries = async (letter: string) => {
 		}
 
 		currentPage++;
-}
+	}
 
-	return entries.filter(entry => entry.title?.toLowerCase().startsWith(letter));
+	return entries.filter((entry) =>
+		entry.title?.toLowerCase().startsWith(letter),
+	);
 };
 
 const ARTICLE_MAP: Record<string, string> = {
