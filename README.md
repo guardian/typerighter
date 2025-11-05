@@ -140,7 +140,9 @@ You'll need to use the username and password specified in [AWS parameter store](
 
 ```bash
 aws --region eu-west-1 --profile composer ssm get-parameter --name "/CODE/flexible/typerighter-rule-manager/db.default.username" --query "Parameter.Value"
+```
 
+```bash
 aws --region eu-west-1 --profile composer ssm get-parameter --with-decryption  --name "/CODE/flexible/typerighter-rule-manager/db.default.password" --query "Parameter.Value"
 ```
 
