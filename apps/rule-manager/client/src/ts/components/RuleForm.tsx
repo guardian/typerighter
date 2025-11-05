@@ -530,7 +530,7 @@ export const RuleForm = ({
 					title="Style guide updated"
 					color="primary"
 					iconType="iInCircle"
-					onClose={() => setStyleGuideToastUrl(false)}
+					onClose={() => setStyleGuideToastUrl(undefined)}
 					css={css`
 						position: absolute;
 						bottom: 20px;
