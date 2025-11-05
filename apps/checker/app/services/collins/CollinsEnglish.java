@@ -16,6 +16,11 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class CollinsEnglish extends BritishEnglish {
+
+    public CollinsEnglish() {
+        super(false);
+    }
+
     @Override
     public SpellingCheckRule createDefaultSpellingRule(ResourceBundle messages) throws IOException {
         return new MorfologikCollinsSpellerRule(messages, this, null, Collections.emptyList());
