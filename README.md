@@ -136,6 +136,18 @@ We can use `ssm-scala` to create an SSH tunnel that exposes the remote database 
 ssm ssh -x -t typerighter-rule-manager,CODE -p composer --rds-tunnel 5000:rule-manager-db,CODE
 ```
 
-You should then be able to connect the database on `localhost:5000`. You'll need to use the username and password specified in [AWS parameter store](https://eu-west-1.console.aws.amazon.com/systems-manager/parameters/?region=eu-west-1&tab=Table) at `/${STAGE}/flexible/typerighter-rule-manager/db.default.username` and `db.default.password`.
+You'll need to use the username and password specified in [AWS parameter store](https://eu-west-1.console.aws.amazon.com/systems-manager/parameters/?region=eu-west-1&tab=Table) at `/${STAGE}/flexible/typerighter-rule-manager/db.default.username` and `db.default.password`.  For example, you may run the following commands with AWS cli to get those values for `CODE`:
+
+```bash
+aws --region eu-west-1 --profile composer ssm get-parameter --name "/CODE/flexible/typerighter-rule-manager/db.default.username" --query "Parameter.Value"
+
+aws --region eu-west-1 --profile composer ssm get-parameter --with-decryption  --name "/CODE/flexible/typerighter-rule-manager/db.default.password" --query "Parameter.Value"
+```
+
+You should then be able to connect the database on `localhost:5000`.  You may use `psql` as the frontend sql client.  Typerighter DB uses the default database name `postgres`.
+
+```
+psql -h localhost -U <user name> -d postgres -p 5000
+```
 
 Don't forget to kill the connection once you're done! Here's a handy one-liner: `kill $(lsof -ti {PORT_NUMBER})`
