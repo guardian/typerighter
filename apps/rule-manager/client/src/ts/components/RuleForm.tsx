@@ -5,6 +5,7 @@ import {
 	EuiFlexItem,
 	EuiSpacer,
 	EuiText,
+	EuiToast,
 	EuiToolTip,
 } from '@elastic/eui';
 import React, { ReactElement, useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ import { RuleFormSection } from './RuleFormSection';
 import { RevertModal } from './modals/Revert';
 import type { RuleData } from './hooks/useRule';
 import type { PaginatedResponse } from './hooks/useRules';
+import { css } from '@emotion/react';
 
 export type PartiallyUpdateRuleData = (
 	partialReplacement: Partial<DraftRule>,
@@ -82,14 +84,16 @@ const fetchStyleguideEntries = async (letter: string) => {
 			page: currentPage.toString(),
 			sortBy: '+title',
 			tags: '26',
+			pageSize: '1000',
 		});
+
 		const url = `${location.origin}/api/rules?${queryParams}`;
 		const request = fetch(url);
 		const response = await request;
 		const result = (await response.json()) as PaginatedResponse<DraftRule>;
 		entries = [...entries, ...result.data];
 
-		if (result.page >= result.pages || result.page >= 10) {
+		if (result.page >= result.pages) {
 			finishedFetching = true;
 		}
 
@@ -130,7 +134,10 @@ const ARTICLE_MAP: Record<string, string> = {
 	z: '56a7c940e4b085519d006bea',
 };
 
-const updateStyleguide = async (rule: RuleData) => {
+/**
+ * Update the relevant style guide page in Composer with the new rule data. Returns a link to the preview page.
+ */
+const updateStyleguide = async (rule: RuleData): Promise<string> => {
 	const titleStartsWithLetter = rule.draft.title?.charAt(0).toLowerCase();
 
 	if (!titleStartsWithLetter) {
@@ -166,34 +173,38 @@ const updateStyleguide = async (rule: RuleData) => {
 		})
 		.join('');
 
-	['preview', 'live'].forEach(async (facet) => {
-		const url = `https://composer.code.dev-gutools.co.uk/api/content/${contentId}/${facet}/blocks/${blockId}`;
-		const currentBlockRequest = fetch(url, { credentials: 'include' });
-		const currentBlockResponse = await currentBlockRequest;
-		const {
-			data: { block: currentBlock },
-		} = await currentBlockResponse.json();
-		const newElement = {
-			elementType: 'text',
-			fields: {
-				text: formattedEntries,
-			},
-			assets: [],
-		};
-		const newBlock = {
-			...currentBlock,
-			elements: [...currentBlock.elements.slice(0, -1), newElement],
-		};
+	await Promise.all(
+		['preview', 'live'].map(async (facet) => {
+			const url = `https://composer.code.dev-gutools.co.uk/api/content/${contentId}/${facet}/blocks/${blockId}`;
+			const currentBlockRequest = fetch(url, { credentials: 'include' });
+			const currentBlockResponse = await currentBlockRequest;
+			const {
+				data: { block: currentBlock },
+			} = await currentBlockResponse.json();
+			const newElement = {
+				elementType: 'text',
+				fields: {
+					text: formattedEntries,
+				},
+				assets: [],
+			};
+			const newBlock = {
+				...currentBlock,
+				elements: [...currentBlock.elements.slice(0, -1), newElement],
+			};
 
-		fetch(url, {
-			method: 'POST',
-			body: JSON.stringify(newBlock),
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			credentials: 'include',
-		});
-	});
+			fetch(url, {
+				method: 'POST',
+				body: JSON.stringify(newBlock),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+			});
+		}),
+	);
+
+	return `https://viewer.code.dev-gutools.co.uk/proxy/preview/guardian-observer-style-guide-${titleStartsWithLetter}#noads`;
 };
 
 export const RuleForm = ({
@@ -222,6 +233,9 @@ export const RuleForm = ({
 	onUpdate?: (id: number) => void;
 }) => {
 	const [showErrors, setShowErrors] = useState(false);
+	const [styleGuideToastUrl, setStyleGuideToastUrl] = useState<
+		string | undefined
+	>(undefined);
 	const [ruleFormData, setRuleFormData] = useState(rule?.draft ?? baseForm);
 	const debouncedFormData = useDebouncedValue(ruleFormData, formDebounceMs);
 	const [isReasonModalVisible, setIsReasonModalVisible] = useState(false);
@@ -289,7 +303,8 @@ export const RuleForm = ({
 		}
 		onUpdate?.(ruleId);
 		if (rule) {
-			updateStyleguide(rule);
+			const pageUrl = await updateStyleguide(rule);
+			setStyleGuideToastUrl(pageUrl);
 		}
 	};
 
@@ -509,6 +524,31 @@ export const RuleForm = ({
 					isLoading={isDiscarding}
 					rule={rule}
 				/>
+			)}
+			{styleGuideToastUrl && (
+				<EuiToast
+					title="Style guide updated"
+					color="primary"
+					iconType="iInCircle"
+					onClose={() => setStyleGuideToastUrl(false)}
+					css={css`
+						position: absolute;
+						bottom: 20px;
+						right: 20px;
+						background-color: white;
+						padding: 20px;
+						z-index: 100;
+						box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+					`}
+				>
+					<p>
+						The{' '}
+						<a target="_blank" href={styleGuideToastUrl}>
+							style guide entry
+						</a>{' '}
+						for this rule has been updated.
+					</p>
+				</EuiToast>
 			)}
 		</>
 	);
