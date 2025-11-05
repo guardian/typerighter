@@ -80,7 +80,8 @@ const fetchStyleguideEntries = async () => {
 	while (!finishedFetching) {
 		const queryParams = new URLSearchParams({
 			page: currentPage.toString(),
-			sortBy: '+description',
+			// sortBy: '+description',
+			tags: '26',
 		});
 		const url = `${location.origin}/api/rules?${queryParams}`;
 		const request = fetch(url);
@@ -88,7 +89,7 @@ const fetchStyleguideEntries = async () => {
 		const result = (await response.json()) as PaginatedResponse<DraftRule>;
 		entries = [...entries, ...result.data];
 
-		if (result.page === result.pages) {
+		if (result.page >= result.pages || result.page >= 10) {
 			finishedFetching = true;
 		}
 
@@ -102,7 +103,7 @@ const updateStyleguide = async (rule: RuleData) => {
 	const styleGuideEntries = await fetchStyleguideEntries();
 	const formattedEntries = styleGuideEntries
 		.map((tagData) => {
-			const title = tagData.id;
+			const title = tagData.title;
 			const description = tagData.description?.replaceAll('\n', '<br>');
 			return `<p><strong>${title}</strong><br>${description}</p>`;
 		})
