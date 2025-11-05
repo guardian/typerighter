@@ -72,7 +72,7 @@ export const StandaloneRuleForm = ({
 	);
 };
 
-const fetchStyleguideEntries = async () => {
+const fetchStyleguideEntries = async (letter: string) => {
 	let finishedFetching = false;
 	let entries: DraftRule[] = [];
 	let currentPage = 1;
@@ -80,7 +80,7 @@ const fetchStyleguideEntries = async () => {
 	while (!finishedFetching) {
 		const queryParams = new URLSearchParams({
 			page: currentPage.toString(),
-			// sortBy: '+description',
+			sortBy: '+title',
 			tags: '26',
 		});
 		const url = `${location.origin}/api/rules?${queryParams}`;
@@ -94,24 +94,78 @@ const fetchStyleguideEntries = async () => {
 		}
 
 		currentPage++;
-	}
+}
 
-	return entries;
+	return entries.filter(entry => entry.title?.toLowerCase().startsWith(letter));
+};
+
+const ARTICLE_MAP: Record<string, string> = {
+	a: '56a80f21e4b04953535dac29',
+	b: '56a80f21e4b085519d007385',
+	c: '56a80f21e4b051fc42d8bfbc',
+	d: '56a7ce55e4b04953535da55c',
+	e: '56a7ce55e4b05514c2d82949',
+	f: '56a7ce55e4b051fc42d8b904',
+	g: '56a7acb2e4b051fc42d8b57e',
+	h: '56a7ce55e4b05514c2d8294a',
+	i: '56a7ce55e4b05514c2d82948',
+	j: '56a7ce55e4b05514c2d8294b',
+	k: '56a7ce55e4b0a855b746d334',
+	l: '56a7ce55e4b05514c2d8294c',
+	m: '56a7c93fe4b04953535da4c8',
+	n: '56a7c93fe4b0f55cdcb9cf02',
+	o: '56a7c93fe4b0f55cdcb9cf03',
+	p: '56a7c93fe4b05514c2d828a8',
+	q: '56a7c93fe4b0f55cdcb9cf01',
+	r: '56a7c940e4b051fc42d8b87b',
+	s: '56a7c93fe4b0f55cdcb9cf04',
+	t: '56a7c940e4b05514c2d828a9',
+	u: '56a7c93fe4b04953535da4c9',
+	v: '56a7c940e4b04953535da4cc',
+	w: '56a7c940e4b051fc42d8b87c',
+	x: '56a7c940e4b0a855b746d299',
+	y: '56a7c940e4b05514c2d828aa',
+	z: '56a7c940e4b085519d006bea',
 };
 
 const updateStyleguide = async (rule: RuleData) => {
-	const styleGuideEntries = await fetchStyleguideEntries();
+	const titleStartsWithLetter = rule.draft.title?.charAt(0).toLowerCase();
+
+	if (!titleStartsWithLetter) {
+		throw new Error(`No letter for title ${rule.draft.title}`);
+	}
+
+	const contentId = ARTICLE_MAP[titleStartsWithLetter];
+
+	if (!contentId) {
+		throw new Error(
+			`No content ID found in map for the letter ${titleStartsWithLetter} in title ${rule.draft.title}`,
+		);
+	}
+
+	const previewResponse = await fetch(
+		`https://composer.code.dev-gutools.co.uk/api/content/${contentId}/preview`,
+		{ credentials: 'include' },
+	);
+	const previewData = await previewResponse.json();
+	const blockId = previewData.data.blocks.data[0]?.data.id;
+
+	if (!blockId) {
+		console.log(previewData);
+		throw new Error(`No block ID found for preview payload, logged above`);
+	}
+
+	const styleGuideEntries = await fetchStyleguideEntries(titleStartsWithLetter);
 	const formattedEntries = styleGuideEntries
-		.map((tagData) => {
-			const title = tagData.title;
-			const description = tagData.description?.replaceAll('\n', '<br>');
+		.map((rule) => {
+			const title = rule.title;
+			const description = rule.description?.replaceAll('\n', '<br>');
 			return `<p><strong>${title}</strong><br>${description}</p>`;
 		})
 		.join('');
-	const CONTENT_ID = '690a2201480e27654fbe9f17';
-	const BLOCK_ID = '690a2203480e27654fbe9f18';
+
 	['preview', 'live'].forEach(async (facet) => {
-		const url = `https://composer.local.dev-gutools.co.uk/api/content/${CONTENT_ID}/${facet}/blocks/${BLOCK_ID}`;
+		const url = `https://composer.code.dev-gutools.co.uk/api/content/${contentId}/${facet}/blocks/${blockId}`;
 		const currentBlockRequest = fetch(url, { credentials: 'include' });
 		const currentBlockResponse = await currentBlockRequest;
 		const {
