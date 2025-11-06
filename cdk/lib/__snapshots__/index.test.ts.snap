@@ -1758,7 +1758,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
             },
           ],
           "UserData": {
-            "Fn::Base64": "#!/bin/bash
+            "Fn::Base64": "#!/bin/bash -ev
 mkdir /etc/gu
 cat > /etc/gu/tags << 'EOF'
 Stage=TEST
@@ -1916,7 +1916,7 @@ chown typerighter-checker /usr/share/typerighter-checker/conf/resources/dictiona
             },
           ],
           "UserData": {
-            "Fn::Base64": "#!/bin/bash
+            "Fn::Base64": "#!/bin/bash -ev
 aws --quiet --region eu-west-1 s3 cp s3://composer-dist/flexible/TEST/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
 dpkg -i /tmp/package.deb
 

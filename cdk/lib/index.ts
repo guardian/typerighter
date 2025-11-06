@@ -89,7 +89,7 @@ export class Typerighter extends GuStack {
 
     const checkerDomain = `checker.${props.domainSuffix}`
 
-    const checkerUserData = UserData.forLinux()
+    const checkerUserData = UserData.forLinux({shebang: '#!/bin/bash -ev'})
     checkerUserData.addCommands(`mkdir /etc/gu
 cat > /etc/gu/tags << 'EOF'
 Stage=${this.stage}
@@ -144,7 +144,7 @@ chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`)
 
     const ruleManagerDomain = `manager.${props.domainSuffix}`
 
-    const ruleManagerUserData = UserData.forLinux()
+    const ruleManagerUserData = UserData.forLinux({shebang: '#!/bin/bash -ev'})
     ruleManagerUserData.addCommands(`aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
 dpkg -i /tmp/package.deb
 
