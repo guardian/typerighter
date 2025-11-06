@@ -24,9 +24,9 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       "GuParameterStoreReadPolicy",
       "GuAmiParameter",
       "GuHttpsEgressSecurityGroup",
-      "GuWazuhAccess",
       "GuAutoScalingGroup",
       "GuApplicationLoadBalancer",
+      "GuAccessLoggingBucketParameter",
       "GuApplicationTargetGroup",
       "GuHttpsApplicationListener",
       "GuSubnetListParameter",
@@ -80,6 +80,11 @@ exports[`The typerighter stack matches the snapshot 1`] = `
     "AMITyperighterrulemanager": {
       "Description": "Amazon Machine Image ID for the app typerighter-rule-manager. Use this in conjunction with AMIgo to keep AMIs up to date.",
       "Type": "AWS::EC2::Image::Id",
+    },
+    "AccessLoggingBucket": {
+      "Default": "/account/services/access-logging/bucket",
+      "Description": "S3 bucket to store your access logs",
+      "Type": "AWS::SSM::Parameter::Value<String>",
     },
     "CheckerCloudfrontCertificate": {
       "AllowedPattern": "arn:aws:[a-z0-9]*:[a-z0-9\\-]*:[0-9]{12}:.*",
@@ -153,10 +158,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "MetricsCollection": [
           {
             "Granularity": "1Minute",
-            "Metrics": [
-              "GroupTotalInstances",
-              "GroupInServiceInstances",
-            ],
           },
         ],
         "MinSize": "1",
@@ -229,10 +230,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "MetricsCollection": [
           {
             "Granularity": "1Minute",
-            "Metrics": [
-              "GroupTotalInstances",
-              "GroupInServiceInstances",
-            ],
           },
         ],
         "MinSize": "1",
@@ -410,27 +407,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "SourceSecurityGroupId": {
           "Fn::GetAtt": [
             "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
-            "GroupId",
-          ],
-        },
-        "ToPort": 5432,
-      },
-      "Type": "AWS::EC2::SecurityGroupIngress",
-    },
-    "DBSecurityGroupTyperighterrulemanagerfromtyperighterWazuhSecurityGroupF941BA2354320D59DB78": {
-      "Properties": {
-        "Description": "Allow connection from EC2 instances to DB",
-        "FromPort": 5432,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "DBSecurityGroupTyperighterrulemanagerE0229216",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "SourceSecurityGroupId": {
-          "Fn::GetAtt": [
-            "WazuhSecurityGroup",
             "GroupId",
           ],
         },
@@ -715,11 +691,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:kinesis:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:kinesis:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1040,6 +1012,20 @@ exports[`The typerighter stack matches the snapshot 1`] = `
             "Key": "routing.http.drop_invalid_header_fields.enabled",
             "Value": "true",
           },
+          {
+            "Key": "access_logs.s3.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "access_logs.s3.bucket",
+            "Value": {
+              "Ref": "AccessLoggingBucket",
+            },
+          },
+          {
+            "Key": "access_logs.s3.prefix",
+            "Value": "application-load-balancer/TEST/flexible/typerighter-checker",
+          },
         ],
         "Scheme": "internet-facing",
         "SecurityGroups": [
@@ -1140,27 +1126,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
     },
-    "LoadBalancerTyperightercheckerSecurityGrouptotyperighterWazuhSecurityGroupF941BA2390008F674D0B": {
-      "Properties": {
-        "Description": "Load balancer to target",
-        "DestinationSecurityGroupId": {
-          "Fn::GetAtt": [
-            "WazuhSecurityGroup",
-            "GroupId",
-          ],
-        },
-        "FromPort": 9000,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "LoadBalancerTyperightercheckerSecurityGroup35C23EF5",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 9000,
-      },
-      "Type": "AWS::EC2::SecurityGroupEgress",
-    },
     "LoadBalancerTyperighterrulemanager088CCBBF": {
       "Properties": {
         "LoadBalancerAttributes": [
@@ -1175,6 +1140,20 @@ exports[`The typerighter stack matches the snapshot 1`] = `
           {
             "Key": "routing.http.drop_invalid_header_fields.enabled",
             "Value": "true",
+          },
+          {
+            "Key": "access_logs.s3.enabled",
+            "Value": "true",
+          },
+          {
+            "Key": "access_logs.s3.bucket",
+            "Value": {
+              "Ref": "AccessLoggingBucket",
+            },
+          },
+          {
+            "Key": "access_logs.s3.prefix",
+            "Value": "application-load-balancer/TEST/flexible/typerighter-rule-manager",
           },
         ],
         "Scheme": "internet-facing",
@@ -1276,27 +1255,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
     },
-    "LoadBalancerTyperighterrulemanagerSecurityGrouptotyperighterWazuhSecurityGroupF941BA23900016F56539": {
-      "Properties": {
-        "Description": "Load balancer to target",
-        "DestinationSecurityGroupId": {
-          "Fn::GetAtt": [
-            "WazuhSecurityGroup",
-            "GroupId",
-          ],
-        },
-        "FromPort": 9000,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 9000,
-      },
-      "Type": "AWS::EC2::SecurityGroupEgress",
-    },
     "PandaAuthPolicy4E029301": {
       "Properties": {
         "PolicyDocument": {
@@ -1332,11 +1290,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1355,11 +1309,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1391,11 +1341,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1414,11 +1360,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
                 "Fn::Join": [
                   "",
                   [
-                    "arn:aws:ssm:",
-                    {
-                      "Ref": "AWS::Region",
-                    },
-                    ":",
+                    "arn:aws:ssm:eu-west-1:",
                     {
                       "Ref": "AWS::AccountId",
                     },
@@ -1667,17 +1609,8 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
-            "Description": "Wazuh event logging",
-            "FromPort": 1514,
-            "IpProtocol": "tcp",
-            "ToPort": 1514,
-          },
-          {
-            "CidrIp": "0.0.0.0/0",
-            "Description": "Wazuh agent registration",
-            "FromPort": 1515,
-            "IpProtocol": "tcp",
-            "ToPort": 1515,
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
           },
         ],
         "Tags": [
@@ -1703,69 +1636,6 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         },
       },
       "Type": "AWS::EC2::SecurityGroup",
-    },
-    "WazuhSecurityGroupfromtyperighterLoadBalancerTyperightercheckerSecurityGroup6083F06D90004F90B093": {
-      "Properties": {
-        "Description": "Load balancer to target",
-        "FromPort": 9000,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "WazuhSecurityGroup",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "SourceSecurityGroupId": {
-          "Fn::GetAtt": [
-            "LoadBalancerTyperightercheckerSecurityGroup35C23EF5",
-            "GroupId",
-          ],
-        },
-        "ToPort": 9000,
-      },
-      "Type": "AWS::EC2::SecurityGroupIngress",
-    },
-    "WazuhSecurityGroupfromtyperighterLoadBalancerTyperighterrulemanagerSecurityGroupCB1A584E9000AF0F78BA": {
-      "Properties": {
-        "Description": "Load balancer to target",
-        "FromPort": 9000,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "WazuhSecurityGroup",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "SourceSecurityGroupId": {
-          "Fn::GetAtt": [
-            "LoadBalancerTyperighterrulemanagerSecurityGroupA732DDB7",
-            "GroupId",
-          ],
-        },
-        "ToPort": 9000,
-      },
-      "Type": "AWS::EC2::SecurityGroupIngress",
-    },
-    "WazuhSecurityGrouptotyperighterDBSecurityGroupTyperighterrulemanager6085BB9A54328A9B262B": {
-      "Properties": {
-        "Description": "Allow connection from EC2 instances to DB",
-        "DestinationSecurityGroupId": {
-          "Fn::GetAtt": [
-            "DBSecurityGroupTyperighterrulemanagerE0229216",
-            "GroupId",
-          ],
-        },
-        "FromPort": 5432,
-        "GroupId": {
-          "Fn::GetAtt": [
-            "WazuhSecurityGroup",
-            "GroupId",
-          ],
-        },
-        "IpProtocol": "tcp",
-        "ToPort": 5432,
-      },
-      "Type": "AWS::EC2::SecurityGroupEgress",
     },
     "checkerdnsrecords": {
       "Properties": {
@@ -1848,17 +1718,15 @@ exports[`The typerighter stack matches the snapshot 1`] = `
           "InstanceType": "t4g.small",
           "MetadataOptions": {
             "HttpTokens": "required",
+            "InstanceMetadataTags": "enabled",
+          },
+          "Monitoring": {
+            "Enabled": false,
           },
           "SecurityGroupIds": [
             {
               "Fn::GetAtt": [
                 "GuHttpsEgressSecurityGroupTyperighterchecker43707E0C",
-                "GroupId",
-              ],
-            },
-            {
-              "Fn::GetAtt": [
-                "WazuhSecurityGroup",
                 "GroupId",
               ],
             },
@@ -1924,13 +1792,8 @@ exports[`The typerighter stack matches the snapshot 1`] = `
             },
           ],
           "UserData": {
-            "Fn::Base64": {
-              "Fn::Join": [
-                "",
-                [
-                  "#!/bin/bash -ev
+            "Fn::Base64": "#!/bin/bash -ev
 mkdir /etc/gu
-
 cat > /etc/gu/tags << 'EOF'
 Stage=TEST
 Stack=flexible
@@ -1942,17 +1805,10 @@ include "application"
 typerighter.ngramPath="/opt/ngram-data"
 EOF
 
-aws --quiet --region ",
-                  {
-                    "Ref": "AWS::Region",
-                  },
-                  " s3 cp s3://composer-dist/flexible/TEST/typerighter-checker/typerighter-checker.deb /tmp/package.deb
+aws --quiet --region eu-west-1 s3 cp s3://composer-dist/flexible/TEST/typerighter-checker/typerighter-checker.deb /tmp/package.deb
 dpkg -i /tmp/package.deb
 
 chown typerighter-checker /usr/share/typerighter-checker/conf/resources/dictionary",
-                ],
-              ],
-            },
           },
         },
         "TagSpecifications": [
@@ -2020,17 +1876,15 @@ chown typerighter-checker /usr/share/typerighter-checker/conf/resources/dictiona
           "InstanceType": "t4g.small",
           "MetadataOptions": {
             "HttpTokens": "required",
+            "InstanceMetadataTags": "enabled",
+          },
+          "Monitoring": {
+            "Enabled": false,
           },
           "SecurityGroupIds": [
             {
               "Fn::GetAtt": [
                 "GuHttpsEgressSecurityGroupTyperighterrulemanagerD8331A62",
-                "GroupId",
-              ],
-            },
-            {
-              "Fn::GetAtt": [
-                "WazuhSecurityGroup",
                 "GroupId",
               ],
             },
@@ -2096,26 +1950,14 @@ chown typerighter-checker /usr/share/typerighter-checker/conf/resources/dictiona
             },
           ],
           "UserData": {
-            "Fn::Base64": {
-              "Fn::Join": [
-                "",
-                [
-                  "#!/bin/bash -ev
-        aws --quiet --region ",
-                  {
-                    "Ref": "AWS::Region",
-                  },
-                  " s3 cp s3://composer-dist/flexible/TEST/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
-        dpkg -i /tmp/package.deb
+            "Fn::Base64": "#!/bin/bash -ev
+aws --quiet --region eu-west-1 s3 cp s3://composer-dist/flexible/TEST/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+dpkg -i /tmp/package.deb
 
-        mkdir /etc/gu
+mkdir /etc/gu
 cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
 typerighter.checkerServiceUrl = "https://checker.test.dev-gutools.co.uk"
-EOF
-        ",
-                ],
-              ],
-            },
+EOF",
           },
         },
         "TagSpecifications": [

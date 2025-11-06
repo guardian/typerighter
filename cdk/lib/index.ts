@@ -17,7 +17,7 @@ import {
   GuPutCloudwatchMetricsPolicy,
 } from "@guardian/cdk/lib/constructs/iam";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
-import { InstanceType, Port, SubnetType } from "aws-cdk-lib/aws-ec2";
+import {InstanceType, Port, SecurityGroup, SubnetType, UserData} from "aws-cdk-lib/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
@@ -89,12 +89,8 @@ export class Typerighter extends GuStack {
 
     const checkerDomain = `checker.${props.domainSuffix}`
 
-    const checkerApp = new GuPlayApp(this, {
-      app: checkerAppName,
-      instanceType: new InstanceType("t4g.small"),
-      userData: `#!/bin/bash -ev
-mkdir /etc/gu
-
+    const checkerUserData = UserData.forLinux({shebang: '#!/bin/bash -ev'})
+    checkerUserData.addCommands(`mkdir /etc/gu
 cat > /etc/gu/tags << 'EOF'
 Stage=${this.stage}
 Stack=${this.stack}
@@ -109,7 +105,12 @@ EOF
 aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/${checkerAppName}/${checkerAppName}.deb /tmp/package.deb
 dpkg -i /tmp/package.deb
 
-chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`,
+chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`)
+
+    const checkerApp = new GuPlayApp(this, {
+      app: checkerAppName,
+      instanceType: new InstanceType("t4g.small"),
+      userData: checkerUserData,
       access: {
         scope: AccessScope.PUBLIC,
       },
@@ -131,7 +132,8 @@ chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`,
       applicationLogging: {
         enabled: true,
         systemdUnitName: "typerighter-checker"
-      }
+      },
+      instanceMetricGranularity: "5Minute"
     });
 
     // Rule manager app
@@ -142,18 +144,19 @@ chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`,
 
     const ruleManagerDomain = `manager.${props.domainSuffix}`
 
+    const ruleManagerUserData = UserData.forLinux({shebang: '#!/bin/bash -ev'})
+    ruleManagerUserData.addCommands(`aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+dpkg -i /tmp/package.deb
+
+mkdir /etc/gu
+cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
+typerighter.checkerServiceUrl = "https://${checkerDomain}"
+EOF`);
+
     const ruleManagerApp = new GuPlayApp(this, {
       app: ruleManagerAppName,
       instanceType: new InstanceType("t4g.small"),
-      userData: `#!/bin/bash -ev
-        aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
-        dpkg -i /tmp/package.deb
-
-        mkdir /etc/gu
-cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
-typerighter.checkerServiceUrl = "https://${checkerDomain}"
-EOF
-        `,
+      userData: ruleManagerUserData,
       access: {
         scope: AccessScope.PUBLIC,
       },
@@ -175,7 +178,8 @@ EOF
       applicationLogging: {
         enabled: true,
         systemdUnitName: "typerighter-rule-manager"
-      }
+      },
+      instanceMetricGranularity: "5Minute"
     });
 
     const ruleManagerDnsRecord = new GuDnsRecordSet(
@@ -318,6 +322,19 @@ EOF
       storageType: StorageType.GP2,
       removalPolicy: RemovalPolicy.SNAPSHOT,
       devXBackups: { enabled: true }
+    });
+
+    // Part of GuCDK upgrade steps: https://github.com/guardian/cdk/releases/tag/v61.5.0. To be removed later.
+    const tempSecurityGroup = new SecurityGroup(this, "WazuhSecurityGroup", {
+      vpc: checkerApp.vpc,
+      // Must keep the same description, else CloudFormation will try to replace the security group
+      // See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-securitygroup.html#cfn-ec2-securitygroup-groupdescription.
+      description: "Allow outbound traffic from wazuh agent to manager",
+    });
+    this.overrideLogicalId(tempSecurityGroup, {
+      logicalId: "WazuhSecurityGroup",
+      reason:
+          "Part one of updating to GuCDK 61.5.0+ whilst using Riff-Raff's ASG deployment type",
     });
   }
 }
