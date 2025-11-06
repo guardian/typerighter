@@ -23,6 +23,7 @@ import utils.LocalStack
 
 import java.io.File
 import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
 
 class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback with DBTest {
   val bucketRuleResource =
@@ -555,7 +556,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
           )
         case Right(allRuleData) =>
           // in production the draft rule updatedAt time will reflect the updatedAt time of the latest live rule
-          val mockUpdatedAt = OffsetDateTime.now
+          val mockUpdatedAt = OffsetDateTime.now.truncatedTo(ChronoUnit.MICROS)
           allRuleData.draft.copy(updatedAt = mockUpdatedAt) shouldBe publishedRule.draft
             .copy(updatedAt = mockUpdatedAt)
       }

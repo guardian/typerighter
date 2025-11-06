@@ -115,7 +115,11 @@ class LanguageToolFactory(
           {
             Try(
               loader
-                .getRules(xmlStream, "languagetool-generated-xml", Languages.getLanguageForShortCode("en-GB"))
+                .getRules(
+                  xmlStream,
+                  "languagetool-generated-xml",
+                  Languages.getLanguageForShortCode("en-GB")
+                )
                 .asScala
                 .toList
             )
