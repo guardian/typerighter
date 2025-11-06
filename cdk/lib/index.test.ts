@@ -6,6 +6,9 @@ describe("The typerighter stack", () => {
     it("matches the snapshot", () => {
         const app = new App();
         const stack = new Typerighter(app, "typerighter", {
+            env: {
+                region: "eu-west-1",
+            },
             stack: "flexible",
             stage: "TEST",
             instanceCount: 1,
