@@ -26,8 +26,8 @@ ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.7"
 val awsSdkVersion = "2.36.3"
-val capiModelsVersion = "17.5.1"
-val capiClientVersion = "19.2.1"
+val capiModelsVersion = "17.5.2"
+val capiClientVersion = "19.2.3"
 val pandaVersion = "13.0.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
@@ -63,7 +63,7 @@ val commonSettings = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
-    "com.gu" %% "simple-configuration-ssm" % "7.0.0",
+    "com.gu" %% "simple-configuration-ssm" % "7.0.2",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.0.1",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
