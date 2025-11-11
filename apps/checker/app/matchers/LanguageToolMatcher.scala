@@ -4,7 +4,6 @@ import com.gu.typerighter.model.{Category, LTRule, LTRuleXML, RuleMatch}
 
 import java.io.File
 import org.languagetool._
-import org.languagetool.language.{BritishEnglish}
 import org.languagetool.rules.spelling.morfologik.suggestions_ordering.SuggestionsOrdererConfig
 import org.languagetool.rules.{Rule => LanguageToolRule}
 import play.api.Logging
@@ -116,7 +115,11 @@ class LanguageToolFactory(
           {
             Try(
               loader
-                .getRules(xmlStream, "languagetool-generated-xml", new BritishEnglish())
+                .getRules(
+                  xmlStream,
+                  "languagetool-generated-xml",
+                  Languages.getLanguageForShortCode("en-GB")
+                )
                 .asScala
                 .toList
             )

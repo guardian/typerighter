@@ -6,6 +6,7 @@ import scalikejdbc._
 
 import java.time.OffsetDateTime
 import scala.util.Try
+import java.time.temporal.ChronoUnit
 
 trait DbRuleLiveFields {
   def reason: String
@@ -194,7 +195,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
         .set(
           column.isActive -> false,
           column.updatedBy -> user,
-          column.updatedAt -> OffsetDateTime.now
+          column.updatedAt -> OffsetDateTime.now.truncatedTo(ChronoUnit.MICROS)
         )
         .where
         .eq(column.externalId, externalId)

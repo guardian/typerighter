@@ -12,6 +12,7 @@ import java.time.OffsetDateTime
 import scala.util.{Failure, Success, Try}
 import utils.StringHelpers
 import service.RuleManager.RuleType
+import java.time.temporal.ChronoUnit
 
 case class DbRuleDraft(
     id: Option[Int],
@@ -129,7 +130,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       user: String,
       ruleOrder: Int
   ) = {
-    val createdAt = OffsetDateTime.now()
+    val createdAt = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS)
     DbRuleDraft(
       id,
       ruleType,
@@ -635,7 +636,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           column.advisoryRule -> entity.advisoryRule,
           column.createdAt -> entity.createdAt,
           column.createdBy -> entity.createdBy,
-          column.updatedAt -> OffsetDateTime.now(),
+          column.updatedAt -> OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS),
           column.updatedBy -> user,
           column.isArchived -> entity.isArchived,
           column.revisionId -> (overrideRevisionId match {

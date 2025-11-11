@@ -19,10 +19,10 @@ deployments:
       prependStackToCloudFormationStackName: false
       amiParametersToTags:
         AMITyperighterchecker:
-          Recipe: editorial-tools-jammy-java11-ngrams-ARM-cdk-base
+          Recipe: editorial-tools-jammy-java17-ngrams
           BuiltBy: amigo
         AMITyperighterrulemanager:
-          Recipe: editorial-tools-jammy-java11
+          Recipe: editorial-tools-jammy-java17
           BuiltBy: amigo
       amiEncrypted: true
       templateStagePaths:
