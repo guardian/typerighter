@@ -17,7 +17,7 @@ import {
   GuPutCloudwatchMetricsPolicy,
 } from "@guardian/cdk/lib/constructs/iam";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
-import {InstanceType, Port, SecurityGroup, SubnetType, UserData} from "aws-cdk-lib/aws-ec2";
+import {InstanceType, Port, SubnetType, UserData} from "aws-cdk-lib/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
