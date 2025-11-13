@@ -17,7 +17,7 @@ import {
   GuPutCloudwatchMetricsPolicy,
 } from "@guardian/cdk/lib/constructs/iam";
 import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
-import {InstanceType, Port, SecurityGroup, SubnetType, UserData} from "aws-cdk-lib/aws-ec2";
+import {InstanceType, Port, SubnetType, UserData} from "aws-cdk-lib/aws-ec2";
 import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
 import {
   AllowedMethods,
@@ -322,19 +322,6 @@ EOF`);
       storageType: StorageType.GP2,
       removalPolicy: RemovalPolicy.SNAPSHOT,
       devXBackups: { enabled: true }
-    });
-
-    // Part of GuCDK upgrade steps: https://github.com/guardian/cdk/releases/tag/v61.5.0. To be removed later.
-    const tempSecurityGroup = new SecurityGroup(this, "WazuhSecurityGroup", {
-      vpc: checkerApp.vpc,
-      // Must keep the same description, else CloudFormation will try to replace the security group
-      // See https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-securitygroup.html#cfn-ec2-securitygroup-groupdescription.
-      description: "Allow outbound traffic from wazuh agent to manager",
-    });
-    this.overrideLogicalId(tempSecurityGroup, {
-      logicalId: "WazuhSecurityGroup",
-      reason:
-          "Part one of updating to GuCDK 61.5.0+ whilst using Riff-Raff's ASG deployment type",
     });
   }
 }
