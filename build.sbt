@@ -60,7 +60,7 @@ val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.4",
-    "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.2" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.3" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.45",
     "com.gu" %% "simple-configuration-ssm" % "7.0.0",
