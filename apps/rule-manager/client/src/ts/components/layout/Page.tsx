@@ -16,6 +16,7 @@ import {
 	useMatch,
 	useMatches,
 	Params,
+	useLocation,
 } from 'react-router-dom';
 import createCache from '@emotion/cache';
 import { FeatureSwitchesProvider } from '../context/featureSwitches';
@@ -58,11 +59,25 @@ export type RouteHandle = {
 	useAsPageTitle?: boolean;
 };
 
+function usePixelTracking() {
+	const location = useLocation();
+	React.useEffect(() => {
+		const globalWindow = window as typeof window & {
+			appConfigTelemetryUrl?: string;
+		};
+		if (globalWindow.appConfigTelemetryUrl) {
+			const image = new Image();
+			image.src = `${globalWindow.appConfigTelemetryUrl}&path=${window.location.pathname}`;
+		}
+	}, [location]);
+}
+
 const PageContent: React.FC = () => {
 	const maybeMatch = useMatches()
-		.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
-		.pop();
+	.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
+	.pop();
 	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
+	usePixelTracking();
 	return (
 		<EuiPageTemplate>
 			<Header />
@@ -126,13 +141,13 @@ const router = createBrowserRouter([
 ]);
 
 export const Page = () => (
-	<PageDataProvider>
-		<FeatureSwitchesProvider>
-			<TagsProvider>
-				<EuiProvider modify={euiThemeOverrides} cache={cache}>
-					<RouterProvider router={router} />
-				</EuiProvider>
-			</TagsProvider>
-		</FeatureSwitchesProvider>
-	</PageDataProvider>
-);
+		<PageDataProvider>
+			<FeatureSwitchesProvider>
+				<TagsProvider>
+					<EuiProvider modify={euiThemeOverrides} cache={cache}>
+						<RouterProvider router={router} />
+					</EuiProvider>
+				</TagsProvider>
+			</FeatureSwitchesProvider>
+		</PageDataProvider>
+	);
