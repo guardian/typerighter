@@ -74,8 +74,8 @@ function usePixelTracking() {
 
 const PageContent: React.FC = () => {
 	const maybeMatch = useMatches()
-	.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
-	.pop();
+		.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
+		.pop();
 	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
 	usePixelTracking();
 	return (
@@ -141,13 +141,13 @@ const router = createBrowserRouter([
 ]);
 
 export const Page = () => (
-		<PageDataProvider>
-			<FeatureSwitchesProvider>
-				<TagsProvider>
-					<EuiProvider modify={euiThemeOverrides} cache={cache}>
-						<RouterProvider router={router} />
-					</EuiProvider>
-				</TagsProvider>
-			</FeatureSwitchesProvider>
-		</PageDataProvider>
-	);
+	<PageDataProvider>
+		<FeatureSwitchesProvider>
+			<TagsProvider>
+				<EuiProvider modify={euiThemeOverrides} cache={cache}>
+					<RouterProvider router={router} />
+				</EuiProvider>
+			</TagsProvider>
+		</FeatureSwitchesProvider>
+	</PageDataProvider>
+);
