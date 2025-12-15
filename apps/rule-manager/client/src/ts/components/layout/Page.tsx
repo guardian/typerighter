@@ -59,7 +59,11 @@ export type RouteHandle = {
 	useAsPageTitle?: boolean;
 };
 
-function usePixelTracking() {
+const PageContent: React.FC = () => {
+	const maybeMatch = useMatches()
+		.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
+		.pop();
+	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
 	const location = useLocation();
 	React.useEffect(() => {
 		const globalWindow = window as typeof window & {
@@ -70,14 +74,6 @@ function usePixelTracking() {
 			image.src = `${globalWindow.appConfigTelemetryUrl}&path=${window.location.pathname}`;
 		}
 	}, [location]);
-}
-
-const PageContent: React.FC = () => {
-	const maybeMatch = useMatches()
-		.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
-		.pop();
-	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
-	usePixelTracking();
 	return (
 		<EuiPageTemplate>
 			<Header />
