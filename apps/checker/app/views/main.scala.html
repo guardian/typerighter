@@ -1,10 +1,17 @@
-@(title: String, pageName: Option[String] = None, breadcrumbsList: List[String] = List.empty)(content: Html)
+@(title: String, pageName: Option[String] = None, breadcrumbsList: List[String] = List.empty, maybeTelemetryUrl: Option[String] = None)(content: Html)
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
         <link href="@routes.Assets.versioned("stylesheets/main.css")" rel="stylesheet">
         <title>@title</title>
+        @maybeTelemetryUrl.map { telemetryUrl => {
+            <script type="module">
+                const image = new Image();
+                image.src = `@Html(telemetryUrl)&path=${window.location.pathname}`;
+            </script>
+            }
+        }
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-light">

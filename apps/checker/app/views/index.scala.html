@@ -1,3 +1,4 @@
-@main(title = "Typerighter", pageName = Some("Typerighter")) {
+@(maybeTelemetryUrl: Option[String])
+@main(title = "Typerighter", pageName = Some("Typerighter"), maybeTelemetryUrl = maybeTelemetryUrl) {
     <p>This is Typerighter, a project to store and apply rules for document validation.</p>
 }

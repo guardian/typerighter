@@ -15,13 +15,17 @@ class RulesController(
     config: CommonConfig
 ) extends PandaAuthController(controllerComponents, config) {
 
+  def telemetryUrl: String =
+    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-checker&stage=${config.stage}"
+
   def rules = AuthAction { implicit request: Request[AnyContent] =>
     Ok(
       views.html.rules(
         sheetId,
         matcherPool.getCurrentRules,
         matcherPool.getCurrentMatchers,
-        ruleManagerUrl
+        ruleManagerUrl,
+        maybeTelemetryUrl = Some(telemetryUrl)
       )
     )
   }
