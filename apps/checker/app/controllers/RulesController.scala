@@ -16,7 +16,7 @@ class RulesController(
 ) extends PandaAuthController(controllerComponents, config) {
 
   def telemetryUrl: String =
-    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-checker&stage=${config.stage}"
+    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-checker"
 
   def rules = AuthAction { implicit request: Request[AnyContent] =>
     Ok(

@@ -16,7 +16,7 @@ class HomeController(
 ) extends PandaAuthController(controllerComponents, config) {
 
   def telemetryUrl: String =
-    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-checker&stage=${config.stage}"
+    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-checker"
 
   def index() = AuthAction {
     Ok(views.html.index(maybeTelemetryUrl = Some(telemetryUrl)))

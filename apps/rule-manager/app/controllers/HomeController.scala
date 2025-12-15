@@ -19,7 +19,7 @@ class HomeController(
     with PermissionsHandler {
 
   def telemetryUrl: String =
-    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-manager&stage=${config.stage}"
+    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-manager"
 
   def index(path: String) = AuthAction { request =>
     Ok(
