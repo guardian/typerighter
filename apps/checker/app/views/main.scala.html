@@ -5,12 +5,11 @@
         <meta charset="UTF-8">
         <link href="@routes.Assets.versioned("stylesheets/main.css")" rel="stylesheet">
         <title>@title</title>
-        @maybeTelemetryUrl.map { telemetryUrl => {
-            <script type="module">
-                const image = new Image();
-                image.src = `@Html(telemetryUrl)&path=${window.location.pathname}`;
-            </script>
-            }
+        @if(maybeTelemetryUrl.nonEmpty) {
+        <script type="module">
+            const image = new Image();
+            image.src = `@Html(maybeTelemetryUrl.get)&path=${window.location.pathname}`;
+        </script>
         }
     </head>
     <body>
