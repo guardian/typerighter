@@ -18,6 +18,9 @@ class HomeController(
     with Loggable
     with PermissionsHandler {
 
+  def telemetryUrl: String =
+    s"https://user-telemetry.${config.stageDomain}/guardian-tool-accessed?app=typerighter-manager"
+
   def index(path: String) = AuthAction { request =>
     Ok(
       views.html.index(
@@ -26,7 +29,8 @@ class HomeController(
         userAndPermissionsToJson(
           request.user,
           List(PermissionDefinition("manage_rules", "typerighter"))
-        )
+        ),
+        telemetryUrl
       )
     )
   }

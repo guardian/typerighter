@@ -7,8 +7,8 @@
 
 @import com.gu.typerighter.model.LTRuleXML
 @(sheetId: String, rules: scala.List[CheckerRule], matchers: scala.List[Matcher], ruleManagerUrl: String,
-rulesIngested: Option[Int] = None, errors: List[String] = List.empty)(implicit req: RequestHeader)
-@main(title = "Typerighter", breadcrumbsList = List("Rules")) {
+rulesIngested: Option[Int] = None, errors: List[String] = List.empty, maybeTelemetryUrl: Option[String])(implicit req: RequestHeader)
+@main(title = "Typerighter", breadcrumbsList = List("Rules"), maybeTelemetryUrl = maybeTelemetryUrl) {
     <h1 class="align-middle mb-4">
         Current rules
     </h1>

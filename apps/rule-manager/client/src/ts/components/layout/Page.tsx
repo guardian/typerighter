@@ -16,6 +16,7 @@ import {
 	useMatch,
 	useMatches,
 	Params,
+	useLocation,
 } from 'react-router-dom';
 import createCache from '@emotion/cache';
 import { FeatureSwitchesProvider } from '../context/featureSwitches';
@@ -63,6 +64,16 @@ const PageContent: React.FC = () => {
 		.filter((match) => (match.handle as RouteHandle).useAsPageTitle !== false)
 		.pop();
 	const name = maybeMatch ? getNameFromRouteMatch(maybeMatch) : 'Unknown route';
+	const location = useLocation();
+	React.useEffect(() => {
+		const globalWindow = window as typeof window & {
+			appConfigTelemetryUrl?: string;
+		};
+		if (globalWindow.appConfigTelemetryUrl) {
+			const image = new Image();
+			image.src = `${globalWindow.appConfigTelemetryUrl}&path=${window.location.pathname}`;
+		}
+	}, [location]);
 	return (
 		<EuiPageTemplate>
 			<Header />
