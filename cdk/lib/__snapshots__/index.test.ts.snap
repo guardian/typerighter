@@ -1406,7 +1406,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       "DeletionPolicy": "Snapshot",
       "Properties": {
         "AllocatedStorage": "50",
-        "AllowMajorVersionUpgrade": false,
+        "AllowMajorVersionUpgrade": true,
         "AutoMinorVersionUpgrade": true,
         "CopyTagsToSnapshot": true,
         "DBInstanceClass": "db.t4g.micro",
@@ -1417,7 +1417,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
         "DeleteAutomatedBackups": false,
         "DeletionProtection": true,
         "Engine": "postgres",
-        "EngineVersion": "13",
+        "EngineVersion": "17",
         "MasterUserPassword": "{{resolve:ssm-secure:/TEST/flexible/typerighter-rule-manager/db.default.password:1}}",
         "MasterUsername": {
           "Ref": "MasterDBUsername",
