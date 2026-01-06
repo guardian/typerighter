@@ -171,7 +171,7 @@ val checker = playProject(
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-default" % capiClientVersion,
-      "org.apache.opennlp" % "opennlp" % "2.1.0",
+      "org.apache.opennlp" % "opennlp" % "2.1.1",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.6" % "test,it",
       "io.gatling" % "gatling-test-framework" % "3.7.6" % "test,it",
       "org.carrot2" % "morfologik-tools" % "2.1.7"
