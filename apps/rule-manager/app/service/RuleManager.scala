@@ -197,7 +197,7 @@ object RuleManager extends Loggable {
               r.replacement,
               r.category.getOrElse(""),
               r.description.getOrElse(""),
-              r.externalId.getOrElse(""),
+              r.externalId.getOrElse("")
             )
           )
           .fold(
@@ -211,7 +211,7 @@ object RuleManager extends Loggable {
               r.pattern.getOrElse(""),
               r.category.getOrElse(""),
               r.description.getOrElse(""),
-              r.externalId.getOrElse(""),
+              r.externalId.getOrElse("")
             )
           )
           .fold(

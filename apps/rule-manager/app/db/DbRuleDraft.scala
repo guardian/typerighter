@@ -253,7 +253,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .map { word =>
         (
           Some(sqls"$coalescedCols ILIKE ${s"%$word%"}"),
-          Some(sqls"similarity($coalescedCols, $word) DESC"),
+          Some(sqls"similarity($coalescedCols, $word) DESC")
         )
       }
       .getOrElse((None, None))
