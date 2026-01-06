@@ -166,7 +166,7 @@ val checker = playProject(
       "software.amazon.awssdk" % "s3" % awsSdkVersion,
       "software.amazon.awssdk" % "ssm" % awsSdkVersion,
       "software.amazon.awssdk" % "cloudwatch" % awsSdkVersion,
-      "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
+      "net.logstash.logback" % "logstash-logback-encoder" % "6.6",
       "org.webjars" % "bootstrap" % "4.6.2",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
