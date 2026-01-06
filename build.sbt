@@ -107,7 +107,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
     libraryDependencies ++= Seq(
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
-      "com.typesafe.play" %% "play" % "2.9.4"
+      "com.typesafe.play" %% "play" % "2.9.10"
     )
   )
 
