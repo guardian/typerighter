@@ -31,7 +31,7 @@ val capiClientVersion = "40.0.0"
 val pandaVersion = "13.0.0"
 val circeVersion = "0.14.15"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
-val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
+val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-4.0"
 val appsFolder = "apps"
 
 def javaVersionNumber = {
