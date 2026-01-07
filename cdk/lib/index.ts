@@ -292,11 +292,11 @@ EOF`);
       vpc: ruleManagerApp.vpc,
       vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
       allocatedStorage: 50,
-      allowMajorVersionUpgrade: false,
+      allowMajorVersionUpgrade: true,
       autoMinorVersionUpgrade: true,
       deleteAutomatedBackups: false,
       engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_13,
+        version: PostgresEngineVersion.VER_17,
       }),
       instanceType: "db.t4g.micro",
       instanceIdentifier: `typerighter-rule-manager-store-${this.stage}`,
