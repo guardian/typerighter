@@ -26,9 +26,9 @@ ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.7"
 val awsSdkVersion = "2.36.3"
-val capiModelsVersion = "34.0.0"
-val capiClientVersion = "40.0.0"
-val pandaVersion = "13.0.0"
+val capiModelsVersion = "37.0.0"
+val capiClientVersion = "41.0.0"
+val pandaVersion = "15.0.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
@@ -63,7 +63,7 @@ val commonSettings = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.1" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.30",
-    "com.gu" %% "simple-configuration-ssm" % "7.0.0",
+    "com.gu" %% "simple-configuration-ssm" % "7.0.2",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.0.1",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
@@ -79,7 +79,7 @@ val commonSettings = Seq(
     // The jackson-module-scala version below must be kept in sync with the
     // transitive dependency on jackson-databind introduced by our AWS
     // dependencies.
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
   checkJackson := {
@@ -136,19 +136,19 @@ def playProject(
       ),
       commonSettings,
       libraryDependencies ++= Seq(
-        // we use this fork of lz4-java just to fix the vulnerability issue 
+        // we use this fork of lz4-java just to fix the vulnerability issue
         // in the link below.  Once Play picked up a fixed version of lz4-java
         // officially, it can be removed together with the excludeDependencies
         // below
         "at.yawk.lz4" % "lz4-java" % "1.8.1" % Runtime
-      ),    
+      ),
       excludeDependencies ++= Seq(
         // https://github.com/guardian/typerighter/security/dependabot/267
         ExclusionRule(
           organization = "org.lz4",
           name = "lz4-java"
         )
-      ),
+      )
     )
 
 val checker = playProject(
@@ -201,7 +201,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
-      "com.gu" %% "editorial-permissions-client" % "5.0.0",
+      "com.gu" %% "editorial-permissions-client" % "6.0.2",
       "com.github.tototoshi" %% "scala-csv" % "2.0.0"
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
