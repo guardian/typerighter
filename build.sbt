@@ -26,7 +26,7 @@ ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.7"
 val awsSdkVersion = "2.36.3"
-val capiModelsVersion = "34.0.0"
+val capiModelsVersion = "37.0.0"
 val capiClientVersion = "41.0.0"
 val pandaVersion = "13.0.0"
 val circeVersion = "0.14.1"
