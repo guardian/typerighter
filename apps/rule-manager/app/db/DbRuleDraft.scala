@@ -13,6 +13,7 @@ import scala.util.{Failure, Success, Try}
 import utils.StringHelpers
 import service.RuleManager.RuleType
 import java.time.temporal.ChronoUnit
+import com.gu.typerighter.lib.Loggable
 
 case class DbRuleDraft(
     id: Option[Int],
@@ -69,7 +70,7 @@ case class DbRuleDraft(
   }
 }
 
-object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
+object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] with Loggable {
   implicit val format: Format[DbRuleDraft] = Json.format[DbRuleDraft]
 
   override val tableName = "rules_draft"
@@ -340,6 +341,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
             page_count
           $orderByClause
       """
+    log.info(s"Executing search with query: ${searchStmt.statement}")
 
     val data =
       searchStmt
