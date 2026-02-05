@@ -195,7 +195,7 @@ val ruleManager = playProject(
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.5.5",
+      "org.postgresql" % "postgresql" % "42.5.6",
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
