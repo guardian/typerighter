@@ -79,7 +79,7 @@ val commonSettings = Seq(
     // The jackson-module-scala version below must be kept in sync with the
     // transitive dependency on jackson-databind introduced by our AWS
     // dependencies.
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
   checkJackson := {
@@ -136,19 +136,19 @@ def playProject(
       ),
       commonSettings,
       libraryDependencies ++= Seq(
-        // we use this fork of lz4-java just to fix the vulnerability issue 
+        // we use this fork of lz4-java just to fix the vulnerability issue
         // in the link below.  Once Play picked up a fixed version of lz4-java
         // officially, it can be removed together with the excludeDependencies
         // below
         "at.yawk.lz4" % "lz4-java" % "1.8.1" % Runtime
-      ),    
+      ),
       excludeDependencies ++= Seq(
         // https://github.com/guardian/typerighter/security/dependabot/267
         ExclusionRule(
           organization = "org.lz4",
           name = "lz4-java"
         )
-      ),
+      )
     )
 
 val checker = playProject(
@@ -167,7 +167,7 @@ val checker = playProject(
       "software.amazon.awssdk" % "ssm" % awsSdkVersion,
       "software.amazon.awssdk" % "cloudwatch" % awsSdkVersion,
       "net.logstash.logback" % "logstash-logback-encoder" % "6.0",
-      "org.webjars" % "bootstrap" % "4.6.2",
+      "org.webjars" % "bootstrap" % "5.3.8",
       "com.gu" %% "content-api-models-scala" % capiModelsVersion,
       "com.gu" %% "content-api-models-json" % capiModelsVersion,
       "com.gu" %% "content-api-client-default" % capiClientVersion,
