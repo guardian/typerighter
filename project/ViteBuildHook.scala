@@ -6,9 +6,9 @@ class ViteBuildHook(label: String, prefix: String) extends PlayRunHook {
   override def afterStarted(): Unit = {
 
     val emoji = prefix match {
-        case "manager" => "🚀"
-        case "checker" => "⭐"
-        case _ => "🔥"
+      case "manager" => "🚀"
+      case "checker" => "⭐"
+      case _         => "🔥"
     }
 
     println(
