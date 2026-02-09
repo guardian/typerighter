@@ -47,3 +47,11 @@ export const textResponseHandler = async (response: Response) => {
 		return createErrorResponse(response.statusText, response.status);
 	}
 };
+
+export const fetchGET = (input: RequestInfo | URL, init?: RequestInit) =>
+	fetch(input, init).then((res) => res.json());
+
+export const fetchPOST = (url: string, payload: unknown) => fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }).then(res => res.json());

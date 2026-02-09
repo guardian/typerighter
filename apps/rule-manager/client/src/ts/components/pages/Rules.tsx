@@ -8,7 +8,7 @@ import {
 	EuiSpacer,
 	EuiComboBox,
 } from '@elastic/eui';
-import { SortColumns, useRules } from '../hooks/useRules';
+import { SortColumns, useRules, useRulesSWR } from '../hooks/useRules';
 import { StandaloneRuleForm } from '../RuleForm';
 import { PageContext } from '../../utils/window';
 import { hasCreateEditPermissions } from '../helpers/hasCreateEditPermissions';
@@ -47,16 +47,8 @@ export const Rules = () => {
 		[tags],
 	);
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
-	const {
-		ruleData,
-		isLoading,
-		error,
-		refreshRules,
-		isRefreshing,
-		setError,
-		fetchRules,
-		refreshDictionaryRules,
-	} = useRules();
+	const { refreshRules, isRefreshing, setError, refreshDictionaryRules } =
+		useRules();
 
 	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
 		'closed',
@@ -75,21 +67,18 @@ export const Rules = () => {
 		setFormMode(ruleId ? 'edit' : 'create');
 	};
 
-	useEffect(() => {
-		fetchRules(
-			pageIndex,
-			debouncedQueryStr,
-			sortColumns,
-			selectedTags.map((_) => _.value),
-			selectedRuleTypeOptions.map((_) => _.value),
-		);
-	}, [
+	const {
+		data: ruleData,
+		isLoading,
+		error,
+		mutate,
+	} = useRulesSWR(
 		pageIndex,
 		debouncedQueryStr,
 		sortColumns,
-		selectedTags,
-		selectedRuleTypeOptions,
-	]);
+		selectedTags.map((_) => _.value),
+		selectedRuleTypeOptions.map((_) => _.value),
+	);
 
 	useEffect(() => {
 		if (rowSelection.size === 0) {
@@ -241,23 +230,23 @@ export const Rules = () => {
 						<RuleFormBatchEdit
 							onClose={() => {
 								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
+								mutate();
 							}}
-							onUpdate={() => fetchRules(pageIndex, queryStr, sortColumns)}
+							onUpdate={() => mutate()}
 							ruleIds={rowSelectionArray}
 						/>
 					) : (
 						<StandaloneRuleForm
 							onClose={() => {
 								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
+								mutate();
 							}}
 							onUpdate={(id) => {
 								if (id === currentRuleId) {
 									return;
 								}
 
-								fetchRules(pageIndex, queryStr, sortColumns);
+								mutate();
 								setCurrentRuleId(id);
 								if (formMode === 'create') {
 									setFormMode('edit');

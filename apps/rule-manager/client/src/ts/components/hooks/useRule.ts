@@ -3,6 +3,7 @@ import { ErrorIResponse, responseHandler } from '../../utils/api';
 import { errorToString } from '../../utils/error';
 import { FormError } from '../RuleForm';
 import { getRuleStatus, RuleStatus } from '../../utils/rule';
+import useSWR from 'swr';
 
 export type RuleType =
 	| 'regex'
@@ -41,6 +42,16 @@ export type RuleData = {
 	draft: DraftRule;
 	live: LiveRule[];
 };
+
+const fetchGET = (input: RequestInfo | URL, init?: RequestInit) =>
+	fetch(input, init).then((res) => res.json());
+
+const fetchPOST = (url: string, payload: unknown) => fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }).then(res => res.json());
+
+export const useRuleSWR = (ruleId: string) => useSWR(`${location.origin}/api/rules/${ruleId}`, fetchGET);
 
 export function useRule(ruleId: number | undefined) {
 	const [isLoading, setIsLoading] = useState(false);
