@@ -15,6 +15,7 @@ import {
 	EuiDataGridControlColumn,
 	EuiDataGridRowHeightsOptions,
 	EuiIcon,
+	EuiMarkdownFormat,
 	EuiSkeletonText,
 	EuiToolTip,
 	withEuiTheme,
@@ -351,6 +352,18 @@ export const PaginatedRulesTable = ({
 
 				if (columnId === 'ruleType') {
 					return ruleTypeOptions.find(({ id }) => id === value)?.label ?? '';
+				}
+
+				if (columnId === 'description') {
+					return (
+						<EuiMarkdownFormat
+							textSize="relative"
+							color="default"
+							aria-label="description"
+						>
+							{value.toString()}
+						</EuiMarkdownFormat>
+					);
 				}
 
 				return value;
