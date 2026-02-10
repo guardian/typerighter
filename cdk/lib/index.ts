@@ -219,6 +219,9 @@ EOF`);
       protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
     });
 
+    // AWS have put in an offload so this distribution will never be routed to
+    // MRS (Marseille) POPs. For more info, see
+    // https://github.com/guardian/workflow/issues/1283
     const checkerCloudFrontDistro = new Distribution(
       this,
       "typerighter-cloudfront",
