@@ -292,7 +292,7 @@ EOF`);
       vpc: ruleManagerApp.vpc,
       vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
       allocatedStorage: 50,
-      allowMajorVersionUpgrade: true,
+      allowMajorVersionUpgrade: false,
       autoMinorVersionUpgrade: true,
       deleteAutomatedBackups: false,
       engine: DatabaseInstanceEngine.postgres({

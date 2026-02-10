@@ -1406,7 +1406,7 @@ exports[`The typerighter stack matches the snapshot 1`] = `
       "DeletionPolicy": "Snapshot",
       "Properties": {
         "AllocatedStorage": "50",
-        "AllowMajorVersionUpgrade": true,
+        "AllowMajorVersionUpgrade": false,
         "AutoMinorVersionUpgrade": true,
         "CopyTagsToSnapshot": true,
         "DBInstanceClass": "db.t4g.micro",
