@@ -12,7 +12,7 @@ class ViteBuildHook(label: String, prefix: String) extends PlayRunHook {
     }
 
     println(
-      s"$emoji $label started and available at https://$prefix.typerighter.local.dev-gutools.co.uk!"
+      s"$emoji $label started and available at https://$prefix.typerighter.local.dev-gutools.co.uk"
     )
   }
 }
