@@ -75,11 +75,11 @@ val commonSettings = Seq(
     "com.gu" %% "panda-hmac-play_2-9" % pandaVersion,
     "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.29",
     "com.scalawilliam" %% "xs4s-core" % "0.9.1",
-    "ch.qos.logback" % "logback-classic" % "1.4.14", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
+    "ch.qos.logback" % "logback-classic" % "1.5.29", // manually overwriting logback-classic to resolve issue in Play framework: https://github.com/playframework/playframework/issues/11499
     // The jackson-module-scala version below must be kept in sync with the
     // transitive dependency on jackson-databind introduced by our AWS
     // dependencies.
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
   checkJackson := {
@@ -136,19 +136,19 @@ def playProject(
       ),
       commonSettings,
       libraryDependencies ++= Seq(
-        // we use this fork of lz4-java just to fix the vulnerability issue 
+        // we use this fork of lz4-java just to fix the vulnerability issue
         // in the link below.  Once Play picked up a fixed version of lz4-java
         // officially, it can be removed together with the excludeDependencies
         // below
         "at.yawk.lz4" % "lz4-java" % "1.8.1" % Runtime
-      ),    
+      ),
       excludeDependencies ++= Seq(
         // https://github.com/guardian/typerighter/security/dependabot/267
         ExclusionRule(
           organization = "org.lz4",
           name = "lz4-java"
         )
-      ),
+      )
     )
 
 val checker = playProject(
