@@ -59,7 +59,7 @@ val commonSettings = Seq(
   dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.3-jre"),
   libraryDependencies ++= Seq(
     "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion,
-    "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
+    "net.logstash.logback" % "logstash-logback-encoder" % "7.4",
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.2" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.45",
