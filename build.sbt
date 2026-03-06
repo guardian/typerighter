@@ -140,7 +140,7 @@ def playProject(
         // in the link below.  Once Play picked up a fixed version of lz4-java
         // officially, it can be removed together with the excludeDependencies
         // below
-        "at.yawk.lz4" % "lz4-java" % "1.8.1" % Runtime
+        "at.yawk.lz4" % "lz4-java" % "1.10.4" % Runtime
       ),
       excludeDependencies ++= Seq(
         // https://github.com/guardian/typerighter/security/dependabot/267
