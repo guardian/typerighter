@@ -26,8 +26,8 @@ ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.7"
 val awsSdkVersion = "2.36.3"
-val capiModelsVersion = "34.0.0"
-val capiClientVersion = "40.0.0"
+val capiModelsVersion = "37.0.0"
+val capiClientVersion = "41.2.0"
 val pandaVersion = "18.0.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
@@ -63,7 +63,7 @@ val commonSettings = Seq(
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.2" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
     "org.mockito" %% "mockito-scala-scalatest" % "1.17.45",
-    "com.gu" %% "simple-configuration-ssm" % "7.0.0",
+    "com.gu" %% "simple-configuration-ssm" % "7.0.2",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.0.1",
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
@@ -201,7 +201,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
       "org.scalikejdbc" %% "scalikejdbc-test" % scalikejdbcVersion % Test,
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
-      "com.gu" %% "editorial-permissions-client" % "5.0.0",
+      "com.gu" %% "editorial-permissions-client" % "6.0.2",
       "com.github.tototoshi" %% "scala-csv" % "2.0.0"
     ),
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
