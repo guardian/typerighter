@@ -55,7 +55,7 @@ val commonSettings = Seq(
     )
   },
   // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
-  dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
+  dependencyOverrides ++= Seq("org.json" % "json" % "20251224"),
   dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.3-jre"),
   libraryDependencies ++= Seq(
     "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion,
