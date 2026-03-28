@@ -12,7 +12,7 @@ object CreateRuleForm {
       case RuleType.languageToolCore => Nil
       case RuleType.languageToolXML  => Nil
       case RuleType.dictionary       => Nil
-      case _ =>
+      case _                         =>
         Seq(
           ValidationError(
             s"RuleType must be one of \"${RuleType.regex}\", \"${RuleType.languageToolXML}\", \"${RuleType.languageToolCore}\" or \"${RuleType.dictionary}\""
