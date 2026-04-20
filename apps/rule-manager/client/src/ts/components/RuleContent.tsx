@@ -96,6 +96,17 @@ export const RuleContent = ({
 		>
 			<LineBreak />
 			<EuiFlexItem>
+				<EuiFormRow
+					label="Title"
+					helpText="The title of the rule, as it will appear in the style guide"
+					fullWidth={true}
+				>
+					<EuiFieldText
+						value={ruleFormData.title || ''}
+						onChange={(_) => partiallyUpdateRuleData({ title: _.target.value })}
+						fullWidth={true}
+					/>
+				</EuiFormRow>
 				{displayDescription && (
 					<EuiFormRow
 						label={
@@ -120,7 +131,7 @@ export const RuleContent = ({
 								</EuiLink>
 							</EuiText>
 						}
-						helpText="What will the users see in Composer?"
+						helpText="The description users will see when their text is flagged in Typerighter"
 						fullWidth={true}
 					>
 						{!showMarkdownPreview ? (

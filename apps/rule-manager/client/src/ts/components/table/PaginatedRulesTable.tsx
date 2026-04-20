@@ -130,6 +130,11 @@ const columns: EuiDataGridColumn[] = [
 		initialWidth: 120,
 	},
 	{
+		id: 'title',
+		display: 'Title',
+		isSortable: true,
+	},
+	{
 		id: 'description',
 		display: 'Description',
 		isSortable: true,
