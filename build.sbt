@@ -62,7 +62,7 @@ val commonSettings = Seq(
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
     "org.scalatestplus.play" %% "scalatestplus-play" % "6.0.2" % Test,
     "com.softwaremill.diffx" %% "diffx-scalatest-should" % "0.8.2" % Test,
-    "org.mockito" %% "mockito-scala-scalatest" % "1.17.45",
+    "org.mockito" %% "mockito-scala-scalatest" % "2.2.1",
     "com.gu" %% "simple-configuration-ssm" % "7.0.0",
     "com.gu" %% "pan-domain-auth-play_2-9" % pandaVersion,
     "com.google.api-client" % "google-api-client" % "2.0.1",
