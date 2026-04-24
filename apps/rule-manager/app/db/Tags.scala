@@ -89,7 +89,7 @@ object Tags extends SQLSyntaxSupport[Tag] {
     }.updateAndReturnGeneratedKey().apply()
     find(generatedKey.toInt) match {
       case Some(rule) => Success(rule)
-      case None =>
+      case None       =>
         Failure(
           new Exception(
             s"Attempted to create a tag with id $generatedKey, but no result found attempting to read it back"

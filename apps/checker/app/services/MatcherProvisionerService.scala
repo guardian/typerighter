@@ -76,7 +76,7 @@ class MatcherProvisionerService(
     bucketRuleResource.getRulesLastModified match {
       case Right(date) if date.compareTo(lastModified) > 0 => updateRulesFromBucket()
       case Right(_)                                        => logger.info("No rule update needed")
-      case Left(error) =>
+      case Left(error)                                     =>
         logger.error(s"Could not get last modified from S3", error)
         cloudWatchClient.putMetric(Metrics.RulesNotFound)
     }

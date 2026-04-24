@@ -38,7 +38,7 @@ object AppSetup {
     }
 
     val config = ConfigurationLoader.load(identity, credsV2) {
-      case identity: AwsIdentity => SSMConfigurationLocation.default(identity)
+      case identity: AwsIdentity    => SSMConfigurationLocation.default(identity)
       case development: DevIdentity =>
         SSMConfigurationLocation(s"/DEV/flexible/${development.app}", region)
     }
