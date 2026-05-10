@@ -1,5 +1,6 @@
 package db
 
+import models.UserFeedbackWithAuthentication
 import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
@@ -56,24 +57,50 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
   val uf = UserFeedback.syntax("uf")
 
   def fromRow(rs: WrappedResultSet): UserFeedback = {
+    val u = uf.resultName
     UserFeedback(
-      id = rs.intOpt("id"),
-      app = rs.string("app"),
-      stage = rs.string("stage"),
-      documentUrl = rs.string("document_url"),
-      feedbackMessage = rs.string("feedback_message"),
-      userEmail = rs.string("user_email"),
-      matchId = rs.stringOpt("match_id"),
-      ruleId = rs.stringOpt("rule_id"),
-      documentId = rs.stringOpt("document_id"),
-      matcherType = rs.stringOpt("matcher_type"),
-      suggestion = rs.stringOpt("suggestion"),
-      matchIsMarkedAsCorrect = rs.booleanOpt("match_is_marked_as_correct"),
-      matchIsAdvisory = rs.booleanOpt("match_is_advisory"),
-      matchHasReplacement = rs.booleanOpt("match_has_replacement"),
-      matchedText = rs.stringOpt("matched_text"),
-      matchContext = rs.stringOpt("match_context"),
-      createdAt = rs.offsetDateTime("created_at")
+      id = rs.intOpt(u.id),
+      app = rs.string(u.app),
+      stage = rs.string(u.stage),
+      documentUrl = rs.string(u.documentUrl),
+      feedbackMessage = rs.string(u.feedbackMessage),
+      userEmail = rs.string(u.userEmail),
+      matchId = rs.stringOpt(u.matchId),
+      ruleId = rs.stringOpt(u.ruleId),
+      documentId = rs.stringOpt(u.documentId),
+      matcherType = rs.stringOpt(u.matcherType),
+      suggestion = rs.stringOpt(u.suggestion),
+      matchIsMarkedAsCorrect = rs.booleanOpt(u.matchIsMarkedAsCorrect),
+      matchIsAdvisory = rs.booleanOpt(u.matchIsAdvisory),
+      matchHasReplacement = rs.booleanOpt(u.matchHasReplacement),
+      matchedText = rs.stringOpt(u.matchedText),
+      matchContext = rs.stringOpt(u.matchContext),
+      createdAt = rs.offsetDateTime(u.createdAt)
+    )
+  }
+
+  def fromUserFeedbackWithAuthentication(
+      feedback: UserFeedbackWithAuthentication,
+      createdAt: OffsetDateTime = OffsetDateTime.now()
+  ): UserFeedback = {
+    UserFeedback(
+      id = None,
+      app = feedback.app,
+      stage = feedback.stage,
+      documentUrl = feedback.documentUrl,
+      feedbackMessage = feedback.feedbackMessage,
+      userEmail = feedback.userEmail,
+      matchId = feedback.matchContext.map(_.matchId),
+      ruleId = feedback.matchContext.map(_.ruleId),
+      documentId = feedback.matchContext.map(_.documentId),
+      matcherType = feedback.matchContext.map(_.matcherType),
+      suggestion = feedback.matchContext.flatMap(_.suggestion),
+      matchIsMarkedAsCorrect = feedback.matchContext.map(_.matchIsMarkedAsCorrect),
+      matchIsAdvisory = feedback.matchContext.map(_.matchIsAdvisory),
+      matchHasReplacement = feedback.matchContext.map(_.matchHasReplacement),
+      matchedText = feedback.matchContext.map(_.matchedText),
+      matchContext = feedback.matchContext.map(_.matchContext),
+      createdAt = createdAt
     )
   }
 
@@ -85,46 +112,32 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
 
   def findAll()(implicit session: DBSession = autoSession): List[UserFeedback] = {
     withSQL {
-      select.from(UserFeedback as uf).orderBy(uf.createdAt).desc
+      select.from(UserFeedback as uf).orderBy(uf.createdAt, uf.id).desc
     }.map(fromRow).list().apply()
   }
 
   def create(
-      app: String,
-      stage: String,
-      documentUrl: String,
-      feedbackMessage: String,
-      userEmail: String,
-      matchId: Option[String] = None,
-      ruleId: Option[String] = None,
-      documentId: Option[String] = None,
-      matcherType: Option[String] = None,
-      suggestion: Option[String] = None,
-      matchIsMarkedAsCorrect: Option[Boolean] = None,
-      matchIsAdvisory: Option[Boolean] = None,
-      matchHasReplacement: Option[Boolean] = None,
-      matchedText: Option[String] = None,
-      matchContext: Option[String] = None
+      userFeedback: UserFeedbackWithAuthentication
   )(implicit session: DBSession = autoSession): Try[UserFeedback] = {
     val generatedKey = withSQL {
       insert
         .into(UserFeedback)
         .namedValues(
-          column.app -> app,
-          column.stage -> stage,
-          column.documentUrl -> documentUrl,
-          column.feedbackMessage -> feedbackMessage,
-          column.userEmail -> userEmail,
-          column.matchId -> matchId,
-          column.ruleId -> ruleId,
-          column.documentId -> documentId,
-          column.matcherType -> matcherType,
-          column.suggestion -> suggestion,
-          column.matchIsMarkedAsCorrect -> matchIsMarkedAsCorrect,
-          column.matchIsAdvisory -> matchIsAdvisory,
-          column.matchHasReplacement -> matchHasReplacement,
-          column.matchedText -> matchedText,
-          column.matchContext -> matchContext
+          column.app -> userFeedback.app,
+          column.stage -> userFeedback.stage,
+          column.documentUrl -> userFeedback.documentUrl,
+          column.feedbackMessage -> userFeedback.feedbackMessage,
+          column.userEmail -> userFeedback.userEmail,
+          column.matchId -> userFeedback.matchContext.map(_.matchId),
+          column.ruleId -> userFeedback.matchContext.map(_.ruleId),
+          column.documentId -> userFeedback.matchContext.map(_.documentId),
+          column.matcherType -> userFeedback.matchContext.map(_.matcherType),
+          column.suggestion -> userFeedback.matchContext.map(_.suggestion),
+          column.matchIsMarkedAsCorrect -> userFeedback.matchContext.map(_.matchIsMarkedAsCorrect),
+          column.matchIsAdvisory -> userFeedback.matchContext.map(_.matchIsAdvisory),
+          column.matchHasReplacement -> userFeedback.matchContext.map(_.matchHasReplacement),
+          column.matchedText -> userFeedback.matchContext.map(_.matchedText),
+          column.matchContext -> userFeedback.matchContext.map(_.matchContext)
         )
     }.updateAndReturnGeneratedKey().apply()
     find(generatedKey.toInt) match {
