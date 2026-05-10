@@ -7,10 +7,15 @@ import play.api.data.Form
 /** Feedback submitted to the user feedback API
   */
 case class UserFeedback(
+    // The application the feedback came from
     app: String,
+    // The application stage
     stage: String,
+    // The URL of the document the submission relates to
     documentUrl: String,
+    // The message from the user
     feedbackMessage: String,
+    // Additional document and match context if the feedback relates to a specific match
     matchContext: Option[MatchContext]
 )
 
@@ -39,9 +44,35 @@ object UserFeedback {
   )
 }
 
-/** Feedback submitted to the user feedback API, with added user data from authentication.
+/** When feedback is given in the context of a match, we capture additional information about that
+  * context here.
   */
-case class UserFeedbackWithAuthentication(
+case class MatchContext(
+    // The id of the match, unique to the check
+    matchId: String,
+    // The rule's external ID
+    ruleId: String,
+    // The ID of the document that produced the match
+    documentId: String,
+    // The type of matcher that produced the rule - see [[checker.utils.Matcher]]
+    matcherType: String,
+    // The suggestion that was provided, if any
+    suggestion: Option[String],
+    matchIsMarkedAsCorrect: Boolean,
+    matchIsAdvisory: Boolean,
+    matchHasReplacement: Boolean,
+    matchedText: String,
+    // A snippet of text showing the match and a small amount of surrounding text
+    matchContext: String
+)
+
+object MatchContext {
+  implicit val formats: Format[MatchContext] = Json.format[MatchContext]
+}
+
+/** Feedback submitted to the user feedback API, with the e-mail of the submitter.
+  */
+case class UserFeedbackWithEmail(
     app: String,
     stage: String,
     documentUrl: String,
@@ -50,12 +81,12 @@ case class UserFeedbackWithAuthentication(
     matchContext: Option[MatchContext]
 )
 
-object UserFeedbackWithAuthentication {
-  implicit val formats: Format[UserFeedbackWithAuthentication] =
-    Json.format[UserFeedbackWithAuthentication]
+object UserFeedbackWithEmail {
+  implicit val formats: Format[UserFeedbackWithEmail] =
+    Json.format[UserFeedbackWithEmail]
 
   def fromUserFeedback(userFeedback: UserFeedback, userEmail: String) =
-    UserFeedbackWithAuthentication(
+    UserFeedbackWithEmail(
       app = userFeedback.app,
       stage = userFeedback.stage,
       documentUrl = userFeedback.documentUrl,
@@ -63,24 +94,4 @@ object UserFeedbackWithAuthentication {
       userEmail = userEmail,
       matchContext = userFeedback.matchContext
     )
-}
-
-/** When feedback is given in the context of a match, we capture additional information about that
-  * context here.
-  */
-case class MatchContext(
-    matchId: String,
-    ruleId: String,
-    documentId: String,
-    matcherType: String,
-    suggestion: Option[String],
-    matchIsMarkedAsCorrect: Boolean,
-    matchIsAdvisory: Boolean,
-    matchHasReplacement: Boolean,
-    matchedText: String,
-    matchContext: String
-)
-
-object MatchContext {
-  implicit val formats: Format[MatchContext] = Json.format[MatchContext]
 }

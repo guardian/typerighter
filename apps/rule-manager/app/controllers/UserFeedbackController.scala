@@ -2,7 +2,7 @@ package controllers
 
 import com.gu.typerighter.controllers.PandaAuthController
 import db.{UserFeedback => DbUserFeedback}
-import models.{UserFeedback, UserFeedbackWithAuthentication}
+import models.{UserFeedback, UserFeedbackWithEmail}
 import play.api.libs.json.Json
 import play.api.mvc._
 import utils.{FormHelpers, RuleManagerConfig}
@@ -24,7 +24,7 @@ class UserFeedbackController(
         },
         userFeedback => {
           val feedbackWithAuth =
-            UserFeedbackWithAuthentication.fromUserFeedback(userFeedback, request.user.email)
+            UserFeedbackWithEmail.fromUserFeedback(userFeedback, request.user.email)
           DbUserFeedback.create(
             feedbackWithAuth
           ) match {
