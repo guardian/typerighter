@@ -190,6 +190,25 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
+  def findByExternalId(
+      externalId: String
+  )(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
+    withSQL {
+      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+        .from(DbRuleDraft as rd)
+        .leftJoin(DbRuleLive as rl)
+        .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
+        .leftJoin(RuleTagDraft as rt)
+        .on(rd.id, rt.ruleId)
+        .where
+        .eq(rd.externalId, externalId)
+        .groupBy(draftRuleColumns, rl.externalId, rl.revisionId)
+        .orderBy(rd.ruleOrder)
+    }.map(DbRuleDraft.fromRow)
+      .single()
+      .apply()
+  }
+
   def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
       select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
