@@ -6,6 +6,7 @@ import scalikejdbc._
 
 import java.time.OffsetDateTime
 import scala.util.{Failure, Success, Try}
+import play.api.Logging
 
 /** Feedback submitted to the user feedback API, with added user data from authentication.
   */
@@ -17,7 +18,8 @@ case class UserFeedback(
     feedbackMessage: String,
     userEmail: String,
     matchId: Option[String],
-    ruleId: Option[String],
+    externalRuleId: Option[String],
+    ruleId: Option[Int],
     documentId: Option[String],
     matcherType: Option[String],
     suggestion: Option[String],
@@ -29,7 +31,7 @@ case class UserFeedback(
     createdAt: OffsetDateTime
 )
 
-object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
+object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
   implicit val formats: Format[UserFeedback] = Json.format[UserFeedback]
 
   override val tableName = "user_feedback"
@@ -42,6 +44,7 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
     "feedback_message",
     "user_email",
     "match_id",
+    "external_rule_id",
     "rule_id",
     "document_id",
     "matcher_type",
@@ -66,7 +69,8 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
       feedbackMessage = rs.string(u.feedbackMessage),
       userEmail = rs.string(u.userEmail),
       matchId = rs.stringOpt(u.matchId),
-      ruleId = rs.stringOpt(u.ruleId),
+      externalRuleId = rs.stringOpt(u.externalRuleId),
+      ruleId = rs.intOpt(u.ruleId),
       documentId = rs.stringOpt(u.documentId),
       matcherType = rs.stringOpt(u.matcherType),
       suggestion = rs.stringOpt(u.suggestion),
@@ -91,7 +95,8 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
       feedbackMessage = feedback.feedbackMessage,
       userEmail = feedback.userEmail,
       matchId = feedback.matchContext.map(_.matchId),
-      ruleId = feedback.matchContext.map(_.ruleId),
+      externalRuleId = feedback.matchContext.map(_.ruleId),
+      ruleId = None,
       documentId = feedback.matchContext.map(_.documentId),
       matcherType = feedback.matchContext.map(_.matcherType),
       suggestion = feedback.matchContext.flatMap(_.suggestion),
@@ -119,6 +124,18 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
   def create(
       userFeedback: UserFeedbackWithAuthentication
   )(implicit session: DBSession = autoSession): Try[UserFeedback] = {
+    val maybeExternalRuleId = userFeedback.matchContext.map(_.ruleId)
+    val ruleId = for {
+      externalId <- maybeExternalRuleId
+      rule <- DbRuleDraft.findByExternalId(externalId).orElse {
+        logger.warn(
+          s"Feedback received for external id $externalId, but no rule was found with that id"
+        )
+        None
+      }
+      ruleId <- rule.id
+    } yield ruleId
+
     val generatedKey = withSQL {
       insert
         .into(UserFeedback)
@@ -129,7 +146,8 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
           column.feedbackMessage -> userFeedback.feedbackMessage,
           column.userEmail -> userFeedback.userEmail,
           column.matchId -> userFeedback.matchContext.map(_.matchId),
-          column.ruleId -> userFeedback.matchContext.map(_.ruleId),
+          column.externalRuleId -> maybeExternalRuleId,
+          column.ruleId -> ruleId,
           column.documentId -> userFeedback.matchContext.map(_.documentId),
           column.matcherType -> userFeedback.matchContext.map(_.matcherType),
           column.suggestion -> userFeedback.matchContext.map(_.suggestion),
@@ -140,6 +158,7 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] {
           column.matchContext -> userFeedback.matchContext.map(_.matchContext)
         )
     }.updateAndReturnGeneratedKey().apply()
+
     find(generatedKey.toInt) match {
       case Some(feedback) => Success(feedback)
       case None =>
