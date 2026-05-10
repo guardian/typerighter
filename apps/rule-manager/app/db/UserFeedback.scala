@@ -1,6 +1,6 @@
 package db
 
-import models.UserFeedbackWithAuthentication
+import models.UserFeedbackWithEmail
 import play.api.libs.json.{Format, Json}
 import scalikejdbc._
 
@@ -9,7 +9,9 @@ import scala.util.{Failure, Success, Try}
 import play.api.Logging
 
 /** Feedback submitted to the user feedback API, with added user data from authentication.
-  */
+ *
+ * See the forms for field semantics.
+ */
 case class UserFeedback(
     id: Option[Int],
     app: String,
@@ -84,7 +86,7 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
   }
 
   def fromUserFeedbackWithAuthentication(
-      feedback: UserFeedbackWithAuthentication,
+      feedback: UserFeedbackWithEmail,
       createdAt: OffsetDateTime = OffsetDateTime.now()
   ): UserFeedback = {
     UserFeedback(
@@ -122,7 +124,7 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
   }
 
   def create(
-      userFeedback: UserFeedbackWithAuthentication
+      userFeedback: UserFeedbackWithEmail
   )(implicit session: DBSession = autoSession): Try[UserFeedback] = {
     val maybeExternalRuleId = userFeedback.matchContext.map(_.ruleId)
     val ruleId = for {
