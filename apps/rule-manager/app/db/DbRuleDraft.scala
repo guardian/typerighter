@@ -35,7 +35,8 @@ case class DbRuleDraft(
     isPublished: Boolean,
     isArchived: Boolean,
     ruleOrder: Int,
-    hasUnpublishedChanges: Boolean
+    hasUnpublishedChanges: Boolean,
+    feedbackCount: Int = 0
 ) extends DbRuleCommon {
 
   def toLive(reason: String, isActive: Boolean = false): DbRuleLive = {
@@ -102,7 +103,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       isPublished = rs.boolean("is_published"),
       isArchived = rs.boolean("is_archived"),
       ruleOrder = rs.int("rule_order"),
-      hasUnpublishedChanges = rs.boolean("has_unpublished_changes")
+      hasUnpublishedChanges = rs.boolean("has_unpublished_changes"),
+      feedbackCount = rs.int("feedback_count")
     )
   }
 
@@ -151,7 +153,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       isPublished = false,
       isArchived = false,
       ruleOrder = ruleOrder,
-      hasUnpublishedChanges = false
+      hasUnpublishedChanges = false,
+      feedbackCount = 0
     )
   }
 
@@ -167,15 +170,24 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val hasUnpublishedChangesColumn =
     sqls"(${rl.revisionId} IS NOT NULL AND ${rl.revisionId} < ${rd.revisionId}) AS has_unpublished_changes"
 
+  val feedbackCountColumn =
+    sqls"(SELECT COUNT(*) FROM user_feedback WHERE user_feedback.rule_id = ${rd.id})::int AS feedback_count"
+
   val draftRuleColumns = SQLSyntax.createUnsafely(
     rd.columns.filter(_.value != "tags").map(c => s"${rd.tableAliasName}.${c.value}").mkString(", ")
   )
 
   override val autoSession = AutoSession
 
-  def find(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
+  def findById(id: Int)(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
     withSQL {
-      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(
+        draftRuleColumns,
+        isPublishedColumn,
+        hasUnpublishedChangesColumn,
+        feedbackCountColumn,
+        tagColumn
+      )
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -194,7 +206,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       externalId: String
   )(implicit session: DBSession = autoSession): Option[DbRuleDraft] = {
     withSQL {
-      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(
+        draftRuleColumns,
+        isPublishedColumn,
+        hasUnpublishedChangesColumn,
+        feedbackCountColumn,
+        tagColumn
+      )
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -209,9 +227,15 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       .apply()
   }
 
-  def findRules(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
+  def findByIds(ids: List[Int])(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(
+        draftRuleColumns,
+        isPublishedColumn,
+        hasUnpublishedChangesColumn,
+        feedbackCountColumn,
+        tagColumn
+      )
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -229,7 +253,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def findAll()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(
+        draftRuleColumns,
+        isPublishedColumn,
+        hasUnpublishedChangesColumn,
+        feedbackCountColumn,
+        tagColumn
+      )
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -331,6 +361,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           $draftRuleColumns,
           $isPublishedColumn,
           $hasUnpublishedChangesColumn,
+          $feedbackCountColumn,
           rule_count,
           CEIL(rule_count / $pageSize) as page_count,
           $tagColumn
@@ -379,7 +410,13 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
   def findAllDictionaryRules()(implicit session: DBSession = autoSession): List[DbRuleDraft] = {
     withSQL {
-      select(draftRuleColumns, isPublishedColumn, hasUnpublishedChangesColumn, tagColumn)
+      select(
+        draftRuleColumns,
+        isPublishedColumn,
+        hasUnpublishedChangesColumn,
+        feedbackCountColumn,
+        tagColumn
+      )
         .from(DbRuleDraft as rd)
         .leftJoin(DbRuleLive as rl)
         .on(sqls"${rd.externalId} = ${rl.externalId} and ${rl.isActive} = true")
@@ -469,7 +506,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     val tagRelations = tags.map(tagId => RuleTagDraft(id, tagId))
     RuleTagDraft.batchInsert(tagRelations)
 
-    find(id) match {
+    findById(id) match {
       case Some(rule) => Success(rule)
       case None =>
         Failure(
@@ -505,7 +542,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       user: String
   )(implicit session: DBSession = autoSession): Either[Result, DbRuleDraft] = {
     val updatedRule = DbRuleDraft
-      .find(id)
+      .findById(id)
       .toRight(NotFound("Rule not found matching ID"))
       .map(existingRule =>
         existingRule.copy(
@@ -551,7 +588,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
       }
 
       withSQL(updateColumns).update().apply()
-      val rules = findRules(ids)
+      val rules = findByIds(ids)
       rules
     }
   }
@@ -671,7 +708,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
     val tagRelations = entity.tags.map(tagId => RuleTagDraft(id, tagId))
     RuleTagDraft.batchInsert(tagRelations)
 
-    find(entity.id.get)
+    findById(entity.id.get)
       .toRight(
         new Exception(s"Error updating rule with id ${entity.id}: could not read updated rule")
       )

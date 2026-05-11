@@ -117,6 +117,12 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
     }.map(fromRow).single().apply()
   }
 
+  def findByRuleId(ruleId: Int)(implicit session: DBSession = autoSession): List[UserFeedback] = {
+    withSQL {
+      select.from(UserFeedback as uf).where.eq(uf.ruleId, ruleId).orderBy(uf.createdAt).desc
+    }.map(fromRow).list().apply()
+  }
+
   def findAll()(implicit session: DBSession = autoSession): List[UserFeedback] = {
     withSQL {
       select.from(UserFeedback as uf).orderBy(uf.createdAt, uf.id).desc

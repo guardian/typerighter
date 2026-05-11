@@ -12,7 +12,7 @@ import com.gu.typerighter.model.{
   WordTag
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tag, Tags}
+import db.{DbRuleDraft, DbRuleLive, RuleTagDraft, RuleTagLive, Tag, Tags, UserFeedback}
 import db.DbRuleDraft.autoSession
 import model.{DictionaryForm, LTRuleCoreForm, LTRuleXMLForm, PaginatedResponse, RegexRuleForm}
 import play.api.data.FormError
@@ -30,7 +30,8 @@ object AllRuleData {
  */
 case class AllRuleData(
     draft: DbRuleDraft,
-    live: Seq[DbRuleLive]
+    live: Seq[DbRuleLive],
+    feedback: Seq[UserFeedback]
 )
 
 object RuleManager extends Loggable {
@@ -80,7 +81,7 @@ object RuleManager extends Loggable {
       RuleTagDraft.batchInsert(ruleIds.map(RuleTagDraft(_, tagId)))
     }
 
-    val rulesWithIds = DbRuleDraft.findRules(ruleIds)
+    val rulesWithIds = DbRuleDraft.findByIds(ruleIds)
     val liveRulesWithIds = rulesWithIds.map(_.toLive("Imported from CSV", true))
 
     DbRuleLive.batchInsert(liveRulesWithIds)
@@ -269,13 +270,18 @@ object RuleManager extends Loggable {
   def getAllRuleData(id: Int)(implicit
       session: DBSession = autoSession
   ): Option[AllRuleData] = {
-    DbRuleDraft.find(id).map { draftRule =>
+    DbRuleDraft.findById(id).map { draftRule =>
       val liveRules = draftRule.externalId match {
         case Some(externalId) => DbRuleLive.find(externalId).sortBy(-_.revisionId)
         case None             => List.empty
       }
 
-      AllRuleData(draftRule, liveRules)
+      val feedback = draftRule.id match {
+        case Some(ruleId) => UserFeedback.findByRuleId(ruleId)
+        case None         => List.empty
+      }
+
+      AllRuleData(draftRule, liveRules, feedback)
     }
   }
 
@@ -302,7 +308,7 @@ object RuleManager extends Loggable {
   def parseDraftRuleForPublication(id: Int, reason: String) = {
     for {
       draftRule <- DbRuleDraft
-        .find(id)
+        .findById(id)
         .toRight(
           Seq(
             FormError(
@@ -429,7 +435,7 @@ object RuleManager extends Loggable {
   ): Either[Exception, Option[AllRuleData]] = {
     try {
       val maybeAllRuleData = for {
-        draftRule <- DbRuleDraft.find(id)
+        draftRule <- DbRuleDraft.findById(id)
         externalId <- draftRule.externalId
         liveRule <- DbRuleLive.findLatestRevision(externalId)
         if liveRule.isActive
@@ -452,7 +458,7 @@ object RuleManager extends Loggable {
   ): Either[Exception, Option[AllRuleData]] = {
     try {
       val maybeAllRuleData = for {
-        draftRule <- DbRuleDraft.find(id)
+        draftRule <- DbRuleDraft.findById(id)
         if !draftRule.isArchived
         archivedDraftRule = draftRule.copy(isArchived = true)
         _ <- DbRuleDraft.save(archivedDraftRule, user).toOption
@@ -471,7 +477,7 @@ object RuleManager extends Loggable {
   ): Either[Exception, Option[AllRuleData]] = {
     try {
       val maybeAllRuleData = for {
-        draftRule <- DbRuleDraft.find(id)
+        draftRule <- DbRuleDraft.findById(id)
         if draftRule.isArchived
         archivedDraftRule = draftRule.copy(isArchived = false)
         _ <- DbRuleDraft.save(archivedDraftRule, user).toOption
@@ -483,9 +489,10 @@ object RuleManager extends Loggable {
       case e: Exception => Left(e)
     }
   }
+
   def revertDraftRule(id: Int, email: String): Either[Throwable, AllRuleData] = {
     for {
-      draftRule <- DbRuleDraft.find(id).toRight(new Exception("No draftRule id found"))
+      draftRule <- DbRuleDraft.findById(id).toRight(new Exception("No draftRule id found"))
       externalId <- draftRule.externalId.toRight(new Exception("No externalId found for draftRule"))
       latestLiveRule <- DbRuleLive
         .findLatestRevision(externalId)
