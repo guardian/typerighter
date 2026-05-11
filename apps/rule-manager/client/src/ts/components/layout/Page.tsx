@@ -29,6 +29,7 @@ import { Rules } from '../pages/Rules';
 import { FullHeightContentWithFixedHeader } from './FullHeightContentWithFixedHeader';
 import { newRuleId, Rule } from '../pages/Rule';
 import { TagsProvider } from '../context/tags';
+import { UserFeedback } from '../pages/UserFeedback';
 
 // Necessary while SASS and Emotion styles coexist within EUI.
 const cache = createCache({
@@ -124,6 +125,13 @@ const router = createBrowserRouter([
 					name: 'Tags',
 				},
 				element: <TagsTable />,
+			},
+			{
+				path: 'user-feedback',
+				handle: {
+					name: 'User Feedback',
+				},
+				element: <UserFeedback />,
 			},
 			{
 				path: '*',

@@ -80,6 +80,11 @@ export const Header = () => {
 							Tags
 						</EuiHeaderLink>
 					</Link>
+					<Link to="/user-feedback">
+						<EuiHeaderLink isActive={useLocation().pathname === '/user-feedback'}>
+							User Feedback
+						</EuiHeaderLink>
+					</Link>
 				</EuiHeaderLinks>
 			</NavContainer>
 			<EuiPopover
