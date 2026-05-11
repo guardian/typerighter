@@ -59,6 +59,8 @@ DELETE  /api/tags/:id                   controllers.TagsController.delete(id: In
 
 # User Feedback
 +nocsrf
+GET     /api/user-feedback              controllers.UserFeedbackController.list(page: Int, queryStr: Option[String])
++nocsrf
 POST    /api/user-feedback              controllers.UserFeedbackController.create()
 
 # Map static resources from the /public folder to the correct URL path

@@ -278,4 +278,74 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     feedback.matchedText should be(None)
     feedback.matchContext should be(None)
   }
+
+  behavior of "searchFeedback"
+
+  private def createFeedback(message: String, email: String = "user@example.com")(implicit
+      session: scalikejdbc.DBSession
+  ) =
+    UserFeedback
+      .create(
+        UserFeedbackWithEmail(
+          app = "composer",
+          stage = "PROD",
+          documentUrl = "https://example.com/doc/1",
+          feedbackMessage = message,
+          userEmail = email,
+          matchContext = None
+        )
+      )
+      .getOrElse(fail("Failed to create feedback"))
+
+  it should "return paginated results with correct metadata" in { implicit session =>
+    (1 to 3).foreach(i => createFeedback(s"Feedback $i"))
+
+    val result = UserFeedback.searchFeedback(page = 1, pageSize = 2)
+    result.data.size should be(2)
+    result.pageSize should be(2)
+    result.page should be(1)
+    result.total should be(3)
+    result.pages should be(2)
+  }
+
+  it should "search across feedback_message with ILIKE" in { implicit session =>
+    createFeedback("This rule is wrong")
+    createFeedback("Great rule")
+    createFeedback("Another issue")
+
+    val result = UserFeedback.searchFeedback(page = 1, queryStr = Some("rule"))
+    result.data.size should be(2)
+    result.total should be(2)
+    result.data.foreach(_.feedbackMessage should include("rule"))
+  }
+
+  it should "search across user_email" in { implicit session =>
+    createFeedback("Feedback A", email = "alice@example.com")
+    createFeedback("Feedback B", email = "bob@example.com")
+
+    val result = UserFeedback.searchFeedback(page = 1, queryStr = Some("alice"))
+    result.data.size should be(1)
+    result.data.head.userEmail should be("alice@example.com")
+  }
+
+  it should "return empty data when page is beyond total" in { implicit session =>
+    createFeedback("Only one")
+
+    val result = UserFeedback.searchFeedback(page = 99, pageSize = 10)
+    result.data should be(empty)
+    result.page should be(99)
+    result.total should be(1)
+    result.pages should be(1)
+  }
+
+  it should "return all results ordered by created_at DESC when no query" in { implicit session =>
+    createFeedback("First")
+    createFeedback("Second")
+    createFeedback("Third")
+
+    val result = UserFeedback.searchFeedback(page = 1)
+    result.data.size should be(3)
+    result.data.head.feedbackMessage should be("Third")
+    result.data.last.feedbackMessage should be("First")
+  }
 }

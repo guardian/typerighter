@@ -15,6 +15,11 @@ class UserFeedbackController(
 ) extends PandaAuthController(controllerComponents, config)
     with FormHelpers {
 
+  def list(page: Int, queryStr: Option[String]) =
+    APIAuthAction {
+      Ok(Json.toJson(DbUserFeedback.searchFeedback(page, queryStr)))
+    }
+
   def create = APIAuthAction { implicit request =>
     UserFeedback.form
       .bindFromRequest()

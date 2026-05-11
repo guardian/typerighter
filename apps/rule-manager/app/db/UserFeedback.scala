@@ -1,5 +1,6 @@
 package db
 
+import model.PaginatedResponse
 import models.UserFeedbackWithEmail
 import play.api.libs.json.{Format, Json}
 import scalikejdbc._
@@ -108,6 +109,65 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
       matchedText = feedback.matchContext.map(_.matchedText),
       matchContext = feedback.matchContext.map(_.matchContext),
       createdAt = createdAt
+    )
+  }
+
+  def searchFeedback(
+      page: Int,
+      queryStr: Option[String] = None,
+      pageSize: Int = 20
+  )(implicit session: DBSession = autoSession): PaginatedResponse[UserFeedback] = {
+
+    val coalescedCols =
+      sqls"""
+        coalesce(${uf.column("feedback_message")}, '') || ' ' ||
+        coalesce(${uf.column("user_email")}, '') || ' ' ||
+        coalesce(${uf.column("matched_text")}, '') || ' ' ||
+        coalesce(${uf.column("match_context")}, '') || ' ' ||
+        coalesce(${uf.column("external_rule_id")}, '')
+      """
+
+    val searchClause = queryStr.map { word =>
+      sqls"$coalescedCols ILIKE ${s"%$word%"}"
+    }
+
+    val condition = searchClause match {
+      case Some(clause) => sqls"WHERE $clause"
+      case None         => sqls.empty
+    }
+
+    val offset = (page - 1) * pageSize
+
+    val results = sql"""
+      SELECT ${uf.result.*}, COUNT(*) OVER () AS feedback_count
+      FROM ${UserFeedback.as(uf)}
+      $condition
+      ORDER BY ${uf.createdAt} DESC, ${uf.id} DESC
+      LIMIT $pageSize
+      OFFSET $offset
+    """
+      .map { rs =>
+        (fromRow(rs), rs.int("feedback_count"))
+      }
+      .list()
+      .apply()
+
+    val total = results.headOption.map(_._2).getOrElse {
+      sql"""
+        SELECT COUNT(*) AS feedback_count
+        FROM ${UserFeedback.as(uf)}
+        $condition
+      """.map(_.int("feedback_count")).single().apply().getOrElse(0)
+    }
+    val data = results.map(_._1)
+    val pages = Math.ceil(total.toDouble / pageSize).toInt
+
+    PaginatedResponse(
+      data = data,
+      pageSize = pageSize,
+      page = page,
+      pages = pages,
+      total = total
     )
   }
 
