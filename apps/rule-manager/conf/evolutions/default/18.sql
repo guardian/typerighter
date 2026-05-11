@@ -8,7 +8,8 @@ CREATE TABLE user_feedback (
     feedback_message            TEXT NOT NULL,
     user_email                  TEXT NOT NULL,
     match_id                    TEXT,
-    rule_id                     TEXT,
+    external_rule_id            TEXT,
+    rule_id                     INT REFERENCES rules_draft(id),
     document_id                 TEXT,
     matcher_type                TEXT,
     suggestion                  TEXT,
@@ -20,6 +21,9 @@ CREATE TABLE user_feedback (
     created_at                  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE INDEX idx_rules_draft_external_id ON rules_draft(external_id);
+
 -- !Downs
 
+DROP INDEX idx_rules_draft_external_id;
 DROP TABLE user_feedback;

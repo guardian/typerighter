@@ -9,9 +9,9 @@ import scala.util.{Failure, Success, Try}
 import play.api.Logging
 
 /** Feedback submitted to the user feedback API, with added user data from authentication.
- *
- * See the forms for field semantics.
- */
+  *
+  * See the forms for field semantics.
+  */
 case class UserFeedback(
     id: Option[Int],
     app: String,
