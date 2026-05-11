@@ -162,6 +162,12 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
   val rl = DbRuleLive.syntax("rl")
   val rt = RuleTagDraft.syntax("rt")
 
+  val derivedSortableColumns = Seq(
+    "feedback_count"
+  )
+
+  val sortableColumns = derivedSortableColumns ++ rd.columns
+
   val tagColumn =
     sqls"COALESCE(ARRAY_AGG(${rt.tagId}) FILTER (WHERE ${rt.tagId} IS NOT NULL), '{}') AS tags"
 
@@ -329,13 +335,17 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
         List(sqls"${rd.updatedAt} DESC")
       } else List.empty
       val orderStmts = sortBy.map { sortByStr =>
-        val colName = StringHelpers.camelToSnakeCase(sortByStr.slice(1, sortByStr.length))
-        val col = rd.column(colName)
-        sortByStr.slice(0, 1) match {
-          // Indexes for sort order should reflect the `left()` expression.
-          case "+" => sqls"left($col, 20) ASC"
-          case "-" => sqls"left($col, 20) DESC"
+        val order = sortByStr.slice(0, 1) match {
+          case "+" => sqls"ASC"
+          case "-" => sqls"DESC"
         }
+
+        val colName = StringHelpers.camelToSnakeCase(sortByStr.slice(1, sortByStr.length))
+
+        derivedSortableColumns
+          .find(_ == colName)
+          .map(col => sqls"${SQLSyntax.createUnsafely(col)} $order")
+          .getOrElse(sqls"left(${rd.column(colName)}, 20) $order")
       } ++ searchOrderClause ++ defaultPatternOrder
 
       if (orderStmts.nonEmpty)
@@ -361,13 +371,14 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
           $draftRuleColumns,
           $isPublishedColumn,
           $hasUnpublishedChangesColumn,
-          $feedbackCountColumn,
           rule_count,
           CEIL(rule_count / $pageSize) as page_count,
-          $tagColumn
+          $tagColumn,
+          feedback_count
         FROM (
         SELECT
             $draftRuleColumns,
+            $feedbackCountColumn,
             $countStmt
           FROM ${DbRuleDraft.as(rd)}
           ${if (tags.isEmpty) sqls.empty else sqls"""
@@ -387,7 +398,8 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
             ${rl.externalId},
             ${rl.revisionId},
             rule_count,
-            page_count
+            page_count,
+            feedback_count
           $orderByClause
       """
 

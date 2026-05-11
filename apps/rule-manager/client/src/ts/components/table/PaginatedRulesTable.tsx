@@ -138,6 +138,12 @@ const columns: EuiDataGridColumn[] = [
 		display: 'Source',
 		initialWidth: 150,
 	},
+	{
+		id: 'feedbackCount',
+		isSortable: true,
+		display: 'Feedback',
+		initialWidth: 100,
+	},
 ];
 
 const inMemory = { level: 'enhancements' } as const;
