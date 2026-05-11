@@ -1,5 +1,3 @@
-import { DraftRule } from '../components/hooks/useRule';
-
 export interface OkIResponse<T> {
 	status: 'ok';
 	data: T;

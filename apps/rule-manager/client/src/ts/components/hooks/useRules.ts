@@ -55,7 +55,7 @@ export const useRulesSWR = (
 export function useRules() {
 	const { location } = window;
 	const [ruleData, setRulesData] = useState<PaginatedRuleData | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading] = useState(false);
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 
