@@ -8,48 +8,14 @@ import { LineBreak } from './LineBreak';
 import { friendlyTimestampFormat } from '../utils/date';
 import { Person } from './icons/person';
 import { format } from 'date-fns';
-
-const subdued = '#F7F8FC';
-const lightShade = '#D3DAE6';
-
-const Event = styled.div`
-	display: flex;
-`;
-
-const EventTimeline = styled.div<{ isFirstPublished: boolean }>`
-	position: relative;
-	${({ isFirstPublished }) =>
-		!isFirstPublished && `border-left: 2px solid ${subdued};`}
-	margin-left: 16px;
-	margin-right: 27px;
-`;
-
-const EventTimelinePersonContainer = styled.div`
-	position: absolute;
-	width: 32px;
-	height: 32px;
-	left: -16px;
-	background-color: ${subdued};
-	border-radius: 50%;
-`;
-
-const EventDetails = styled.div<{ isFirstPublished: boolean }>`
-	border: 1px solid ${subdued};
-	border-radius: 6px;
-	flex-grow: 1;
-	${({ isFirstPublished }) => !isFirstPublished && `margin-bottom: 8px;`}
-`;
-
-const EventDetailsWho = styled.div`
-	background-color: ${subdued};
-	border-bottom: 1px solid ${lightShade};
-	padding: 8px;
-`;
-
-const EventDetailsWhy = styled.div`
-	background-color: #fff;
-	padding: 8px;
-`;
+import {
+	Event,
+	EventTimelineContainer,
+	EventTimelinePersonContainer,
+	EventDetails,
+	EventDetailsHeader,
+	EventDetailsBody,
+} from './EventTimeline';
 
 const SheetIconContainer = styled.div`
 	padding: 7px 8px;
@@ -75,10 +41,10 @@ export const RuleHistory = ({
 				<>
 					{!sortedHistory.length && 'This rule has not yet been published.'}
 					{sortedHistory.map((rule, index) => {
-						const isFirstPublished = index === sortedHistory.length - 1;
+						const isFirst = index === sortedHistory.length - 1;
 						return (
 							<Event key={rule.revisionId}>
-								<EventTimeline isFirstPublished={isFirstPublished}>
+								<EventTimelineContainer isFirst={isFirst}>
 									<EventTimelinePersonContainer>
 										{rule.updatedBy.includes('Google Sheet') ? (
 											<SheetIcon />
@@ -86,13 +52,13 @@ export const RuleHistory = ({
 											<Person />
 										)}
 									</EventTimelinePersonContainer>
-								</EventTimeline>
-								<EventDetails isFirstPublished={isFirstPublished}>
-									<EventDetailsWho>
+								</EventTimelineContainer>
+								<EventDetails isFirst={isFirst}>
+									<EventDetailsHeader>
 										<strong>{maybeGetNameFromEmail(rule.updatedBy)}</strong>,{' '}
 										{format(new Date(rule.updatedAt), friendlyTimestampFormat)}
-									</EventDetailsWho>
-									<EventDetailsWhy>{rule.reason}</EventDetailsWhy>
+									</EventDetailsHeader>
+									<EventDetailsBody>{rule.reason}</EventDetailsBody>
 								</EventDetails>
 							</Event>
 						);
