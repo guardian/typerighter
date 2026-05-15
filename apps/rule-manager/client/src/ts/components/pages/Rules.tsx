@@ -7,6 +7,7 @@ import {
 	EuiToolTip,
 	EuiSpacer,
 	EuiComboBox,
+	EuiResizableContainer,
 } from '@elastic/eui';
 import { SortColumns, useRules } from '../hooks/useRules';
 import { StandaloneRuleForm } from '../RuleForm';
@@ -20,6 +21,7 @@ import { useDebouncedValue } from '../hooks/useDebounce';
 import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWithFixedHeader';
 import { Tag, TagsContext } from '../context/tags';
 import { ruleTypeOptions } from '../RuleContent';
+import { css } from '@emotion/react';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -229,45 +231,68 @@ export const Rules = () => {
 		</>
 	);
 
-	return (
-		<EuiFlexGroup direction="row" style={{ height: '100%' }}>
-			<FullHeightContentWithFixedHeader
-				header={tableHeader}
-				content={tableContent}
-			/>
-			{formMode !== 'closed' && (
-				<EuiFlexItem>
-					{rowSelection.size > 1 ? (
-						<RuleFormBatchEdit
-							onClose={() => {
-								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
-							}}
-							onUpdate={() => fetchRules(pageIndex, queryStr, sortColumns)}
-							ruleIds={rowSelectionArray}
-						/>
-					) : (
-						<StandaloneRuleForm
-							onClose={() => {
-								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
-							}}
-							onUpdate={(id) => {
-								if (id === currentRuleId) {
-									return;
-								}
+	const formIsOpen = formMode !== 'closed';
 
-								fetchRules(pageIndex, queryStr, sortColumns);
-								setCurrentRuleId(id);
-								if (formMode === 'create') {
-									setFormMode('edit');
-								}
-							}}
-							ruleId={currentRuleId}
+	return (
+		<EuiResizableContainer style={{ height: '100%' }}>
+			{(EuiResizablePanel, EuiResizableButton) => (
+				<>
+					<EuiResizablePanel
+						initialSize={formIsOpen ? 60 : 100}
+						minSize="300px"
+						mode={'collapsible'}
+						paddingSize="none"
+						css={css`
+							padding-right: 8px;
+						`}
+					>
+						<FullHeightContentWithFixedHeader
+							header={tableHeader}
+							content={tableContent}
 						/>
-					)}
-				</EuiFlexItem>
+					</EuiResizablePanel>
+					{...formIsOpen ? [<EuiResizableButton />] : []}
+					<EuiResizablePanel
+						initialSize={formIsOpen ? 40 : 0}
+						minSize="300px"
+						mode="main"
+						paddingSize="none"
+						css={css`
+							padding-left: 8px;
+						`}
+					>
+						{rowSelection.size > 1 ? (
+							<RuleFormBatchEdit
+								onClose={() => {
+									setFormMode('closed');
+									fetchRules(pageIndex, queryStr, sortColumns);
+								}}
+								onUpdate={() => fetchRules(pageIndex, queryStr, sortColumns)}
+								ruleIds={rowSelectionArray}
+							/>
+						) : (
+							<StandaloneRuleForm
+								onClose={() => {
+									setFormMode('closed');
+									fetchRules(pageIndex, queryStr, sortColumns);
+								}}
+								onUpdate={(id) => {
+									if (id === currentRuleId) {
+										return;
+									}
+
+									fetchRules(pageIndex, queryStr, sortColumns);
+									setCurrentRuleId(id);
+									if (formMode === 'create') {
+										setFormMode('edit');
+									}
+								}}
+								ruleId={currentRuleId}
+							/>
+						)}
+					</EuiResizablePanel>
+				</>
 			)}
-		</EuiFlexGroup>
+		</EuiResizableContainer>
 	);
 };
