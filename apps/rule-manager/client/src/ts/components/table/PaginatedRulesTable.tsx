@@ -319,6 +319,10 @@ export const PaginatedRulesTable = ({
 					return ruleTypeOptions.find(({ id }) => id === value)?.label ?? '';
 				}
 
+				if (columnId === 'feedbackCount') {
+					return value ? <EuiBadge color='danger'><b>{value}</b></EuiBadge> : null;
+				}
+
 				if (columnId === 'description') {
 					return (
 						<EuiMarkdownFormat
