@@ -254,7 +254,7 @@ export const Rules = () => {
 					{...formIsOpen ? [<EuiResizableButton />] : []}
 					<EuiResizablePanel
 						initialSize={formIsOpen ? 40 : 0}
-						minSize="300px"
+						minSize="400px"
 						mode="main"
 						paddingSize="none"
 						css={css`
