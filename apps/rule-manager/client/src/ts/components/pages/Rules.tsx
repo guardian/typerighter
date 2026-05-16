@@ -19,9 +19,10 @@ import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 import { PaginatedRulesTable } from '../table/PaginatedRulesTable';
 import { useDebouncedValue } from '../hooks/useDebounce';
 import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWithFixedHeader';
-import { Tag, TagsContext } from '../context/tags';
+import { TagsContext } from '../context/tags';
 import { ruleTypeOptions } from '../RuleContent';
 import { css } from '@emotion/react';
+import { useRuleSearchParams } from '../hooks/useRuleSearchParams';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -35,20 +36,30 @@ const ruleTypeOptionsWithId = ruleTypeOptions.map((opt) => ({
 }));
 
 export const Rules = () => {
-	const [queryStr, setQueryStr] = useState<string>('');
-	const [selectedRuleTypeOptions, setSelectedRuleTypeOptions] = useState<
-		{ label: string; value: string }[]
-	>([]);
-	const [selectedTags, setSelectedTags] = useState<
-		{ label: string; value: number }[]
-	>([]);
 	const { tags } = useContext(TagsContext);
+	const [params, setParams] = useRuleSearchParams();
+	const selectedRuleTypeOptions = useMemo(
+		() =>
+			params.ruleTypeOptions.flatMap((optionValue) =>
+				ruleTypeOptionsWithId.filter(({ value }) => value == optionValue),
+			),
+		[ruleTypeOptionsWithId, params.ruleTypeOptions],
+	);
+	const selectedTags = useMemo(
+		() =>
+			params.tagIds.flatMap((optionValue) =>
+				tags[optionValue]
+					? [{ value: optionValue, label: tags[optionValue].name }]
+					: [],
+			),
+		[tags, params.tagIds],
+	);
 	const tagOptions = useMemo(
 		() =>
 			Object.values(tags).map((tag) => ({ label: tag.name, value: tag.id })),
 		[tags],
 	);
-	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
+	const debouncedQueryStr = useDebouncedValue(params.queryStr, 200);
 	const {
 		ruleData,
 		isLoading,
@@ -82,15 +93,15 @@ export const Rules = () => {
 			pageIndex,
 			debouncedQueryStr,
 			sortColumns,
-			selectedTags.map((_) => _.value),
-			selectedRuleTypeOptions.map((_) => _.value),
+			params.tagIds,
+			params.ruleTypeOptions,
 		);
 	}, [
 		pageIndex,
 		debouncedQueryStr,
 		sortColumns,
-		selectedTags,
-		selectedRuleTypeOptions,
+		params.tagIds,
+		params.ruleTypeOptions,
 	]);
 
 	useEffect(() => {
@@ -161,8 +172,10 @@ export const Rules = () => {
 							<EuiFieldSearch
 								placeholder="Search tag description, pattern, or replacement"
 								fullWidth
-								value={queryStr}
-								onChange={(e) => setQueryStr(e.target.value)}
+								value={params.queryStr}
+								onChange={(e) =>
+									setParams({ ...params, queryStr: e.target.value })
+								}
 							/>
 						</EuiFlexItem>
 						<EuiComboBox<string>
@@ -170,10 +183,13 @@ export const Rules = () => {
 							placeholder="Filter by rule type"
 							options={ruleTypeOptionsWithId}
 							selectedOptions={selectedRuleTypeOptions}
-							onChange={(ids) =>
-								setSelectedRuleTypeOptions(
-									ids as { label: string; value: string }[],
-								)
+							onChange={(ruleTypeOptions) =>
+								setParams({
+									...params,
+									ruleTypeOptions: ruleTypeOptions.flatMap(({ value }) =>
+										value ? [value] : [],
+									),
+								})
 							}
 						/>
 						<EuiComboBox<number>
@@ -181,8 +197,13 @@ export const Rules = () => {
 							placeholder="Filter by tag"
 							options={tagOptions}
 							selectedOptions={selectedTags}
-							onChange={(ids) =>
-								setSelectedTags(ids as { label: string; value: number }[])
+							onChange={(tagOptions) =>
+								setParams({
+									...params,
+									tagIds: tagOptions.flatMap(({ value }) =>
+										value ? [value] : [],
+									),
+								})
 							}
 						/>
 					</EuiFlexGroup>
@@ -265,23 +286,25 @@ export const Rules = () => {
 							<RuleFormBatchEdit
 								onClose={() => {
 									setFormMode('closed');
-									fetchRules(pageIndex, queryStr, sortColumns);
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns);
 								}}
-								onUpdate={() => fetchRules(pageIndex, queryStr, sortColumns)}
+								onUpdate={() =>
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns)
+								}
 								ruleIds={rowSelectionArray}
 							/>
 						) : (
 							<StandaloneRuleForm
 								onClose={() => {
 									setFormMode('closed');
-									fetchRules(pageIndex, queryStr, sortColumns);
+									fetchRules(pageIndex, params.queryStr, sortColumns);
 								}}
 								onUpdate={(id) => {
 									if (id === currentRuleId) {
 										return;
 									}
 
-									fetchRules(pageIndex, queryStr, sortColumns);
+									fetchRules(pageIndex, params.queryStr, sortColumns);
 									setCurrentRuleId(id);
 									if (formMode === 'create') {
 										setFormMode('edit');
