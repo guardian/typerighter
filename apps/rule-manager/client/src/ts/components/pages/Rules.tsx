@@ -23,6 +23,7 @@ import { TagsContext } from '../context/tags';
 import { ruleTypeOptions } from '../RuleContent';
 import { css } from '@emotion/react';
 import { useRuleSearchParams } from '../hooks/useRuleSearchParams';
+import { useRuleSelection } from '../hooks/useRuleSelection';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -36,8 +37,9 @@ const ruleTypeOptionsWithId = ruleTypeOptions.map((opt) => ({
 }));
 
 export const Rules = () => {
-	const { tags } = useContext(TagsContext);
 	const [params, setParams] = useRuleSearchParams();
+	const { tags } = useContext(TagsContext);
+
 	const selectedRuleTypeOptions = useMemo(
 		() =>
 			params.ruleTypeOptions.flatMap((optionValue) =>
@@ -45,6 +47,7 @@ export const Rules = () => {
 			),
 		[ruleTypeOptionsWithId, params.ruleTypeOptions],
 	);
+
 	const selectedTags = useMemo(
 		() =>
 			params.tagIds.flatMap((optionValue) =>
@@ -59,7 +62,9 @@ export const Rules = () => {
 			Object.values(tags).map((tag) => ({ label: tag.name, value: tag.id })),
 		[tags],
 	);
+
 	const debouncedQueryStr = useDebouncedValue(params.queryStr, 200);
+
 	const {
 		ruleData,
 		isLoading,
@@ -71,6 +76,10 @@ export const Rules = () => {
 		refreshDictionaryRules,
 	} = useRules();
 
+	const [ruleSelection, setRuleSelection] = useRuleSelection(
+		params.ruleSelection,
+		ruleData,
+	);
 	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
 		'closed',
 	);
@@ -79,7 +88,6 @@ export const Rules = () => {
 	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
 		undefined,
 	);
-	const [rowSelection, setRowSelection] = useState<Set<number>>(new Set());
 	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const hasCreatePermissions = useCreateEditPermissions();
 
@@ -105,12 +113,23 @@ export const Rules = () => {
 	]);
 
 	useEffect(() => {
-		if (rowSelection.size === 0) {
+		if (params.ruleSelection.size === 0) {
 			setFormMode('closed');
 		}
-	}, [rowSelection]);
+	}, [params.ruleSelection]);
 
-	const rowSelectionArray = useMemo(() => [...rowSelection], [rowSelection]);
+	useEffect(() => {
+		setParams({ ...params, ruleSelection });
+		if (ruleSelection.size === 1) {
+			setCurrentRuleId([...ruleSelection].pop());
+		}
+		setFormMode('edit');
+	}, [ruleSelection]);
+
+	const rowSelectionArray = useMemo(
+		() => [...params.ruleSelection],
+		[params.ruleSelection],
+	);
 
 	const tableHeader = (
 		<div>
@@ -236,13 +255,8 @@ export const Rules = () => {
 					isLoading={isLoading}
 					ruleData={ruleData}
 					canEditRule={hasCreatePermissions}
-					onSelectionChanged={(rows) => {
-						setRowSelection(rows);
-						if (rows.size === 1) {
-							setCurrentRuleId([...rows].pop());
-						}
-						setFormMode('edit');
-					}}
+					ruleSelection={ruleSelection}
+					setRuleSelection={setRuleSelection}
 					pageIndex={pageIndex}
 					setPageIndex={setPageIndex}
 					sortColumns={sortColumns}
@@ -282,7 +296,7 @@ export const Rules = () => {
 							padding-left: 8px;
 						`}
 					>
-						{rowSelection.size > 1 ? (
+						{params.ruleSelection.size > 1 ? (
 							<RuleFormBatchEdit
 								onClose={() => {
 									setFormMode('closed');
@@ -297,14 +311,14 @@ export const Rules = () => {
 							<StandaloneRuleForm
 								onClose={() => {
 									setFormMode('closed');
-									fetchRules(pageIndex, params.queryStr, sortColumns);
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns);
 								}}
 								onUpdate={(id) => {
 									if (id === currentRuleId) {
 										return;
 									}
 
-									fetchRules(pageIndex, params.queryStr, sortColumns);
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns);
 									setCurrentRuleId(id);
 									if (formMode === 'create') {
 										setFormMode('edit');
