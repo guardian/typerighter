@@ -16,14 +16,14 @@ export const Rule = () => {
 	const navigate = useNavigate();
 	return (
 		<EuiFlexGroup style={{ height: '100%' }}>
-			<EuiFlexItem style={{ overflowY: 'scroll' }}>
+			<EuiFlexItem grow={2} style={{ overflowY: 'scroll' }}>
 				<RuleForm
 					ruleId={ruleId}
 					onClose={() => navigate('/')}
 					{...ruleHooks}
 				/>
 			</EuiFlexItem>
-			<EuiFlexItem grow={2}>
+			<EuiFlexItem grow={3}>
 				{rule?.ruleType !== 'dictionary' ? (
 					<TestRule pattern={testPattern} />
 				) : (

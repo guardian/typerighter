@@ -2,9 +2,12 @@ import React, { useMemo, useState } from 'react';
 import {
 	EuiDataGrid,
 	EuiDataGridColumn,
+	EuiIcon,
 	EuiSkeletonText,
+	EuiToolTip,
 } from '@elastic/eui';
 import styled from '@emotion/styled';
+import { useNavigate } from 'react-router-dom';
 import { UserFeedbackItem } from '../hooks/useUserFeedback';
 import { PaginatedResponse } from '../hooks/useRules';
 
@@ -13,6 +16,12 @@ const TableContainer = styled.div`
 	min-height: 0;
 	height: 100%;
 `;
+
+const EditRuleButton = styled.button<{ editIsEnabled: boolean }>((props) => ({
+	width: '16px',
+	cursor: props.editIsEnabled ? 'pointer' : 'not-allowed',
+	color: props.editIsEnabled ? 'inherit' : 'gray',
+}));
 
 const columns: EuiDataGridColumn[] = [
 	{
@@ -32,12 +41,17 @@ const columns: EuiDataGridColumn[] = [
 		display: 'Match context',
 	},
 	{
-		id: 'externalRuleId',
-		display: 'Rule ID',
-	},
-	{
 		id: 'createdAt',
 		display: 'Date',
+	},
+	{
+		id: 'externalRuleId',
+		display: 'External Rule ID',
+	},
+	{
+		id: 'edit',
+		display: 'Edit',
+		initialWidth: 60,
 	},
 ];
 
@@ -52,8 +66,9 @@ export const UserFeedbackTable = ({
 	pageIndex: number;
 	setPageIndex: (index: number) => void;
 }) => {
+	const navigate = useNavigate();
 	const [visibleColumns, setVisibleColumns] = useState(
-		columns.map((_) => _.id),
+		columns.filter(({ id }) => id !== 'ruleId').map((_) => _.id),
 	);
 
 	const getFeedbackAtRowIndex = (rowIndex: number) =>
@@ -83,6 +98,28 @@ export const UserFeedbackTable = ({
 				const item = getFeedbackAtRowIndex(rowIndex);
 				if (!item || isLoading) {
 					return <EuiSkeletonText />;
+				}
+
+				if (columnId === 'edit') {
+					const editIsEnabled = item.ruleId != null;
+					return (
+						<EuiToolTip
+							content={
+								editIsEnabled
+									? 'Edit rule'
+									: 'No rule associated with this feedback'
+							}
+						>
+							<EditRuleButton
+								editIsEnabled={editIsEnabled}
+								onClick={() =>
+									editIsEnabled ? navigate(`/rule/${item.ruleId}`) : undefined
+								}
+							>
+								<EuiIcon type="pencil" />
+							</EditRuleButton>
+						</EuiToolTip>
+					);
 				}
 
 				const value = item[columnId as keyof UserFeedbackItem];
