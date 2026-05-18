@@ -22,7 +22,11 @@ import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWit
 import { TagsContext } from '../context/tags';
 import { ruleTypeOptions } from '../RuleContent';
 import { css } from '@emotion/react';
-import { useRuleSearchParams } from '../hooks/useRuleSearchParams';
+import {
+	useArrayParam,
+	useSetParam,
+	useStringParam,
+} from '../hooks/useRuleSearchParams';
 import { useRuleSelection } from '../hooks/useRuleSelection';
 
 export const useCreateEditPermissions = () => {
@@ -36,26 +40,41 @@ const ruleTypeOptionsWithId = ruleTypeOptions.map((opt) => ({
 	value: opt.id,
 }));
 
+const queryStrParamKey = 'queryStr';
+const tagIdsParamKey = 'tagIds';
+const ruleTypeOptionsParamKey = 'ruleTypeOptions';
+const ruleSelectionParamKey = 'selectedRules';
+
 export const Rules = () => {
-	const [params, setParams] = useRuleSearchParams();
+	const [queryStr, setQueryStr] = useStringParam(queryStrParamKey);
+	const [ruleTypeOptions, setRuleTypeOptions] = useArrayParam(
+		ruleTypeOptionsParamKey,
+	);
+	const [tagIds, setTagIds] = useArrayParam(tagIdsParamKey, Number, String);
+	const [selectedRules, setSelectedRules] = useSetParam(
+		ruleSelectionParamKey,
+		Number,
+		String,
+	);
+
 	const { tags } = useContext(TagsContext);
 
 	const selectedRuleTypeOptions = useMemo(
 		() =>
-			params.ruleTypeOptions.flatMap((optionValue) =>
+			ruleTypeOptions.flatMap((optionValue) =>
 				ruleTypeOptionsWithId.filter(({ value }) => value == optionValue),
 			),
-		[ruleTypeOptionsWithId, params.ruleTypeOptions],
+		[ruleTypeOptionsWithId, ruleTypeOptions],
 	);
 
 	const selectedTags = useMemo(
 		() =>
-			params.tagIds.flatMap((optionValue) =>
+			tagIds.flatMap((optionValue) =>
 				tags[optionValue]
 					? [{ value: optionValue, label: tags[optionValue].name }]
 					: [],
 			),
-		[tags, params.tagIds],
+		[tags, tagIds],
 	);
 	const tagOptions = useMemo(
 		() =>
@@ -63,7 +82,7 @@ export const Rules = () => {
 		[tags],
 	);
 
-	const debouncedQueryStr = useDebouncedValue(params.queryStr, 200);
+	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
 
 	const {
 		ruleData,
@@ -77,9 +96,23 @@ export const Rules = () => {
 	} = useRules();
 
 	const [ruleSelection, setRuleSelection] = useRuleSelection(
-		params.ruleSelection,
+		selectedRules,
 		ruleData,
 	);
+
+	useEffect(() => {
+		if (isLoading) {
+			return;
+		}
+
+		const selectedRuleIdsInMemory = [...selectedRules].filter((ruleId) =>
+			ruleData?.data.some((rule) => rule.id === ruleId),
+		);
+		if (selectedRuleIdsInMemory.length !== selectedRules.size) {
+			setRuleSelection({ type: 'set', ids: selectedRuleIdsInMemory  });
+		}
+	}, [ruleData, ruleSelection, isLoading]);
+
 	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
 		'closed',
 	);
@@ -101,35 +134,24 @@ export const Rules = () => {
 			pageIndex,
 			debouncedQueryStr,
 			sortColumns,
-			params.tagIds,
-			params.ruleTypeOptions,
+			tagIds,
+			ruleTypeOptions,
 		);
-	}, [
-		pageIndex,
-		debouncedQueryStr,
-		sortColumns,
-		params.tagIds,
-		params.ruleTypeOptions,
-	]);
+	}, [pageIndex, debouncedQueryStr, sortColumns, tagIds, ruleTypeOptions]);
 
 	useEffect(() => {
-		if (params.ruleSelection.size === 0) {
+		if (selectedRules.size === 0) {
 			setFormMode('closed');
 		}
-	}, [params.ruleSelection]);
+	}, [selectedRules]);
 
 	useEffect(() => {
-		setParams({ ...params, ruleSelection });
+		setSelectedRules(ruleSelection);
 		if (ruleSelection.size === 1) {
 			setCurrentRuleId([...ruleSelection].pop());
 		}
 		setFormMode('edit');
 	}, [ruleSelection]);
-
-	const rowSelectionArray = useMemo(
-		() => [...params.ruleSelection],
-		[params.ruleSelection],
-	);
 
 	const tableHeader = (
 		<div>
@@ -191,10 +213,8 @@ export const Rules = () => {
 							<EuiFieldSearch
 								placeholder="Search tag description, pattern, or replacement"
 								fullWidth
-								value={params.queryStr}
-								onChange={(e) =>
-									setParams({ ...params, queryStr: e.target.value })
-								}
+								value={queryStr}
+								onChange={(e) => setQueryStr(e.target.value)}
 							/>
 						</EuiFlexItem>
 						<EuiComboBox<string>
@@ -203,12 +223,11 @@ export const Rules = () => {
 							options={ruleTypeOptionsWithId}
 							selectedOptions={selectedRuleTypeOptions}
 							onChange={(ruleTypeOptions) =>
-								setParams({
-									...params,
-									ruleTypeOptions: ruleTypeOptions.flatMap(({ value }) =>
+								setRuleTypeOptions(
+									ruleTypeOptions.flatMap(({ value }) =>
 										value ? [value] : [],
 									),
-								})
+								)
 							}
 						/>
 						<EuiComboBox<number>
@@ -217,12 +236,9 @@ export const Rules = () => {
 							options={tagOptions}
 							selectedOptions={selectedTags}
 							onChange={(tagOptions) =>
-								setParams({
-									...params,
-									tagIds: tagOptions.flatMap(({ value }) =>
-										value ? [value] : [],
-									),
-								})
+								setTagIds(
+									tagOptions.flatMap(({ value }) => (value ? [value] : [])),
+								)
 							}
 						/>
 					</EuiFlexGroup>
@@ -296,7 +312,7 @@ export const Rules = () => {
 							padding-left: 8px;
 						`}
 					>
-						{params.ruleSelection.size > 1 ? (
+						{selectedRules.size > 1 ? (
 							<RuleFormBatchEdit
 								onClose={() => {
 									setFormMode('closed');
@@ -305,7 +321,7 @@ export const Rules = () => {
 								onUpdate={() =>
 									fetchRules(pageIndex, debouncedQueryStr, sortColumns)
 								}
-								ruleIds={rowSelectionArray}
+								ruleIds={selectedRules}
 							/>
 						) : (
 							<StandaloneRuleForm

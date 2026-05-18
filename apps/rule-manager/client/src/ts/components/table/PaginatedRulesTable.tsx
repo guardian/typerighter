@@ -281,7 +281,7 @@ export const PaginatedRulesTable = ({
 								editRule={() =>
 									setRuleSelection({
 										type: 'set',
-										id: getRuleAtRowIndex(rowIndex).id!,
+										ids: [getRuleAtRowIndex(rowIndex).id!],
 									})
 								}
 								rule={getRuleAtRowIndex(rowIndex)}

@@ -5,7 +5,7 @@ export type RowState = Set<number>;
 export type RowAction =
 	| { type: 'add'; id: number }
 	| { type: 'delete'; id: number }
-	| { type: 'set'; id: number }
+	| { type: 'set'; ids: number[] }
 	| { type: 'clear' }
 	| { type: 'selectAll' };
 
@@ -16,7 +16,7 @@ export const useRuleSelection = (
 	useReducer((selectedRows: RowState, action: RowAction): RowState => {
 		switch (action.type) {
 			case 'set': {
-				return new Set([action.id]);
+				return new Set(action.ids);
 			}
 			case 'add': {
 				const nextRowSelection = new Set(selectedRows);
