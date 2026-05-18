@@ -20,6 +20,9 @@ export type UserFeedbackItem = {
 	matchedText: string | null;
 	matchContext: string | null;
 	createdAt: string;
+	actioned: boolean | null;
+	actionedAt: string | null;
+	actionType: string | null;
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

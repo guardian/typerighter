@@ -31,7 +31,10 @@ case class UserFeedback(
     matchHasReplacement: Option[Boolean],
     matchedText: Option[String],
     matchContext: Option[String],
-    createdAt: OffsetDateTime
+    createdAt: OffsetDateTime,
+    actioned: Option[Boolean],
+    actionedAt: Option[OffsetDateTime],
+    actionType: Option[String]
 )
 
 object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
@@ -57,7 +60,10 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
     "match_has_replacement",
     "matched_text",
     "match_context",
-    "created_at"
+    "created_at",
+    "actioned",
+    "actioned_at",
+    "action_type"
   )
 
   val uf = UserFeedback.syntax("uf")
@@ -82,7 +88,10 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
       matchHasReplacement = rs.booleanOpt(u.matchHasReplacement),
       matchedText = rs.stringOpt(u.matchedText),
       matchContext = rs.stringOpt(u.matchContext),
-      createdAt = rs.offsetDateTime(u.createdAt)
+      createdAt = rs.offsetDateTime(u.createdAt),
+      actioned = rs.booleanOpt(u.actioned),
+      actionedAt = rs.offsetDateTimeOpt(u.actionedAt),
+      actionType = rs.stringOpt(u.actionType)
     )
   }
 
@@ -108,7 +117,10 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
       matchHasReplacement = feedback.matchContext.map(_.matchHasReplacement),
       matchedText = feedback.matchContext.map(_.matchedText),
       matchContext = feedback.matchContext.map(_.matchContext),
-      createdAt = createdAt
+      createdAt = createdAt,
+      actioned = None,
+      actionedAt = None,
+      actionType = None
     )
   }
 
