@@ -11,6 +11,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { RuleContent } from './RuleContent';
 import { DraftRule, RuleType, useRule } from './hooks/useRule';
 import { RuleHistory } from './RuleHistory';
+import { RuleFeedback } from './RuleFeedback';
 import styled from '@emotion/styled';
 import { capitalize } from 'lodash';
 import { ReasonModal } from './modals/Reason';
@@ -275,6 +276,7 @@ export const RuleForm = ({
 									partiallyUpdateRuleData={partiallyUpdateRuleData}
 								/>
 							</RuleFormSection>
+							{rule && <RuleFeedback feedback={rule.feedback} />}
 							{rule && <RuleHistory ruleHistory={rule.live} />}
 						</EuiFlexGroup>
 					</EuiFlexItem>

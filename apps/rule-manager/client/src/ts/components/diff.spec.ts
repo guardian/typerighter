@@ -43,6 +43,7 @@ const mockRuleData: RuleData = {
 			reason: 'My reason',
 		},
 	],
+	feedback: [],
 };
 
 const mockTags: Record<number, Tag> = {
@@ -68,6 +69,7 @@ describe('Diff helper functions', () => {
 			const mockRuleDataWithIdenticalTags = {
 				live: [{ ...mockRuleData.live[0] }],
 				draft: { ...mockRuleData.draft },
+				feedback: [],
 			};
 			mockRuleDataWithIdenticalTags.draft.tags = [2, 3];
 			const expectedDiff = expectedDiffFields.filter(

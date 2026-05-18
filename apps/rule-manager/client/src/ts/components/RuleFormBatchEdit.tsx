@@ -26,7 +26,7 @@ export const RuleFormBatchEdit = ({
 	onClose,
 	onUpdate,
 }: {
-	ruleIds: number[];
+	ruleIds: Set<number>;
 	onClose: () => void;
 	onUpdate: () => void;
 }) => {

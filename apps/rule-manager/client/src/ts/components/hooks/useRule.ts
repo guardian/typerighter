@@ -37,9 +37,31 @@ export type LiveRule = BaseRule & {
 	reason: string;
 };
 
+export type UserFeedback = {
+	id?: number;
+	app: string;
+	stage: string;
+	documentUrl: string;
+	feedbackMessage: string;
+	userEmail: string;
+	matchId?: string;
+	externalRuleId?: string;
+	ruleId?: number;
+	documentId?: string;
+	matcherType?: string;
+	suggestion?: string;
+	matchIsMarkedAsCorrect?: boolean;
+	matchIsAdvisory?: boolean;
+	matchHasReplacement?: boolean;
+	matchedText?: string;
+	matchContext?: string;
+	createdAt: string;
+};
+
 export type RuleData = {
 	draft: DraftRule;
 	live: LiveRule[];
+	feedback: UserFeedback[];
 };
 
 export function useRule(ruleId: number | undefined) {
@@ -246,7 +268,7 @@ export function useRule(ruleId: number | undefined) {
 			const parsedResponse = await responseHandler<DraftRule>(response);
 			if (parsedResponse.status === 'ok') {
 				setRuleDataAndClearErrors({
-					...(ruleData || { live: [] }),
+					...(ruleData || { live: [], feedback: [] }),
 					draft: parsedResponse.data,
 				});
 			} else {
@@ -276,7 +298,7 @@ export function useRule(ruleId: number | undefined) {
 			);
 			if (parsedResponse.status === 'ok') {
 				setRuleDataAndClearErrors({
-					...(ruleData || { live: [] }),
+					...(ruleData || { live: [], feedback: [] }),
 					draft: parsedResponse.data,
 				});
 			} else {
