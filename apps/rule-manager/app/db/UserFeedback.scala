@@ -34,7 +34,8 @@ case class UserFeedback(
     createdAt: OffsetDateTime,
     actioned: Option[Boolean],
     actionedAt: Option[OffsetDateTime],
-    actionType: Option[String]
+    actionType: Option[String],
+    actionNotes: Option[String]
 )
 
 object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
@@ -63,7 +64,8 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
     "created_at",
     "actioned",
     "actioned_at",
-    "action_type"
+    "action_type",
+    "action_notes"
   )
 
   val uf = UserFeedback.syntax("uf")
@@ -91,7 +93,8 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
       createdAt = rs.offsetDateTime(u.createdAt),
       actioned = rs.booleanOpt(u.actioned),
       actionedAt = rs.offsetDateTimeOpt(u.actionedAt),
-      actionType = rs.stringOpt(u.actionType)
+      actionType = rs.stringOpt(u.actionType),
+      actionNotes = rs.stringOpt(u.actionNotes)
     )
   }
 
@@ -120,7 +123,8 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
       createdAt = createdAt,
       actioned = None,
       actionedAt = None,
-      actionType = None
+      actionType = None,
+      actionNotes = None
     )
   }
 
@@ -245,6 +249,35 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
         Failure(
           new Exception(
             s"Attempted to create user feedback with id $generatedKey, but no result found attempting to read it back"
+          )
+        )
+    }
+  }
+
+  def updateAction(
+      id: Int,
+      actioned: Boolean,
+      actionType: String,
+      actionNotes: Option[String]
+  )(implicit session: DBSession = autoSession): Try[UserFeedback] = {
+    withSQL {
+      update(UserFeedback)
+        .set(
+          column.actioned -> actioned,
+          column.actionedAt -> OffsetDateTime.now(),
+          column.actionType -> actionType,
+          column.actionNotes -> actionNotes
+        )
+        .where
+        .eq(column.id, id)
+    }.update().apply()
+
+    find(id) match {
+      case Some(feedback) => Success(feedback)
+      case None =>
+        Failure(
+          new Exception(
+            s"Attempted to update user feedback with id $id, but no result found"
           )
         )
     }

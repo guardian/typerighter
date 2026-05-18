@@ -23,6 +23,7 @@ export type UserFeedbackItem = {
 	actioned: boolean | null;
 	actionedAt: string | null;
 	actionType: string | null;
+	actionNotes: string | null;
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

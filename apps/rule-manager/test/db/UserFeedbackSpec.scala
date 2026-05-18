@@ -348,4 +348,35 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     result.data.head.feedbackMessage should be("Third")
     result.data.last.feedbackMessage should be("First")
   }
+
+  behavior of "updateAction"
+
+  it should "update the actioned fields and set actionedAt automatically" in { implicit session =>
+    val created = createFeedback("Needs action")
+
+    val result = UserFeedback.updateAction(
+      id = created.id.getOrElse(fail("No id on created feedback")),
+      actioned = true,
+      actionType = "resolved",
+      actionNotes = Some("Fixed the rule")
+    )
+
+    result.isSuccess should be(true)
+    val updated = result.getOrElse(fail("updateAction should return updated feedback"))
+    updated.actioned should be(Some(true))
+    updated.actionType should be(Some("resolved"))
+    updated.actionNotes should be(Some("Fixed the rule"))
+    updated.actionedAt should not be None
+  }
+
+  it should "fail when updating a non-existent record" in { implicit session =>
+    val result = UserFeedback.updateAction(
+      id = 99999,
+      actioned = true,
+      actionType = "resolved",
+      actionNotes = None
+    )
+
+    result.isFailure should be(true)
+  }
 }
