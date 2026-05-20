@@ -25,10 +25,10 @@ ThisBuild / scalacOptions := Seq(
 ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.8"
-val awsSdkVersion = "2.42.31"
+val awsSdkVersion = "2.44.7"
 val capiModelsVersion = "34.0.0"
 val capiClientVersion = "40.0.0"
-val pandaVersion = "18.0.0"
+val pandaVersion = "19.0.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
@@ -197,7 +197,7 @@ val ruleManager = playProject(
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.5.6",
+      "org.postgresql" % "postgresql" % "42.7.11",
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
