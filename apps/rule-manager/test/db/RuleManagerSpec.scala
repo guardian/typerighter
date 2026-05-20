@@ -291,7 +291,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
 
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
-      case Right(_) => fail("This rule should not be publishable")
+      case Right(_)         => fail("This rule should not be publishable")
       case Left(formErrors) =>
         formErrors.head.message should include(
           "has not changed"
@@ -304,7 +304,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     RuleManager.archiveRule(ruleToPublish.id.get, user)
 
     RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource) match {
-      case Right(_) => fail("This rule should not be publishable")
+      case Right(_)         => fail("This rule should not be publishable")
       case Left(formErrors) =>
         formErrors.length shouldBe 1
         formErrors.head.message should be("Only unarchived rules can be published")
@@ -331,7 +331,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       val ruleToPublish = createPublishableRule
       RuleManager.publishRule(ruleToPublish.id.get, user, reason, bucketRuleResource)
       RuleManager.parseDraftRuleForPublication(ruleToPublish.id.get, "reason") match {
-        case Right(_) => fail("This rule should not be publishable")
+        case Right(_)         => fail("This rule should not be publishable")
         case Left(formErrors) =>
           formErrors.length shouldBe 1
           formErrors.head.message should include("has not changed")
@@ -344,7 +344,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       RuleManager.archiveRule(ruleToPublish.id.get, user)
 
       RuleManager.parseDraftRuleForPublication(ruleToPublish.id.get, "reason") match {
-        case Right(_) => fail("This rule should not be publishable")
+        case Right(_)         => fail("This rule should not be publishable")
         case Left(formErrors) =>
           formErrors.length shouldBe 1
           formErrors.head.message should be("Only unarchived rules can be published")
@@ -355,7 +355,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     val ruleToPublish = createPublishableRule
 
     RuleManager.getAllRuleData(ruleToPublish.id.get) match {
-      case None => fail("Rule should exist")
+      case None              => fail("Rule should exist")
       case Some(allRuleData) =>
         allRuleData.draft shouldMatchTo ruleToPublish
         allRuleData.live shouldMatchTo List.empty
@@ -521,7 +521,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
           fail(s"Unexpected error on unpublishing id: ${ruleToUnpublish.id.get}: ${e.getMessage}")
         case Right(allRuleData) =>
           allRuleData match {
-            case None => fail("Expected rule data to be returned")
+            case None              => fail("Expected rule data to be returned")
             case Some(allRuleData) =>
               allRuleData.draft.isPublished shouldBe false
               allRuleData.draft.revisionId shouldBe >(ruleToUnpublish.revisionId)
