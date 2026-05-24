@@ -4,7 +4,6 @@ import { PaginatedResponse } from './useRules';
 export type UserFeedbackItem = {
 	id: number;
 	app: string;
-	stage: string;
 	documentUrl: string;
 	feedbackMessage: string;
 	userEmail: string;
@@ -20,10 +19,10 @@ export type UserFeedbackItem = {
 	matchedText: string | null;
 	matchContext: string | null;
 	createdAt: string;
-	actioned: boolean | null;
-	actionedAt: string | null;
-	actionType: string | null;
-	actionNotes: string | null;
+	addressed: boolean | null;
+	lastAddressedAt: string | null;
+	notes: string | null;
+	lastAddressedBy: string | null;
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());

@@ -13,7 +13,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     val result = UserFeedback.create(
       UserFeedbackWithEmail(
         app = "composer",
-        stage = "PROD",
         documentUrl = "https://example.com/doc/1",
         feedbackMessage = "This rule is wrong",
         userEmail = "user@example.com",
@@ -25,7 +24,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     val feedback = result.getOrElse(fail("Create method did not return UserFeedback instance"))
     feedback.id.isDefined should be(true)
     feedback.app should be("composer")
-    feedback.stage should be("PROD")
     feedback.documentUrl should be("https://example.com/doc/1")
     feedback.feedbackMessage should be("This rule is wrong")
     feedback.userEmail should be("user@example.com")
@@ -46,7 +44,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     val result = UserFeedback.create(
       UserFeedbackWithEmail(
         app = "composer",
-        stage = "PROD",
         documentUrl = "https://example.com/doc/1",
         feedbackMessage = "False positive",
         userEmail = "user@example.com",
@@ -88,7 +85,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
       .create(
         UserFeedbackWithEmail(
           app = "composer",
-          stage = "CODE",
           documentUrl = "https://example.com/doc/2",
           feedbackMessage = "Test feedback",
           userEmail = "finder@example.com",
@@ -113,7 +109,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     UserFeedback.create(
       UserFeedbackWithEmail(
         app = "composer",
-        stage = "PROD",
         documentUrl = "https://example.com/doc/1",
         feedbackMessage = "First feedback",
         userEmail = "user@example.com",
@@ -124,7 +119,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
     UserFeedback.create(
       UserFeedbackWithEmail(
         app = "composer",
-        stage = "PROD",
         documentUrl = "https://example.com/doc/2",
         feedbackMessage = "Second feedback",
         userEmail = "user@example.com",
@@ -154,7 +148,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
       val result = UserFeedback.create(
         UserFeedbackWithEmail(
           app = "composer",
-          stage = "PROD",
           documentUrl = "https://example.com/doc/5",
           feedbackMessage = "Matched a known rule",
           userEmail = "user@example.com",
@@ -186,7 +179,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
       val result = UserFeedback.create(
         UserFeedbackWithEmail(
           app = "composer",
-          stage = "PROD",
           documentUrl = "https://example.com/doc/6",
           feedbackMessage = "Unknown rule",
           userEmail = "user@example.com",
@@ -229,7 +221,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
 
     val authenticated = UserFeedbackWithEmail(
       app = "composer",
-      stage = "PROD",
       documentUrl = "https://example.com/doc/3",
       feedbackMessage = "Bad match",
       userEmail = "auth@example.com",
@@ -256,7 +247,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
   it should "convert from UserFeedbackWithAuthentication without match context" in { () =>
     val authenticated = UserFeedbackWithEmail(
       app = "composer",
-      stage = "CODE",
       documentUrl = "https://example.com/doc/4",
       feedbackMessage = "No context",
       userEmail = "nocontext@example.com",
@@ -288,7 +278,6 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
       .create(
         UserFeedbackWithEmail(
           app = "composer",
-          stage = "PROD",
           documentUrl = "https://example.com/doc/1",
           feedbackMessage = message,
           userEmail = email,
@@ -351,30 +340,31 @@ class UserFeedbackSpec extends FixtureAnyFlatSpec with Matchers with AutoRollbac
 
   behavior of "updateAction"
 
-  it should "update the actioned fields and set actionedAt automatically" in { implicit session =>
-    val created = createFeedback("Needs action")
+  it should "update the addressed fields and set lastAddressedAt automatically" in {
+    implicit session =>
+      val created = createFeedback("Needs action")
 
-    val result = UserFeedback.updateAction(
-      id = created.id.getOrElse(fail("No id on created feedback")),
-      actioned = true,
-      actionType = "resolved",
-      actionNotes = Some("Fixed the rule")
-    )
+      val result = UserFeedback.updateAction(
+        id = created.id.getOrElse(fail("No id on created feedback")),
+        addressed = true,
+        notes = Some("Fixed the rule"),
+        lastAddressedBy = "actioner@example.com"
+      )
 
-    result.isSuccess should be(true)
-    val updated = result.getOrElse(fail("updateAction should return updated feedback"))
-    updated.actioned should be(Some(true))
-    updated.actionType should be(Some("resolved"))
-    updated.actionNotes should be(Some("Fixed the rule"))
-    updated.actionedAt should not be None
+      result.isSuccess should be(true)
+      val updated = result.getOrElse(fail("updateAction should return updated feedback"))
+      updated.addressed should be(Some(true))
+      updated.notes should be(Some("Fixed the rule"))
+      updated.lastAddressedAt should not be None
+      updated.lastAddressedBy should be(Some("actioner@example.com"))
   }
 
   it should "fail when updating a non-existent record" in { implicit session =>
     val result = UserFeedback.updateAction(
       id = 99999,
-      actioned = true,
-      actionType = "resolved",
-      actionNotes = None
+      addressed = true,
+      notes = None,
+      lastAddressedBy = "user@example.com"
     )
 
     result.isFailure should be(true)

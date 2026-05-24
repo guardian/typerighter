@@ -10,7 +10,7 @@ import {
 	EuiSpacer,
 	EuiText,
 } from '@elastic/eui';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler } from 'react';
 import { RuleData } from '../hooks/useRule';
 import { Diff } from '../Diff';
 

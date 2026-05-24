@@ -1,15 +1,17 @@
 -- !Ups
 
 ALTER TABLE user_feedback
-    ADD COLUMN actioned BOOLEAN,
-    ADD COLUMN actioned_at TIMESTAMPTZ,
-    ADD COLUMN action_type TEXT,
-    ADD COLUMN action_notes TEXT;
+    ADD COLUMN addressed BOOLEAN,
+    ADD COLUMN last_addressed_at TIMESTAMPTZ,
+    ADD COLUMN notes TEXT,
+    ADD COLUMN last_addressed_by TEXT,
+    DROP COLUMN stage;
 
 -- !Downs
 
 ALTER TABLE user_feedback
-    DROP COLUMN action_notes,
-    DROP COLUMN action_type,
-    DROP COLUMN actioned_at,
-    DROP COLUMN actioned;
+    ADD COLUMN stage TEXT NOT NULL DEFAULT '',
+    DROP COLUMN last_addressed_by,
+    DROP COLUMN notes,
+    DROP COLUMN last_addressed_at,
+    DROP COLUMN addressed;

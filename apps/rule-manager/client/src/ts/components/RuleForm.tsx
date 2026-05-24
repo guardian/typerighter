@@ -91,6 +91,7 @@ export const RuleForm = ({
 	ruleStatus,
 	isDiscarding,
 	discardRuleChanges,
+	fetchRule,
 }: ReturnType<typeof useRule> & {
 	ruleId: number | undefined;
 	onClose: () => void;
@@ -276,7 +277,13 @@ export const RuleForm = ({
 									partiallyUpdateRuleData={partiallyUpdateRuleData}
 								/>
 							</RuleFormSection>
-							{rule && <RuleFeedback feedback={rule.feedback} />}
+							{rule && ruleId && (
+								<RuleFeedback
+									feedback={rule.feedback}
+									ruleId={ruleId}
+									fetchRule={fetchRule}
+								/>
+							)}
 							{rule && <RuleHistory ruleHistory={rule.live} />}
 						</EuiFlexGroup>
 					</EuiFlexItem>

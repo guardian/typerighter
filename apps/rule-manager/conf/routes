@@ -64,6 +64,8 @@ GET     /api/user-feedback              controllers.UserFeedbackController.list(
 POST    /api/user-feedback              controllers.UserFeedbackController.create()
 +nocsrf
 PUT     /api/user-feedback/:id/action   controllers.UserFeedbackController.updateAction(id: Int)
++nocsrf
+PUT     /api/user-feedback/:id/notes    controllers.UserFeedbackController.updateNotes(id: Int)
 
 # Map static resources from the /public folder to the correct URL path
 GET     /build/*file                   controllers.Assets.versioned(path="/public/build", file: Asset)

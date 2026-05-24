@@ -40,7 +40,6 @@ export type LiveRule = BaseRule & {
 export type UserFeedback = {
 	id?: number;
 	app: string;
-	stage: string;
 	documentUrl: string;
 	feedbackMessage: string;
 	userEmail: string;
@@ -56,6 +55,10 @@ export type UserFeedback = {
 	matchedText?: string;
 	matchContext?: string;
 	createdAt: string;
+	addressed?: boolean;
+	lastAddressedAt?: string;
+	notes?: string;
+	lastAddressedBy?: string;
 };
 
 export type RuleData = {

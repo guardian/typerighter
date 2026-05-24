@@ -636,7 +636,6 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       .create(
         UserFeedbackWithEmail(
           app = "composer",
-          stage = "PROD",
           documentUrl = "https://example.com/doc/1",
           feedbackMessage = message,
           userEmail = "user@example.com",
