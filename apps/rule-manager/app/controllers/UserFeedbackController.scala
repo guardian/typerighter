@@ -2,7 +2,7 @@ package controllers
 
 import com.gu.typerighter.controllers.PandaAuthController
 import db.{UserFeedback => DbUserFeedback}
-import model.UserFeedbackActionForm
+import model.UserFeedbackAddressedForm
 import models.{UserFeedback, UserFeedbackWithEmail}
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -42,14 +42,23 @@ class UserFeedbackController(
       )
   }
 
-  def updateAction(id: Int) = APIAuthAction(parse.json[UserFeedbackActionForm]) { request =>
+  def updateAction(id: Int) = APIAuthAction(parse.json[UserFeedbackAddressedForm]) { request =>
     request.body match {
-      case UserFeedbackActionForm(actioned, actionType, actionNotes) =>
-        DbUserFeedback.updateAction(id, actioned, actionType, actionNotes) match {
+      case UserFeedbackAddressedForm(addressed, notes) =>
+        DbUserFeedback.updateAction(id, addressed, notes, request.user.email) match {
           case Success(updated) => Ok(Json.toJson(updated))
           case Failure(e) =>
             InternalServerError(s"Failed to update user feedback: ${e.getMessage}")
         }
+    }
+  }
+
+  def updateNotes(id: Int) = APIAuthAction(parse.json) { request =>
+    val notes = (request.body \ "notes").asOpt[String]
+    DbUserFeedback.updateNotes(id, notes) match {
+      case Success(updated) => Ok(Json.toJson(updated))
+      case Failure(e) =>
+        InternalServerError(s"Failed to update user feedback notes: ${e.getMessage}")
     }
   }
 }

@@ -9,8 +9,6 @@ import play.api.data.Form
 case class UserFeedback(
     // The application the feedback came from
     app: String,
-    // The application stage
-    stage: String,
     // The URL of the document the submission relates to
     documentUrl: String,
     // The message from the user
@@ -23,7 +21,6 @@ object UserFeedback {
   val form = Form(
     mapping(
       "app" -> text(),
-      "stage" -> text(),
       "documentUrl" -> text(),
       "feedbackMessage" -> text(),
       "matchContext" -> optional(
@@ -74,7 +71,6 @@ object MatchContext {
   */
 case class UserFeedbackWithEmail(
     app: String,
-    stage: String,
     documentUrl: String,
     feedbackMessage: String,
     userEmail: String,
@@ -88,7 +84,6 @@ object UserFeedbackWithEmail {
   def fromUserFeedback(userFeedback: UserFeedback, userEmail: String) =
     UserFeedbackWithEmail(
       app = userFeedback.app,
-      stage = userFeedback.stage,
       documentUrl = userFeedback.documentUrl,
       feedbackMessage = userFeedback.feedbackMessage,
       userEmail = userEmail,

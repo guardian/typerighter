@@ -16,7 +16,6 @@ import play.api.Logging
 case class UserFeedback(
     id: Option[Int],
     app: String,
-    stage: String,
     documentUrl: String,
     feedbackMessage: String,
     userEmail: String,
@@ -32,10 +31,10 @@ case class UserFeedback(
     matchedText: Option[String],
     matchContext: Option[String],
     createdAt: OffsetDateTime,
-    actioned: Option[Boolean],
-    actionedAt: Option[OffsetDateTime],
-    actionType: Option[String],
-    actionNotes: Option[String]
+    addressed: Option[Boolean],
+    lastAddressedAt: Option[OffsetDateTime],
+    notes: Option[String],
+    lastAddressedBy: Option[String]
 )
 
 object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
@@ -46,7 +45,6 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
   override val columns = Seq(
     "id",
     "app",
-    "stage",
     "document_url",
     "feedback_message",
     "user_email",
@@ -62,10 +60,10 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
     "matched_text",
     "match_context",
     "created_at",
-    "actioned",
-    "actioned_at",
-    "action_type",
-    "action_notes"
+    "addressed",
+    "last_addressed_at",
+    "notes",
+    "last_addressed_by"
   )
 
   val uf = UserFeedback.syntax("uf")
@@ -75,7 +73,6 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
     UserFeedback(
       id = rs.intOpt(u.id),
       app = rs.string(u.app),
-      stage = rs.string(u.stage),
       documentUrl = rs.string(u.documentUrl),
       feedbackMessage = rs.string(u.feedbackMessage),
       userEmail = rs.string(u.userEmail),
@@ -91,10 +88,10 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
       matchedText = rs.stringOpt(u.matchedText),
       matchContext = rs.stringOpt(u.matchContext),
       createdAt = rs.offsetDateTime(u.createdAt),
-      actioned = rs.booleanOpt(u.actioned),
-      actionedAt = rs.offsetDateTimeOpt(u.actionedAt),
-      actionType = rs.stringOpt(u.actionType),
-      actionNotes = rs.stringOpt(u.actionNotes)
+      addressed = rs.booleanOpt(u.addressed),
+      lastAddressedAt = rs.offsetDateTimeOpt(u.lastAddressedAt),
+      notes = rs.stringOpt(u.notes),
+      lastAddressedBy = rs.stringOpt(u.lastAddressedBy)
     )
   }
 
@@ -105,7 +102,6 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
     UserFeedback(
       id = None,
       app = feedback.app,
-      stage = feedback.stage,
       documentUrl = feedback.documentUrl,
       feedbackMessage = feedback.feedbackMessage,
       userEmail = feedback.userEmail,
@@ -121,10 +117,10 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
       matchedText = feedback.matchContext.map(_.matchedText),
       matchContext = feedback.matchContext.map(_.matchContext),
       createdAt = createdAt,
-      actioned = None,
-      actionedAt = None,
-      actionType = None,
-      actionNotes = None
+      addressed = None,
+      lastAddressedAt = None,
+      notes = None,
+      lastAddressedBy = None
     )
   }
 
@@ -225,7 +221,6 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
         .into(UserFeedback)
         .namedValues(
           column.app -> userFeedback.app,
-          column.stage -> userFeedback.stage,
           column.documentUrl -> userFeedback.documentUrl,
           column.feedbackMessage -> userFeedback.feedbackMessage,
           column.userEmail -> userFeedback.userEmail,
@@ -256,18 +251,28 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
 
   def updateAction(
       id: Int,
-      actioned: Boolean,
-      actionType: String,
-      actionNotes: Option[String]
+      addressed: Boolean,
+      notes: Option[String],
+      lastAddressedBy: String
   )(implicit session: DBSession = autoSession): Try[UserFeedback] = {
+    val setValues = if (addressed) {
+      Seq(
+        column.addressed -> addressed,
+        column.lastAddressedAt -> OffsetDateTime.now(),
+        column.notes -> notes,
+        column.lastAddressedBy -> lastAddressedBy
+      )
+    } else {
+      Seq(
+        column.addressed -> addressed,
+        column.lastAddressedAt -> None,
+        column.lastAddressedBy -> None
+      )
+    }
+
     withSQL {
       update(UserFeedback)
-        .set(
-          column.actioned -> actioned,
-          column.actionedAt -> OffsetDateTime.now(),
-          column.actionType -> actionType,
-          column.actionNotes -> actionNotes
-        )
+        .set(setValues: _*)
         .where
         .eq(column.id, id)
     }.update().apply()
@@ -278,6 +283,28 @@ object UserFeedback extends SQLSyntaxSupport[UserFeedback] with Logging {
         Failure(
           new Exception(
             s"Attempted to update user feedback with id $id, but no result found"
+          )
+        )
+    }
+  }
+
+  def updateNotes(
+      id: Int,
+      notes: Option[String]
+  )(implicit session: DBSession = autoSession): Try[UserFeedback] = {
+    withSQL {
+      update(UserFeedback)
+        .set(column.notes -> notes)
+        .where
+        .eq(column.id, id)
+    }.update().apply()
+
+    find(id) match {
+      case Some(feedback) => Success(feedback)
+      case None =>
+        Failure(
+          new Exception(
+            s"Attempted to update user feedback notes with id $id, but no result found"
           )
         )
     }
