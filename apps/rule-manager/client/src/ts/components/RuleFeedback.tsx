@@ -144,7 +144,7 @@ const NotesSection = ({
 					initialNotes={notes}
 					onUpdateNotes={onUpdateNotes}
 				/>
-				<EuiButtonEmpty size="s" onClick={() => setIsOpen(false)}>
+				<EuiButtonEmpty flush='left' size="s" onClick={() => setIsOpen(false)}>
 					Close notes
 				</EuiButtonEmpty>
 			</NoteContainer>
@@ -157,7 +157,7 @@ const NotesSection = ({
 				<EuiText size="s">
 					<strong>Notes:</strong> {notes}
 				</EuiText>
-				<EuiButtonEmpty size="s" onClick={() => setIsOpen(true)}>
+				<EuiButtonEmpty flush='left' size="s" onClick={() => setIsOpen(true)}>
 					Edit notes
 				</EuiButtonEmpty>
 			</NoteContainer>
@@ -302,6 +302,7 @@ export const RuleFeedback = ({
 
 	const handleUpdateNotes = async (feedbackId: number, notes: string) => {
 		await triggerUpdateNotes({ feedbackId, notes });
+		fetchRule(ruleId);
 	};
 
 	return (
