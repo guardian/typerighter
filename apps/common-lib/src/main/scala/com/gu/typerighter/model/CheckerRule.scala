@@ -169,7 +169,7 @@ object LTRule {
       rule.patternTokens.getOrElse(List[PatternToken]()).map(PatternToken.toLT).asJava
     val language = Languages.getLanguageForShortCode(rule.languageShortcode.getOrElse("en-GB"))
     val message = rule.suggestions match {
-      case Nil => rule.message
+      case Nil         => rule.message
       case suggestions =>
         val ruleMessage = if (rule.message == "") "" else rule.message + ". "
         ruleMessage.concat(
