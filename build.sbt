@@ -25,10 +25,10 @@ ThisBuild / scalacOptions := Seq(
 ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.8"
-val awsSdkVersion = "2.44.7"
+val awsSdkVersion = "2.46.6"
 val capiModelsVersion = "34.0.0"
 val capiClientVersion = "40.0.0"
-val pandaVersion = "19.0.0"
+val pandaVersion = "20.1.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
