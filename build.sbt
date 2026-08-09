@@ -177,7 +177,7 @@ val checker = playProject(
       "org.apache.opennlp" % "opennlp" % "2.1.1",
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.6" % "test,it",
       "io.gatling" % "gatling-test-framework" % "3.7.6" % "test,it",
-      "org.carrot2" % "morfologik-tools" % "2.1.9"
+      "org.carrot2" % "morfologik-tools" % "2.2.0"
     ) ++ Seq(
       "io.circe" %% "circe-core",
       "io.circe" %% "circe-generic",
