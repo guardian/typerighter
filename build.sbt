@@ -25,7 +25,7 @@ ThisBuild / scalacOptions := Seq(
 ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.8"
-val awsSdkVersion = "2.46.6"
+val awsSdkVersion = "2.53.1"
 val capiModelsVersion = "34.0.0"
 val capiClientVersion = "40.0.0"
 val pandaVersion = "20.1.0"
@@ -69,6 +69,8 @@ val commonSettings = Seq(
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
+    // May be able to remove this once a new version of languagetool is released that doesn't depend on a vulnerable version of micrometer
+    "io.micrometer" % "micrometer-registry-prometheus" % "1.16.6",
     // Needed to evict vulnerable transitive version: 1.9.4
     "org.apache.opennlp" % "opennlp-tools" % "2.5.9",
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
@@ -198,7 +200,7 @@ val ruleManager = playProject(
       guice,
       jdbc,
       evolutions,
-      "org.postgresql" % "postgresql" % "42.7.11",
+      "org.postgresql" % "postgresql" % "42.7.13",
       "org.scalikejdbc" %% "scalikejdbc" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-config" % scalikejdbcVersion,
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % scalikejdbcPlayVersion,
