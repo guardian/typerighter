@@ -69,6 +69,8 @@ val commonSettings = Seq(
     "com.google.apis" % "google-api-services-sheets" % "v4-rev20221216-2.0.0",
     "org.languagetool" % "languagetool-core" % languageToolVersion,
     "org.languagetool" % "language-en" % languageToolVersion,
+    // May be able to remove this once a new version of languagetool is released that doesn't depend on a vulnerable version of micrometer
+    "io.micrometer" % "micrometer-registry-prometheus" % "1.16.6",
     // Needed to evict vulnerable transitive version: 1.9.4
     "org.apache.opennlp" % "opennlp-tools" % "2.5.9",
     "com.gu" %% "content-api-models-scala" % capiModelsVersion,
