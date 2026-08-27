@@ -2,7 +2,13 @@ import play.api.ApplicationLoader.Context
 import play.filters.HttpFiltersComponents
 import play.api.BuiltInComponentsFromContext
 import play.api.libs.ws.ahc.AhcWSComponents
-import controllers.{AssetsComponents, HomeController, RulesController, TagsController}
+import controllers.{
+  AssetsComponents,
+  HomeController,
+  RulesController,
+  TagsController,
+  UserFeedbackController
+}
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider
@@ -81,11 +87,17 @@ class AppComponents(
     config
   )
 
+  val userFeedbackController = new UserFeedbackController(
+    controllerComponents,
+    config
+  )
+
   lazy val router = new Routes(
     httpErrorHandler,
     homeController,
     rulesController,
     tagsController,
+    userFeedbackController,
     assets
   )
 }
