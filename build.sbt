@@ -26,8 +26,8 @@ ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.8"
 val awsSdkVersion = "2.53.1"
-val capiModelsVersion = "34.0.0"
-val capiClientVersion = "40.0.0"
+val capiModelsVersion = "50.0.0"
+val capiClientVersion = "49.1.1"
 val pandaVersion = "20.1.0"
 val circeVersion = "0.14.1"
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
