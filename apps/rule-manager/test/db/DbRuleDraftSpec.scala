@@ -19,33 +19,33 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
   behavior of "Draft rules"
 
   it should "find by primary keys and return published status - false" in { implicit session =>
-    val found = DbRuleDraft.find(1).get
+    val found = DbRuleDraft.findById(1).get
     found.isPublished should be(false)
   }
   it should "find by primary keys and return published status - true" in { implicit session =>
-    val found = DbRuleDraft.find(1).get
+    val found = DbRuleDraft.findById(1).get
     DbRuleLive.create(found.toLive("reason"), "user")
-    val foundAndPublished = DbRuleDraft.find(1).get
+    val foundAndPublished = DbRuleDraft.findById(1).get
     foundAndPublished.isPublished should be(true)
   }
 
   it should "find by primary keys and return unpublished changes status - false, unpublished" in {
     implicit session =>
-      val found = DbRuleDraft.find(1).get
+      val found = DbRuleDraft.findById(1).get
       found.hasUnpublishedChanges should be(false)
   }
 
   it should "find by primary keys and return unpublished changes status - false, published" in {
     implicit session =>
-      val found = DbRuleDraft.find(1).get
+      val found = DbRuleDraft.findById(1).get
       DbRuleLive.create(found.toLive("reason"), "user")
-      val foundAndPublished = DbRuleDraft.find(1).get
+      val foundAndPublished = DbRuleDraft.findById(1).get
       foundAndPublished.hasUnpublishedChanges should be(false)
   }
 
   it should "find by primary keys and return unpublished changes status - true" in {
     implicit session =>
-      val found = DbRuleDraft.find(1).get
+      val found = DbRuleDraft.findById(1).get
       DbRuleLive.create(found.toLive("reason"), "user")
       val foundAndPublished =
         DbRuleDraft.save(found.copy(description = Some("updated")), "test.user").get
@@ -60,14 +60,14 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
 
     val unpublished :: published :: Nil = DbRuleDraft.findAll()
 
-    unpublished should be(DbRuleDraft.find(1).get)
+    unpublished should be(DbRuleDraft.findById(1).get)
     unpublished.isPublished should be(false)
-    published should be(DbRuleDraft.find(2).get)
+    published should be(DbRuleDraft.findById(2).get)
     published.isPublished should be(true)
   }
 
   it should "sort by updated_at if no sort order is specified" in { implicit session =>
-    val rule1 = DbRuleDraft.find(1).get
+    val rule1 = DbRuleDraft.findById(1).get
     val rule2 = insertRule(ruleType = "dictionary")
     val rule3 = insertRule(ruleType = "dictionary")
 
@@ -245,7 +245,7 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
     Tags.create("Tag 2")
     Tags.create("Tag 3")
 
-    val rule1 = DbRuleDraft.find(1).get
+    val rule1 = DbRuleDraft.findById(1).get
     insertRule(tags = List(2))
     insertRule(tags = List(3))
 
@@ -254,7 +254,7 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
   }
 
   it should "search by type" in { implicit session =>
-    val rule1 = DbRuleDraft.find(1).get
+    val rule1 = DbRuleDraft.findById(1).get
     insertRule(ruleType = "dictionary")
     insertRule(ruleType = "dictionary")
 
@@ -492,7 +492,7 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
     RuleTagDraft.destroyAll() // Necessary to remove fk
     val deleted = DbRuleDraft.destroy(entity)
     deleted should be(1)
-    val shouldBeNone = DbRuleDraft.find(123)
+    val shouldBeNone = DbRuleDraft.findById(123)
     shouldBeNone.isDefined should be(false)
   }
 
@@ -548,7 +548,7 @@ class DbRuleDraftSpec extends RuleFixture with Matchers with DBTest {
     DbRuleDraft
       .batchUpdate(existingIds, newCategory, Some(newTags), "another.user")
 
-    val updatedRulesFromDb = DbRuleDraft.findRules(existingIds)
+    val updatedRulesFromDb = DbRuleDraft.findByIds(existingIds)
 
     updatedRulesFromDb.foreach { maybeRule =>
       maybeRule.category should be(Some("Style guide and names"))

@@ -11,7 +11,8 @@ import com.gu.typerighter.model.{
   TextSuggestion
 }
 import com.gu.typerighter.rules.BucketRuleResource
-import db.{DBTest, DbRuleDraft, DbRuleLive, RuleTagDraft, Tags}
+import db.{DBTest, DbRuleDraft, DbRuleLive, RuleTagDraft, Tags, UserFeedback}
+import models.{MatchContext, UserFeedbackWithEmail}
 import org.scalatest.flatspec.FixtureAnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scalikejdbc.scalatest.AutoRollback
@@ -359,6 +360,7 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
       case Some(allRuleData) =>
         allRuleData.draft shouldMatchTo ruleToPublish
         allRuleData.live shouldMatchTo List.empty
+        allRuleData.feedback shouldMatchTo List.empty
     }
   }
 
@@ -627,5 +629,81 @@ class RuleManagerSpec extends FixtureAnyFlatSpec with Matchers with AutoRollback
     val archivedRules = DbRuleDraft.findAll().filter(_.isArchived)
     archivedRules.length shouldBe 2
     archivedRules(0).updatedBy shouldBe "test@example.com"
+  }
+
+  def createFeedbackForRule(externalRuleId: String, message: String = "Test feedback") =
+    UserFeedback
+      .create(
+        UserFeedbackWithEmail(
+          app = "composer",
+          stage = "PROD",
+          documentUrl = "https://example.com/doc/1",
+          feedbackMessage = message,
+          userEmail = "user@example.com",
+          matchContext = Some(
+            MatchContext(
+              matchId = "match-1",
+              ruleId = externalRuleId,
+              documentId = "doc-1",
+              matcherType = "regex",
+              suggestion = None,
+              matchIsMarkedAsCorrect = false,
+              matchIsAdvisory = false,
+              matchHasReplacement = false,
+              matchedText = "test",
+              matchContext = "a test word"
+            )
+          )
+        )
+      )
+      .get
+
+  "getAllRuleData" should "return user feedback alongside rule data" in { () =>
+    val rule = createPublishableRule
+    val externalId = rule.externalId.getOrElse(fail("Rule should have an external ID"))
+    val ruleId = rule.id.getOrElse(fail("Rule should have a ID"))
+
+    createFeedbackForRule(externalId, "First feedback")
+    createFeedbackForRule(externalId, "Second feedback")
+
+    RuleManager.getAllRuleData(ruleId) match {
+      case None => fail("Rule should exist")
+      case Some(allRuleData) =>
+        allRuleData.feedback.length shouldBe 2
+        allRuleData.feedback.map(
+          _.feedbackMessage
+        ) should contain allOf ("First feedback", "Second feedback")
+        allRuleData.draft.feedbackCount shouldBe 2
+    }
+  }
+
+  "getAllRuleData" should "return empty feedback when no feedback exists for a rule" in { () =>
+    val rule = createPublishableRule
+    val ruleId = rule.id.getOrElse(fail("Rule should have a ID"))
+
+    RuleManager.getAllRuleData(ruleId) match {
+      case None => fail("Rule should exist")
+      case Some(allRuleData) =>
+        allRuleData.feedback shouldBe empty
+        allRuleData.draft.feedbackCount shouldBe 0
+    }
+  }
+
+  "searchDraftRules" should "return feedback counts for rules" in { () =>
+    val ruleWithFeedback = createPublishableRule
+    val ruleWithFeedbackExternalId =
+      ruleWithFeedback.externalId.getOrElse(fail("Rule should have an external ID"))
+    val ruleWithoutFeedback = createPublishableRule
+
+    createFeedbackForRule(ruleWithFeedbackExternalId, "Feedback 1")
+    createFeedbackForRule(ruleWithFeedbackExternalId, "Feedback 2")
+    createFeedbackForRule(ruleWithFeedbackExternalId, "Feedback 3")
+
+    val results = RuleManager.searchDraftRules(1)
+    val ruleWithFeedbackResult = results.data.find(_.id == ruleWithFeedback.id).get
+    val ruleWithoutFeedbackResult = results.data.find(_.id == ruleWithoutFeedback.id).get
+
+    ruleWithFeedbackResult.feedbackCount shouldBe 3
+    ruleWithoutFeedbackResult.feedbackCount shouldBe 0
   }
 }
