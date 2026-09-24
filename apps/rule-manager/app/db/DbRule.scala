@@ -8,6 +8,7 @@ trait DbRuleCommon {
   def replacement: Option[String]
   def category: Option[String]
   def tags: List[Int]
+  def title: Option[String]
   def description: Option[String]
   def notes: Option[String]
   def externalId: Option[String]
@@ -28,6 +29,7 @@ object DbRule {
     "replacement",
     "category",
     "tags",
+    "title",
     "description",
     "notes",
     "external_id",
