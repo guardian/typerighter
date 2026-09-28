@@ -25,7 +25,7 @@ ThisBuild / scalacOptions := Seq(
 ThisBuild / asciiGraphWidth := 999999999
 
 val languageToolVersion = "6.8"
-val awsSdkVersion = "2.53.1"
+val awsSdkVersion = "2.53.3"
 val capiModelsVersion = "50.0.0"
 val capiClientVersion = "49.1.1"
 val pandaVersion = "22.0.0"
