@@ -3,7 +3,7 @@ import sys.process._
 
 name := "typerighter"
 ThisBuild / organization := "com.gu"
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / version := "1.0-SNAPSHOT"
 ThisBuild / scalacOptions := Seq(
   "-encoding",
