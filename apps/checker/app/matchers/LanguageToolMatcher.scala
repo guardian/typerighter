@@ -109,7 +109,7 @@ class LanguageToolFactory(
   private def getLTRulesFromXML(rules: List[LTRuleXML]): Try[List[AbstractPatternRule]] =
     rules match {
       case Nil => Success(Nil)
-      case r => {
+      case r   => {
         val loader = new PatternRuleLoader()
         getXMLStreamFromLTRules(rules) flatMap { xmlStream =>
           {
@@ -173,7 +173,9 @@ class LanguageToolFactory(
       additionalMessage: String = ""
   ) =
     new Exception(
-      s"Error applying LanguageTool rule `${ruleId}`: ${e.getMessage} ${if (additionalMessage.nonEmpty) additionalMessage
+      s"Error applying LanguageTool rule `${ruleId}`: ${e.getMessage} ${if (
+          additionalMessage.nonEmpty
+        ) additionalMessage
         else ""}".trim,
       e
     )

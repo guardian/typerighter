@@ -43,7 +43,7 @@ class DictionaryResource(s3: S3Client, bucketName: String, stage: String) {
     })
 
     words match {
-      case Success(words) => Right(words)
+      case Success(words)     => Right(words)
       case Failure(exception) =>
         Left(Seq(FormError("dictionary-parse-error", exception.getMessage)))
     }

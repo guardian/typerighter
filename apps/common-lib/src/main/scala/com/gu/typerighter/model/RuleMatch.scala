@@ -63,7 +63,7 @@ case class RuleMatch(
   /** Map the range this match applies to through the given ranges, adjusting its range accordingly.
     */
   def mapThroughSkippedRanges(skipRanges: List[TextRange]): RuleMatch = skipRanges match {
-    case Nil => this
+    case Nil        => this
     case skipRanges => {
       val (newMatch, _) = skipRanges.foldLeft((this, List.empty[TextRange]))((acc, range) =>
         acc match {

@@ -32,7 +32,7 @@ class RulesController(
   def refresh = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to refresh rules")
-      case true =>
+      case true  =>
         val maybeWrittenRules = for {
           dbRules <- sheetsRuleResource
             .getRules()
@@ -53,7 +53,7 @@ class RulesController(
   def refreshDictionaryRules() = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to refresh dictionary rules")
-      case true =>
+      case true  =>
         val wordsOrError = dictionaryResource.getDictionaryWords()
         val wordsToNotPublish = dictionaryResource.getWordsToNotPublish()
 
@@ -85,7 +85,7 @@ class RulesController(
 
   def get(id: Int) = APIAuthAction {
     RuleManager.getAllRuleData(id) match {
-      case None => NotFound("Rule not found matching ID")
+      case None              => NotFound("Rule not found matching ID")
       case Some(allRuleData) =>
         Ok(Json.toJson(allRuleData))
     }
@@ -94,7 +94,7 @@ class RulesController(
   def publish(id: Int) = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to publish rules")
-      case true =>
+      case true  =>
         PublishRuleForm.form
           .bindFromRequest()
           .fold(
@@ -102,7 +102,7 @@ class RulesController(
             reason => {
               DbRuleDraft.find(id) match {
                 case None => NotFound
-                case _ =>
+                case _    =>
                   RuleManager
                     .publishRule(id, request.user.email, reason, bucketRuleResource) match {
                     case Right(result) => Ok(Json.toJson(result))
@@ -118,7 +118,7 @@ class RulesController(
     {
       hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
         case false => Unauthorized("You don't have permission to create rules")
-        case true =>
+        case true  =>
           CreateRuleForm.form
             .bindFromRequest()
             .fold(
@@ -140,7 +140,7 @@ class RulesController(
   def update(id: Int) = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
+      case true  =>
         UpdateRuleForm.form
           .bindFromRequest()
           .fold(
@@ -171,7 +171,7 @@ class RulesController(
   def batchUpdate() = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
+      case true  =>
         BatchUpdateRuleForm.form
           .bindFromRequest()
           .fold(
@@ -205,7 +205,7 @@ class RulesController(
   def unpublish(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to unpublish rules")
-      case true =>
+      case true  =>
         RuleManager.unpublishRule(id, request.user.email, bucketRuleResource) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
           case Right(allRuleData) => Ok(Json.toJson(allRuleData))
@@ -216,7 +216,7 @@ class RulesController(
   def archive(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to archive rules")
-      case true =>
+      case true  =>
         RuleManager.archiveRule(id, request.user.email) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
           case Right(allRuleData) => Ok(Json.toJson(allRuleData))
@@ -227,7 +227,7 @@ class RulesController(
   def unarchive(id: Int): Action[AnyContent] = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to unarchive rules")
-      case true =>
+      case true  =>
         RuleManager.unarchiveRule(id, request.user.email) match {
           case Left(e: Throwable) => InternalServerError(e.getMessage)
           case Right(allRuleData) => Ok(Json.toJson(allRuleData))
@@ -238,7 +238,7 @@ class RulesController(
   def discardChanges(id: Int) = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
+      case true  =>
         revertDraftRule(id, request.user.email) match {
           case Left(throwable) => InternalServerError(throwable.getMessage)
           case Right(data)     => Ok(Json.toJson(data))
@@ -283,7 +283,7 @@ class RulesController(
   def csvImport() = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
+      case true  =>
         val rules = for {
           formData <- request.body.asMultipartFormData.toRight("No form data found in request")
           file <- formData.file("file").toRight("No file found in request")
@@ -307,7 +307,7 @@ class RulesController(
   def archiveRulesByTag() = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
+      case true  =>
         val rules = for {
           formData <- request.body.asMultipartFormData.toRight("No form data found in request")
           tag = formData.dataParts.get("tag").flatMap(_.headOption)
