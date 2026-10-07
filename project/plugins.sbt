@@ -7,6 +7,6 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.6") // "2.5.6" is just sbt 
 addSbtPlugin("org.scalikejdbc" %% "scalikejdbc-mapper-generator" % "3.5.0")
 
 libraryDependencies ++= Seq(
-  "org.vafer" % "jdeb" % "1.7" artifacts Artifact("jdeb", "jar", "jar"),
+  "org.vafer" % "jdeb" % "1.14" artifacts Artifact("jdeb", "jar", "jar"),
   "org.postgresql" % "postgresql" % "42.5.1"
 )
