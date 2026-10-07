@@ -24,7 +24,7 @@ export type SortColumns = Array<{
 export function useRules() {
 	const { location } = window;
 	const [ruleData, setRulesData] = useState<PaginatedRuleData | null>(null);
-	const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(true); // Assume that if we are using rules, we will be fetching immediately
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [abortController, setAbortController] = useState<AbortController>();

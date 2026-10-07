@@ -3,7 +3,7 @@ import { errorToString } from '../../utils/error';
 import { DraftRule, RuleData } from './useRule';
 import { ErrorIResponse, responseHandler } from '../../utils/api';
 
-export function useBatchRules(ruleIds: number[] | undefined) {
+export function useBatchRules(ruleIds: Set<number> | undefined) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [errors, setErrors] = useState<string | undefined>(undefined);
 	const [rules, setRules] = useState<RuleData[] | undefined>(undefined);
@@ -97,7 +97,7 @@ export function useBatchRules(ruleIds: number[] | undefined) {
 
 	useEffect(() => {
 		if (ruleIds) {
-			fetchRules(ruleIds);
+			fetchRules([...ruleIds]);
 		} else {
 			setRules([]);
 		}
