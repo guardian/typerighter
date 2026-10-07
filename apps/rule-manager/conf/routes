@@ -57,6 +57,10 @@ POST    /api/tags/:id                   controllers.TagsController.update(id: In
 +nocsrf
 DELETE  /api/tags/:id                   controllers.TagsController.delete(id: Int)
 
+# User Feedback
++nocsrf
+POST    /api/user-feedback              controllers.UserFeedbackController.create()
+
 # Map static resources from the /public folder to the correct URL path
 GET     /build/*file                   controllers.Assets.versioned(path="/public/build", file: Asset)
 GET     /static/*file                  controllers.Assets.at(path="/public/static", file)
