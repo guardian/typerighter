@@ -30,6 +30,11 @@ val capiModelsVersion = "50.0.0"
 val capiClientVersion = "49.1.1"
 val pandaVersion = "22.1.0"
 val circeVersion = "0.14.17"
+val circeDependencies = Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
 val scalikejdbcVersion = scalikejdbc.ScalikejdbcBuildInfo.version
 val scalikejdbcPlayVersion = "2.8.0-scalikejdbc-3.5"
 val appsFolder = "apps"
@@ -113,7 +118,7 @@ val commonLib = (project in file(s"$appsFolder/common-lib"))
       ws,
       // @todo – we're repeating ourselves. Can we derive this from the plugin?
       "com.typesafe.play" %% "play" % "2.9.10"
-    )
+    ) ++ circeDependencies
   )
 
 def playProject(
@@ -180,11 +185,7 @@ val checker = playProject(
       "io.gatling.highcharts" % "gatling-charts-highcharts" % "3.7.6" % "test,it",
       "io.gatling" % "gatling-test-framework" % "3.7.6" % "test,it",
       "org.carrot2" % "morfologik-tools" % "2.1.9"
-    ) ++ Seq(
-      "io.circe" %% "circe-core",
-      "io.circe" %% "circe-generic",
-      "io.circe" %% "circe-parser"
-    ).map(_ % circeVersion)
+    ) ++ circeDependencies
   )
 
 val ruleManager = playProject(
@@ -208,7 +209,7 @@ val ruleManager = playProject(
       "org.scalikejdbc" %% "scalikejdbc-syntax-support-macro" % scalikejdbcVersion,
       "com.gu" %% "editorial-permissions-client" % "5.0.0",
       "com.github.tototoshi" %% "scala-csv" % "2.0.0"
-    ),
+    ) ++ circeDependencies,
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
   )
 
