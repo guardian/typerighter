@@ -28,7 +28,7 @@ val languageToolVersion = "6.8"
 val awsSdkVersion = "2.53.1"
 val capiModelsVersion = "50.0.0"
 val capiClientVersion = "49.1.1"
-val pandaVersion = "22.1.0"
+val pandaVersion = "22.2.0"
 val circeVersion = "0.14.17"
 val circeDependencies = Seq(
   "io.circe" %% "circe-core",
