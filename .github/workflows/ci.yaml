@@ -28,7 +28,9 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version-file: '.tool-versions'
+          node-version-file: ".tool-versions"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
 
       - name: build rule-manager-client
         working-directory: ./apps/rule-manager/client
