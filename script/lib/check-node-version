@@ -5,13 +5,13 @@ ROOT_DIR="$APP_FOLDER/../"
 
 checkNodeVersion() {
   runningNodeVersion=$(node -v)
-  requiredNodeVersion=$(cat "$ROOT_DIR/.nvmrc")
+  requiredNodeMajorVersion=$(cat "$ROOT_DIR/.nvmrc")
 
   # remove leading v
   runningNodeVersionNumber=${runningNodeVersion//[v]/}
 
-  if [ "$runningNodeVersionNumber" != "$requiredNodeVersion" ]; then
-    echo -e "❌ Using wrong version of Node. Required ${requiredNodeVersion}. Running ${runningNodeVersion}."
+  if [[ "$runningNodeVersionNumber" != $requiredNodeMajorVersion* ]]; then
+    echo -e "❌ Using wrong version of Node. Required v${requiredNodeMajorVersion}. Running ${runningNodeVersion}."
     exit 1
   fi
 }
