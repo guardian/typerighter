@@ -20,17 +20,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Scala
-        uses: guardian/setup-scala@v1
+        uses: guardian/setup-scala@c9f10cca1674ecb2ae7ee739786ef9f0cdb9d07c # v2.0.0
 
       - name: Build the stack
         run: |
           docker compose up -d
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 24.13.1
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          node-version-file: '.tool-versions'
+          check-latest: true
 
       - name: build rule-manager-client
         working-directory: ./apps/rule-manager/client
