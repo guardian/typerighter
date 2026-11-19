@@ -1,9 +1,5 @@
 {
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  },
+  "allowImportingTsExtensions": true,
   "compilerOptions": {
     "target": "ES2020",
     "module": "ES2020",

@@ -1,96 +1,101 @@
+import { App, Duration, RemovalPolicy, SecretValue } from 'aws-cdk-lib';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import type { GuStackProps } from '@guardian/cdk/lib/constructs/core/stack.js';
 import {
-  App,
-  Duration,
-  RemovalPolicy,
-  SecretValue,
-} from "aws-cdk-lib";
-import { Certificate } from "aws-cdk-lib/aws-certificatemanager";
-import type { GuStackProps } from "@guardian/cdk/lib/constructs/core/stack";
+	GuDnsRecordSet,
+	RecordType,
+} from '@guardian/cdk/lib/constructs/dns/dns-records.js';
+import { GuStack } from '@guardian/cdk/lib/constructs/core/stack.js';
+import { GuPlayApp } from '@guardian/cdk';
 import {
-  GuDnsRecordSet,
-  RecordType,
-} from "@guardian/cdk/lib/constructs/dns/dns-records";
-import { GuStack } from "@guardian/cdk/lib/constructs/core/stack";
-import { GuPlayApp } from "@guardian/cdk";
+	GuGetS3ObjectsPolicy,
+	GuPutCloudwatchMetricsPolicy,
+} from '@guardian/cdk/lib/constructs/iam/index.js';
 import {
-  GuGetS3ObjectsPolicy,
-  GuPutCloudwatchMetricsPolicy,
-} from "@guardian/cdk/lib/constructs/iam";
-import { GuSecurityGroup, GuVpc } from "@guardian/cdk/lib/constructs/ec2";
-import {InstanceType, Port, SubnetType, UserData} from "aws-cdk-lib/aws-ec2";
-import { GuS3Bucket } from "@guardian/cdk/lib/constructs/s3";
+	GuSecurityGroup,
+	GuVpc,
+} from '@guardian/cdk/lib/constructs/ec2/index.js';
+import { InstanceType, Port, SubnetType, UserData } from 'aws-cdk-lib/aws-ec2';
+import { GuS3Bucket } from '@guardian/cdk/lib/constructs/s3/index.js';
 import {
-  AllowedMethods,
-  CachePolicy,
-  Distribution,
-  OriginProtocolPolicy,
-  OriginRequestPolicy,
-} from "aws-cdk-lib/aws-cloudfront";
-import { LoadBalancerV2Origin } from "aws-cdk-lib/aws-cloudfront-origins";
+	AllowedMethods,
+	CachePolicy,
+	Distribution,
+	OriginProtocolPolicy,
+	OriginRequestPolicy,
+} from 'aws-cdk-lib/aws-cloudfront';
+import { LoadBalancerV2Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import {
-  Alarm,
-  ComparisonOperator,
-  Metric,
-  TreatMissingData,
-} from "aws-cdk-lib/aws-cloudwatch";
-import { GuDatabaseInstance } from "@guardian/cdk/lib/constructs/rds";
+	Alarm,
+	ComparisonOperator,
+	Metric,
+	TreatMissingData,
+} from 'aws-cdk-lib/aws-cloudwatch';
+import { GuDatabaseInstance } from '@guardian/cdk/lib/constructs/rds/index.js';
 import {
-  Credentials,
-  DatabaseInstanceEngine,
-  PostgresEngineVersion,
-  StorageType,
-  SubnetGroup,
-} from "aws-cdk-lib/aws-rds";
-import { GuArnParameter, GuParameter } from "@guardian/cdk/lib/constructs/core";
-import { AccessScope } from "@guardian/cdk/lib/constants/access";
-import { Secret } from "aws-cdk-lib/aws-secretsmanager";
+	Credentials,
+	DatabaseInstanceEngine,
+	PostgresEngineVersion,
+	StorageType,
+	SubnetGroup,
+} from 'aws-cdk-lib/aws-rds';
+import {
+	GuArnParameter,
+	GuParameter,
+} from '@guardian/cdk/lib/constructs/core/index.js';
+import { AccessScope } from '@guardian/cdk/lib/constants/access.js';
+import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 
 export interface TyperighterStackProps extends GuStackProps {
-  domainSuffix: string;
-  instanceCount: number;
+	domainSuffix: string;
+	instanceCount: number;
 }
 
 export class Typerighter extends GuStack {
-  constructor(scope: App, id: string, props: TyperighterStackProps) {
-    super(scope, id, props);
+	constructor(scope: App, id: string, props: TyperighterStackProps) {
+		super(scope, id, props);
 
-    const parameters = {
-      MasterDBUsername: new GuParameter(this, "MasterDBUsername", {
-        description: "Master DB username",
-        default: "rule_manager",
-        type: "String",
-      }),
-      CheckerCertificate: new GuArnParameter(
-        this,
-        "CheckerCloudfrontCertificate",
-        {
-          description:
-            "The ARN of the certificate for the checker service Cloudfront distribution",
-        }
-      ),
-    };
+		const parameters = {
+			MasterDBUsername: new GuParameter(this, 'MasterDBUsername', {
+				description: 'Master DB username',
+				default: 'rule_manager',
+				type: 'String',
+			}),
+			CheckerCertificate: new GuArnParameter(
+				this,
+				'CheckerCloudfrontCertificate',
+				{
+					description:
+						'The ARN of the certificate for the checker service Cloudfront distribution',
+				},
+			),
+		};
 
-    const pandaAuthPolicy = new GuGetS3ObjectsPolicy(this, "PandaAuthPolicy", {
-      bucketName: "pan-domain-auth-settings",
-    });
+		const pandaAuthPolicy = new GuGetS3ObjectsPolicy(this, 'PandaAuthPolicy', {
+			bucketName: 'pan-domain-auth-settings',
+		});
 
-    const permissionsFilePolicyStatement = new GuGetS3ObjectsPolicy(this, "PermissionsPolicy", {
-      bucketName: "permissions-cache",
-      paths: [`${this.stage}/*`]
-    });
+		const permissionsFilePolicyStatement = new GuGetS3ObjectsPolicy(
+			this,
+			'PermissionsPolicy',
+			{
+				bucketName: 'permissions-cache',
+				paths: [`${this.stage}/*`],
+			},
+		);
 
-    const lowercaseStage = this.stage.toLowerCase();
+		const lowercaseStage = this.stage.toLowerCase();
 
-    const typerighterBucketName = `typerighter-app-${lowercaseStage}`;
+		const typerighterBucketName = `typerighter-app-${lowercaseStage}`;
 
-    // Checker app
+		// Checker app
 
-    const checkerAppName = "typerighter-checker";
+		const checkerAppName = 'typerighter-checker';
 
-    const checkerDomain = `checker.${props.domainSuffix}`
+		const checkerDomain = `checker.${props.domainSuffix}`;
 
-    const checkerUserData = UserData.forLinux({shebang: '#!/bin/bash -ev'})
-    checkerUserData.addCommands(`mkdir /etc/gu
+		const checkerUserData = UserData.forLinux({ shebang: '#!/bin/bash -ev' });
+		checkerUserData.addCommands(`mkdir /etc/gu
 cat > /etc/gu/tags << 'EOF'
 Stage=${this.stage}
 Stack=${this.stack}
@@ -105,47 +110,49 @@ EOF
 aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/${checkerAppName}/${checkerAppName}.deb /tmp/package.deb
 dpkg -i /tmp/package.deb
 
-chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`)
+chown ${checkerAppName} /usr/share/${checkerAppName}/conf/resources/dictionary`);
 
-    const checkerApp = new GuPlayApp(this, {
-      app: checkerAppName,
-      instanceType: new InstanceType("t4g.small"),
-      userData: checkerUserData,
-      access: {
-        scope: AccessScope.PUBLIC,
-      },
-      certificateProps: {
-        domainName: checkerDomain
-      },
-      monitoringConfiguration: {
-        noMonitoring: true,
-      },
-      roleConfiguration: {
-        additionalPolicies: [
-          pandaAuthPolicy,
-          new GuPutCloudwatchMetricsPolicy(this),
-        ],
-      },
-      scaling: {
-        minimumInstances: props.instanceCount,
-      },
-      applicationLogging: {
-        enabled: true,
-        systemdUnitName: "typerighter-checker"
-      },
-      instanceMetricGranularity: "5Minute"
-    });
+		const checkerApp = new GuPlayApp(this, {
+			app: checkerAppName,
+			instanceType: new InstanceType('t4g.small'),
+			userData: checkerUserData,
+			access: {
+				scope: AccessScope.PUBLIC,
+			},
+			certificateProps: {
+				domainName: checkerDomain,
+			},
+			monitoringConfiguration: {
+				noMonitoring: true,
+			},
+			roleConfiguration: {
+				additionalPolicies: [
+					pandaAuthPolicy,
+					new GuPutCloudwatchMetricsPolicy(this),
+				],
+			},
+			scaling: {
+				minimumInstances: props.instanceCount,
+			},
+			applicationLogging: {
+				enabled: true,
+				systemdUnitName: 'typerighter-checker',
+			},
+			instanceMetricGranularity: '5Minute',
+		});
 
-    // Rule manager app
+		// Rule manager app
 
-    const dbPort = 5432;
+		const dbPort = 5432;
 
-    const ruleManagerAppName = "typerighter-rule-manager";
+		const ruleManagerAppName = 'typerighter-rule-manager';
 
-    const ruleManagerDomain = `manager.${props.domainSuffix}`
+		const ruleManagerDomain = `manager.${props.domainSuffix}`;
 
-    const ruleManagerUserData = UserData.forLinux({shebang: '#!/bin/bash -ev'})
-    ruleManagerUserData.addCommands(`aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
+		const ruleManagerUserData = UserData.forLinux({
+			shebang: '#!/bin/bash -ev',
+		});
+		ruleManagerUserData.addCommands(`aws --quiet --region ${this.region} s3 cp s3://composer-dist/${this.stack}/${this.stage}/typerighter-rule-manager/typerighter-rule-manager.deb /tmp/package.deb
 dpkg -i /tmp/package.deb
 
 mkdir /etc/gu
@@ -153,178 +160,176 @@ cat > /etc/gu/typerighter-rule-manager.conf << 'EOF'
 typerighter.checkerServiceUrl = "https://${checkerDomain}"
 EOF`);
 
-    const ruleManagerApp = new GuPlayApp(this, {
-      app: ruleManagerAppName,
-      instanceType: new InstanceType("t4g.small"),
-      userData: ruleManagerUserData,
-      access: {
-        scope: AccessScope.PUBLIC,
-      },
-      certificateProps: {
-        domainName: ruleManagerDomain,
-      },
-      monitoringConfiguration: {
-        noMonitoring: true,
-      },
-      roleConfiguration: {
-        additionalPolicies: [
-          pandaAuthPolicy,
-          permissionsFilePolicyStatement
-        ],
-      },
-      scaling: {
-        minimumInstances: props.instanceCount,
-      },
-      applicationLogging: {
-        enabled: true,
-        systemdUnitName: "typerighter-rule-manager"
-      },
-      instanceMetricGranularity: "5Minute"
-    });
+		const ruleManagerApp = new GuPlayApp(this, {
+			app: ruleManagerAppName,
+			instanceType: new InstanceType('t4g.small'),
+			userData: ruleManagerUserData,
+			access: {
+				scope: AccessScope.PUBLIC,
+			},
+			certificateProps: {
+				domainName: ruleManagerDomain,
+			},
+			monitoringConfiguration: {
+				noMonitoring: true,
+			},
+			roleConfiguration: {
+				additionalPolicies: [pandaAuthPolicy, permissionsFilePolicyStatement],
+			},
+			scaling: {
+				minimumInstances: props.instanceCount,
+			},
+			applicationLogging: {
+				enabled: true,
+				systemdUnitName: 'typerighter-rule-manager',
+			},
+			instanceMetricGranularity: '5Minute',
+		});
 
-    const ruleManagerDnsRecord = new GuDnsRecordSet(
-      this,
-      "manager-dns-records",
-      {
-        name: ruleManagerDomain,
-        recordType: RecordType.CNAME,
-        resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
-        ttl: Duration.minutes(60),
-      }
-    );
+		const ruleManagerDnsRecord = new GuDnsRecordSet(
+			this,
+			'manager-dns-records',
+			{
+				name: ruleManagerDomain,
+				recordType: RecordType.CNAME,
+				resourceRecords: [ruleManagerApp.loadBalancer.loadBalancerDnsName],
+				ttl: Duration.minutes(60),
+			},
+		);
 
-    const typerighterBucket = new GuS3Bucket(this, "typerighter-bucket", {
-      bucketName: typerighterBucketName,
-      app: ruleManagerAppName
-    });
-    typerighterBucket.grantReadWrite(checkerApp.autoScalingGroup);
-    typerighterBucket.grantReadWrite(ruleManagerApp.autoScalingGroup);
+		const typerighterBucket = new GuS3Bucket(this, 'typerighter-bucket', {
+			bucketName: typerighterBucketName,
+			app: ruleManagerAppName,
+		});
+		typerighterBucket.grantReadWrite(checkerApp.autoScalingGroup);
+		typerighterBucket.grantReadWrite(ruleManagerApp.autoScalingGroup);
 
-    const cloudfrontBucket = new GuS3Bucket(this, "cloudfront-bucket", {
-      app: ruleManagerAppName,
-      lifecycleRules: [
-        {
-          expiration: Duration.days(90),
-        },
-      ],
-    });
+		const cloudfrontBucket = new GuS3Bucket(this, 'cloudfront-bucket', {
+			app: ruleManagerAppName,
+			lifecycleRules: [
+				{
+					expiration: Duration.days(90),
+				},
+			],
+		});
 
-    const checkerCertificate = Certificate.fromCertificateArn(
-      this,
-      "CheckerCertificate",
-      parameters.CheckerCertificate.valueAsString
-    );
+		const checkerCertificate = Certificate.fromCertificateArn(
+			this,
+			'CheckerCertificate',
+			parameters.CheckerCertificate.valueAsString,
+		);
 
-    const checkerOrigin = new LoadBalancerV2Origin(checkerApp.loadBalancer, {
-      protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
-    });
+		const checkerOrigin = new LoadBalancerV2Origin(checkerApp.loadBalancer, {
+			protocolPolicy: OriginProtocolPolicy.HTTPS_ONLY,
+		});
 
-    // AWS have put in an offload so this distribution will never be routed to
-    // MRS (Marseille) POPs. For more info, see
-    // https://github.com/guardian/workflow/issues/1283
-    const checkerCloudFrontDistro = new Distribution(
-      this,
-      "typerighter-cloudfront",
-      {
-        defaultBehavior: {
-          origin: checkerOrigin,
-          allowedMethods: AllowedMethods.ALLOW_ALL,
-          cachePolicy: CachePolicy.CACHING_DISABLED,
-          originRequestPolicy: OriginRequestPolicy.ALL_VIEWER
-        },
-        domainNames: [checkerDomain],
-        logBucket: cloudfrontBucket,
-        certificate: checkerCertificate,
-      }
-    );
-    
-    const checkerDnsRecord = new GuDnsRecordSet(this, "checker-dns-records", {
-      name: checkerDomain,
-      recordType: RecordType.CNAME,
-      resourceRecords: [checkerCloudFrontDistro.domainName],
-      ttl: Duration.minutes(60),
-    });
+		// AWS have put in an offload so this distribution will never be routed to
+		// MRS (Marseille) POPs. For more info, see
+		// https://github.com/guardian/workflow/issues/1283
+		const checkerCloudFrontDistro = new Distribution(
+			this,
+			'typerighter-cloudfront',
+			{
+				defaultBehavior: {
+					origin: checkerOrigin,
+					allowedMethods: AllowedMethods.ALLOW_ALL,
+					cachePolicy: CachePolicy.CACHING_DISABLED,
+					originRequestPolicy: OriginRequestPolicy.ALL_VIEWER,
+				},
+				domainNames: [checkerDomain],
+				logBucket: cloudfrontBucket,
+				certificate: checkerCertificate,
+			},
+		);
 
-    const ruleMetric = new Metric({
-      metricName: "RulesNotFound",
-      namespace: "Typerighter",
-      period: Duration.minutes(60),
-      statistic: "Sum",
-    });
+		const checkerDnsRecord = new GuDnsRecordSet(this, 'checker-dns-records', {
+			name: checkerDomain,
+			recordType: RecordType.CNAME,
+			resourceRecords: [checkerCloudFrontDistro.domainName],
+			ttl: Duration.minutes(60),
+		});
 
-    const ruleProvisionerAlarm = new Alarm(this, "rule-provisioner-alarm", {
-      alarmName: `Typerighter - ${this.stage} - issue provisioning rules`,
-      alarmDescription:
-        "There was a problem getting rules for Typerighter. Rules might not be present, or might be out of date.",
-      threshold: 0,
-      evaluationPeriods: 3,
-      comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
-      treatMissingData: TreatMissingData.NOT_BREACHING,
-      metric: ruleMetric,
-    });
+		const ruleMetric = new Metric({
+			metricName: 'RulesNotFound',
+			namespace: 'Typerighter',
+			period: Duration.minutes(60),
+			statistic: 'Sum',
+		});
 
-    // Box-to-box communication
+		const ruleProvisionerAlarm = new Alarm(this, 'rule-provisioner-alarm', {
+			alarmName: `Typerighter - ${this.stage} - issue provisioning rules`,
+			alarmDescription:
+				'There was a problem getting rules for Typerighter. Rules might not be present, or might be out of date.',
+			threshold: 0,
+			evaluationPeriods: 3,
+			comparisonOperator: ComparisonOperator.GREATER_THAN_THRESHOLD,
+			treatMissingData: TreatMissingData.NOT_BREACHING,
+			metric: ruleMetric,
+		});
 
-    const hmacSecret = new Secret(this, "hmacSecret", {
-      description: "Shared secret for HMAC-based communication between manager and checker services",
-      secretName: `/${this.stage}/flexible/typerighter/hmacSecretKey`
-    });
+		// Box-to-box communication
 
-    hmacSecret.grantRead(checkerApp.autoScalingGroup.role);
-    hmacSecret.grantRead(ruleManagerApp.autoScalingGroup.role);
+		const hmacSecret = new Secret(this, 'hmacSecret', {
+			description:
+				'Shared secret for HMAC-based communication between manager and checker services',
+			secretName: `/${this.stage}/flexible/typerighter/hmacSecretKey`,
+		});
 
-    // Database
+		hmacSecret.grantRead(checkerApp.autoScalingGroup.role);
+		hmacSecret.grantRead(ruleManagerApp.autoScalingGroup.role);
 
-    const dbAppName = "rule-manager-db";
+		// Database
 
-    const dbAccessSecurityGroup = new GuSecurityGroup(this, "DBSecurityGroup", {
-      app: ruleManagerAppName,
-      description: "Allow traffic from EC2 instances to DB",
-      vpc: ruleManagerApp.vpc,
-      allowAllOutbound: false,
-    });
+		const dbAppName = 'rule-manager-db';
 
-    dbAccessSecurityGroup.connections.allowFrom(
-      ruleManagerApp.autoScalingGroup,
-      Port.tcp(dbPort),
-      "Allow connection from EC2 instances to DB"
-    );
+		const dbAccessSecurityGroup = new GuSecurityGroup(this, 'DBSecurityGroup', {
+			app: ruleManagerAppName,
+			description: 'Allow traffic from EC2 instances to DB',
+			vpc: ruleManagerApp.vpc,
+			allowAllOutbound: false,
+		});
 
-    const ruleDB = new GuDatabaseInstance(this, "RuleManagerRDS", {
-      app: dbAppName,
-      vpc: ruleManagerApp.vpc,
-      vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
-      allocatedStorage: 50,
-      allowMajorVersionUpgrade: false,
-      autoMinorVersionUpgrade: true,
-      deleteAutomatedBackups: false,
-      engine: DatabaseInstanceEngine.postgres({
-        version: PostgresEngineVersion.VER_17,
-      }),
-      instanceType: "db.t4g.micro",
-      instanceIdentifier: `typerighter-rule-manager-store-${this.stage}`,
-      subnetGroup: new SubnetGroup(this, "DBSubnetGroup", {
-        vpc: ruleManagerApp.vpc,
-        vpcSubnets: {
-          subnets: GuVpc.subnetsFromParameter(this),
-        },
-        description: "Subnet for typerighter rule-manager database",
-      }),
-      credentials: Credentials.fromPassword(
-        parameters.MasterDBUsername.valueAsString,
-        SecretValue.ssmSecure(
-          `/${this.stage}/${this.stack}/typerighter-rule-manager/db.default.password`,
-          "1"
-        )
-      ),
-      multiAz: this.stage === "PROD",
-      port: dbPort,
-      preferredMaintenanceWindow: "Mon:06:30-Mon:07:00",
-      securityGroups: [dbAccessSecurityGroup],
-      storageEncrypted: true,
-      storageType: StorageType.GP2,
-      removalPolicy: RemovalPolicy.SNAPSHOT,
-      devXBackups: { enabled: true }
-    });
-  }
+		dbAccessSecurityGroup.connections.allowFrom(
+			ruleManagerApp.autoScalingGroup,
+			Port.tcp(dbPort),
+			'Allow connection from EC2 instances to DB',
+		);
+
+		const ruleDB = new GuDatabaseInstance(this, 'RuleManagerRDS', {
+			app: dbAppName,
+			vpc: ruleManagerApp.vpc,
+			vpcSubnets: { subnetType: SubnetType.PRIVATE_WITH_EGRESS },
+			allocatedStorage: 50,
+			allowMajorVersionUpgrade: false,
+			autoMinorVersionUpgrade: true,
+			deleteAutomatedBackups: false,
+			engine: DatabaseInstanceEngine.postgres({
+				version: PostgresEngineVersion.VER_17,
+			}),
+			instanceType: 'db.t4g.micro',
+			instanceIdentifier: `typerighter-rule-manager-store-${this.stage}`,
+			subnetGroup: new SubnetGroup(this, 'DBSubnetGroup', {
+				vpc: ruleManagerApp.vpc,
+				vpcSubnets: {
+					subnets: GuVpc.subnetsFromParameter(this),
+				},
+				description: 'Subnet for typerighter rule-manager database',
+			}),
+			credentials: Credentials.fromPassword(
+				parameters.MasterDBUsername.valueAsString,
+				SecretValue.ssmSecure(
+					`/${this.stage}/${this.stack}/typerighter-rule-manager/db.default.password`,
+					'1',
+				),
+			),
+			multiAz: this.stage === 'PROD',
+			port: dbPort,
+			preferredMaintenanceWindow: 'Mon:06:30-Mon:07:00',
+			securityGroups: [dbAccessSecurityGroup],
+			storageEncrypted: true,
+			storageType: StorageType.GP2,
+			removalPolicy: RemovalPolicy.SNAPSHOT,
+			devXBackups: { enabled: true },
+		});
+	}
 }

@@ -26,26 +26,28 @@ jobs:
         run: |
           docker compose up -d
 
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: ".tool-versions"
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: build rule-manager-client
         working-directory: ./apps/rule-manager/client
         run: |
-          npm ci
-          npm run format:check
-          npm run test
-          npm run build
+          pnpm run format:check
+          pnpm run test
+          pnpm run build
 
       - name: cdk synth
         working-directory: ./cdk
         run: |
-          yarn install --frozen-lockfile
-          yarn test
-          yarn synth
+          pnpm test
+          pnpm synth
 
       - name: test and build sbt
         run: |
