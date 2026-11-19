@@ -24,7 +24,7 @@ makeChecks() {
 
 setupDependencies() {
   docker compose up -d
-  (cd $APP_FOLDER/rule-manager/client && npm i && npm run start &)
+  (pnpm install && cd $APP_FOLDER/rule-manager/client && pnpm run start &)
 }
 
 teardownDependencies() {

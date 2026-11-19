@@ -1,0 +1,10 @@
+packages:
+  - cdk
+  - script/js
+  - apps/rule-manager/client
+allowBuilds:
+  esbuild: false
+  '@swc/core': false
+minimumReleaseAge: 2880 # 2 day minimum package version age
+minimumReleaseAgeExclude:
+  - '@guardian/*'
