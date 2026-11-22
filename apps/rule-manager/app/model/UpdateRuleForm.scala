@@ -34,6 +34,7 @@ object UpdateRuleForm {
       "replacement" -> optional(text()),
       "category" -> optional(text()),
       "tags" -> list(number()),
+      "title" -> optional(text()),
       "description" -> optional(text()),
       "advisoryRule" -> optional(boolean),
       "externalId" -> optional(text())
@@ -47,6 +48,7 @@ case class UpdateRuleForm(
     replacement: Option[String] = None,
     category: Option[String] = None,
     tags: List[Int],
+    title: Option[String] = None,
     description: Option[String] = None,
     advisoryRule: Option[Boolean] = None,
     externalId: Option[String] = None

@@ -16,6 +16,7 @@ export type BaseRule = {
 	replacement?: string;
 	category?: string;
 	tags: number[];
+	title?: string;
 	description?: string;
 	ignore: boolean;
 	forceRedRule?: boolean;
