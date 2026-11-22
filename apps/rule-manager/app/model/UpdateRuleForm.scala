@@ -13,7 +13,7 @@ object UpdateRuleForm {
       case Some(RuleType.languageToolCore) => Nil
       case Some(RuleType.languageToolXML)  => Nil
       case Some(RuleType.dictionary)       => Nil
-      case _ =>
+      case _                               =>
         Seq(
           ValidationError(
             s"RuleType must be one of \"${RuleType.regex}\", \"${RuleType.languageToolXML}\", \"${RuleType.languageToolCore}\" or \"${RuleType.dictionary}\""

@@ -34,7 +34,7 @@ class TagsController(
 
   def get(id: Int) = APIAuthAction {
     Tags.find(id) match {
-      case None => NotFound("Tag not found matching ID")
+      case None      => NotFound("Tag not found matching ID")
       case Some(tag) =>
         Ok(Json.toJson(tag))
     }
@@ -42,7 +42,7 @@ class TagsController(
 
   def delete(id: Int) = APIAuthAction {
     Tags.find(id) match {
-      case None => NotFound("Tag not found matching ID")
+      case None      => NotFound("Tag not found matching ID")
       case Some(tag) =>
         RuleTagDraft.destroyForTag(tag.id.get)
         RuleTagLive.destroyForTag(tag.id.get)
@@ -55,7 +55,7 @@ class TagsController(
     {
       hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
         case false => Unauthorized("You don't have permission to create tags")
-        case true =>
+        case true  =>
           TagForm.form
             .bindFromRequest()
             .fold(
@@ -77,7 +77,7 @@ class TagsController(
   def update(id: Int) = APIAuthAction { implicit request =>
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
-      case true =>
+      case true  =>
         TagForm.form
           .bindFromRequest()
           .fold(

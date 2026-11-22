@@ -249,7 +249,7 @@ object DbRuleLive extends SQLSyntaxSupport[DbRuleLive] {
 
     findRevision(generatedKey.get, liveRule.revisionId) match {
       case Some(rule) => rule
-      case None =>
+      case None       =>
         throw new Exception(
           s"Attempted to create a rule with id $generatedKey, but no result found attempting to read it back"
         )

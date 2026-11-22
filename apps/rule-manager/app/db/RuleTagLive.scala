@@ -79,7 +79,7 @@ object RuleTagLive extends SQLSyntaxSupport[RuleTagLive] {
     }.update().apply()
     find(externalId, revisionId, tagId) match {
       case Some(ruleTagLive) => Success(ruleTagLive)
-      case None =>
+      case None              =>
         Failure(
           new Exception(
             s"Attempted to create a RuleTagLive with id $tagId, but no result found attempting to read it back"

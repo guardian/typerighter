@@ -24,7 +24,7 @@ object Dictionary {
 
   def lemmaOrInflListToText(node: Node): Set[String] = {
     node match {
-      case node if node.label == "lemma" => Set(node.text)
+      case node if node.label == "lemma"     => Set(node.text)
       case node if node.label == "infl_list" =>
         node.child.filter(_.label == "infl").map(_.text).toSet
       case _ => Set.empty

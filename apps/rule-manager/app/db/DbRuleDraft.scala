@@ -270,7 +270,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
     val condition =
       searchClause.toList ++ tagFilterClause.toList ++ ruleTypeFilterClause.toList match {
-        case Nil => sqls.empty
+        case Nil     => sqls.empty
         case clauses =>
           sqls"WHERE ${sqls.join(clauses, sqls"AND")}"
       }
@@ -452,7 +452,7 @@ object DbRuleDraft extends SQLSyntaxSupport[DbRuleDraft] {
 
     find(id) match {
       case Some(rule) => Success(rule)
-      case None =>
+      case None       =>
         Failure(
           new Exception(
             s"Attempted to create a rule with id $id, but no result found attempting to read it back"

@@ -282,7 +282,7 @@ class MatcherPool(
   private def getMatchesForJob(job: MatcherPoolJob): Future[(MatcherPoolJob, List[RuleMatch])] = {
     val maybeMatchesForJob = for {
       matchers <- job match {
-        case categoryJob: MatcherPoolCategoryJob => getMatchersForJob(categoryJob)
+        case categoryJob: MatcherPoolCategoryJob           => getMatchersForJob(categoryJob)
         case singleMatcherJob: MatcherPoolSingleMatcherJob =>
           Success(List(singleMatcherJob.matcher))
       }
@@ -378,7 +378,7 @@ class MatcherPool(
     */
   private def getApplicableCategories(query: Check) =
     (query.categoryIds, query.excludeCategoryIds) match {
-      case (Some(ids), _) if ids.nonEmpty => ids
+      case (Some(ids), _) if ids.nonEmpty               => ids
       case (_, Some(excludeIds)) if excludeIds.nonEmpty =>
         getCurrentCategories.map(_.id).filter(!excludeIds.contains(_))
       case _ => getCurrentCategories.map(_.id)
