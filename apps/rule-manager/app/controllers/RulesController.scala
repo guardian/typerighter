@@ -9,7 +9,6 @@ import play.api.libs.json.{JsValue, Json}
 import db.DbRuleDraft
 import model.{BatchUpdateRuleForm, CreateRuleForm, PublishRuleForm, UpdateRuleForm}
 import play.api.mvc._
-import service.RuleManager.revertDraftRule
 import service.{DictionaryResource, RuleManager, RuleTesting, SheetsRuleResource, TestRuleCapiQuery}
 import utils.{FormErrorEnvelope, FormHelpers, PermissionsHandler, RuleManagerConfig}
 
@@ -100,7 +99,7 @@ class RulesController(
           .fold(
             form => BadRequest(Json.toJson(FormErrorEnvelope(form.errors))),
             reason => {
-              DbRuleDraft.find(id) match {
+              DbRuleDraft.findById(id) match {
                 case None => NotFound
                 case _ =>
                   RuleManager
@@ -239,7 +238,7 @@ class RulesController(
     hasPermission(request.user, PermissionDefinition("manage_rules", "typerighter")) match {
       case false => Unauthorized("You don't have permission to edit rules")
       case true =>
-        revertDraftRule(id, request.user.email) match {
+        RuleManager.revertDraftRule(id, request.user.email) match {
           case Left(throwable) => InternalServerError(throwable.getMessage)
           case Right(data)     => Ok(Json.toJson(data))
         }
@@ -249,7 +248,7 @@ class RulesController(
   def testWithBlock(id: Int) = APIAuthAction[JsValue](parse.json).async { implicit request =>
     request.body.validate[Document].asEither match {
       case Right(document) =>
-        DbRuleDraft.find(id) match {
+        DbRuleDraft.findById(id) match {
           case Some(rule) =>
             ruleTesting
               .testRule(rule, List(document))
@@ -269,7 +268,7 @@ class RulesController(
   def testWithCapiQuery(id: Int) = APIAuthAction[JsValue](parse.json) { implicit request =>
     request.body.validate[TestRuleCapiQuery].asEither match {
       case Right(query) =>
-        DbRuleDraft.find(id) match {
+        DbRuleDraft.findById(id) match {
           case Some(rule) =>
             val matchStream = ruleTesting.testRuleWithCapiQuery(rule, query)
             Ok.chunked(matchStream.map(record => JsonHelpers.toJsonSeq(record)))
