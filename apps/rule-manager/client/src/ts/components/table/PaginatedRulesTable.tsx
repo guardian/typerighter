@@ -1,10 +1,4 @@
-import React, {
-	useContext,
-	useEffect,
-	useMemo,
-	useReducer,
-	useState,
-} from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { PaginatedRuleData, SortColumns } from '../hooks/useRules';
 import { BaseRule, DraftRule } from '../hooks/useRule';
 import {
@@ -28,17 +22,11 @@ import { EuiDataGridToolBarVisibilityOptions } from '@elastic/eui/src/components
 import { useEuiFontSize } from '@elastic/eui/src/global_styling/mixins/_typography';
 import { useNavigate } from 'react-router-dom';
 import { ruleTypeOptions } from '../RuleContent';
+import { RowAction } from '../hooks/useRuleSelection';
 
 type EditRuleButtonProps = {
 	editIsEnabled: boolean;
 };
-type RowState = Set<number>;
-type RowAction =
-	| { type: 'add'; id: number }
-	| { type: 'delete'; id: number }
-	| { type: 'set'; id: number }
-	| { type: 'clear' }
-	| { type: 'selectAll' };
 
 const TagWrapContainer = styled.div`
 	& > span {
@@ -165,47 +153,20 @@ export const PaginatedRulesTable = ({
 	setPageIndex,
 	sortColumns,
 	setSortColumns,
-	onSelectionChanged,
+	ruleSelection,
+	setRuleSelection,
 }: {
 	ruleData: PaginatedRuleData;
 	isLoading: boolean;
 	canEditRule: boolean;
-	onSelectionChanged: (rows: RowState) => void;
+	ruleSelection: Set<number>;
+	setRuleSelection: (action: RowAction) => void;
 	pageIndex: number;
 	setPageIndex: (index: number) => void;
 	sortColumns: SortColumns;
 	setSortColumns: (columns: SortColumns) => void;
 }) => {
 	const { tags } = useContext(TagsContext);
-
-	const [rowSelection, setRowSelection] = useReducer(
-		(selectedRows: RowState, action: RowAction): RowState => {
-			switch (action.type) {
-				case 'set': {
-					return new Set([action.id]);
-				}
-				case 'add': {
-					const nextRowSelection = new Set(selectedRows);
-					nextRowSelection.add(action.id);
-					return nextRowSelection;
-				}
-				case 'delete': {
-					const nextRowSelection = new Set(selectedRows);
-					nextRowSelection.delete(action.id);
-					return nextRowSelection;
-				}
-				case 'clear': {
-					return new Set();
-				}
-				case 'selectAll': {
-					return selectedRows.size === ruleData.data.length
-						? new Set()
-						: new Set(ruleData.data.map((rule) => rule.id as number));
-				}
-			}
-		},
-		new Set<number>(),
-	);
 
 	const getRuleAtRowIndex = (rowIndex: number) =>
 		ruleData.data[rowIndex - pagination.pageIndex * pagination.pageSize];
@@ -214,10 +175,6 @@ export const PaginatedRulesTable = ({
 		columns.map((_) => _.id),
 	);
 
-	useEffect(() => {
-		onSelectionChanged(rowSelection);
-	}, [rowSelection]);
-
 	const toolbarVisibility: EuiDataGridToolBarVisibilityOptions = useMemo(
 		() => ({
 			additionalControls: {
@@ -225,15 +182,15 @@ export const PaginatedRulesTable = ({
 					append: (
 						<ToolbarText>
 							{ruleData.data.length} of {ruleData.total.toLocaleString()} rules
-							{rowSelection.size > 1 && (
-								<span>, {rowSelection.size} selected</span>
+							{ruleSelection.size > 1 && (
+								<span>, {ruleSelection.size} selected</span>
 							)}
 						</ToolbarText>
 					),
 				},
 			},
 		}),
-		[rowSelection, ruleData],
+		[ruleSelection, ruleData],
 	);
 
 	const leadingColumns: EuiDataGridControlColumn[] = useMemo(
@@ -244,8 +201,8 @@ export const PaginatedRulesTable = ({
 				headerCellRender: () => (
 					<EuiCheckbox
 						id="select-all"
-						checked={rowSelection.size === ruleData.data.length}
-						onChange={() => setRowSelection({ type: 'selectAll' })}
+						checked={ruleSelection.size === ruleData.data.length}
+						onChange={() => setRuleSelection({ type: 'selectAll' })}
 					/>
 				),
 				headerCellProps: { className: 'eui-textCenter' },
@@ -255,13 +212,15 @@ export const PaginatedRulesTable = ({
 						return <EuiSkeletonText />;
 					}
 
-					const isSelected = !!rule.id && rowSelection.has(rule.id);
+					const isSelected = !!rule.id && ruleSelection.has(rule.id);
 					const type = isSelected ? 'delete' : 'add';
 					return (
 						<EuiCheckbox
 							id={`select-${rule.id}`}
 							checked={isSelected}
-							onChange={() => rule.id && setRowSelection({ type, id: rule.id })}
+							onChange={() =>
+								rule.id && setRuleSelection({ type, id: rule.id })
+							}
 						/>
 					);
 				},
@@ -269,7 +228,7 @@ export const PaginatedRulesTable = ({
 				footerCellProps: { className: 'eui-textCenter' },
 			},
 		],
-		[ruleData, rowSelection, setRowSelection],
+		[ruleData, ruleSelection, setRuleSelection],
 	);
 
 	const trailingColumns: EuiDataGridControlColumn[] = useMemo(
@@ -320,9 +279,9 @@ export const PaginatedRulesTable = ({
 							<EditRule
 								editIsEnabled={canEditRule}
 								editRule={() =>
-									setRowSelection({
+									setRuleSelection({
 										type: 'set',
-										id: getRuleAtRowIndex(rowIndex).id!,
+										ids: [getRuleAtRowIndex(rowIndex).id!],
 									})
 								}
 								rule={getRuleAtRowIndex(rowIndex)}
@@ -336,7 +295,7 @@ export const PaginatedRulesTable = ({
 					),
 			},
 		],
-		[isLoading, ruleData, setRowSelection, pageIndex, canEditRule, tags],
+		[isLoading, ruleData, setRuleSelection, pageIndex, canEditRule, tags],
 	);
 
 	const renderCellValue = useMemo(
@@ -403,7 +362,7 @@ export const PaginatedRulesTable = ({
 		}
 
 		const rowClasses: Record<number, string> = {};
-		rowSelection.forEach((ruleId) => {
+		ruleSelection.forEach((ruleId) => {
 			const rowIndex =
 				ruleData.data.findIndex((rule) => rule?.id === ruleId) +
 				pagination.pageIndex * pagination.pageSize;
@@ -418,7 +377,7 @@ export const PaginatedRulesTable = ({
 		return {
 			rowClasses,
 		};
-	}, [rowSelection, pagination, isLoading]);
+	}, [ruleSelection, pagination, isLoading]);
 
 	return (
 		<PaginatedRulesTableContainer>

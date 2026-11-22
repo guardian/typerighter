@@ -7,6 +7,7 @@ import {
 	EuiToolTip,
 	EuiSpacer,
 	EuiComboBox,
+	EuiResizableContainer,
 } from '@elastic/eui';
 import { SortColumns, useRules } from '../hooks/useRules';
 import { StandaloneRuleForm } from '../RuleForm';
@@ -18,8 +19,15 @@ import { EuiFieldSearch } from '@elastic/eui/src/components/form/field_search';
 import { PaginatedRulesTable } from '../table/PaginatedRulesTable';
 import { useDebouncedValue } from '../hooks/useDebounce';
 import { FullHeightContentWithFixedHeader } from '../layout/FullHeightContentWithFixedHeader';
-import { Tag, TagsContext } from '../context/tags';
+import { TagsContext } from '../context/tags';
 import { ruleTypeOptions } from '../RuleContent';
+import { css } from '@emotion/react';
+import {
+	useArrayParam,
+	useSetParam,
+	useStringParam,
+} from '../hooks/useRuleSearchParams';
+import { useRuleSelection } from '../hooks/useRuleSelection';
 
 export const useCreateEditPermissions = () => {
 	const permissions = useContext(PageContext).permissions;
@@ -32,21 +40,50 @@ const ruleTypeOptionsWithId = ruleTypeOptions.map((opt) => ({
 	value: opt.id,
 }));
 
+const queryStrParamKey = 'queryStr';
+const tagIdsParamKey = 'tagIds';
+const ruleTypeOptionsParamKey = 'ruleTypeOptions';
+const ruleSelectionParamKey = 'selectedRules';
+
 export const Rules = () => {
-	const [queryStr, setQueryStr] = useState<string>('');
-	const [selectedRuleTypeOptions, setSelectedRuleTypeOptions] = useState<
-		{ label: string; value: string }[]
-	>([]);
-	const [selectedTags, setSelectedTags] = useState<
-		{ label: string; value: number }[]
-	>([]);
+	const [queryStr, setQueryStr] = useStringParam(queryStrParamKey);
+	const [ruleTypeOptions, setRuleTypeOptions] = useArrayParam(
+		ruleTypeOptionsParamKey,
+	);
+	const [tagIds, setTagIds] = useArrayParam(tagIdsParamKey, Number, String);
+	const [selectedRules, setSelectedRules] = useSetParam(
+		ruleSelectionParamKey,
+		Number,
+		String,
+	);
+
 	const { tags } = useContext(TagsContext);
+
+	const selectedRuleTypeOptions = useMemo(
+		() =>
+			ruleTypeOptions.flatMap((optionValue) =>
+				ruleTypeOptionsWithId.filter(({ value }) => value == optionValue),
+			),
+		[ruleTypeOptionsWithId, ruleTypeOptions],
+	);
+
+	const selectedTags = useMemo(
+		() =>
+			tagIds.flatMap((optionValue) =>
+				tags[optionValue]
+					? [{ value: optionValue, label: tags[optionValue].name }]
+					: [],
+			),
+		[tags, tagIds],
+	);
 	const tagOptions = useMemo(
 		() =>
 			Object.values(tags).map((tag) => ({ label: tag.name, value: tag.id })),
 		[tags],
 	);
+
 	const debouncedQueryStr = useDebouncedValue(queryStr, 200);
+
 	const {
 		ruleData,
 		isLoading,
@@ -58,6 +95,24 @@ export const Rules = () => {
 		refreshDictionaryRules,
 	} = useRules();
 
+	const [ruleSelection, setRuleSelection] = useRuleSelection(
+		selectedRules,
+		ruleData,
+	);
+
+	useEffect(() => {
+		if (isLoading) {
+			return;
+		}
+
+		const selectedRuleIdsInMemory = [...selectedRules].filter((ruleId) =>
+			ruleData?.data.some((rule) => rule.id === ruleId),
+		);
+		if (selectedRuleIdsInMemory.length !== selectedRules.size) {
+			setRuleSelection({ type: 'set', ids: selectedRuleIdsInMemory  });
+		}
+	}, [ruleData, ruleSelection, isLoading]);
+
 	const [formMode, setFormMode] = useState<'closed' | 'create' | 'edit'>(
 		'closed',
 	);
@@ -66,7 +121,6 @@ export const Rules = () => {
 	const [currentRuleId, setCurrentRuleId] = useState<number | undefined>(
 		undefined,
 	);
-	const [rowSelection, setRowSelection] = useState<Set<number>>(new Set());
 	const { getFeatureSwitchValue } = useContext(FeatureSwitchesContext);
 	const hasCreatePermissions = useCreateEditPermissions();
 
@@ -80,24 +134,24 @@ export const Rules = () => {
 			pageIndex,
 			debouncedQueryStr,
 			sortColumns,
-			selectedTags.map((_) => _.value),
-			selectedRuleTypeOptions.map((_) => _.value),
+			tagIds,
+			ruleTypeOptions,
 		);
-	}, [
-		pageIndex,
-		debouncedQueryStr,
-		sortColumns,
-		selectedTags,
-		selectedRuleTypeOptions,
-	]);
+	}, [pageIndex, debouncedQueryStr, sortColumns, tagIds, ruleTypeOptions]);
 
 	useEffect(() => {
-		if (rowSelection.size === 0) {
+		if (selectedRules.size === 0) {
 			setFormMode('closed');
 		}
-	}, [rowSelection]);
+	}, [selectedRules]);
 
-	const rowSelectionArray = useMemo(() => [...rowSelection], [rowSelection]);
+	useEffect(() => {
+		setSelectedRules(ruleSelection);
+		if (ruleSelection.size === 1) {
+			setCurrentRuleId([...ruleSelection].pop());
+		}
+		setFormMode('edit');
+	}, [ruleSelection]);
 
 	const tableHeader = (
 		<div>
@@ -168,9 +222,11 @@ export const Rules = () => {
 							placeholder="Filter by rule type"
 							options={ruleTypeOptionsWithId}
 							selectedOptions={selectedRuleTypeOptions}
-							onChange={(ids) =>
-								setSelectedRuleTypeOptions(
-									ids as { label: string; value: string }[],
+							onChange={(ruleTypeOptions) =>
+								setRuleTypeOptions(
+									ruleTypeOptions.flatMap(({ value }) =>
+										value ? [value] : [],
+									),
 								)
 							}
 						/>
@@ -179,8 +235,10 @@ export const Rules = () => {
 							placeholder="Filter by tag"
 							options={tagOptions}
 							selectedOptions={selectedTags}
-							onChange={(ids) =>
-								setSelectedTags(ids as { label: string; value: number }[])
+							onChange={(tagOptions) =>
+								setTagIds(
+									tagOptions.flatMap(({ value }) => (value ? [value] : [])),
+								)
 							}
 						/>
 					</EuiFlexGroup>
@@ -213,13 +271,8 @@ export const Rules = () => {
 					isLoading={isLoading}
 					ruleData={ruleData}
 					canEditRule={hasCreatePermissions}
-					onSelectionChanged={(rows) => {
-						setRowSelection(rows);
-						if (rows.size === 1) {
-							setCurrentRuleId([...rows].pop());
-						}
-						setFormMode('edit');
-					}}
+					ruleSelection={ruleSelection}
+					setRuleSelection={setRuleSelection}
 					pageIndex={pageIndex}
 					setPageIndex={setPageIndex}
 					sortColumns={sortColumns}
@@ -229,45 +282,70 @@ export const Rules = () => {
 		</>
 	);
 
-	return (
-		<EuiFlexGroup direction="row" style={{ height: '100%' }}>
-			<FullHeightContentWithFixedHeader
-				header={tableHeader}
-				content={tableContent}
-			/>
-			{formMode !== 'closed' && (
-				<EuiFlexItem>
-					{rowSelection.size > 1 ? (
-						<RuleFormBatchEdit
-							onClose={() => {
-								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
-							}}
-							onUpdate={() => fetchRules(pageIndex, queryStr, sortColumns)}
-							ruleIds={rowSelectionArray}
-						/>
-					) : (
-						<StandaloneRuleForm
-							onClose={() => {
-								setFormMode('closed');
-								fetchRules(pageIndex, queryStr, sortColumns);
-							}}
-							onUpdate={(id) => {
-								if (id === currentRuleId) {
-									return;
-								}
+	const formIsOpen = formMode !== 'closed';
 
-								fetchRules(pageIndex, queryStr, sortColumns);
-								setCurrentRuleId(id);
-								if (formMode === 'create') {
-									setFormMode('edit');
-								}
-							}}
-							ruleId={currentRuleId}
+	return (
+		<EuiResizableContainer style={{ height: '100%' }}>
+			{(EuiResizablePanel, EuiResizableButton) => (
+				<>
+					<EuiResizablePanel
+						initialSize={formIsOpen ? 60 : 100}
+						minSize="300px"
+						mode={'collapsible'}
+						paddingSize="none"
+						css={css`
+							padding-right: 8px;
+						`}
+					>
+						<FullHeightContentWithFixedHeader
+							header={tableHeader}
+							content={tableContent}
 						/>
-					)}
-				</EuiFlexItem>
+					</EuiResizablePanel>
+					{...formIsOpen ? [<EuiResizableButton />] : []}
+					<EuiResizablePanel
+						initialSize={formIsOpen ? 40 : 0}
+						minSize="400px"
+						mode="main"
+						paddingSize="none"
+						css={css`
+							padding-left: 8px;
+						`}
+					>
+						{selectedRules.size > 1 ? (
+							<RuleFormBatchEdit
+								onClose={() => {
+									setFormMode('closed');
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns);
+								}}
+								onUpdate={() =>
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns)
+								}
+								ruleIds={selectedRules}
+							/>
+						) : (
+							<StandaloneRuleForm
+								onClose={() => {
+									setFormMode('closed');
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns);
+								}}
+								onUpdate={(id) => {
+									if (id === currentRuleId) {
+										return;
+									}
+
+									fetchRules(pageIndex, debouncedQueryStr, sortColumns);
+									setCurrentRuleId(id);
+									if (formMode === 'create') {
+										setFormMode('edit');
+									}
+								}}
+								ruleId={currentRuleId}
+							/>
+						)}
+					</EuiResizablePanel>
+				</>
 			)}
-		</EuiFlexGroup>
+		</EuiResizableContainer>
 	);
 };
