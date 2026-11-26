@@ -61,7 +61,6 @@ val commonSettings = Seq(
   },
   // Necessary to override json to resolve vulnerabilities introduced by languagetool-core
   dependencyOverrides ++= Seq("org.json" % "json" % "20231013"),
-  dependencyOverrides ++= Seq("com.google.guava" % "guava" % "32.1.3-jre"),
   libraryDependencies ++= Seq(
     "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion,
     "net.logstash.logback" % "logstash-logback-encoder" % "7.2",
@@ -89,7 +88,9 @@ val commonSettings = Seq(
     // transitive dependency on jackson-databind introduced by our AWS
     // dependencies.
     "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.0",
-    "org.apache.thrift" % "libthrift" % "0.23.0" // to override vulnerable version 0.22
+    "org.apache.thrift" % "libthrift" % "0.23.0", // to override vulnerable version 0.22
+    // Addressing guava vulnerability below 33.7.2
+    "com.google.guava" % "guava" % "33.8.0-jre"
   ),
   libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
   checkJackson := {
